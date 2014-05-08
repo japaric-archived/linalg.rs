@@ -1,16 +1,12 @@
 use blas::ffi;
-use mat::Mat;
 use num::complex::Cmplx;
-use self::traits::{ArrayDot,ArrayNorm2,ArrayScale};
+use self::traits::{ArrayNorm2,ArrayScale};
 use std::fmt::Show;
-use std::iter::AdditiveIterator;
 use std::num::one;
 use std::slice::Items;
 use std::unstable::simd::{f32x4,f64x2};
 // FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
-// FIXME mozilla/rust#6515 Use std Index
-use traits::{AddAssign,Index,Iterable,MulAssign,SubAssign,UnsafeIndex};
-use vec::Vect;
+use traits::{AddAssign,Iterable,MulAssign,SubAssign};
 
 pub mod traits;
 
@@ -71,6 +67,7 @@ impl<
     }
 }
 
+// XXX repeated macro, how to DRY?
 macro_rules! assert_shape {
     ($method:ident, $op:tt) => ({
         assert!(self.shape() == rhs.shape(),
@@ -82,6 +79,7 @@ macro_rules! assert_shape {
     })
 }
 
+// AddAssign
 // FIXME mozilla/rust#7059 convert to generic fallback
 impl<
     S: Clone + Eq + Show
@@ -124,39 +122,7 @@ add_assign!(f64, daxpy_)
 add_assign!(Cmplx<f32>, caxpy_)
 add_assign!(Cmplx<f64>, zaxpy_)
 
-// ArrayDot: Vect . Vect
-// FIXME mozilla/rust#7059 convert to generic fallback
-impl
-ArrayDot<Vect<int>, int>
-for Vect<int> {
-    fn dot(&self, rhs: &Vect<int>) -> int {
-        assert_shape!(dot, .)
-
-        self.iter().zip(rhs.iter()).map(|(lhs, rhs)| lhs.mul(rhs)).sum()
-    }
-}
-
-macro_rules! vector_dot {
-    ($ty:ty, $ffi:ident) => {
-        impl
-        ArrayDot<Vect<$ty>, $ty>
-        for Vect<$ty> {
-            fn dot(&self, rhs: &Vect<$ty>) -> $ty {
-                assert_shape!(dot, .)
-
-                unsafe {
-                    ffi::$ffi(&(self.len() as int),
-                              self.as_ptr(), &1,
-                              rhs.as_ptr(), &1)
-                }
-            }
-        }
-    }
-}
-
-vector_dot!(f32, sdot_)
-vector_dot!(f64, ddot_)
-
+// ArrayNorm2
 macro_rules! norm2 {
     ($inp:ty, $out:ty, $ffi:ident) => {
         impl<
@@ -179,6 +145,7 @@ norm2!(f64, f64, dnrm2_)
 norm2!(Cmplx<f32>, f32, scnrm2_)
 norm2!(Cmplx<f64>, f64, dznrm2_)
 
+// ArrayScale
 // FIXME mozilla/rust#7059 convert to generic fallback
 impl<
     S
@@ -214,6 +181,7 @@ scale!(f64, dscal_)
 scale!(Cmplx<f32>, cscal_)
 scale!(Cmplx<f64>, zscal_)
 
+// Container
 impl<
     S,
     T
@@ -225,58 +193,7 @@ for Array<S, T> {
     }
 }
 
-impl<
-    T
-> Index<(uint, uint), T>
-for Mat<T> {
-    #[inline]
-    fn index<'a>(&'a self, index: &(uint, uint)) -> &'a T {
-        let &(row, col) = index;
-        let (nrows, ncols) = self.shape();
-
-        assert!(row < nrows && col < ncols,
-                "index: out of bounds: {} of {}", index, self.shape());
-
-        unsafe { self.data.as_slice().unsafe_ref(row * ncols + col) }
-    }
-}
-
-impl<
-    T
-> UnsafeIndex<(uint, uint), T>
-for Mat<T> {
-    #[inline]
-    unsafe fn unsafe_index<'a>(&'a self, index: &(uint, uint)) -> &'a T {
-        let &(row, col) = index;
-        let (_, ncols) = self.shape();
-
-        self.data.as_slice().unsafe_ref(row * ncols + col)
-    }
-}
-
-impl<
-    T
-> Index<uint, T>
-for Vect<T> {
-    #[inline]
-    fn index<'a>(&'a self, index: &uint) -> &'a T {
-        assert!(*index < self.len(),
-                "index: out of bounds: {} of {}", index, self.len());
-
-        unsafe { self.unsafe_index(index) }
-    }
-}
-
-impl<
-    T
-> UnsafeIndex<uint, T>
-for Vect<T> {
-    #[inline]
-    unsafe fn unsafe_index<'a>(&'a self, index: &uint) -> &'a T {
-        self.data.as_slice().unsafe_ref(*index)
-    }
-}
-
+// Iterable
 impl<
     'a,
     S,
@@ -288,6 +205,9 @@ for Array<S, T> {
         self.data.iter()
     }
 }
+
+// MulAssign
+// TODO specialized MulAssign impl for Cmplx<f32> and Cmplx<f64>
 
 // FIXME mozilla/rust#7059 convert to generic fallback
 impl<
@@ -340,8 +260,7 @@ macro_rules! mul_assign {
 mul_assign!(f32, 4, f32x4)
 mul_assign!(f64, 2, f64x2)
 
-// TODO specialized MulAssign impl for Cmplx<f32> and Cmplx<f64>
-
+// SubAssign
 // FIXME mozilla/rust#7059 convert to generic fallback
 impl<
     S: Clone + Eq + Show

@@ -2,6 +2,8 @@ use array::Array;
 use rand::Rng;
 use rand::distributions::IndependentSample;
 use std::num::{One,Zero,one,zero};
+// FIXME mozilla/rust#6515 Use std Index
+use traits::{Index,UnsafeIndex};
 
 pub type Mat<T> = Array<(uint, uint), T>;
 
@@ -52,4 +54,35 @@ pub fn rand<
 #[inline]
 pub fn zeros<T: Clone + Zero>(size: (uint, uint)) -> Mat<T> {
     from_elem(size, zero())
+}
+
+// Index
+impl<
+    T
+> Index<(uint, uint), T>
+for Mat<T> {
+    #[inline]
+    fn index<'a>(&'a self, index: &(uint, uint)) -> &'a T {
+        let &(row, col) = index;
+        let (nrows, ncols) = self.shape();
+
+        assert!(row < nrows && col < ncols,
+                "index: out of bounds: {} of {}", index, self.shape());
+
+        unsafe { self.as_slice().unsafe_ref(row * ncols + col) }
+    }
+}
+
+// UnsafeIndex
+impl<
+    T
+> UnsafeIndex<(uint, uint), T>
+for Mat<T> {
+    #[inline]
+    unsafe fn unsafe_index<'a>(&'a self, index: &(uint, uint)) -> &'a T {
+        let &(row, col) = index;
+        let (_, ncols) = self.shape();
+
+        self.as_slice().unsafe_ref(row * ncols + col)
+    }
 }
