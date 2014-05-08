@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/japaric/linalg.rs.svg?branch=master)](https://travis-ci.org/japaric/linalg.rs)
+
 # What is this?
 
 An **experimental** linear algebra library with
