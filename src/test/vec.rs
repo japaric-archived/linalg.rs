@@ -2,7 +2,9 @@ use array::traits::{ArrayDot,ArrayNorm2,ArrayScale};
 use num::complex::Cmplx;
 use rand::distributions::range::Range;
 use rand::task_rng;
-use traits::{AddAssign,Iterable,MulAssign,SubAssign};
+// FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
+// FIXME mozilla/rust#6515 Use std Index
+use traits::{AddAssign,Index,Iterable,MulAssign,SubAssign};
 use vec;
 
 // FIXME mozilla/rust#12249 DRYer benchmarks using macros
@@ -203,6 +205,26 @@ macro_rules! scale_cmplx {
 
 scale_cmplx!(scale_cscal, f32)
 scale_cmplx!(scale_zscal, f64)
+
+// Index
+#[test]
+fn index() {
+    sweep_size!({
+        let v = vec::from_fn(n, |i| i);
+
+        for i in range(0, n) {
+            assert_eq!(v.index(&i), &i);
+        }
+    })
+}
+
+#[test]
+#[should_fail]
+fn out_of_bounds() {
+    let v = vec::zeros::<int>(10);
+
+    v.index(&10);
+}
 
 // MulAssign
 macro_rules! mul_assign {

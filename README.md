@@ -32,6 +32,7 @@ There are no docs!
   * Bulk ops
     * all
     * any
+    * index
     * iter
     * norm2
       * BLAS accelerated: `f32`, `f64`, `Cmplx<f32>`, `Cmplx<f64>`

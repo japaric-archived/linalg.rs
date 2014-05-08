@@ -3,7 +3,9 @@ use mat;
 use num::complex::Cmplx;
 use rand::distributions::range::Range;
 use rand::task_rng;
-use traits::{AddAssign,Iterable,MulAssign,SubAssign};
+// FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
+// FIXME mozilla/rust#6515 Use std Index
+use traits::{AddAssign,Index,Iterable,MulAssign,SubAssign};
 
 // FIXME mozilla/rust#12249 DRYer benchmarks using macros
 macro_rules! sweep_size {
@@ -187,6 +189,36 @@ macro_rules! scale_cmplx {
 
 scale_cmplx!(scale_cscal, f32)
 scale_cmplx!(scale_zscal, f64)
+
+// Index
+#[test]
+#[should_fail]
+fn col_out_of_bounds() {
+    let v = mat::zeros::<int>((10, 10));
+
+    v.index(&(0, 10));
+}
+
+#[test]
+fn index() {
+    sweep_size!({
+        let v = mat::from_fn((n, n), |i, j| i + j);
+
+        for i in range(0, n) {
+            for j in range(0, n) {
+                assert_eq!(*v.index(&(i, j)), i + j);
+            }
+        }
+    })
+}
+
+#[test]
+#[should_fail]
+fn row_out_of_bounds() {
+    let v = mat::zeros::<int>((10, 10));
+
+    v.index(&(10, 0));
+}
 
 // MulAssign
 macro_rules! mul_assign {

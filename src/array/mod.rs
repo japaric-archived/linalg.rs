@@ -1,4 +1,5 @@
 use blas::ffi;
+use mat::Mat;
 use num::complex::Cmplx;
 use self::traits::{ArrayDot,ArrayNorm2,ArrayScale};
 use std::fmt::Show;
@@ -7,7 +8,8 @@ use std::num::one;
 use std::slice::Items;
 use std::unstable::simd::{f32x4,f64x2};
 // FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
-use traits::{AddAssign,Iterable,MulAssign,SubAssign};
+// FIXME mozilla/rust#6515 Use std Index
+use traits::{AddAssign,Index,Iterable,MulAssign,SubAssign,UnsafeIndex};
 use vec::Vect;
 
 pub mod traits;
@@ -220,6 +222,58 @@ for Array<S, T> {
     #[inline]
     fn len(&self) -> uint {
         self.data.len()
+    }
+}
+
+impl<
+    T
+> Index<(uint, uint), T>
+for Mat<T> {
+    #[inline]
+    fn index<'a>(&'a self, index: &(uint, uint)) -> &'a T {
+        let &(row, col) = index;
+        let (nrows, ncols) = self.shape();
+
+        assert!(row < nrows && col < ncols,
+                "index: out of bounds: {} of {}", index, self.shape());
+
+        unsafe { self.data.as_slice().unsafe_ref(row * ncols + col) }
+    }
+}
+
+impl<
+    T
+> UnsafeIndex<(uint, uint), T>
+for Mat<T> {
+    #[inline]
+    unsafe fn unsafe_index<'a>(&'a self, index: &(uint, uint)) -> &'a T {
+        let &(row, col) = index;
+        let (_, ncols) = self.shape();
+
+        self.data.as_slice().unsafe_ref(row * ncols + col)
+    }
+}
+
+impl<
+    T
+> Index<uint, T>
+for Vect<T> {
+    #[inline]
+    fn index<'a>(&'a self, index: &uint) -> &'a T {
+        assert!(*index < self.len(),
+                "index: out of bounds: {} of {}", index, self.len());
+
+        unsafe { self.unsafe_index(index) }
+    }
+}
+
+impl<
+    T
+> UnsafeIndex<uint, T>
+for Vect<T> {
+    #[inline]
+    unsafe fn unsafe_index<'a>(&'a self, index: &uint) -> &'a T {
+        self.data.as_slice().unsafe_ref(*index)
     }
 }
 
