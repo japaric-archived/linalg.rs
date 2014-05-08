@@ -3,8 +3,9 @@ use num::complex::Cmplx;
 use std::fmt::Show;
 use std::num::one;
 use std::slice::Items;
-// FIXME mozilla/rust#5992 Use std {Add,Sub}Assign
-use traits::{AddAssign,Iterable,SubAssign};
+use std::unstable::simd::{f32x4,f64x2};
+// FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
+use traits::{AddAssign,Iterable,MulAssign,SubAssign};
 
 #[deriving(Eq, Show)]
 pub struct Array<S, T> {
@@ -149,6 +150,59 @@ sub_assign!(f32, saxpy_)
 sub_assign!(f64, daxpy_)
 sub_assign!(Cmplx<f32>, caxpy_)
 sub_assign!(Cmplx<f64>, zaxpy_)
+
+// FIXME mozilla/rust#7059 convert to generic fallback
+impl<
+    S: Clone + Eq + Show
+> MulAssign<Array<S, int>>
+for Array<S, int> {
+    #[inline]
+    fn mul_assign(&mut self, rhs: &Array<S, int>) {
+        assert_shape!(mul_assign, *=)
+
+        for (lhs, rhs) in self.data.mut_iter().zip(rhs.iter()) {
+            *lhs = *lhs * *rhs;
+        }
+    }
+}
+
+// TODO fork-join parallelism?
+macro_rules! mul_assign {
+    ($ty:ty, $stride:expr, $simd:ty) => {
+        impl<
+            S: Clone + Eq + Show
+        > MulAssign<Array<S, $ty>>
+        for Array<S, $ty> {
+            #[inline]
+            fn mul_assign(&mut self, rhs: &Array<S, $ty>) {
+                assert_shape!(mul_assign, *=)
+
+                let n = self.len() as int / $stride;
+                let p_self = self.as_mut_ptr();
+                let p_rhs = rhs.as_ptr();
+                let simd_p_self = p_self as *mut $simd;
+                let simd_p_rhs = p_rhs as *$simd;
+
+                for i in range(0, n) {
+                    unsafe {
+                        *simd_p_self.offset(i) *= *simd_p_rhs.offset(i);
+                    }
+                }
+
+                for i in range($stride * n, self.len() as int) {
+                    unsafe {
+                        *p_self.offset(i) *= *p_rhs.offset(i);
+                    }
+                }
+            }
+        }
+    }
+}
+
+mul_assign!(f32, 4, f32x4)
+mul_assign!(f64, 2, f64x2)
+
+// TODO specialized impl for Cmplx<f32> and Cmplx<f64>
 
 impl<
     S,

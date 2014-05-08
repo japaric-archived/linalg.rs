@@ -2,7 +2,7 @@ use mat;
 use num::complex::Cmplx;
 use rand::distributions::range::Range;
 use rand::task_rng;
-use traits::{AddAssign,Iterable,SubAssign};
+use traits::{AddAssign,Iterable,MulAssign,SubAssign};
 
 // FIXME mozilla/rust#12249 DRYer benchmarks using macros
 macro_rules! sweep_size {
@@ -137,3 +137,23 @@ macro_rules! sub_assign_cmplx {
 sub_assign_cmplx!(sub_assign_caxpy, f32)
 sub_assign_cmplx!(sub_assign_zaxpy, f64)
 
+macro_rules! mul_assign {
+    ($name:ident, $ty:ty) => {
+        #[test]
+        fn $name() {
+            sweep_size!({
+                let mut got = mat::from_elem((n, n), 2 as $ty);
+                let v = mat::from_elem((n, n), 3 as $ty);
+                let expected = mat::from_elem((n, n), 6 as $ty);
+
+                got.mul_assign(&v);
+
+                assert_eq!((n, got), (n, expected));
+            })
+        }
+    }
+}
+
+mul_assign!(mul_assign_fallback, int)
+mul_assign!(mul_assign_f32x4, f32)
+mul_assign!(mul_assign_f64x2, f64)

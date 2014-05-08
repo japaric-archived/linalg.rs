@@ -24,6 +24,8 @@ There are no docs!
   * Element-wise ops
     * add_assign
       * BLAS accelerated: `f32`, `f64`, `Cmplx<f32>`, `Cmplx<f64>`
+    * mul_assign
+      * SIMD accelerated: `f32`, `f64`
     * sub_assign
       * BLAS accelerated: `f32`, `f64`, `Cmplx<f32>`, `Cmplx<f64>`
   * Bulk ops
