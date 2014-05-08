@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "Checking if any rust file has a line longer than 79 characters"
 
