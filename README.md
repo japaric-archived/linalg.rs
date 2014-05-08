@@ -32,6 +32,8 @@ There are no docs!
     * all
     * any
     * iter
+    * norm2
+      * BLAS accelerated: `f32`, `f64`, `Cmplx<f32>`, `Cmplx<f64>`
     * scale
       * BLAS accelerated: `f32`, `f64`, `Cmplx<f32>`, `Cmplx<f64>`
 

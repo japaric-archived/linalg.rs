@@ -45,10 +45,10 @@ extern {
                  x: *f32, inc_x: *int) -> f32;
     pub fn dnrm2_(N: *int,
                  x: *f64, inc_x: *int) -> f64;
-    pub fn cnrm2_(N: *int,
-                 x: *Cmplx<f32>, inc_x: *int) -> Cmplx<f32>;
-    pub fn znrm2_(N: *int,
-                 x: *Cmplx<f64>, inc_x: *int) -> Cmplx<f64>;
+    pub fn scnrm2_(N: *int,
+                   x: *Cmplx<f32>, inc_x: *int) -> f32;
+    pub fn dznrm2_(N: *int,
+                   x: *Cmplx<f64>, inc_x: *int) -> f64;
 
     // X <- alpha * X
     pub fn sscal_(N: *int, alpha: *f32,

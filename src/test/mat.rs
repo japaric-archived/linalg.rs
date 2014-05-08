@@ -1,4 +1,4 @@
-use array::traits::ArrayScale;
+use array::traits::{ArrayNorm2,ArrayScale};
 use mat;
 use num::complex::Cmplx;
 use rand::distributions::range::Range;
@@ -95,6 +95,44 @@ macro_rules! add_assign_cmplx {
 
 add_assign_cmplx!(add_assign_caxpy, f32)
 add_assign_cmplx!(add_assign_zaxpy, f64)
+
+// ArrayNorm2
+macro_rules! norm2 {
+    ($name:ident, $ty:ty) => {
+        #[test]
+        fn $name() {
+            sweep_size!({
+                let v = mat::ones::<$ty>((n, n));
+                let expected = n as $ty;
+                let got = v.norm2();
+
+                assert_eq!((n, got), (n, expected));
+            })
+        }
+    }
+}
+
+norm2!(norm2_snrm, f32)
+norm2!(norm2_dnrm, f64)
+
+macro_rules! norm2_cmplx {
+    ($name:ident, $ty:ty) => {
+        #[test]
+        fn $name() {
+            sweep_size!({
+                let v =
+                    mat::from_elem((n, n), Cmplx::new(0 as $ty, 1 as $ty));
+                let expected = n as $ty;
+                let got = v.norm2();
+
+                assert_eq!((n, got), (n, expected));
+            })
+        }
+    }
+}
+
+norm2_cmplx!(norm2_scnrm2, f32)
+norm2_cmplx!(norm2_dznrm2, f64)
 
 // ArrayScale
 macro_rules! scale {

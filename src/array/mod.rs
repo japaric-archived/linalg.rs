@@ -1,6 +1,6 @@
 use blas::ffi;
 use num::complex::Cmplx;
-use self::traits::ArrayScale;
+use self::traits::{ArrayNorm2,ArrayScale};
 use std::fmt::Show;
 use std::num::one;
 use std::slice::Items;
@@ -99,8 +99,8 @@ macro_rules! add_assign {
 
                 unsafe {
                     ffi::$ffi(&(self.len() as int), &plus_one,
-                                rhs.as_ptr(), &1,
-                                self.as_mut_ptr(), &1)
+                              rhs.as_ptr(), &1,
+                              self.as_mut_ptr(), &1)
                 }
             }
         }
@@ -111,6 +111,28 @@ add_assign!(f32, saxpy_)
 add_assign!(f64, daxpy_)
 add_assign!(Cmplx<f32>, caxpy_)
 add_assign!(Cmplx<f64>, zaxpy_)
+
+macro_rules! norm2 {
+    ($inp:ty, $out:ty, $ffi:ident) => {
+        impl<
+            S
+        > ArrayNorm2<$out>
+        for Array<S, $inp> {
+            #[inline]
+            fn norm2(&self) -> $out {
+                unsafe {
+                    ffi::$ffi(&(self.len() as int),
+                              self.as_ptr(), &1)
+                }
+            }
+        }
+    }
+}
+
+norm2!(f32, f32, snrm2_)
+norm2!(f64, f64, dnrm2_)
+norm2!(Cmplx<f32>, f32, scnrm2_)
+norm2!(Cmplx<f64>, f64, dznrm2_)
 
 // FIXME mozilla/rust#7059 convert to generic fallback
 impl<
@@ -135,7 +157,7 @@ macro_rules! scale {
             fn scale(&mut self, alpha: $ty) {
                 unsafe {
                     ffi::$ffi(&(self.len() as int), &alpha,
-                                self.as_mut_ptr(), &1)
+                              self.as_mut_ptr(), &1)
                 }
             }
         }
@@ -252,8 +274,8 @@ macro_rules! sub_assign {
 
                 unsafe {
                     ffi::$ffi(&(self.len() as int), &minus_one,
-                                rhs.as_ptr(), &1,
-                                self.as_mut_ptr(), &1)
+                              rhs.as_ptr(), &1,
+                              self.as_mut_ptr(), &1)
                 }
             }
         }
