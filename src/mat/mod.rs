@@ -17,7 +17,7 @@ pub fn from_elem<T: Clone>(shape: (uint, uint), elem: T) -> Mat<T> {
 // TODO fork-join parallelism?
 pub fn from_fn<T>(shape: (uint, uint), op: |uint, uint| -> T) -> Mat<T> {
     let (nrows, ncols) = shape;
-    let mut v = Vec::new();
+    let mut v = Vec::with_capacity(nrows * ncols);
 
     for i in range(0, nrows) {
         for j in range(0, ncols) {
