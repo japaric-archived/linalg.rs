@@ -13,6 +13,7 @@ macro_rules! sweep_size {
     })
 }
 
+// vec
 #[test]
 fn from_elem() {
     sweep_size!({
@@ -45,6 +46,7 @@ fn rand() {
     })
 }
 
+// AddAssign
 macro_rules! add_assign {
     ($name:ident, $ty:ty) => {
         #[test]
@@ -89,6 +91,29 @@ macro_rules! add_assign_cmplx {
 add_assign_cmplx!(add_assign_caxpy, f32)
 add_assign_cmplx!(add_assign_zaxpy, f64)
 
+// MulAssign
+macro_rules! mul_assign {
+    ($name:ident, $ty:ty) => {
+        #[test]
+        fn $name() {
+            sweep_size!({
+                let mut got = vec::from_elem(n, 2 as $ty);
+                let v = vec::from_elem(n, 3 as $ty);
+                let expected = vec::from_elem(n, 6 as $ty);
+
+                got.mul_assign(&v);
+
+                assert_eq!((n, got), (n, expected));
+            })
+        }
+    }
+}
+
+mul_assign!(mul_assign_fallback, int)
+mul_assign!(mul_assign_f32x4, f32)
+mul_assign!(mul_assign_f64x2, f64)
+
+// SubAssign
 macro_rules! sub_assign {
     ($name:ident, $ty:ty) => {
         #[test]
@@ -132,24 +157,3 @@ macro_rules! sub_assign_cmplx {
 
 sub_assign_cmplx!(sub_assign_caxpy, f32)
 sub_assign_cmplx!(sub_assign_zaxpy, f64)
-
-macro_rules! mul_assign {
-    ($name:ident, $ty:ty) => {
-        #[test]
-        fn $name() {
-            sweep_size!({
-                let mut got = vec::from_elem(n, 2 as $ty);
-                let v = vec::from_elem(n, 3 as $ty);
-                let expected = vec::from_elem(n, 6 as $ty);
-
-                got.mul_assign(&v);
-
-                assert_eq!((n, got), (n, expected));
-            })
-        }
-    }
-}
-
-mul_assign!(mul_assign_fallback, int)
-mul_assign!(mul_assign_f32x4, f32)
-mul_assign!(mul_assign_f64x2, f64)
