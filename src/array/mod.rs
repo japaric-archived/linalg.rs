@@ -109,47 +109,28 @@ add_assign!(f64, daxpy_)
 add_assign!(Cmplx<f32>, caxpy_)
 add_assign!(Cmplx<f64>, zaxpy_)
 
-// FIXME mozilla/rust#7059 convert to generic fallback
 impl<
-    S: Clone + Eq + Show
-> SubAssign<Array<S, int>>
-for Array<S, int> {
+    S,
+    T
+> Container
+for Array<S, T> {
     #[inline]
-    fn sub_assign(&mut self, rhs: &Array<S, int>) {
-        assert_shape!(sub_assign, -=)
-
-        for (lhs, rhs) in self.data.mut_iter().zip(rhs.iter()) {
-            *lhs = *lhs - *rhs;
-        }
+    fn len(&self) -> uint {
+        self.data.len()
     }
 }
 
-macro_rules! sub_assign {
-    ($ty:ty, $ffi:ident) => {
-        impl<
-            S: Clone + Eq + Show
-        > SubAssign<Array<S, $ty>>
-        for Array<S, $ty> {
-            #[inline]
-            fn sub_assign(&mut self, rhs: &Array<S, $ty>) {
-                assert_shape!(sub_assign, -=)
-
-                let minus_one = -one::<$ty>();
-
-                unsafe {
-                    ffi::$ffi(&(self.len() as int), &minus_one,
-                                rhs.as_ptr(), &1,
-                                self.as_mut_ptr(), &1)
-                }
-            }
-        }
+impl<
+    'a,
+    S,
+    T
+> Iterable<'a, T, Items<'a, T>>
+for Array<S, T> {
+    #[inline]
+    fn iter(&'a self) -> Items<'a, T> {
+        self.data.iter()
     }
 }
-
-sub_assign!(f32, saxpy_)
-sub_assign!(f64, daxpy_)
-sub_assign!(Cmplx<f32>, caxpy_)
-sub_assign!(Cmplx<f64>, zaxpy_)
 
 // FIXME mozilla/rust#7059 convert to generic fallback
 impl<
@@ -202,27 +183,46 @@ macro_rules! mul_assign {
 mul_assign!(f32, 4, f32x4)
 mul_assign!(f64, 2, f64x2)
 
-// TODO specialized impl for Cmplx<f32> and Cmplx<f64>
+// TODO specialized MulAssign impl for Cmplx<f32> and Cmplx<f64>
 
+// FIXME mozilla/rust#7059 convert to generic fallback
 impl<
-    S,
-    T
-> Container
-for Array<S, T> {
+    S: Clone + Eq + Show
+> SubAssign<Array<S, int>>
+for Array<S, int> {
     #[inline]
-    fn len(&self) -> uint {
-        self.data.len()
+    fn sub_assign(&mut self, rhs: &Array<S, int>) {
+        assert_shape!(sub_assign, -=)
+
+        for (lhs, rhs) in self.data.mut_iter().zip(rhs.iter()) {
+            *lhs = *lhs - *rhs;
+        }
     }
 }
 
-impl<
-    'a,
-    S,
-    T
-> Iterable<'a, T, Items<'a, T>>
-for Array<S, T> {
-    #[inline]
-    fn iter(&'a self) -> Items<'a, T> {
-        self.data.iter()
+macro_rules! sub_assign {
+    ($ty:ty, $ffi:ident) => {
+        impl<
+            S: Clone + Eq + Show
+        > SubAssign<Array<S, $ty>>
+        for Array<S, $ty> {
+            #[inline]
+            fn sub_assign(&mut self, rhs: &Array<S, $ty>) {
+                assert_shape!(sub_assign, -=)
+
+                let minus_one = -one::<$ty>();
+
+                unsafe {
+                    ffi::$ffi(&(self.len() as int), &minus_one,
+                                rhs.as_ptr(), &1,
+                                self.as_mut_ptr(), &1)
+                }
+            }
+        }
     }
 }
+
+sub_assign!(f32, saxpy_)
+sub_assign!(f64, daxpy_)
+sub_assign!(Cmplx<f32>, caxpy_)
+sub_assign!(Cmplx<f64>, zaxpy_)
