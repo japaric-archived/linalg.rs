@@ -1,3 +1,4 @@
+use array::traits::ArrayScale;
 use num::complex::Cmplx;
 use rand::distributions::range::Range;
 use rand::task_rng;
@@ -90,6 +91,48 @@ macro_rules! add_assign_cmplx {
 
 add_assign_cmplx!(add_assign_caxpy, f32)
 add_assign_cmplx!(add_assign_zaxpy, f64)
+
+// ArrayScale
+macro_rules! scale {
+    ($name:ident, $ty:ty) => {
+        #[test]
+        fn $name() {
+            sweep_size!({
+                let mut got = vec::ones::<$ty>(n);
+                let expected = vec::from_elem(n, 2 as $ty);
+
+                got.scale(2 as $ty);
+
+                assert_eq!((n, got), (n, expected));
+            })
+        }
+    }
+}
+
+scale!(scale_fallback, int)
+scale!(scale_sscal, f32)
+scale!(scale_dscal, f64)
+
+macro_rules! scale_cmplx {
+    ($name:ident, $ty:ty) => {
+        #[test]
+        fn $name() {
+            sweep_size!({
+                let mut got =
+                    vec::from_elem(n, Cmplx::new(1 as $ty, 2 as $ty));
+                let expected =
+                    vec::from_elem(n, Cmplx::new(-2 as $ty, 1 as $ty));
+
+                got.scale(Cmplx::new(0 as $ty, 1 as $ty));
+
+                assert_eq!((n, got), (n, expected));
+            })
+        }
+    }
+}
+
+scale_cmplx!(scale_cscal, f32)
+scale_cmplx!(scale_zscal, f64)
 
 // MulAssign
 macro_rules! mul_assign {

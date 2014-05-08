@@ -1,11 +1,14 @@
 use blas::ffi;
 use num::complex::Cmplx;
+use self::traits::ArrayScale;
 use std::fmt::Show;
 use std::num::one;
 use std::slice::Items;
 use std::unstable::simd::{f32x4,f64x2};
 // FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
 use traits::{AddAssign,Iterable,MulAssign,SubAssign};
+
+pub mod traits;
 
 #[deriving(Eq, Show)]
 pub struct Array<S, T> {
@@ -108,6 +111,41 @@ add_assign!(f32, saxpy_)
 add_assign!(f64, daxpy_)
 add_assign!(Cmplx<f32>, caxpy_)
 add_assign!(Cmplx<f64>, zaxpy_)
+
+// FIXME mozilla/rust#7059 convert to generic fallback
+impl<
+    S
+> ArrayScale<int>
+for Array<S, int> {
+    #[inline]
+    fn scale(&mut self, alpha: int) {
+        for x in self.data.mut_iter() {
+            *x = *x * alpha;
+        }
+    }
+}
+
+macro_rules! scale {
+    ($ty:ty, $ffi:ident) => {
+        impl<
+            S
+        > ArrayScale<$ty>
+        for Array<S, $ty> {
+            #[inline]
+            fn scale(&mut self, alpha: $ty) {
+                unsafe {
+                    ffi::$ffi(&(self.len() as int), &alpha,
+                                self.as_mut_ptr(), &1)
+                }
+            }
+        }
+    }
+}
+
+scale!(f32, sscal_)
+scale!(f64, dscal_)
+scale!(Cmplx<f32>, cscal_)
+scale!(Cmplx<f64>, zscal_)
 
 impl<
     S,
