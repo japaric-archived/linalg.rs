@@ -1,4 +1,4 @@
-use array::traits::{ArrayNorm2,ArrayScale};
+use array::traits::{ArrayDot,ArrayNorm2,ArrayScale};
 use num::complex::Cmplx;
 use rand::distributions::range::Range;
 use rand::task_rng;
@@ -103,6 +103,27 @@ macro_rules! add_assign_cmplx {
 
 add_assign_cmplx!(add_assign_caxpy, f32)
 add_assign_cmplx!(add_assign_zaxpy, f64)
+
+// ArrayDot
+macro_rules! dot {
+    ($name:ident, $ty:ty) => {
+        #[test]
+        fn $name() {
+            sweep_size!({
+                let x = vec::ones::<$ty>(n);
+                let y = vec::ones::<$ty>(n);
+                let got = x.dot(&y);
+                let expected = n as $ty;
+
+                assert_eq!((n, got), (n, expected));
+            })
+        }
+    }
+}
+
+dot!(dot_fallback, int)
+dot!(dot_sdot, f32)
+dot!(dot_ddot, f64)
 
 // ArrayNorm2
 macro_rules! norm2 {

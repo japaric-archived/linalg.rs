@@ -9,10 +9,10 @@ macro_rules! scale {
     ($name:ident, $size:expr, $ty:ty) => {
         #[bench]
         fn $name(b: &mut Bencher) {
-            let mut x = mat::ones::<$ty>(($size, $size));
+            let mut m = mat::ones::<$ty>(($size, $size));
 
             b.iter(|| {
-                x.scale(one::<$ty>() + one::<$ty>())
+                m.scale(one::<$ty>() + one::<$ty>())
             })
         }
     }

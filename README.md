@@ -38,6 +38,10 @@ There are no docs!
     * scale
       * BLAS accelerated: `f32`, `f64`, `Cmplx<f32>`, `Cmplx<f64>`
 
+* Vect
+  * dot
+    * BLAS accelerated: `f32`, `f64`
+
 * BLAS
   * FFI
     * Level 1

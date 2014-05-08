@@ -1,12 +1,14 @@
 use blas::ffi;
 use num::complex::Cmplx;
-use self::traits::{ArrayNorm2,ArrayScale};
+use self::traits::{ArrayDot,ArrayNorm2,ArrayScale};
 use std::fmt::Show;
+use std::iter::AdditiveIterator;
 use std::num::one;
 use std::slice::Items;
 use std::unstable::simd::{f32x4,f64x2};
 // FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
 use traits::{AddAssign,Iterable,MulAssign,SubAssign};
+use vec::Vect;
 
 pub mod traits;
 
@@ -119,6 +121,39 @@ add_assign!(f32, saxpy_)
 add_assign!(f64, daxpy_)
 add_assign!(Cmplx<f32>, caxpy_)
 add_assign!(Cmplx<f64>, zaxpy_)
+
+// ArrayDot: Vect . Vect
+// FIXME mozilla/rust#7059 convert to generic fallback
+impl
+ArrayDot<Vect<int>, int>
+for Vect<int> {
+    fn dot(&self, rhs: &Vect<int>) -> int {
+        assert_shape!(dot, .)
+
+        self.iter().zip(rhs.iter()).map(|(lhs, rhs)| lhs.mul(rhs)).sum()
+    }
+}
+
+macro_rules! vector_dot {
+    ($ty:ty, $ffi:ident) => {
+        impl
+        ArrayDot<Vect<$ty>, $ty>
+        for Vect<$ty> {
+            fn dot(&self, rhs: &Vect<$ty>) -> $ty {
+                assert_shape!(dot, .)
+
+                unsafe {
+                    ffi::$ffi(&(self.len() as int),
+                              self.as_ptr(), &1,
+                              rhs.as_ptr(), &1)
+                }
+            }
+        }
+    }
+}
+
+vector_dot!(f32, sdot_)
+vector_dot!(f64, ddot_)
 
 macro_rules! norm2 {
     ($inp:ty, $out:ty, $ffi:ident) => {

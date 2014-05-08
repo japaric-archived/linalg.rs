@@ -1,4 +1,5 @@
 mod add_assign;
+mod dot;
 mod map;
 mod mul_assign;
 mod new;

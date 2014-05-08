@@ -9,10 +9,10 @@ macro_rules! norm2 {
     ($name:ident, $size:expr, $ty:ty) => {
         #[bench]
         fn $name(b: &mut Bencher) {
-            let x = mat::ones::<$ty>(($size, $size));
+            let m = mat::ones::<$ty>(($size, $size));
 
             b.iter(|| {
-                x.norm2()
+                m.norm2()
             })
         }
     }
