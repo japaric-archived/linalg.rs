@@ -21,18 +21,26 @@ impl<
     T
 > Array<S, T> {
     #[inline]
-    pub fn as_ptr(&self) -> *T {
-        self.data.as_ptr()
-    }
-
-    #[inline]
     pub fn as_mut_ptr(&mut self) -> *mut T {
         self.data.as_mut_ptr()
     }
 
     #[inline]
+    pub fn as_ptr(&self) -> *T {
+        self.data.as_ptr()
+    }
+
+    #[inline]
     pub fn as_slice<'a>(&'a self) -> &'a [T] {
         self.data.as_slice()
+    }
+
+    // TODO fork-join parallelism?
+    #[inline]
+    pub fn map(&mut self, op: |&T| -> T) {
+        for x in self.data.mut_iter() {
+            *x = op(x);
+        }
     }
 
     #[inline]

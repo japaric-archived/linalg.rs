@@ -36,6 +36,18 @@ fn from_fn() {
 }
 
 #[test]
+fn map() {
+    sweep_size!({
+        let mut got = vec::zeros::<f32>(n);
+        let expected = vec::ones::<f32>(n);
+
+        got.map(|x| x.cos());
+
+        assert_eq!((n, got), (n, expected));
+    })
+}
+
+#[test]
 fn rand() {
     let between = Range::new(0.0, 1.0);
     let mut rng = task_rng();
