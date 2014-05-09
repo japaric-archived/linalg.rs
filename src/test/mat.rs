@@ -1,5 +1,7 @@
 use array::traits::{ArrayNorm2,ArrayScale,ArrayShape};
-use mat::traits::{MatrixCol,MatrixColIterator,MatrixRow,MatrixRowIterator};
+use std::cmp::min;
+use mat::traits::{MatrixCol,MatrixColIterator,MatrixDiag,MatrixRow,
+                  MatrixRowIterator};
 use mat;
 use num::complex::Cmplx;
 use rand::distributions::range::Range;
@@ -253,6 +255,22 @@ fn col() {
 }
 
 #[test]
+fn iterable_col() {
+    sweep_size!({
+        let m = mat::from_fn(shape, |i, j| i - j);
+
+        for j in range(0, _ncols) {
+            let col = m.col(j);
+            let got = col.iter().map(|&x| x).collect();
+            let expected = Vec::from_fn(_nrows, |i| i - j);
+
+            assert_eq!((shape, got), (shape, expected));
+        }
+    })
+}
+
+// MatrixColIterator
+#[test]
 fn cols() {
     sweep_size!({
         let m = mat::from_fn(shape, |i, j| i - j);
@@ -266,19 +284,39 @@ fn cols() {
     })
 }
 
+// MatrixDiag
 #[test]
-fn iterable_col() {
+fn diag() {
     sweep_size!({
-        let m = mat::from_fn(shape, |i, j| i - j);
+        let m = mat::from_fn(shape, |i, j| j as int - i as int);
 
-        for j in range(0, _ncols) {
-            let col = m.col(j);
-            let got = col.iter().map(|&x| x).collect();
-            let expected = Vec::from_fn(_nrows, |i| i - j);
+        for d in range(-(_nrows as int) + 1, _ncols as int) {
+            let got = m.diag(d).iter().map(|&x| x).collect();
+            let expected = if d > 0 {
+                Vec::from_elem(min(_nrows, _ncols - d as uint), d)
+            } else {
+                Vec::from_elem(min(_nrows + d as uint, _ncols), d)
+            };
 
-            assert_eq!((shape, got), (shape, expected));
+            assert_eq!((shape, d, got), (shape, d, expected))
         }
     })
+}
+
+#[test]
+#[should_fail]
+fn diag_col_out_of_bounds() {
+    let m = mat::ones::<int>((4, 3));
+
+    m.diag(3);
+}
+
+#[test]
+#[should_fail]
+fn diag_row_out_of_bounds() {
+    let m = mat::ones::<int>((4, 3));
+
+    m.diag(-4);
 }
 
 // MatrixRow
@@ -301,11 +339,12 @@ fn row() {
 }
 
 #[test]
-fn rows() {
+fn iterable_row() {
     sweep_size!({
         let m = mat::from_fn(shape, |i, j| i - j);
 
-        for (i, row) in m.rows().enumerate() {
+        for i in range(0, _nrows) {
+            let row = m.row(i);
             let got = row.iter().map(|&x| x).collect();
             let expected = Vec::from_fn(_ncols, |j| i - j);
 
@@ -314,13 +353,13 @@ fn rows() {
     })
 }
 
+// MatrixRowIterator
 #[test]
-fn iterable_row() {
+fn rows() {
     sweep_size!({
         let m = mat::from_fn(shape, |i, j| i - j);
 
-        for i in range(0, _nrows) {
-            let row = m.row(i);
+        for (i, row) in m.rows().enumerate() {
             let got = row.iter().map(|&x| x).collect();
             let expected = Vec::from_fn(_ncols, |j| i - j);
 

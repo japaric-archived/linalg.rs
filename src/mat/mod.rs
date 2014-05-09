@@ -1,5 +1,6 @@
 pub use self::col::Col;
 pub use self::cols::Cols;
+pub use self::diag::Diag;
 pub use self::row::Row;
 pub use self::rows::Rows;
 
@@ -7,14 +8,15 @@ use array::Array;
 use array::traits::ArrayShape;
 use rand::Rng;
 use rand::distributions::IndependentSample;
-use self::traits::{MatrixCol,MatrixColIterator,MatrixRow,MatrixRowIterator,
-                   MatrixShape};
+use self::traits::{MatrixCol,MatrixColIterator,MatrixDiag,MatrixRow,
+                   MatrixRowIterator,MatrixShape};
 use std::num::{One,Zero,one,zero};
 // FIXME mozilla/rust#6515 Use std Index
 use traits::{Index,UnsafeIndex};
 
 mod col;
 mod cols;
+mod diag;
 mod row;
 mod rows;
 pub mod traits;
@@ -113,6 +115,18 @@ for &'a Mat<T> {
     #[inline]
     fn cols(self) -> Cols<&'a Mat<T>> {
         Cols::new(self)
+    }
+}
+
+// MatrixDiag
+impl<
+    'a,
+    T
+> MatrixDiag
+for &'a Mat<T> {
+    #[inline]
+    fn diag(self, diag: int) -> Diag<&'a Mat<T>> {
+        Diag::new(self, diag)
     }
 }
 

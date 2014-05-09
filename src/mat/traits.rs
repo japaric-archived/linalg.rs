@@ -1,5 +1,5 @@
 use array::traits::ArrayShape;
-use mat::{Col,Cols,Row,Rows};
+use mat::{Col,Cols,Diag,Row,Rows};
 
 pub trait MatrixCol {
     fn col(self, col: uint) -> Col<Self>;
@@ -8,6 +8,10 @@ pub trait MatrixCol {
 
 pub trait MatrixColIterator {
     fn cols(self) -> Cols<Self>;
+}
+
+pub trait MatrixDiag {
+    fn diag(self, diag: int) -> Diag<Self>;
 }
 
 pub trait MatrixRow {

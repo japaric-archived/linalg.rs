@@ -50,6 +50,7 @@ There are no docs!
     * rows
   * views
     * Col
+    * Diag
     * Row
 
 * BLAS
