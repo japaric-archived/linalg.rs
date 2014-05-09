@@ -1,5 +1,5 @@
 use array::traits::{ArrayNorm2,ArrayScale,ArrayShape};
-use mat::traits::MatrixRow;
+use mat::traits::{MatrixCol,MatrixRow};
 use mat;
 use num::complex::Cmplx;
 use rand::distributions::range::Range;
@@ -224,18 +224,52 @@ fn row_out_of_bounds() {
     v.index(&(10, 0));
 }
 
+// MatrixCol
+#[test]
+fn col() {
+    sweep_size!({
+        let m = mat::from_fn((n, n), |i, j| i - j);
+
+        for j in range(0, n) {
+            let col = m.col(j);
+
+            for i in range(0, n) {
+                let got = *col.index(&i);
+                let expected = i - j;
+
+                assert_eq!((n, got), (n, expected));
+            }
+        }
+    })
+}
+
+#[test]
+fn iterable_col() {
+    sweep_size!({
+        let m = mat::from_fn((n, n), |i, j| i - j);
+
+        for j in range(0, n) {
+            let col = m.col(j);
+            let got = col.iter().map(|&x| x).collect();
+            let expected = Vec::from_fn(n, |i| i - j);
+
+            assert_eq!((n, got), (n, expected));
+        }
+    })
+}
+
 // MatrixRow
 #[test]
 fn row() {
     sweep_size!({
-        let m = mat::from_fn((n, n), |i, j| i + j);
+        let m = mat::from_fn((n, n), |i, j| i - j);
 
         for i in range(0, n) {
             let row = m.row(i);
 
             for j in range(0, n) {
                 let got = *row.index(&j);
-                let expected = i + j;
+                let expected = i - j;
 
                 assert_eq!((n, got), (n, expected));
             }
@@ -246,12 +280,12 @@ fn row() {
 #[test]
 fn iterable_row() {
     sweep_size!({
-        let m = mat::from_fn((n, n), |i, j| i + j);
+        let m = mat::from_fn((n, n), |i, j| i - j);
 
         for i in range(0, n) {
             let row = m.row(i);
             let got = row.iter().map(|&x| x).collect();
-            let expected = Vec::from_fn(n, |j| i + j);
+            let expected = Vec::from_fn(n, |j| i - j);
 
             assert_eq!((n, got), (n, expected));
         }

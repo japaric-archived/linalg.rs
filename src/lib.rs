@@ -7,6 +7,7 @@ extern crate rand;
 
 pub mod array;
 pub mod blas;
+pub mod common;
 pub mod mat;
 pub mod vec;
 

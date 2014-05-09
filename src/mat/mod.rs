@@ -1,14 +1,16 @@
 pub use self::row::Row;
+pub use self::col::Col;
 
 use array::Array;
 use array::traits::ArrayShape;
 use rand::Rng;
 use rand::distributions::IndependentSample;
-use self::traits::{MatrixRow,MatrixShape};
+use self::traits::{MatrixCol,MatrixRow,MatrixShape};
 use std::num::{One,Zero,one,zero};
 // FIXME mozilla/rust#6515 Use std Index
 use traits::{Index,UnsafeIndex};
 
+mod col;
 mod row;
 pub mod traits;
 
@@ -77,6 +79,23 @@ for Mat<T> {
                 "index: out of bounds: {} of {}", index, self.shape());
 
         unsafe { self.as_slice().unsafe_ref(row * ncols + col) }
+    }
+}
+
+// MatrixCol
+impl<
+    'a,
+    T
+> MatrixCol
+for &'a Mat<T> {
+    #[inline]
+    fn col(self, col: uint) -> Col<&'a Mat<T>> {
+        Col::new(self, col)
+    }
+
+    #[inline]
+    unsafe fn unsafe_col(self, col: uint) -> Col<&'a Mat<T>> {
+        Col::unsafe_new(self, col)
     }
 }
 

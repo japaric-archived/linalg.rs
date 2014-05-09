@@ -1,5 +1,10 @@
 use array::traits::ArrayShape;
-use mat::Row;
+use mat::{Col,Row};
+
+pub trait MatrixCol {
+    fn col(self, col: uint) -> Col<Self>;
+    unsafe fn unsafe_col(self, col: uint) -> Col<Self>;
+}
 
 pub trait MatrixRow {
     fn row(self, row: uint) -> Row<Self>;

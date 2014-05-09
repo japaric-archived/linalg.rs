@@ -45,6 +45,7 @@ There are no docs!
 
 * Mat
   * views
+    * Col
     * Row
 
 * BLAS
