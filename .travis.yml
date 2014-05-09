@@ -10,8 +10,5 @@ script:
   - rustc --version
   - make test
 
-notifications:
-  email: false
-
 branches:
   only: master
