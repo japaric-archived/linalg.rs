@@ -52,18 +52,18 @@ for Col<M> {
 // TODO mozilla/rust#7059 fallback impl
 impl<
     'a,
+    'b,
     T
-> Iterable<'a, T, Stride<'a, T>>
+> Iterable<'b, T, Stride<'b, T>>
 for Col<&'a Mat<T>> {
     #[inline]
-    fn iter(&'a self) -> Stride<'a, T> {
+    fn iter(&'b self) -> Stride<'b, T> {
         Stride::new(self.mat.as_slice(),
                     self.col,
                     self.mat.len(),
                     self.mat.ncols())
     }
 }
-
 
 // UnsafeIndex
 impl<

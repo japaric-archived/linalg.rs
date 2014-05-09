@@ -1,9 +1,13 @@
 use array::traits::ArrayShape;
-use mat::{Col,Row,Rows};
+use mat::{Col,Cols,Row,Rows};
 
 pub trait MatrixCol {
     fn col(self, col: uint) -> Col<Self>;
     unsafe fn unsafe_col(self, col: uint) -> Col<Self>;
+}
+
+pub trait MatrixColIterator {
+    fn cols(self) -> Cols<Self>;
 }
 
 pub trait MatrixRow {

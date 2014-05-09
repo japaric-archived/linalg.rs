@@ -1,5 +1,5 @@
 use array::traits::{ArrayNorm2,ArrayScale,ArrayShape};
-use mat::traits::{MatrixCol,MatrixRow,MatrixRowIterator};
+use mat::traits::{MatrixCol,MatrixColIterator,MatrixRow,MatrixRowIterator};
 use mat;
 use num::complex::Cmplx;
 use rand::distributions::range::Range;
@@ -239,6 +239,20 @@ fn col() {
 
                 assert_eq!((n, got), (n, expected));
             }
+        }
+    })
+}
+
+#[test]
+fn cols() {
+    sweep_size!({
+        let m = mat::from_fn((n, n), |i, j| i - j);
+
+        for (j, col) in m.cols().enumerate() {
+            let got = col.iter().map(|&x| x).collect();
+            let expected = Vec::from_fn(n, |i| i - j);
+
+            assert_eq!((n, got), (n, expected));
         }
     })
 }

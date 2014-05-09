@@ -1,4 +1,5 @@
 pub use self::col::Col;
+pub use self::cols::Cols;
 pub use self::row::Row;
 pub use self::rows::Rows;
 
@@ -6,12 +7,14 @@ use array::Array;
 use array::traits::ArrayShape;
 use rand::Rng;
 use rand::distributions::IndependentSample;
-use self::traits::{MatrixCol,MatrixRow,MatrixRowIterator,MatrixShape};
+use self::traits::{MatrixCol,MatrixColIterator,MatrixRow,MatrixRowIterator,
+                   MatrixShape};
 use std::num::{One,Zero,one,zero};
 // FIXME mozilla/rust#6515 Use std Index
 use traits::{Index,UnsafeIndex};
 
 mod col;
+mod cols;
 mod row;
 mod rows;
 pub mod traits;
@@ -98,6 +101,18 @@ for &'a Mat<T> {
     #[inline]
     unsafe fn unsafe_col(self, col: uint) -> Col<&'a Mat<T>> {
         Col::unsafe_new(self, col)
+    }
+}
+
+// MatrixColIterator
+impl<
+    'a,
+    T
+> MatrixColIterator
+for &'a Mat<T> {
+    #[inline]
+    fn cols(self) -> Cols<&'a Mat<T>> {
+        Cols::new(self)
     }
 }
 

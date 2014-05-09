@@ -46,6 +46,7 @@ There are no docs!
 
 * Mat
   * iterators
+    * cols
     * rows
   * views
     * Col
