@@ -1,9 +1,16 @@
+pub use self::row::Row;
+
 use array::Array;
+use array::traits::ArrayShape;
 use rand::Rng;
 use rand::distributions::IndependentSample;
+use self::traits::{MatrixRow,MatrixShape};
 use std::num::{One,Zero,one,zero};
 // FIXME mozilla/rust#6515 Use std Index
 use traits::{Index,UnsafeIndex};
+
+mod row;
+pub mod traits;
 
 pub type Mat<T> = Array<(uint, uint), T>;
 
@@ -73,6 +80,40 @@ for Mat<T> {
     }
 }
 
+// MatrixRow
+impl<
+    'a,
+    T
+> MatrixRow
+for &'a Mat<T> {
+    #[inline]
+    fn row(self, row: uint) -> Row<&'a Mat<T>> {
+        Row::new(self, row)
+    }
+
+    #[inline]
+    unsafe fn unsafe_row(self, row: uint) -> Row<&'a Mat<T>> {
+        Row::unsafe_new(self, row)
+    }
+}
+
+// MatrixShape
+impl <
+    'a,
+    T
+> MatrixShape
+for &'a Mat<T> {
+    #[inline]
+    fn ncols(self) -> uint {
+        self.shape().val1()
+    }
+
+    #[inline]
+    fn nrows(self) -> uint {
+        self.shape().val0()
+    }
+}
+
 // UnsafeIndex
 impl<
     T
@@ -84,5 +125,16 @@ for Mat<T> {
         let (_, ncols) = self.shape();
 
         self.as_slice().unsafe_ref(row * ncols + col)
+    }
+}
+
+impl<
+    'a,
+    T
+> UnsafeIndex<(uint, uint), T>
+for &'a Mat<T> {
+    #[inline]
+    unsafe fn unsafe_index<'b>(&'b self, index: &(uint, uint)) -> &'b T {
+        (*self).unsafe_index(index)
     }
 }

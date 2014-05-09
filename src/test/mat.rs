@@ -1,4 +1,5 @@
-use array::traits::{ArrayNorm2,ArrayScale};
+use array::traits::{ArrayNorm2,ArrayScale,ArrayShape};
+use mat::traits::MatrixRow;
 use mat;
 use num::complex::Cmplx;
 use rand::distributions::range::Range;
@@ -206,7 +207,10 @@ fn index() {
 
         for i in range(0, n) {
             for j in range(0, n) {
-                assert_eq!(*v.index(&(i, j)), i + j);
+                let got = *v.index(&(i, j));
+                let expected = i + j;
+
+                assert_eq!((n, got), (n, expected));
             }
         }
     })
@@ -218,6 +222,40 @@ fn row_out_of_bounds() {
     let v = mat::zeros::<int>((10, 10));
 
     v.index(&(10, 0));
+}
+
+// MatrixRow
+#[test]
+fn row() {
+    sweep_size!({
+        let m = mat::from_fn((n, n), |i, j| i + j);
+
+        for i in range(0, n) {
+            let row = m.row(i);
+
+            for j in range(0, n) {
+                let got = *row.index(&j);
+                let expected = i + j;
+
+                assert_eq!((n, got), (n, expected));
+            }
+        }
+    })
+}
+
+#[test]
+fn iterable_row() {
+    sweep_size!({
+        let m = mat::from_fn((n, n), |i, j| i + j);
+
+        for i in range(0, n) {
+            let row = m.row(i);
+            let got = row.iter().map(|&x| x).collect();
+            let expected = Vec::from_fn(n, |j| i + j);
+
+            assert_eq!((n, got), (n, expected));
+        }
+    })
 }
 
 // MulAssign

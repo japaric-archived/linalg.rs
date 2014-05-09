@@ -1,4 +1,4 @@
-use array::traits::{ArrayDot,ArrayNorm2,ArrayScale};
+use array::traits::{ArrayDot,ArrayNorm2,ArrayScale,ArrayShape};
 use num::complex::Cmplx;
 use rand::distributions::range::Range;
 use rand::task_rng;

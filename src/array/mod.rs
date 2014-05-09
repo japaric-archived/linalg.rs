@@ -1,6 +1,6 @@
 use blas::ffi;
 use num::complex::Cmplx;
-use self::traits::{ArrayNorm2,ArrayScale};
+use self::traits::{ArrayNorm2,ArrayScale,ArrayShape};
 use std::fmt::Show;
 use std::num::one;
 use std::slice::Items;
@@ -54,16 +54,6 @@ impl<
             data: v,
             shape: s,
         }
-    }
-}
-
-impl<
-    S: Clone,
-    T
-> Array<S, T> {
-    #[inline]
-    pub fn shape(&self) -> S {
-        self.shape.clone()
     }
 }
 
@@ -180,6 +170,30 @@ scale!(f32, sscal_)
 scale!(f64, dscal_)
 scale!(Cmplx<f32>, cscal_)
 scale!(Cmplx<f64>, zscal_)
+
+// ArrayShape
+impl<
+    S: Clone,
+    T
+> ArrayShape<S>
+for Array<S, T> {
+    #[inline]
+    fn shape(&self) -> S {
+        self.shape.clone()
+    }
+}
+
+impl<
+    'a,
+    S: Clone,
+    T
+> ArrayShape<S>
+for &'a Array<S, T> {
+    #[inline]
+    fn shape(&self) -> S {
+        (*self).shape()
+    }
+}
 
 // Container
 impl<

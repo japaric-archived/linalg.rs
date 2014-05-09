@@ -43,6 +43,10 @@ There are no docs!
   * dot
     * BLAS accelerated: `f32`, `f64`
 
+* Mat
+  * views
+    * Row
+
 * BLAS
   * FFI
     * Level 1

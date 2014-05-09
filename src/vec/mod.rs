@@ -1,5 +1,5 @@
 use array::Array;
-use array::traits::ArrayDot;
+use array::traits::{ArrayDot,ArrayShape};
 use blas::ffi;
 use rand::Rng;
 use rand::distributions::IndependentSample;

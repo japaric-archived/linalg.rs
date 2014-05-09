@@ -9,3 +9,7 @@ pub trait ArrayNorm2<T> {
 pub trait ArrayScale<T> {
     fn scale(&mut self, alpha: T);
 }
+
+pub trait ArrayShape<S> {
+    fn shape(&self) -> S;
+}
