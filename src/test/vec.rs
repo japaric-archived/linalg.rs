@@ -1,16 +1,22 @@
 use array::traits::{ArrayDot,ArrayNorm2,ArrayScale,ArrayShape};
 use num::complex::Cmplx;
 use rand::distributions::range::Range;
-use rand::task_rng;
+use rand::{random,task_rng};
 // FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
 // FIXME mozilla/rust#6515 Use std Index
 use traits::{AddAssign,Index,Iterable,MulAssign,SubAssign};
 use vec;
 
+static NSAMPLES: uint = 10;
+
+fn rand_size() -> uint {
+    (10.0f32).powf(6.0 * random()) as uint
+}
+
 // FIXME mozilla/rust#12249 DRYer benchmarks using macros
 macro_rules! sweep_size {
     ($code:expr) => ({
-        for &n in [1_000, 100_000, 1_000_000].iter() {
+        for n in range(0, NSAMPLES).map(|_| rand_size()) {
             $code
         }
     })

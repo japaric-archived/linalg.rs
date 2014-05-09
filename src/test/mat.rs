@@ -3,15 +3,24 @@ use mat::traits::{MatrixCol,MatrixColIterator,MatrixRow,MatrixRowIterator};
 use mat;
 use num::complex::Cmplx;
 use rand::distributions::range::Range;
-use rand::task_rng;
+use rand::{random,task_rng};
 // FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
 // FIXME mozilla/rust#6515 Use std Index
 use traits::{AddAssign,Index,Iterable,MulAssign,SubAssign};
 
+static NSAMPLES: uint = 10;
+
+fn rand_size() -> (uint, uint) {
+    let nrows = (10.0f32).powf(3.0 * random()) as uint;
+    let ncols = (10.0f32).powf(3.0 * random()) as uint;
+
+    (nrows, ncols)
+}
+
 // FIXME mozilla/rust#12249 DRYer benchmarks using macros
 macro_rules! sweep_size {
     ($code:expr) => ({
-        for &n in [10, 100, 1_000].iter() {
+        for shape@(_nrows, _ncols) in range(0, NSAMPLES).map(|_| rand_size()) {
             $code
         }
     })
@@ -21,22 +30,22 @@ macro_rules! sweep_size {
 #[test]
 fn from_elem() {
     sweep_size!({
-        let m = mat::from_elem((n, n), 0);
+        let m = mat::from_elem(shape, 0);
 
-        assert_eq!(m.shape(), (n, n));
-        assert_eq!(m.unwrap(), Vec::from_elem(n * n, 0));
+        assert_eq!(m.shape(), shape);
+        assert_eq!(m.unwrap(), Vec::from_elem(_nrows * _ncols, 0));
     })
 }
 
 #[test]
 fn from_fn() {
     sweep_size!({
-        let m = mat::from_fn((n, n), |i, j| i + j);
+        let m = mat::from_fn(shape, |i, j| i + j);
 
-        assert_eq!(m.shape(), (n, n));
-        assert_eq!(m.unwrap(), Vec::from_fn(n * n, |i| {
-            let r = i / n;
-            let c = i % n;
+        assert_eq!(m.shape(), shape);
+        assert_eq!(m.unwrap(), Vec::from_fn(_nrows * _ncols, |i| {
+            let r = i / _ncols;
+            let c = i % _ncols;
             r + c
         }));
     })
@@ -45,12 +54,12 @@ fn from_fn() {
 #[test]
 fn map() {
     sweep_size!({
-        let mut got = mat::zeros::<f32>((n, n));
-        let expected = mat::ones::<f32>((n, n));
+        let mut got = mat::zeros::<f32>(shape);
+        let expected = mat::ones::<f32>(shape);
 
         got.map(|x| x.cos());
 
-        assert_eq!((n, got), (n, expected));
+        assert_eq!((shape, got), (shape, expected));
     })
 }
 
@@ -60,9 +69,9 @@ fn rand() {
     let mut rng = task_rng();
 
     sweep_size!({
-        let v = mat::rand((n, n), &between, &mut rng);
+        let v = mat::rand(shape, &between, &mut rng);
 
-        assert_eq!((n, v.all(|&x| x >= 0.0 && x < 1.0)), (n, true));
+        assert_eq!((shape, v.all(|&x| x >= 0.0 && x < 1.0)), (shape, true));
     })
 }
 
@@ -72,13 +81,13 @@ macro_rules! add_assign {
         #[test]
         fn $name() {
             sweep_size!({
-                let mut got = mat::from_elem((n, n), 1 as $ty);
-                let v = mat::from_elem((n, n), 2 as $ty);
-                let expected = mat::from_elem((n, n), 3 as $ty);
+                let mut got = mat::from_elem(shape, 1 as $ty);
+                let v = mat::from_elem(shape, 2 as $ty);
+                let expected = mat::from_elem(shape, 3 as $ty);
 
                 got.add_assign(&v);
 
-                assert_eq!((n, got), (n, expected));
+                assert_eq!((shape, got), (shape, expected));
             })
         }
     }
@@ -94,15 +103,15 @@ macro_rules! add_assign_cmplx {
         fn $name() {
             sweep_size!({
                 let mut got =
-                    mat::from_elem((n, n), Cmplx::new(1 as $ty, 0 as $ty));
+                    mat::from_elem(shape, Cmplx::new(1 as $ty, 0 as $ty));
                 let v =
-                    mat::from_elem((n, n), Cmplx::new(0 as $ty, 1 as $ty));
+                    mat::from_elem(shape, Cmplx::new(0 as $ty, 1 as $ty));
                 let expected =
-                    mat::from_elem((n, n), Cmplx::new(1 as $ty, 1 as $ty));
+                    mat::from_elem(shape, Cmplx::new(1 as $ty, 1 as $ty));
 
                 got.add_assign(&v);
 
-                assert_eq!((n, got), (n, expected));
+                assert_eq!((shape, got), (shape, expected));
             })
         }
     }
@@ -117,11 +126,11 @@ macro_rules! norm2 {
         #[test]
         fn $name() {
             sweep_size!({
-                let v = mat::ones::<$ty>((n, n));
-                let expected = n as $ty;
+                let v = mat::ones::<$ty>(shape);
+                let expected = ((_nrows * _ncols) as $ty).sqrt();
                 let got = v.norm2();
 
-                assert_eq!((n, got), (n, expected));
+                assert_eq!((shape, got), (shape, expected));
             })
         }
     }
@@ -136,11 +145,11 @@ macro_rules! norm2_cmplx {
         fn $name() {
             sweep_size!({
                 let v =
-                    mat::from_elem((n, n), Cmplx::new(0 as $ty, 1 as $ty));
-                let expected = n as $ty;
+                    mat::from_elem(shape, Cmplx::new(0 as $ty, 1 as $ty));
+                let expected = ((_nrows * _ncols) as $ty).sqrt();
                 let got = v.norm2();
 
-                assert_eq!((n, got), (n, expected));
+                assert_eq!((shape, got), (shape, expected));
             })
         }
     }
@@ -155,12 +164,12 @@ macro_rules! scale {
         #[test]
         fn $name() {
             sweep_size!({
-                let mut got = mat::ones::<$ty>((n, n));
-                let expected = mat::from_elem((n, n), 2 as $ty);
+                let mut got = mat::ones::<$ty>(shape);
+                let expected = mat::from_elem(shape, 2 as $ty);
 
                 got.scale(2 as $ty);
 
-                assert_eq!((n, got), (n, expected));
+                assert_eq!((shape, got), (shape, expected));
             })
         }
     }
@@ -176,13 +185,13 @@ macro_rules! scale_cmplx {
         fn $name() {
             sweep_size!({
                 let mut got =
-                    mat::from_elem((n, n), Cmplx::new(1 as $ty, 2 as $ty));
+                    mat::from_elem(shape, Cmplx::new(1 as $ty, 2 as $ty));
                 let expected =
-                    mat::from_elem((n, n), Cmplx::new(-2 as $ty, 1 as $ty));
+                    mat::from_elem(shape, Cmplx::new(-2 as $ty, 1 as $ty));
 
                 got.scale(Cmplx::new(0 as $ty, 1 as $ty));
 
-                assert_eq!((n, got), (n, expected));
+                assert_eq!((shape, got), (shape, expected));
             })
         }
     }
@@ -203,14 +212,14 @@ fn col_out_of_bounds() {
 #[test]
 fn index() {
     sweep_size!({
-        let v = mat::from_fn((n, n), |i, j| i + j);
+        let v = mat::from_fn(shape, |i, j| i + j);
 
-        for i in range(0, n) {
-            for j in range(0, n) {
+        for i in range(0, _nrows) {
+            for j in range(0, _ncols) {
                 let got = *v.index(&(i, j));
                 let expected = i + j;
 
-                assert_eq!((n, got), (n, expected));
+                assert_eq!((shape, got), (shape, expected));
             }
         }
     })
@@ -228,16 +237,16 @@ fn row_out_of_bounds() {
 #[test]
 fn col() {
     sweep_size!({
-        let m = mat::from_fn((n, n), |i, j| i - j);
+        let m = mat::from_fn(shape, |i, j| i - j);
 
-        for j in range(0, n) {
+        for j in range(0, _ncols) {
             let col = m.col(j);
 
-            for i in range(0, n) {
+            for i in range(0, _nrows) {
                 let got = *col.index(&i);
                 let expected = i - j;
 
-                assert_eq!((n, got), (n, expected));
+                assert_eq!((shape, got), (shape, expected));
             }
         }
     })
@@ -246,13 +255,13 @@ fn col() {
 #[test]
 fn cols() {
     sweep_size!({
-        let m = mat::from_fn((n, n), |i, j| i - j);
+        let m = mat::from_fn(shape, |i, j| i - j);
 
         for (j, col) in m.cols().enumerate() {
             let got = col.iter().map(|&x| x).collect();
-            let expected = Vec::from_fn(n, |i| i - j);
+            let expected = Vec::from_fn(_nrows, |i| i - j);
 
-            assert_eq!((n, got), (n, expected));
+            assert_eq!((shape, got), (shape, expected));
         }
     })
 }
@@ -260,14 +269,14 @@ fn cols() {
 #[test]
 fn iterable_col() {
     sweep_size!({
-        let m = mat::from_fn((n, n), |i, j| i - j);
+        let m = mat::from_fn(shape, |i, j| i - j);
 
-        for j in range(0, n) {
+        for j in range(0, _ncols) {
             let col = m.col(j);
             let got = col.iter().map(|&x| x).collect();
-            let expected = Vec::from_fn(n, |i| i - j);
+            let expected = Vec::from_fn(_nrows, |i| i - j);
 
-            assert_eq!((n, got), (n, expected));
+            assert_eq!((shape, got), (shape, expected));
         }
     })
 }
@@ -276,16 +285,16 @@ fn iterable_col() {
 #[test]
 fn row() {
     sweep_size!({
-        let m = mat::from_fn((n, n), |i, j| i - j);
+        let m = mat::from_fn(shape, |i, j| i - j);
 
-        for i in range(0, n) {
+        for i in range(0, _nrows) {
             let row = m.row(i);
 
-            for j in range(0, n) {
+            for j in range(0, _ncols) {
                 let got = *row.index(&j);
                 let expected = i - j;
 
-                assert_eq!((n, got), (n, expected));
+                assert_eq!((shape, got), (shape, expected));
             }
         }
     })
@@ -294,13 +303,13 @@ fn row() {
 #[test]
 fn rows() {
     sweep_size!({
-        let m = mat::from_fn((n, n), |i, j| i - j);
+        let m = mat::from_fn(shape, |i, j| i - j);
 
         for (i, row) in m.rows().enumerate() {
             let got = row.iter().map(|&x| x).collect();
-            let expected = Vec::from_fn(n, |j| i - j);
+            let expected = Vec::from_fn(_ncols, |j| i - j);
 
-            assert_eq!((n, got), (n, expected));
+            assert_eq!((shape, got), (shape, expected));
         }
     })
 }
@@ -308,14 +317,14 @@ fn rows() {
 #[test]
 fn iterable_row() {
     sweep_size!({
-        let m = mat::from_fn((n, n), |i, j| i - j);
+        let m = mat::from_fn(shape, |i, j| i - j);
 
-        for i in range(0, n) {
+        for i in range(0, _nrows) {
             let row = m.row(i);
             let got = row.iter().map(|&x| x).collect();
-            let expected = Vec::from_fn(n, |j| i - j);
+            let expected = Vec::from_fn(_ncols, |j| i - j);
 
-            assert_eq!((n, got), (n, expected));
+            assert_eq!((shape, got), (shape, expected));
         }
     })
 }
@@ -326,13 +335,13 @@ macro_rules! mul_assign {
         #[test]
         fn $name() {
             sweep_size!({
-                let mut got = mat::from_elem((n, n), 2 as $ty);
-                let v = mat::from_elem((n, n), 3 as $ty);
-                let expected = mat::from_elem((n, n), 6 as $ty);
+                let mut got = mat::from_elem(shape, 2 as $ty);
+                let v = mat::from_elem(shape, 3 as $ty);
+                let expected = mat::from_elem(shape, 6 as $ty);
 
                 got.mul_assign(&v);
 
-                assert_eq!((n, got), (n, expected));
+                assert_eq!((shape, got), (shape, expected));
             })
         }
     }
@@ -348,13 +357,13 @@ macro_rules! sub_assign {
         #[test]
         fn $name() {
             sweep_size!({
-                let mut got = mat::from_elem((n, n), 3 as $ty);
-                let v = mat::from_elem((n, n), 2 as $ty);
-                let expected = mat::from_elem((n, n), 1 as $ty);
+                let mut got = mat::from_elem(shape, 3 as $ty);
+                let v = mat::from_elem(shape, 2 as $ty);
+                let expected = mat::from_elem(shape, 1 as $ty);
 
                 got.sub_assign(&v);
 
-                assert_eq!((n, got), (n, expected));
+                assert_eq!((shape, got), (shape, expected));
             })
         }
     }
@@ -370,15 +379,15 @@ macro_rules! sub_assign_cmplx {
         fn $name() {
             sweep_size!({
                 let mut got =
-                    mat::from_elem((n, n), Cmplx::new(1 as $ty, 0 as $ty));
+                    mat::from_elem(shape, Cmplx::new(1 as $ty, 0 as $ty));
                 let v =
-                    mat::from_elem((n, n), Cmplx::new(0 as $ty, 1 as $ty));
+                    mat::from_elem(shape, Cmplx::new(0 as $ty, 1 as $ty));
                 let expected =
-                    mat::from_elem((n, n), Cmplx::new(1 as $ty, -1 as $ty));
+                    mat::from_elem(shape, Cmplx::new(1 as $ty, -1 as $ty));
 
                 got.sub_assign(&v);
 
-                assert_eq!((n, got), (n, expected));
+                assert_eq!((shape, got), (shape, expected));
             })
         }
     }
