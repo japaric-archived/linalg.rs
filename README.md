@@ -32,6 +32,7 @@ There are no docs!
   * Bulk ops
     * all
     * any
+    * clone
     * index
     * iter
     * norm2

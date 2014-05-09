@@ -10,7 +10,7 @@ use traits::{AddAssign,Iterable,MulAssign,SubAssign};
 
 pub mod traits;
 
-#[deriving(Eq, Show)]
+#[deriving(Clone, Eq, Show)]
 pub struct Array<S, T> {
     data: Vec<T>,
     shape: S,

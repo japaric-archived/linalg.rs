@@ -21,16 +21,16 @@ extern {
     // Y <- X
     pub fn scopy_(N: *int,
                   x: *f32, inc_x: *int,
-                  y: *f32, inc_y: *int);
+                  y: *mut f32, inc_y: *int);
     pub fn dcopy_(N: *int,
                   x: *f64, inc_x: *int,
-                  y: *f64, inc_y: *int);
+                  y: *mut f64, inc_y: *int);
     pub fn ccopy_(N: *int,
                   x: *Cmplx<f32>, inc_x: *int,
-                  y: *Cmplx<f32>, inc_y: *int);
+                  y: *mut Cmplx<f32>, inc_y: *int);
     pub fn zcopy_(N: *int,
                   x: *Cmplx<f64>, inc_x: *int,
-                  y: *Cmplx<f64>, inc_y: *int);
+                  y: *mut Cmplx<f64>, inc_y: *int);
 
     // dot <- X^T * Y
     pub fn sdot_(N: *int,
