@@ -30,6 +30,7 @@ impl<
     T
 > Iterator<&'a T>
 for Stride<'a, T> {
+    #[inline]
     fn next(&mut self) -> Option<&'a T> {
         if self.state < self.stop {
             Some(unsafe {
@@ -39,5 +40,12 @@ for Stride<'a, T> {
         } else {
             None
         }
+    }
+
+    #[inline]
+    fn size_hint(&self) -> (uint, Option<uint>) {
+        let exact = (self.stop - self.state - 1) / self.step + 1;
+
+        (exact, Some(exact))
     }
 }

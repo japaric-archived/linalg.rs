@@ -12,6 +12,7 @@ pub struct Rows<M> {
 impl<
     M: Copy + MatrixShape
 > Rows<M> {
+    #[inline]
     pub fn new(mat: M) -> Rows<M> {
         Rows {
             mat: mat,
@@ -25,6 +26,7 @@ impl <
     M: Copy + MatrixRow
 > Iterator<Row<M>>
 for Rows<M> {
+    #[inline]
     fn next(&mut self) -> Option<Row<M>> {
         if self.state < self.stop {
             Some(unsafe {
@@ -33,5 +35,12 @@ for Rows<M> {
         } else {
             None
         }
+    }
+
+    #[inline]
+    fn size_hint(&self) -> (uint, Option<uint>) {
+        let exact = self.stop - self.state;
+
+        (exact, Some(exact))
     }
 }
