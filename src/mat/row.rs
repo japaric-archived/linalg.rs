@@ -33,6 +33,17 @@ impl<
     }
 }
 
+// Container
+impl<
+    M: Copy + MatrixShape
+> Container
+for Row<M> {
+    #[inline]
+    fn len(&self) -> uint {
+        self.mat.ncols()
+    }
+}
+
 // Index
 impl<
     T,
