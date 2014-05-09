@@ -35,6 +35,11 @@ impl<
         self.data.as_slice()
     }
 
+    #[inline]
+    pub fn slice<'a>(&'a self, start: uint, end: uint) -> &'a [T] {
+        self.data.slice(start, end)
+    }
+
     // TODO fork-join parallelism?
     #[inline]
     pub fn map(&mut self, op: |&T| -> T) {

@@ -52,13 +52,14 @@ for Row<M> {
 // TODO mozilla/rust#7059 fallback impl
 impl<
     'a,
+    'b,
     T
-> Iterable<'a, T, Items<'a, T>>
+> Iterable<'b, T, Items<'b, T>>
 for Row<&'a Mat<T>> {
     #[inline]
-    fn iter(&'a self) -> Items<'a, T> {
-        self.mat.as_slice().slice(self.row * self.mat.ncols(),
-                                  (self.row + 1) * self.mat.ncols()).iter()
+    fn iter(&'b self) -> Items<'b, T> {
+        self.mat.slice(self.row * self.mat.ncols(),
+                       (self.row + 1) * self.mat.ncols()).iter()
     }
 }
 

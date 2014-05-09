@@ -45,6 +45,8 @@ There are no docs!
     * BLAS accelerated: `f32`, `f64`
 
 * Mat
+  * iterators
+    * rows
   * views
     * Col
     * Row

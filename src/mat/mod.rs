@@ -1,17 +1,19 @@
-pub use self::row::Row;
 pub use self::col::Col;
+pub use self::row::Row;
+pub use self::rows::Rows;
 
 use array::Array;
 use array::traits::ArrayShape;
 use rand::Rng;
 use rand::distributions::IndependentSample;
-use self::traits::{MatrixCol,MatrixRow,MatrixShape};
+use self::traits::{MatrixCol,MatrixRow,MatrixRowIterator,MatrixShape};
 use std::num::{One,Zero,one,zero};
 // FIXME mozilla/rust#6515 Use std Index
 use traits::{Index,UnsafeIndex};
 
 mod col;
 mod row;
+mod rows;
 pub mod traits;
 
 pub type Mat<T> = Array<(uint, uint), T>;
@@ -113,6 +115,18 @@ for &'a Mat<T> {
     #[inline]
     unsafe fn unsafe_row(self, row: uint) -> Row<&'a Mat<T>> {
         Row::unsafe_new(self, row)
+    }
+}
+
+// MatrixRowIterator
+impl<
+    'a,
+    T
+> MatrixRowIterator
+for &'a Mat<T> {
+    #[inline]
+    fn rows(self) -> Rows<&'a Mat<T>> {
+        Rows::new(self)
     }
 }
 
