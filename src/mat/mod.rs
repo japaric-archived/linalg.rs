@@ -3,13 +3,14 @@ pub use self::cols::Cols;
 pub use self::diag::Diag;
 pub use self::row::Row;
 pub use self::rows::Rows;
+pub use self::view::View;
 
 use array::Array;
 use array::traits::ArrayShape;
 use rand::Rng;
 use rand::distributions::IndependentSample;
 use self::traits::{MatrixCol,MatrixColIterator,MatrixDiag,MatrixRow,
-                   MatrixRowIterator,MatrixShape};
+                   MatrixRowIterator,MatrixShape,MatrixView};
 use std::num::{One,Zero,one,zero};
 // FIXME mozilla/rust#6515 Use std Index
 use traits::{Index,UnsafeIndex};
@@ -19,22 +20,28 @@ mod cols;
 mod diag;
 mod row;
 mod rows;
+mod view;
 pub mod traits;
 
 pub type Mat<T> = Array<(uint, uint), T>;
 
 #[inline]
-pub fn from_elem<T: Clone>(shape: (uint, uint), elem: T) -> Mat<T> {
-    let (nrows, ncols) = shape;
-
+pub fn from_elem<T: Clone>(
+                 shape@(nrows, ncols): (uint, uint),
+                 elem: T)
+    -> Mat<T>
+{
     unsafe {
         Array::from_raw_parts(Vec::from_elem(nrows * ncols, elem), shape)
     }
 }
 
 // TODO fork-join parallelism?
-pub fn from_fn<T>(shape: (uint, uint), op: |uint, uint| -> T) -> Mat<T> {
-    let (nrows, ncols) = shape;
+pub fn from_fn<T>(
+               shape@(nrows, ncols): (uint, uint),
+               op: |uint, uint| -> T)
+    -> Mat<T>
+{
     let mut v = Vec::with_capacity(nrows * ncols);
 
     for i in range(0, nrows) {
@@ -52,13 +59,14 @@ pub fn ones<T: Clone + One>(size: (uint, uint)) -> Mat<T> {
 }
 
 #[inline]
-pub fn rand<
-    T,
-    D: IndependentSample<T>,
-    R: Rng
->(shape: (uint, uint), dist: &D, rng: &mut R) -> Mat<T> {
-    let (nrows, ncols) = shape;
-
+pub fn rand<T,
+            D: IndependentSample<T>,
+            R: Rng>(
+            shape@(nrows, ncols): (uint, uint),
+            dist: &D,
+            rng: &mut R)
+    -> Mat<T>
+{
     unsafe {
         Array::from_raw_parts(
             range(0, nrows * ncols).map(|_| dist.ind_sample(rng)).collect(),
@@ -78,12 +86,11 @@ impl<
 > Index<(uint, uint), T>
 for Mat<T> {
     #[inline]
-    fn index<'a>(&'a self, index: &(uint, uint)) -> &'a T {
-        let &(row, col) = index;
-        let (nrows, ncols) = self.shape();
+    fn index<'a>(&'a self, index@&(row, col): &(uint, uint)) -> &'a T {
+        let shape@(nrows, ncols) = self.shape();
 
         assert!(row < nrows && col < ncols,
-                "index: out of bounds: {} of {}", index, self.shape());
+                "index: out of bounds: {} of {}", index, shape);
 
         unsafe { self.as_slice().unsafe_ref(row * ncols + col) }
     }
@@ -165,14 +172,24 @@ impl <
     T
 > MatrixShape
 for &'a Mat<T> {
-    #[inline]
-    fn ncols(self) -> uint {
-        self.shape().val1()
+}
+
+// MatrixView
+impl<
+    'a,
+    T
+> MatrixView<View<&'a Mat<T>>>
+for &'a Mat<T> {
+    fn view(self, start: (uint, uint), stop: (uint, uint))
+        -> View<&'a Mat<T>>
+    {
+        View::new(self, start, stop)
     }
 
-    #[inline]
-    fn nrows(self) -> uint {
-        self.shape().val0()
+    unsafe fn unsafe_view(self, start: (uint, uint), stop: (uint, uint))
+        -> View<&'a Mat<T>>
+    {
+        View::unsafe_new(self, start, stop)
     }
 }
 
@@ -182,8 +199,11 @@ impl<
 > UnsafeIndex<(uint, uint), T>
 for Mat<T> {
     #[inline]
-    unsafe fn unsafe_index<'a>(&'a self, index: &(uint, uint)) -> &'a T {
-        let &(row, col) = index;
+    unsafe fn unsafe_index<'a>(
+                           &'a self,
+                           &(row, col): &(uint, uint))
+        -> &'a T
+    {
         let (_, ncols) = self.shape();
 
         self.as_slice().unsafe_ref(row * ncols + col)

@@ -24,6 +24,20 @@ pub trait MatrixRowIterator {
 }
 
 pub trait MatrixShape: ArrayShape<(uint, uint)> {
-    fn ncols(self) -> uint;
-    fn nrows(self) -> uint;
+    fn ncols(self) -> uint {
+        let (_, ncols) = self.shape();
+
+        ncols
+    }
+
+    fn nrows(self) -> uint {
+        let (nrows, _) = self.shape();
+
+        nrows
+    }
+}
+
+pub trait MatrixView<V> {
+    fn view(self, start: (uint, uint), stop: (uint, uint)) -> V;
+    unsafe fn unsafe_view(self, start: (uint, uint), stop: (uint, uint)) -> V;
 }

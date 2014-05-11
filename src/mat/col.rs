@@ -1,5 +1,5 @@
 use common::Stride;
-use mat::Mat;
+use mat::{Mat,View};
 use mat::traits::MatrixShape;
 // FIXME mozilla/rust#6515 Use std Index
 use traits::{Index,Iterable,UnsafeIndex};
@@ -52,8 +52,9 @@ impl<
 for Col<M> {
     #[inline]
     fn index<'a>(&'a self, row: &uint) -> &'a T {
-        assert!(*row < self.mat.nrows(),
-                "index: out of bounds: {} of {}", row, self.mat.shape());
+        let size = self.len();
+
+        assert!(*row < size, "index: out of bounds: {} of {}", row, size);
 
         unsafe { self.unsafe_index(row) }
     }
@@ -73,6 +74,27 @@ for Col<&'a Mat<T>> {
                     self.col,
                     self.mat.len(),
                     self.mat.ncols())
+    }
+}
+
+// Iterable
+impl<
+    'a,
+    'b,
+    T
+> Iterable<'b, T, Stride<'b, T>>
+for Col<View<&'a Mat<T>>> {
+    #[inline]
+    fn iter(&'b self) -> Stride<'b, T> {
+        let view = self.mat;
+        let mat = view.get_ref();
+        let (start_row, start_col) = view.start();
+
+        let start = self.col + start_col + start_row * mat.ncols();
+        let step = mat.ncols();
+        let stop = step * (self.len() - 1) + start + 1;
+
+        Stride::new(mat.as_slice(), start, stop, step)
     }
 }
 

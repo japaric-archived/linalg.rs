@@ -1,5 +1,5 @@
 use common::Stride;
-use mat::Mat;
+use mat::{Mat,View};
 use mat::traits::MatrixShape;
 use std::cmp::min;
 // FIXME mozilla/rust#6515 Use std Index
@@ -77,6 +77,34 @@ for Diag<&'a Mat<T>> {
         let stop = step * (size - 1) + start + 1;
 
         Stride::new(self.mat.as_slice(),
+                    start,
+                    stop,
+                    step)
+    }
+}
+
+impl<
+    'a,
+    'b,
+    T
+> Iterable<'b, T, Stride<'b, T>>
+for Diag<View<&'a Mat<T>>> {
+    #[inline]
+    fn iter(&'b self) -> Stride<'b, T> {
+        let view = self.mat;
+        let mat = view.get_ref();
+        let (start_row, start_col) = view.start();
+
+        let size = self.len();
+        let start = if self.diag > 0 {
+            start_row * mat.ncols() + self.diag as uint + start_col
+        } else {
+            (start_row - self.diag as uint) * mat.ncols() + start_col
+        };
+        let step = mat.ncols() + 1;
+        let stop = step * (size - 1) + start + 1;
+
+        Stride::new(mat.as_slice(),
                     start,
                     stop,
                     step)

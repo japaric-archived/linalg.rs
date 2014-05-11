@@ -1,16 +1,19 @@
 use array::traits::{ArrayDot,ArrayNorm2,ArrayScale,ArrayShape};
 use num::complex::Cmplx;
+use rand::distributions::IndependentSample;
 use rand::distributions::range::Range;
-use rand::{random,task_rng};
+use rand::task_rng;
+use super::NSAMPLES;
 // FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
 // FIXME mozilla/rust#6515 Use std Index
 use traits::{AddAssign,Index,Iterable,MulAssign,SubAssign};
 use vec;
 
-static NSAMPLES: uint = 10;
-
 fn rand_size() -> uint {
-    (10.0f32).powf(6.0 * random()) as uint
+    let mut rng = task_rng();
+    let between = Range::new(100u, 1_000_000);
+
+    between.ind_sample(&mut rng)
 }
 
 // FIXME mozilla/rust#12249 DRYer benchmarks using macros

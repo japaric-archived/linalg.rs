@@ -52,6 +52,7 @@ There are no docs!
     * Col
     * Diag
     * Row
+    * View (submatrix)
 
 * BLAS
   * FFI

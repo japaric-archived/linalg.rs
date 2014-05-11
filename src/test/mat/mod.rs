@@ -4,17 +4,22 @@ use mat::traits::{MatrixCol,MatrixColIterator,MatrixDiag,MatrixRow,
                   MatrixRowIterator};
 use mat;
 use num::complex::Cmplx;
+use rand::distributions::IndependentSample;
 use rand::distributions::range::Range;
-use rand::{random,task_rng};
+use rand::task_rng;
+use super::NSAMPLES;
 // FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
 // FIXME mozilla/rust#6515 Use std Index
 use traits::{AddAssign,Index,Iterable,MulAssign,SubAssign};
 
-static NSAMPLES: uint = 10;
+mod view;
 
 fn rand_size() -> (uint, uint) {
-    let nrows = (10.0f32).powf(3.0 * random()) as uint;
-    let ncols = (10.0f32).powf(3.0 * random()) as uint;
+    let mut rng = task_rng();
+    let between = Range::new(10u, 1_000);
+
+    let nrows = between.ind_sample(&mut rng);
+    let ncols = between.ind_sample(&mut rng);
 
     (nrows, ncols)
 }
@@ -276,10 +281,12 @@ fn cols() {
         let m = mat::from_fn(shape, |i, j| i - j);
 
         for (j, col) in m.cols().enumerate() {
-            let got = col.iter().map(|&x| x).collect();
-            let expected = Vec::from_fn(_nrows, |i| i - j);
+            for i in range(0, _nrows) {
+                let got = *col.index(&i);
+                let expected = i - j;
 
-            assert_eq!((shape, got), (shape, expected));
+                assert_eq!((shape, got), (shape, expected));
+            }
         }
     })
 }
@@ -321,6 +328,21 @@ fn diag_row_out_of_bounds() {
 
 // MatrixRow
 #[test]
+fn iterable_row() {
+    sweep_size!({
+        let m = mat::from_fn(shape, |i, j| i - j);
+
+        for i in range(0, _nrows) {
+            let row = m.row(i);
+            let got = row.iter().map(|&x| x).collect();
+            let expected = Vec::from_fn(_ncols, |j| i - j);
+
+            assert_eq!((shape, got), (shape, expected));
+        }
+    })
+}
+
+#[test]
 fn row() {
     sweep_size!({
         let m = mat::from_fn(shape, |i, j| i - j);
@@ -338,21 +360,6 @@ fn row() {
     })
 }
 
-#[test]
-fn iterable_row() {
-    sweep_size!({
-        let m = mat::from_fn(shape, |i, j| i - j);
-
-        for i in range(0, _nrows) {
-            let row = m.row(i);
-            let got = row.iter().map(|&x| x).collect();
-            let expected = Vec::from_fn(_ncols, |j| i - j);
-
-            assert_eq!((shape, got), (shape, expected));
-        }
-    })
-}
-
 // MatrixRowIterator
 #[test]
 fn rows() {
@@ -360,10 +367,12 @@ fn rows() {
         let m = mat::from_fn(shape, |i, j| i - j);
 
         for (i, row) in m.rows().enumerate() {
-            let got = row.iter().map(|&x| x).collect();
-            let expected = Vec::from_fn(_ncols, |j| i - j);
+            for j in range(0, _ncols) {
+                let got = *row.index(&j);
+                let expected = i - j;
 
-            assert_eq!((shape, got), (shape, expected));
+                assert_eq!((shape, got), (shape, expected));
+            }
         }
     })
 }

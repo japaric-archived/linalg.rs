@@ -98,8 +98,9 @@ impl<
 for Vect<T> {
     #[inline]
     fn index<'a>(&'a self, index: &uint) -> &'a T {
-        assert!(*index < self.len(),
-                "index: out of bounds: {} of {}", index, self.len());
+        let size = self.len();
+
+        assert!(*index < size, "index: out of bounds: {} of {}", index, size);
 
         unsafe { self.unsafe_index(index) }
     }

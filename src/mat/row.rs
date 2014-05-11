@@ -1,4 +1,4 @@
-use mat::Mat;
+use mat::{Mat,View};
 use mat::traits::MatrixShape;
 use std::slice::Items;
 // FIXME mozilla/rust#6515 Use std Index
@@ -52,8 +52,9 @@ impl<
 for Row<M> {
     #[inline]
     fn index<'a>(&'a self, col: &uint) -> &'a T {
-        assert!(*col < self.mat.ncols(),
-                "index: out of bounds: {} of {}", col, self.mat.shape());
+        let size = self.len();
+
+        assert!(*col < size, "index: out of bounds: {} of {}", col, size);
 
         unsafe { self.unsafe_index(col) }
     }
@@ -71,6 +72,25 @@ for Row<&'a Mat<T>> {
     fn iter(&'b self) -> Items<'b, T> {
         self.mat.slice(self.row * self.mat.ncols(),
                        (self.row + 1) * self.mat.ncols()).iter()
+    }
+}
+
+impl<
+    'a,
+    'b,
+    T
+> Iterable<'b, T, Items<'b, T>>
+for Row<View<&'a Mat<T>>> {
+    #[inline]
+    fn iter(&'b self) -> Items<'b, T> {
+        let view = self.mat;
+        let mat = view.get_ref();
+        let (start_row, start_col) = view.start();
+
+        let start = start_col + (start_row + self.row) * mat.ncols();
+        let stop = start + self.len();
+
+        mat.slice(start, stop).iter()
     }
 }
 
