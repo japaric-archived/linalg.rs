@@ -3,10 +3,9 @@ use rand::distributions::range::Range;
 use rand::task_rng;
 use std::num::pow;
 use super::super::test::Bencher;
-use traits::MulAssign;
 
 // FIXME mozilla/rust#12249 DRYer benchmarks using macros
-macro_rules! mul_assign {
+macro_rules! rand {
     ($name:ident, $size:expr, $ty:ty) => {
         #[bench]
         fn $name(b: &mut Bencher) {
@@ -15,24 +14,21 @@ macro_rules! mul_assign {
             let size = pow(10.0, $size).sqrt() as uint;
             let size = (size, size);
 
-            let mut x = mat::rand(size, &between, &mut rng);
-            let y = mat::rand(size, &between, &mut rng);
-
             b.iter(|| {
-                x.mul_assign(&y)
+                mat::rand(size, &between, &mut rng)
             })
         }
     }
 }
 
-mul_assign!(f32_2, 2, f32)
-mul_assign!(f32_3, 3, f32)
-mul_assign!(f32_4, 4, f32)
-mul_assign!(f32_5, 5, f32)
-mul_assign!(f32_6, 6, f32)
+rand!(f32_2, 2, f32)
+rand!(f32_3, 3, f32)
+rand!(f32_4, 4, f32)
+rand!(f32_5, 5, f32)
+rand!(f32_6, 6, f32)
 
-mul_assign!(f64_2, 2, f64)
-mul_assign!(f64_3, 3, f64)
-mul_assign!(f64_4, 4, f64)
-mul_assign!(f64_5, 5, f64)
-mul_assign!(f64_6, 6, f64)
+rand!(f64_2, 2, f64)
+rand!(f64_3, 3, f64)
+rand!(f64_4, 4, f64)
+rand!(f64_5, 5, f64)
+rand!(f64_6, 6, f64)

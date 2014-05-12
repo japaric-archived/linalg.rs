@@ -1,8 +1,10 @@
 mod add_assign;
 mod clone;
+mod from_elem;
+mod from_fn;
 mod map;
 mod mul_assign;
-mod new;
 mod norm2;
+mod rand;
 mod scale;
 mod sub_assign;

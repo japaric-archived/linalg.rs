@@ -10,7 +10,7 @@ all:
 bench:
 	mkdir -p bin
 	$(RUSTC) $(LTO) --test --out-dir bin
-	RUST_THREADS=1 bin/linalg --bench
+	RUST_THREADS=1 bin/linalg --bench --ratchet-metrics metrics.json
 
 clean:
 	rm -rf bin

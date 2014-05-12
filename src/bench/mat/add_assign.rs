@@ -1,5 +1,9 @@
 use mat;
 use num::complex::Cmplx;
+use rand::distributions::IndependentSample;
+use rand::distributions::range::Range;
+use rand::task_rng;
+use std::num::pow;
 use super::super::test::Bencher;
 use traits::AddAssign;
 
@@ -8,8 +12,13 @@ macro_rules! add_assign {
     ($name:ident, $size:expr, $ty:ty) => {
         #[bench]
         fn $name(b: &mut Bencher) {
-            let mut x = mat::ones::<$ty>(($size, $size));
-            let y = mat::ones::<$ty>(($size, $size));
+            let between = Range::new(0 as $ty, 1 as $ty);
+            let mut rng = task_rng();
+            let size = pow(10.0, $size).sqrt() as uint;
+            let size = (size, size);
+
+            let mut x = mat::rand(size, &between, &mut rng);
+            let y = mat::rand(size, &between, &mut rng);
 
             b.iter(|| {
                 x.add_assign(&y)
@@ -18,22 +27,51 @@ macro_rules! add_assign {
     }
 }
 
-add_assign!(fallback_10, 10, int)
-add_assign!(fallback_100, 100, int)
-add_assign!(fallback_1_000, 1_000, int)
+add_assign!(f32_2, 2, f32)
+add_assign!(f32_3, 3, f32)
+add_assign!(f32_4, 4, f32)
+add_assign!(f32_5, 5, f32)
+add_assign!(f32_6, 6, f32)
 
-add_assign!(saxpy_10, 10, f32)
-add_assign!(saxpy_100, 100, f32)
-add_assign!(saxpy_1_000, 1_000, f32)
+add_assign!(f64_2, 2, f64)
+add_assign!(f64_3, 3, f64)
+add_assign!(f64_4, 4, f64)
+add_assign!(f64_5, 5, f64)
+add_assign!(f64_6, 6, f64)
 
-add_assign!(daxpy_10, 10, f64)
-add_assign!(daxpy_100, 100, f64)
-add_assign!(daxpy_1_000, 1_000, f64)
+macro_rules! add_assign_cmplx {
+    ($name:ident, $size:expr, $ty:ty) => {
+        #[bench]
+        fn $name(b: &mut Bencher) {
+            let between = Range::new(0 as $ty, 1 as $ty);
+            let mut rng = task_rng();
+            let size = pow(10.0, $size).sqrt() as uint;
+            let size = (size, size);
 
-add_assign!(caxpy_10, 10, Cmplx<f32>)
-add_assign!(caxpy_100, 100, Cmplx<f32>)
-add_assign!(caxpy_1_000, 1_000, Cmplx<f32>)
+            let mut x = mat::from_fn(size, |_, _| {
+                Cmplx::new(between.ind_sample(&mut rng),
+                           between.ind_sample(&mut rng))
+            });
+            let y = mat::from_fn(size, |_, _| {
+                Cmplx::new(between.ind_sample(&mut rng),
+                           between.ind_sample(&mut rng))
+            });
 
-add_assign!(zaxpy_10, 10, Cmplx<f64>)
-add_assign!(zaxpy_100, 100, Cmplx<f64>)
-add_assign!(zaxpy_1_000, 1_000, Cmplx<f64>)
+            b.iter(|| {
+                x.add_assign(&y)
+            })
+        }
+    }
+}
+
+add_assign_cmplx!(c64_2, 2, f32)
+add_assign_cmplx!(c64_3, 3, f32)
+add_assign_cmplx!(c64_4, 4, f32)
+add_assign_cmplx!(c64_5, 5, f32)
+add_assign_cmplx!(c64_6, 6, f32)
+
+add_assign_cmplx!(c128_2, 2, f64)
+add_assign_cmplx!(c128_3, 3, f64)
+add_assign_cmplx!(c128_4, 4, f64)
+add_assign_cmplx!(c128_5, 5, f64)
+add_assign_cmplx!(c128_6, 6, f64)

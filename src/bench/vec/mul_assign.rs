@@ -1,3 +1,6 @@
+use rand::distributions::range::Range;
+use rand::task_rng;
+use std::num::pow;
 use super::super::test::Bencher;
 use traits::MulAssign;
 use vec;
@@ -7,8 +10,12 @@ macro_rules! mul_assign {
     ($name:ident, $size:expr, $ty:ty) => {
         #[bench]
         fn $name(b: &mut Bencher) {
-            let mut x = vec::ones::<$ty>($size);
-            let y = vec::ones::<$ty>($size);
+            let between = Range::new(0 as $ty, 1 as $ty);
+            let mut rng = task_rng();
+            let size = pow(10u, $size);
+
+            let mut x = vec::rand(size, &between, &mut rng);
+            let y = vec::rand(size, &between, &mut rng);
 
             b.iter(|| {
                 x.mul_assign(&y)
@@ -17,14 +24,14 @@ macro_rules! mul_assign {
     }
 }
 
-mul_assign!(fallback_100, 100, int)
-mul_assign!(fallback_10_000, 10_000, int)
-mul_assign!(fallback_1_000_000, 1_000_000, int)
+mul_assign!(f32_2, 2, f32)
+mul_assign!(f32_3, 3, f32)
+mul_assign!(f32_4, 4, f32)
+mul_assign!(f32_5, 5, f32)
+mul_assign!(f32_6, 6, f32)
 
-mul_assign!(f32x4_100, 100, f32)
-mul_assign!(f32x4_10_000, 10_000, f32)
-mul_assign!(f32x4_1_000_000, 1_000_000, f32)
-
-mul_assign!(f64x2_100, 100, f64)
-mul_assign!(f64x2_10_000, 10_000, f64)
-mul_assign!(f64x2_1_000_000, 1_000_000, f64)
+mul_assign!(f64_2, 2, f64)
+mul_assign!(f64_3, 3, f64)
+mul_assign!(f64_4, 4, f64)
+mul_assign!(f64_5, 5, f64)
+mul_assign!(f64_6, 6, f64)
