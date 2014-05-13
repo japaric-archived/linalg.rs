@@ -1,4 +1,4 @@
-use num::complex::Cmplx;
+use num::complex::Complex;
 use rand::distributions::IndependentSample;
 use rand::distributions::range::Range;
 use rand::task_rng;
@@ -38,7 +38,7 @@ sub_assign!(f64_4, 4, f64)
 sub_assign!(f64_5, 5, f64)
 sub_assign!(f64_6, 6, f64)
 
-macro_rules! sub_assign_cmplx {
+macro_rules! sub_assign_complex {
     ($name:ident, $size:expr, $ty:ty) => {
         #[bench]
         fn $name(b: &mut Bencher) {
@@ -47,11 +47,11 @@ macro_rules! sub_assign_cmplx {
             let size = pow(10u, $size);
 
             let mut x = vec::from_fn(size, |_| {
-                Cmplx::new(between.ind_sample(&mut rng),
+                Complex::new(between.ind_sample(&mut rng),
                            between.ind_sample(&mut rng))
             });
             let y = vec::from_fn(size, |_| {
-                Cmplx::new(between.ind_sample(&mut rng),
+                Complex::new(between.ind_sample(&mut rng),
                            between.ind_sample(&mut rng))
             });
 
@@ -62,14 +62,14 @@ macro_rules! sub_assign_cmplx {
     }
 }
 
-sub_assign_cmplx!(c64_2, 2, f32)
-sub_assign_cmplx!(c64_3, 3, f32)
-sub_assign_cmplx!(c64_4, 4, f32)
-sub_assign_cmplx!(c64_5, 5, f32)
-sub_assign_cmplx!(c64_6, 6, f32)
+sub_assign_complex!(c64_2, 2, f32)
+sub_assign_complex!(c64_3, 3, f32)
+sub_assign_complex!(c64_4, 4, f32)
+sub_assign_complex!(c64_5, 5, f32)
+sub_assign_complex!(c64_6, 6, f32)
 
-sub_assign_cmplx!(c128_2, 2, f64)
-sub_assign_cmplx!(c128_3, 3, f64)
-sub_assign_cmplx!(c128_4, 4, f64)
-sub_assign_cmplx!(c128_5, 5, f64)
-sub_assign_cmplx!(c128_6, 6, f64)
+sub_assign_complex!(c128_2, 2, f64)
+sub_assign_complex!(c128_3, 3, f64)
+sub_assign_complex!(c128_4, 4, f64)
+sub_assign_complex!(c128_5, 5, f64)
+sub_assign_complex!(c128_6, 6, f64)

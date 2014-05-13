@@ -23,12 +23,12 @@ There are no docs!
     * zeros
   * Element-wise ops
     * add_assign
-      * BLAS accelerated: `f32`, `f64`, `Cmplx<f32>`, `Cmplx<f64>`
+      * BLAS accelerated: `f32`, `f64`, `Complex<f32>`, `Complex<f64>`
     * map
     * mul_assign
       * SIMD accelerated: `f32`, `f64`
     * sub_assign
-      * BLAS accelerated: `f32`, `f64`, `Cmplx<f32>`, `Cmplx<f64>`
+      * BLAS accelerated: `f32`, `f64`, `Complex<f32>`, `Complex<f64>`
   * Bulk ops
     * all
     * any
@@ -36,9 +36,9 @@ There are no docs!
     * index
     * iter
     * norm2
-      * BLAS accelerated: `f32`, `f64`, `Cmplx<f32>`, `Cmplx<f64>`
+      * BLAS accelerated: `f32`, `f64`, `Complex<f32>`, `Complex<f64>`
     * scale
-      * BLAS accelerated: `f32`, `f64`, `Cmplx<f32>`, `Cmplx<f64>`
+      * BLAS accelerated: `f32`, `f64`, `Complex<f32>`, `Complex<f64>`
 
 * Vect
   * dot

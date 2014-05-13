@@ -1,5 +1,5 @@
 use blas::ffi;
-use num::complex::Cmplx;
+use num::complex::Complex;
 use self::traits::{ArrayNorm2,ArrayScale,ArrayShape};
 use std::fmt::Show;
 use std::num::one;
@@ -114,8 +114,8 @@ macro_rules! add_assign {
 
 add_assign!(f32, saxpy_)
 add_assign!(f64, daxpy_)
-add_assign!(Cmplx<f32>, caxpy_)
-add_assign!(Cmplx<f64>, zaxpy_)
+add_assign!(Complex<f32>, caxpy_)
+add_assign!(Complex<f64>, zaxpy_)
 
 // ArrayNorm2
 macro_rules! norm2 {
@@ -137,8 +137,8 @@ macro_rules! norm2 {
 
 norm2!(f32, f32, snrm2_)
 norm2!(f64, f64, dnrm2_)
-norm2!(Cmplx<f32>, f32, scnrm2_)
-norm2!(Cmplx<f64>, f64, dznrm2_)
+norm2!(Complex<f32>, f32, scnrm2_)
+norm2!(Complex<f64>, f64, dznrm2_)
 
 // ArrayScale
 // FIXME mozilla/rust#7059 convert to generic fallback
@@ -173,8 +173,8 @@ macro_rules! scale {
 
 scale!(f32, sscal_)
 scale!(f64, dscal_)
-scale!(Cmplx<f32>, cscal_)
-scale!(Cmplx<f64>, zscal_)
+scale!(Complex<f32>, cscal_)
+scale!(Complex<f64>, zscal_)
 
 // ArrayShape
 impl<
@@ -226,7 +226,7 @@ for Array<S, T> {
 }
 
 // MulAssign
-// TODO specialized MulAssign impl for Cmplx<f32> and Cmplx<f64>
+// TODO specialized MulAssign impl for Complex<f32> and Complex<f64>
 
 // FIXME mozilla/rust#7059 convert to generic fallback
 impl<
@@ -319,5 +319,5 @@ macro_rules! sub_assign {
 
 sub_assign!(f32, saxpy_)
 sub_assign!(f64, daxpy_)
-sub_assign!(Cmplx<f32>, caxpy_)
-sub_assign!(Cmplx<f64>, zaxpy_)
+sub_assign!(Complex<f32>, caxpy_)
+sub_assign!(Complex<f64>, zaxpy_)

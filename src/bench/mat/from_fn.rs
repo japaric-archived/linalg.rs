@@ -1,5 +1,5 @@
 use mat;
-use num::complex::Cmplx;
+use num::complex::Complex;
 use std::num::pow;
 use super::super::test::Bencher;
 
@@ -30,7 +30,7 @@ from_fn!(f64_4, 4, f64)
 from_fn!(f64_5, 5, f64)
 from_fn!(f64_6, 6, f64)
 
-macro_rules! from_fn_cmplx {
+macro_rules! from_fn_complex {
     ($name:ident, $size:expr, $ty:ty) => {
         #[bench]
         fn $name(b: &mut Bencher) {
@@ -39,22 +39,22 @@ macro_rules! from_fn_cmplx {
 
             b.iter(|| {
                 mat::from_fn(size, |i, j| {
-                    Cmplx::new(i as $ty, 0 as $ty) -
-                    Cmplx::new(0 as $ty, j as $ty)
+                    Complex::new(i as $ty, 0 as $ty) -
+                    Complex::new(0 as $ty, j as $ty)
                 })
             })
         }
     }
 }
 
-from_fn_cmplx!(c64_2, 2, f32)
-from_fn_cmplx!(c64_3, 3, f32)
-from_fn_cmplx!(c64_4, 4, f32)
-from_fn_cmplx!(c64_5, 5, f32)
-from_fn_cmplx!(c64_6, 6, f32)
+from_fn_complex!(c64_2, 2, f32)
+from_fn_complex!(c64_3, 3, f32)
+from_fn_complex!(c64_4, 4, f32)
+from_fn_complex!(c64_5, 5, f32)
+from_fn_complex!(c64_6, 6, f32)
 
-from_fn_cmplx!(c128_2, 2, f64)
-from_fn_cmplx!(c128_3, 3, f64)
-from_fn_cmplx!(c128_4, 4, f64)
-from_fn_cmplx!(c128_5, 5, f64)
-from_fn_cmplx!(c128_6, 6, f64)
+from_fn_complex!(c128_2, 2, f64)
+from_fn_complex!(c128_3, 3, f64)
+from_fn_complex!(c128_4, 4, f64)
+from_fn_complex!(c128_5, 5, f64)
+from_fn_complex!(c128_6, 6, f64)

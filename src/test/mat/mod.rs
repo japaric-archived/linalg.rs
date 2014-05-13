@@ -3,7 +3,7 @@ use std::cmp::min;
 use mat::traits::{MatrixCol,MatrixColIterator,MatrixDiag,MatrixRow,
                   MatrixRowIterator};
 use mat;
-use num::complex::Cmplx;
+use num::complex::Complex;
 use rand::distributions::IndependentSample;
 use rand::distributions::range::Range;
 use rand::task_rng;
@@ -104,17 +104,17 @@ add_assign!(add_assign_fallback, int)
 add_assign!(add_assign_saxpy, f32)
 add_assign!(add_assign_daxpy, f64)
 
-macro_rules! add_assign_cmplx {
+macro_rules! add_assign_complex {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
             sweep_size!({
                 let mut got =
-                    mat::from_elem(shape, Cmplx::new(1 as $ty, 0 as $ty));
+                    mat::from_elem(shape, Complex::new(1 as $ty, 0 as $ty));
                 let v =
-                    mat::from_elem(shape, Cmplx::new(0 as $ty, 1 as $ty));
+                    mat::from_elem(shape, Complex::new(0 as $ty, 1 as $ty));
                 let expected =
-                    mat::from_elem(shape, Cmplx::new(1 as $ty, 1 as $ty));
+                    mat::from_elem(shape, Complex::new(1 as $ty, 1 as $ty));
 
                 got.add_assign(&v);
 
@@ -124,8 +124,8 @@ macro_rules! add_assign_cmplx {
     }
 }
 
-add_assign_cmplx!(add_assign_caxpy, f32)
-add_assign_cmplx!(add_assign_zaxpy, f64)
+add_assign_complex!(add_assign_caxpy, f32)
+add_assign_complex!(add_assign_zaxpy, f64)
 
 // ArrayNorm2
 macro_rules! norm2 {
@@ -146,13 +146,13 @@ macro_rules! norm2 {
 norm2!(norm2_snrm, f32)
 norm2!(norm2_dnrm, f64)
 
-macro_rules! norm2_cmplx {
+macro_rules! norm2_complex {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
             sweep_size!({
                 let v =
-                    mat::from_elem(shape, Cmplx::new(0 as $ty, 1 as $ty));
+                    mat::from_elem(shape, Complex::new(0 as $ty, 1 as $ty));
                 let expected = ((_nrows * _ncols) as $ty).sqrt();
                 let got = v.norm2();
 
@@ -162,8 +162,8 @@ macro_rules! norm2_cmplx {
     }
 }
 
-norm2_cmplx!(norm2_scnrm2, f32)
-norm2_cmplx!(norm2_dznrm2, f64)
+norm2_complex!(norm2_scnrm2, f32)
+norm2_complex!(norm2_dznrm2, f64)
 
 // ArrayScale
 macro_rules! scale {
@@ -186,17 +186,17 @@ scale!(scale_fallback, int)
 scale!(scale_sscal, f32)
 scale!(scale_dscal, f64)
 
-macro_rules! scale_cmplx {
+macro_rules! scale_complex {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
             sweep_size!({
                 let mut got =
-                    mat::from_elem(shape, Cmplx::new(1 as $ty, 2 as $ty));
+                    mat::from_elem(shape, Complex::new(1 as $ty, 2 as $ty));
                 let expected =
-                    mat::from_elem(shape, Cmplx::new(-2 as $ty, 1 as $ty));
+                    mat::from_elem(shape, Complex::new(-2 as $ty, 1 as $ty));
 
-                got.scale(Cmplx::new(0 as $ty, 1 as $ty));
+                got.scale(Complex::new(0 as $ty, 1 as $ty));
 
                 assert_eq!((shape, got), (shape, expected));
             })
@@ -204,8 +204,8 @@ macro_rules! scale_cmplx {
     }
 }
 
-scale_cmplx!(scale_cscal, f32)
-scale_cmplx!(scale_zscal, f64)
+scale_complex!(scale_cscal, f32)
+scale_complex!(scale_zscal, f64)
 
 // Index
 #[test]
@@ -421,17 +421,17 @@ sub_assign!(sub_assign_fallback, int)
 sub_assign!(sub_assign_saxpy, f32)
 sub_assign!(sub_assign_daxpy, f64)
 
-macro_rules! sub_assign_cmplx {
+macro_rules! sub_assign_complex {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
             sweep_size!({
                 let mut got =
-                    mat::from_elem(shape, Cmplx::new(1 as $ty, 0 as $ty));
+                    mat::from_elem(shape, Complex::new(1 as $ty, 0 as $ty));
                 let v =
-                    mat::from_elem(shape, Cmplx::new(0 as $ty, 1 as $ty));
+                    mat::from_elem(shape, Complex::new(0 as $ty, 1 as $ty));
                 let expected =
-                    mat::from_elem(shape, Cmplx::new(1 as $ty, -1 as $ty));
+                    mat::from_elem(shape, Complex::new(1 as $ty, -1 as $ty));
 
                 got.sub_assign(&v);
 
@@ -441,5 +441,5 @@ macro_rules! sub_assign_cmplx {
     }
 }
 
-sub_assign_cmplx!(sub_assign_caxpy, f32)
-sub_assign_cmplx!(sub_assign_zaxpy, f64)
+sub_assign_complex!(sub_assign_caxpy, f32)
+sub_assign_complex!(sub_assign_zaxpy, f64)

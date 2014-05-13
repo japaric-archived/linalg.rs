@@ -1,4 +1,4 @@
-use num::complex::Cmplx;
+use num::complex::Complex;
 use rand::random;
 use std::num::pow;
 use super::super::test::Bencher;
@@ -31,12 +31,12 @@ from_elem!(f64_4, 4, f64)
 from_elem!(f64_5, 5, f64)
 from_elem!(f64_6, 6, f64)
 
-macro_rules! from_elem_cmplx {
+macro_rules! from_elem_complex {
     ($name:ident, $size:expr, $ty:ty) => {
         #[bench]
         fn $name(b: &mut Bencher) {
             let size = pow(10u, $size);
-            let elem = Cmplx::new(random::<$ty>(), random::<$ty>());
+            let elem = Complex::new(random::<$ty>(), random::<$ty>());
 
             b.iter(|| {
                 vec::from_elem(size, elem)
@@ -45,14 +45,14 @@ macro_rules! from_elem_cmplx {
     }
 }
 
-from_elem_cmplx!(c64_2, 2, f32)
-from_elem_cmplx!(c64_3, 3, f32)
-from_elem_cmplx!(c64_4, 4, f32)
-from_elem_cmplx!(c64_5, 5, f32)
-from_elem_cmplx!(c64_6, 6, f32)
+from_elem_complex!(c64_2, 2, f32)
+from_elem_complex!(c64_3, 3, f32)
+from_elem_complex!(c64_4, 4, f32)
+from_elem_complex!(c64_5, 5, f32)
+from_elem_complex!(c64_6, 6, f32)
 
-from_elem_cmplx!(c128_2, 2, f64)
-from_elem_cmplx!(c128_3, 3, f64)
-from_elem_cmplx!(c128_4, 4, f64)
-from_elem_cmplx!(c128_5, 5, f64)
-from_elem_cmplx!(c128_6, 6, f64)
+from_elem_complex!(c128_2, 2, f64)
+from_elem_complex!(c128_3, 3, f64)
+from_elem_complex!(c128_4, 4, f64)
+from_elem_complex!(c128_5, 5, f64)
+from_elem_complex!(c128_6, 6, f64)

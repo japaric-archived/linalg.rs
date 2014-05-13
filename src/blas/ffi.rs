@@ -1,6 +1,6 @@
 #![allow(ctypes)]
 
-use num::complex::Cmplx;
+use num::complex::Complex;
 
 #[link(name = "blas")]
 extern {
@@ -11,12 +11,12 @@ extern {
     pub fn daxpy_(N: *int, alpha: *f64,
                   x: *f64, inc_x: *int,
                   y: *mut f64, inc_y: *int);
-    pub fn caxpy_(N: *int, alpha: *Cmplx<f32>,
-                  x: *Cmplx<f32>, inc_x: *int,
-                  y: *mut Cmplx<f32>, inc_y: *int);
-    pub fn zaxpy_(N: *int, alpha: *Cmplx<f64>,
-                  x: *Cmplx<f64>, inc_x: *int,
-                  y: *mut Cmplx<f64>, inc_y: *int);
+    pub fn caxpy_(N: *int, alpha: *Complex<f32>,
+                  x: *Complex<f32>, inc_x: *int,
+                  y: *mut Complex<f32>, inc_y: *int);
+    pub fn zaxpy_(N: *int, alpha: *Complex<f64>,
+                  x: *Complex<f64>, inc_x: *int,
+                  y: *mut Complex<f64>, inc_y: *int);
 
     // Y <- X
     pub fn scopy_(N: *int,
@@ -26,11 +26,11 @@ extern {
                   x: *f64, inc_x: *int,
                   y: *mut f64, inc_y: *int);
     pub fn ccopy_(N: *int,
-                  x: *Cmplx<f32>, inc_x: *int,
-                  y: *mut Cmplx<f32>, inc_y: *int);
+                  x: *Complex<f32>, inc_x: *int,
+                  y: *mut Complex<f32>, inc_y: *int);
     pub fn zcopy_(N: *int,
-                  x: *Cmplx<f64>, inc_x: *int,
-                  y: *mut Cmplx<f64>, inc_y: *int);
+                  x: *Complex<f64>, inc_x: *int,
+                  y: *mut Complex<f64>, inc_y: *int);
 
     // dot <- X^T * Y
     pub fn sdot_(N: *int,
@@ -46,19 +46,19 @@ extern {
     pub fn dnrm2_(N: *int,
                  x: *f64, inc_x: *int) -> f64;
     pub fn scnrm2_(N: *int,
-                   x: *Cmplx<f32>, inc_x: *int) -> f32;
+                   x: *Complex<f32>, inc_x: *int) -> f32;
     pub fn dznrm2_(N: *int,
-                   x: *Cmplx<f64>, inc_x: *int) -> f64;
+                   x: *Complex<f64>, inc_x: *int) -> f64;
 
     // X <- alpha * X
     pub fn sscal_(N: *int, alpha: *f32,
                   x: *mut f32, inc_x: *int);
     pub fn dscal_(N: *int, alpha: *f64,
                   x: *mut f64, inc_x: *int);
-    pub fn cscal_(N: *int, alpha: *Cmplx<f32>,
-                  x: *mut Cmplx<f32>, inc_x: *int);
-    pub fn zscal_(N: *int, alpha: *Cmplx<f64>,
-                  x: *mut Cmplx<f64>, inc_x: *int);
+    pub fn cscal_(N: *int, alpha: *Complex<f32>,
+                  x: *mut Complex<f32>, inc_x: *int);
+    pub fn zscal_(N: *int, alpha: *Complex<f64>,
+                  x: *mut Complex<f64>, inc_x: *int);
 
     // Y <-> X
     pub fn sswap_(N: *int,
@@ -68,9 +68,9 @@ extern {
                   x: *mut f64, inc_x: *int,
                   y: *mut f64, inc_y: *int);
     pub fn cswap_(N: *int,
-                  x: *mut Cmplx<f32>, inc_x: *int,
-                  y: *mut Cmplx<f32>, inc_y: *int);
+                  x: *mut Complex<f32>, inc_x: *int,
+                  y: *mut Complex<f32>, inc_y: *int);
     pub fn zswap_(N: *int,
-                  x: *mut Cmplx<f64>, inc_x: *int,
-                  y: *mut Cmplx<f64>, inc_y: *int);
+                  x: *mut Complex<f64>, inc_x: *int,
+                  y: *mut Complex<f64>, inc_y: *int);
 }
