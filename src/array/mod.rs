@@ -4,7 +4,7 @@ use self::traits::{ArrayNorm2,ArrayScale,ArrayShape};
 use std::fmt::Show;
 use std::num::one;
 use std::slice::Items;
-use std::unstable::simd::{f32x4,f64x2};
+use std::simd::{f32x4,f64x2};
 // FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
 use traits::{AddAssign,Iterable,MulAssign,SubAssign};
 
