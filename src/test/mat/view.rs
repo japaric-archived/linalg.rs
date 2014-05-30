@@ -4,7 +4,7 @@ use mat::traits::{MatrixCol,MatrixColIterator,MatrixDiag,MatrixRow,
 use mat;
 use rand::distributions::IndependentSample;
 use rand::distributions::range::Range;
-use rand::task_rng;
+use std::rand::task_rng;
 use std::cmp::min;
 use super::rand_size;
 use super::super::NSAMPLES;

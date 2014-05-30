@@ -1,6 +1,6 @@
 use mat;
 use rand::distributions::range::Range;
-use rand::task_rng;
+use std::rand::task_rng;
 use std::num::pow;
 use super::super::test::Bencher;
 

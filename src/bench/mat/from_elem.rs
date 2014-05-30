@@ -1,6 +1,6 @@
 use mat;
 use num::complex::Complex;
-use rand::random;
+use std::rand::random;
 use std::num::pow;
 use super::super::test::Bencher;
 

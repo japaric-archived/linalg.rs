@@ -6,7 +6,7 @@ use mat;
 use num::complex::Complex;
 use rand::distributions::IndependentSample;
 use rand::distributions::range::Range;
-use rand::task_rng;
+use std::rand::task_rng;
 use super::NSAMPLES;
 // FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
 // FIXME mozilla/rust#6515 Use std Index
