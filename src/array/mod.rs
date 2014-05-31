@@ -10,7 +10,7 @@ use traits::{AddAssign,Iterable,MulAssign,SubAssign};
 
 pub mod traits;
 
-#[deriving(Clone, Eq, Show)]
+#[deriving(Clone, PartialEq, Show, TotalEq)]
 pub struct Array<S, T> {
     data: Vec<T>,
     shape: S,
@@ -77,7 +77,7 @@ macro_rules! assert_shape {
 // AddAssign
 // FIXME mozilla/rust#7059 convert to generic fallback
 impl<
-    S: Clone + Eq + Show
+    S: Clone + TotalEq + Show
 > AddAssign<Array<S, int>>
 for Array<S, int> {
     #[inline]
@@ -93,7 +93,7 @@ for Array<S, int> {
 macro_rules! add_assign {
     ($ty:ty, $ffi:ident) => {
         impl<
-            S: Clone + Eq + Show
+            S: Clone + TotalEq + Show
         > AddAssign<Array<S, $ty>>
         for Array<S, $ty> {
             #[inline]
@@ -230,7 +230,7 @@ for Array<S, T> {
 
 // FIXME mozilla/rust#7059 convert to generic fallback
 impl<
-    S: Clone + Eq + Show
+    S: Clone + TotalEq + Show
 > MulAssign<Array<S, int>>
 for Array<S, int> {
     #[inline]
@@ -247,7 +247,7 @@ for Array<S, int> {
 macro_rules! mul_assign {
     ($ty:ty, $stride:expr, $simd:ty) => {
         impl<
-            S: Clone + Eq + Show
+            S: Clone + TotalEq + Show
         > MulAssign<Array<S, $ty>>
         for Array<S, $ty> {
             #[inline]
@@ -282,7 +282,7 @@ mul_assign!(f64, 2, f64x2)
 // SubAssign
 // FIXME mozilla/rust#7059 convert to generic fallback
 impl<
-    S: Clone + Eq + Show
+    S: Clone + TotalEq + Show
 > SubAssign<Array<S, int>>
 for Array<S, int> {
     #[inline]
@@ -298,7 +298,7 @@ for Array<S, int> {
 macro_rules! sub_assign {
     ($ty:ty, $ffi:ident) => {
         impl<
-            S: Clone + Eq + Show
+            S: Clone + TotalEq + Show
         > SubAssign<Array<S, $ty>>
         for Array<S, $ty> {
             #[inline]
