@@ -25,10 +25,10 @@ impl<
     }
 }
 
-// Container
+// Collection
 impl<
     M: Copy + MatrixShape
-> Container
+> Collection
 for Diag<M> {
     #[inline]
     fn len(&self) -> uint {

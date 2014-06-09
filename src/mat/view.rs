@@ -81,10 +81,10 @@ for View<M> {
     }
 }
 
-// Container
+// Collection
 impl<
     M: Copy
-> Container
+> Collection
 for View<M> {
     #[inline]
     fn len(&self) -> uint {

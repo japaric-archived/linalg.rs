@@ -200,11 +200,11 @@ for &'a Array<S, T> {
     }
 }
 
-// Container
+// Collection
 impl<
     S,
     T
-> Container
+> Collection
 for Array<S, T> {
     #[inline]
     fn len(&self) -> uint {

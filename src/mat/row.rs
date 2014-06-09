@@ -33,10 +33,10 @@ impl<
     }
 }
 
-// Container
+// Collection
 impl<
     M: Copy + MatrixShape
-> Container
+> Collection
 for Row<M> {
     #[inline]
     fn len(&self) -> uint {
