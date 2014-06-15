@@ -28,9 +28,11 @@ impl <
 for Cols<M> {
     #[inline]
     fn next(&mut self) -> Option<Col<M>> {
-        if self.state < self.stop {
+        let state = self.state;
+
+        if state < self.stop {
             Some(unsafe {
-                self.mat.unsafe_col(replace(&mut self.state, self.state + 1))
+                self.mat.unsafe_col(replace(&mut self.state, state + 1))
             })
         } else {
             None

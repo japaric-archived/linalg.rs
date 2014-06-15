@@ -32,10 +32,12 @@ impl<
 for Stride<'a, T> {
     #[inline]
     fn next(&mut self) -> Option<&'a T> {
-        if self.state < self.stop {
+        let state = self.state;
+
+        if state < self.stop {
             Some(unsafe {
                 self.slice.unsafe_ref(replace(&mut self.state,
-                                              self.state + self.step))
+                                              state + self.step))
             })
         } else {
             None
