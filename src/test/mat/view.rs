@@ -4,33 +4,24 @@ use mat::traits::{MatrixCol,MatrixColIterator,MatrixDiag,MatrixRow,
 use mat;
 use rand::distributions::IndependentSample;
 use rand::distributions::range::Range;
-use std::rand::task_rng;
+use std::rand;
 use std::cmp::min;
-use super::rand_size;
+use super::rand_sizes;
 use super::super::NSAMPLES;
 // FIXME mozilla/rust#6515 Use std Index
 use traits::{Index,Iterable};
 
-// XXX repeated macro, how to DRY?
-macro_rules! sweep_size {
-    ($code:expr) => ({
-        for shape@(_nrows, _ncols) in range(0, NSAMPLES).map(|_| rand_size()) {
-            $code
-        }
-    })
-}
-
 // Index
 #[test]
 fn index() {
-    let mut rng = task_rng();
+    let mut rng = rand::task_rng();
 
-    sweep_size!({
+    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
         let m = mat::from_fn(shape, |i, j| i - j);
-        let start_row = Range::new(0, _nrows / 2 - 1).ind_sample(&mut rng);
-        let start_col = Range::new(0, _ncols / 2 - 1).ind_sample(&mut rng);
-        let stop_row = Range::new(_nrows / 2, _nrows).ind_sample(&mut rng);
-        let stop_col = Range::new(_ncols / 2, _ncols).ind_sample(&mut rng);
+        let start_row = Range::new(0, nrows / 2 - 1).ind_sample(&mut rng);
+        let start_col = Range::new(0, ncols / 2 - 1).ind_sample(&mut rng);
+        let stop_row = Range::new(nrows / 2, nrows).ind_sample(&mut rng);
+        let stop_col = Range::new(ncols / 2, ncols).ind_sample(&mut rng);
 
         let v = m.view((start_row, start_col), (stop_row, stop_col));
 
@@ -47,19 +38,19 @@ fn index() {
                 assert_eq!((shape, got), (shape, expected));
             }
         }
-    })
+    }
 }
 
 #[test]
 fn view_index() {
-    let mut rng = task_rng();
+    let mut rng = rand::task_rng();
 
-    sweep_size!({
+    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
         let m = mat::from_fn(shape, |i, j| i - j);
-        let offset_row = Range::new(0, _nrows / 2 - 1).ind_sample(&mut rng);
-        let offset_col = Range::new(0, _ncols / 2 - 1).ind_sample(&mut rng);
-        let stop_row = Range::new(_nrows / 2, _nrows).ind_sample(&mut rng);
-        let stop_col = Range::new(_ncols / 2, _ncols).ind_sample(&mut rng);
+        let offset_row = Range::new(0, nrows / 2 - 1).ind_sample(&mut rng);
+        let offset_col = Range::new(0, ncols / 2 - 1).ind_sample(&mut rng);
+        let stop_row = Range::new(nrows / 2, nrows).ind_sample(&mut rng);
+        let stop_col = Range::new(ncols / 2, ncols).ind_sample(&mut rng);
 
         let v = m.view((offset_row, offset_col), (stop_row, stop_col));
 
@@ -88,21 +79,21 @@ fn view_index() {
                 assert_eq!((shape, got), (shape, expected));
             }
         }
-    })
+    }
 }
 
 // MatrixCol
 #[test]
 fn col() {
-    let mut rng = task_rng();
+    let mut rng = rand::task_rng();
 
-    sweep_size!({
+    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
         let m = mat::from_fn(shape, |i, j| i - j);
 
-        let start_row = Range::new(0, _nrows / 2 - 1).ind_sample(&mut rng);
-        let start_col = Range::new(0, _ncols / 2 - 1).ind_sample(&mut rng);
-        let stop_row = Range::new(_nrows / 2, _nrows).ind_sample(&mut rng);
-        let stop_col = Range::new(_ncols / 2, _ncols).ind_sample(&mut rng);
+        let start_row = Range::new(0, nrows / 2 - 1).ind_sample(&mut rng);
+        let start_col = Range::new(0, ncols / 2 - 1).ind_sample(&mut rng);
+        let stop_row = Range::new(nrows / 2, nrows).ind_sample(&mut rng);
+        let stop_col = Range::new(ncols / 2, ncols).ind_sample(&mut rng);
 
         let v = m.view((start_row, start_col), (stop_row, stop_col));
 
@@ -120,20 +111,20 @@ fn col() {
                 assert_eq!((shape, got), (shape, expected));
             }
         }
-    })
+    }
 }
 
 #[test]
 fn iterable_col() {
-    let mut rng = task_rng();
+    let mut rng = rand::task_rng();
 
-    sweep_size!({
+    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
         let m = mat::from_fn(shape, |i, j| i - j);
 
-        let start_row = Range::new(0, _nrows / 2 - 1).ind_sample(&mut rng);
-        let start_col = Range::new(0, _ncols / 2 - 1).ind_sample(&mut rng);
-        let stop_row = Range::new(_nrows / 2, _nrows).ind_sample(&mut rng);
-        let stop_col = Range::new(_ncols / 2, _ncols).ind_sample(&mut rng);
+        let start_row = Range::new(0, nrows / 2 - 1).ind_sample(&mut rng);
+        let start_col = Range::new(0, ncols / 2 - 1).ind_sample(&mut rng);
+        let stop_row = Range::new(nrows / 2, nrows).ind_sample(&mut rng);
+        let stop_col = Range::new(ncols / 2, ncols).ind_sample(&mut rng);
 
         let v = m.view((start_row, start_col), (stop_row, stop_col));
 
@@ -148,21 +139,21 @@ fn iterable_col() {
 
             assert_eq!(got, expected);
         }
-    })
+    }
 }
 
 // MatrixColIterator
 #[test]
 fn cols() {
-    let mut rng = task_rng();
+    let mut rng = rand::task_rng();
 
-    sweep_size!({
+    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
         let m = mat::from_fn(shape, |i, j| i - j);
 
-        let start_row = Range::new(0, _nrows / 2 - 1).ind_sample(&mut rng);
-        let start_col = Range::new(0, _ncols / 2 - 1).ind_sample(&mut rng);
-        let stop_row = Range::new(_nrows / 2, _nrows).ind_sample(&mut rng);
-        let stop_col = Range::new(_ncols / 2, _ncols).ind_sample(&mut rng);
+        let start_row = Range::new(0, nrows / 2 - 1).ind_sample(&mut rng);
+        let start_col = Range::new(0, ncols / 2 - 1).ind_sample(&mut rng);
+        let stop_row = Range::new(nrows / 2, nrows).ind_sample(&mut rng);
+        let stop_col = Range::new(ncols / 2, ncols).ind_sample(&mut rng);
 
         let v = m.view((start_row, start_col), (stop_row, stop_col));
 
@@ -178,21 +169,21 @@ fn cols() {
                 assert_eq!((shape, got), (shape, expected));
             }
         }
-    })
+    }
 }
 
 // MatrixDiag
 #[test]
 fn diag() {
-    let mut rng = task_rng();
+    let mut rng = rand::task_rng();
 
-    sweep_size!({
+    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
         let m = mat::from_fn(shape, |i, j| j as int - i as int);
 
-        let start_row = Range::new(0, _nrows / 2 - 1).ind_sample(&mut rng);
-        let start_col = Range::new(0, _ncols / 2 - 1).ind_sample(&mut rng);
-        let stop_row = Range::new(_nrows / 2, _nrows).ind_sample(&mut rng);
-        let stop_col = Range::new(_ncols / 2, _ncols).ind_sample(&mut rng);
+        let start_row = Range::new(0, nrows / 2 - 1).ind_sample(&mut rng);
+        let start_col = Range::new(0, ncols / 2 - 1).ind_sample(&mut rng);
+        let stop_row = Range::new(nrows / 2, nrows).ind_sample(&mut rng);
+        let stop_col = Range::new(ncols / 2, ncols).ind_sample(&mut rng);
 
         let v = m.view((start_row, start_col), (stop_row, stop_col));
 
@@ -211,21 +202,21 @@ fn diag() {
             assert_eq!((shape, d, got),
                        (shape, d, expected))
         }
-    })
+    }
 }
 
 // MatrixRow
 #[test]
 fn iterable_row() {
-    let mut rng = task_rng();
+    let mut rng = rand::task_rng();
 
-    sweep_size!({
+    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
         let m = mat::from_fn(shape, |i, j| i - j);
 
-        let start_row = Range::new(0, _nrows / 2 - 1).ind_sample(&mut rng);
-        let start_col = Range::new(0, _ncols / 2 - 1).ind_sample(&mut rng);
-        let stop_row = Range::new(_nrows / 2, _nrows).ind_sample(&mut rng);
-        let stop_col = Range::new(_ncols / 2, _ncols).ind_sample(&mut rng);
+        let start_row = Range::new(0, nrows / 2 - 1).ind_sample(&mut rng);
+        let start_col = Range::new(0, ncols / 2 - 1).ind_sample(&mut rng);
+        let stop_row = Range::new(nrows / 2, nrows).ind_sample(&mut rng);
+        let stop_col = Range::new(ncols / 2, ncols).ind_sample(&mut rng);
 
         let v = m.view((start_row, start_col), (stop_row, stop_col));
 
@@ -240,20 +231,20 @@ fn iterable_row() {
 
             assert_eq!(got, expected);
         }
-    })
+    }
 }
 
 #[test]
 fn row() {
-    let mut rng = task_rng();
+    let mut rng = rand::task_rng();
 
-    sweep_size!({
+    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
         let m = mat::from_fn(shape, |i, j| i - j);
 
-        let start_row = Range::new(0, _nrows / 2 - 1).ind_sample(&mut rng);
-        let start_col = Range::new(0, _ncols / 2 - 1).ind_sample(&mut rng);
-        let stop_row = Range::new(_nrows / 2, _nrows).ind_sample(&mut rng);
-        let stop_col = Range::new(_ncols / 2, _ncols).ind_sample(&mut rng);
+        let start_row = Range::new(0, nrows / 2 - 1).ind_sample(&mut rng);
+        let start_col = Range::new(0, ncols / 2 - 1).ind_sample(&mut rng);
+        let stop_row = Range::new(nrows / 2, nrows).ind_sample(&mut rng);
+        let stop_col = Range::new(ncols / 2, ncols).ind_sample(&mut rng);
 
         let v = m.view((start_row, start_col), (stop_row, stop_col));
 
@@ -271,21 +262,21 @@ fn row() {
                 assert_eq!((shape, got), (shape, expected));
             }
         }
-    })
+    }
 }
 
 // MatrixRowIterator
 #[test]
 fn rows() {
-    let mut rng = task_rng();
+    let mut rng = rand::task_rng();
 
-    sweep_size!({
+    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
         let m = mat::from_fn(shape, |i, j| i - j);
 
-        let start_row = Range::new(0, _nrows / 2 - 1).ind_sample(&mut rng);
-        let start_col = Range::new(0, _ncols / 2 - 1).ind_sample(&mut rng);
-        let stop_row = Range::new(_nrows / 2, _nrows).ind_sample(&mut rng);
-        let stop_col = Range::new(_ncols / 2, _ncols).ind_sample(&mut rng);
+        let start_row = Range::new(0, nrows / 2 - 1).ind_sample(&mut rng);
+        let start_col = Range::new(0, ncols / 2 - 1).ind_sample(&mut rng);
+        let stop_row = Range::new(nrows / 2, nrows).ind_sample(&mut rng);
+        let stop_col = Range::new(ncols / 2, ncols).ind_sample(&mut rng);
 
         let v = m.view((start_row, start_col), (stop_row, stop_col));
 
@@ -301,7 +292,7 @@ fn rows() {
                 assert_eq!((shape, got), (shape, expected));
             }
         }
-    })
+    }
 }
 
 // MatrixView

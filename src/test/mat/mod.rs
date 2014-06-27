@@ -6,7 +6,8 @@ use mat;
 use num::complex::Complex;
 use rand::distributions::IndependentSample;
 use rand::distributions::range::Range;
-use std::rand::task_rng;
+use std::rand;
+use std::rand::TaskRng;
 use super::NSAMPLES;
 // FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
 // FIXME mozilla/rust#6515 Use std Index
@@ -14,72 +15,71 @@ use traits::{AddAssign,Index,Iterable,MulAssign,SubAssign};
 
 mod view;
 
-fn rand_size() -> (uint, uint) {
-    let mut rng = task_rng();
-    let between = Range::new(10u, 1_000);
-
-    let nrows = between.ind_sample(&mut rng);
-    let ncols = between.ind_sample(&mut rng);
-
-    (nrows, ncols)
+struct RandSizes {
+    between: Range<uint>,
+    rng: TaskRng,
 }
 
-// FIXME mozilla/rust#12249 DRYer benchmarks using macros
-macro_rules! sweep_size {
-    ($code:expr) => ({
-        for shape@(_nrows, _ncols) in range(0, NSAMPLES).map(|_| rand_size()) {
-            $code
-        }
-    })
+impl Iterator<(uint, uint)> for RandSizes {
+    fn next(&mut self) -> Option<(uint, uint)> {
+        let nrows = self.between.ind_sample(&mut self.rng);
+        let ncols = self.between.ind_sample(&mut self.rng);
+
+        Some((nrows, ncols))
+    }
+}
+
+fn rand_sizes() -> RandSizes {
+    RandSizes { between: Range::new(10u, 1_000), rng: rand::task_rng() }
 }
 
 // mat
 #[test]
 fn from_elem() {
-    sweep_size!({
-        let m = mat::from_elem(shape, 0);
+    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
+        let m = mat::from_elem(shape, 0u);
 
         assert_eq!(m.shape(), shape);
-        assert_eq!(m.unwrap(), Vec::from_elem(_nrows * _ncols, 0));
-    })
+        assert_eq!(m.unwrap(), Vec::from_elem(nrows * ncols, 0u));
+    }
 }
 
 #[test]
 fn from_fn() {
-    sweep_size!({
+    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
         let m = mat::from_fn(shape, |i, j| i + j);
 
         assert_eq!(m.shape(), shape);
-        assert_eq!(m.unwrap(), Vec::from_fn(_nrows * _ncols, |i| {
-            let r = i / _ncols;
-            let c = i % _ncols;
+        assert_eq!(m.unwrap(), Vec::from_fn(nrows * ncols, |i| {
+            let r = i / ncols;
+            let c = i % ncols;
             r + c
         }));
-    })
+    }
 }
 
 #[test]
 fn map() {
-    sweep_size!({
+    for shape in rand_sizes().take(NSAMPLES) {
         let mut got = mat::zeros::<f32>(shape);
         let expected = mat::ones::<f32>(shape);
 
         got.map(|x| x.cos());
 
         assert_eq!((shape, got), (shape, expected));
-    })
+    }
 }
 
 #[test]
 fn rand() {
-    let between = Range::new(0.0, 1.0);
-    let mut rng = task_rng();
+    let between = Range::new(0f64, 1f64);
+    let mut rng = rand::task_rng();
 
-    sweep_size!({
+    for shape in rand_sizes().take(NSAMPLES) {
         let v = mat::rand(shape, &between, &mut rng);
 
         assert_eq!((shape, v.all(|&x| x >= 0.0 && x < 1.0)), (shape, true));
-    })
+    }
 }
 
 // AddAssign
@@ -87,7 +87,7 @@ macro_rules! add_assign {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            sweep_size!({
+            for shape in rand_sizes().take(NSAMPLES) {
                 let mut got = mat::from_elem(shape, 1 as $ty);
                 let v = mat::from_elem(shape, 2 as $ty);
                 let expected = mat::from_elem(shape, 3 as $ty);
@@ -95,7 +95,7 @@ macro_rules! add_assign {
                 got.add_assign(&v);
 
                 assert_eq!((shape, got), (shape, expected));
-            })
+            }
         }
     }
 }
@@ -108,7 +108,7 @@ macro_rules! add_assign_complex {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            sweep_size!({
+            for shape in rand_sizes().take(NSAMPLES) {
                 let mut got =
                     mat::from_elem(shape, Complex::new(1 as $ty, 0 as $ty));
                 let v =
@@ -119,7 +119,7 @@ macro_rules! add_assign_complex {
                 got.add_assign(&v);
 
                 assert_eq!((shape, got), (shape, expected));
-            })
+            }
         }
     }
 }
@@ -132,13 +132,13 @@ macro_rules! norm2 {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            sweep_size!({
+            for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
                 let v = mat::ones::<$ty>(shape);
-                let expected = ((_nrows * _ncols) as $ty).sqrt();
+                let expected = ((nrows * ncols) as $ty).sqrt();
                 let got = v.norm2();
 
                 assert_eq!((shape, got), (shape, expected));
-            })
+            }
         }
     }
 }
@@ -150,14 +150,14 @@ macro_rules! norm2_complex {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            sweep_size!({
+            for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
                 let v =
                     mat::from_elem(shape, Complex::new(0 as $ty, 1 as $ty));
-                let expected = ((_nrows * _ncols) as $ty).sqrt();
+                let expected = ((nrows * ncols) as $ty).sqrt();
                 let got = v.norm2();
 
                 assert_eq!((shape, got), (shape, expected));
-            })
+            }
         }
     }
 }
@@ -170,14 +170,14 @@ macro_rules! scale {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            sweep_size!({
+            for shape in rand_sizes().take(NSAMPLES) {
                 let mut got = mat::ones::<$ty>(shape);
                 let expected = mat::from_elem(shape, 2 as $ty);
 
                 got.scale(2 as $ty);
 
                 assert_eq!((shape, got), (shape, expected));
-            })
+            }
         }
     }
 }
@@ -190,7 +190,7 @@ macro_rules! scale_complex {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            sweep_size!({
+            for shape in rand_sizes().take(NSAMPLES) {
                 let mut got =
                     mat::from_elem(shape, Complex::new(1 as $ty, 2 as $ty));
                 let expected =
@@ -199,7 +199,7 @@ macro_rules! scale_complex {
                 got.scale(Complex::new(0 as $ty, 1 as $ty));
 
                 assert_eq!((shape, got), (shape, expected));
-            })
+            }
         }
     }
 }
@@ -218,18 +218,18 @@ fn col_out_of_bounds() {
 
 #[test]
 fn index() {
-    sweep_size!({
+    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
         let v = mat::from_fn(shape, |i, j| i + j);
 
-        for i in range(0, _nrows) {
-            for j in range(0, _ncols) {
+        for i in range(0, nrows) {
+            for j in range(0, ncols) {
                 let got = *v.index(&(i, j));
                 let expected = i + j;
 
                 assert_eq!((shape, got), (shape, expected));
             }
         }
-    })
+    }
 }
 
 #[test]
@@ -243,71 +243,71 @@ fn row_out_of_bounds() {
 // MatrixCol
 #[test]
 fn col() {
-    sweep_size!({
+    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
         let m = mat::from_fn(shape, |i, j| i - j);
 
-        for j in range(0, _ncols) {
+        for j in range(0, ncols) {
             let col = m.col(j);
 
-            for i in range(0, _nrows) {
+            for i in range(0, nrows) {
                 let got = *col.index(&i);
                 let expected = i - j;
 
                 assert_eq!((shape, got), (shape, expected));
             }
         }
-    })
+    }
 }
 
 #[test]
 fn iterable_col() {
-    sweep_size!({
+    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
         let m = mat::from_fn(shape, |i, j| i - j);
 
-        for j in range(0, _ncols) {
+        for j in range(0, ncols) {
             let col = m.col(j);
             let got = col.iter().map(|&x| x).collect();
-            let expected = Vec::from_fn(_nrows, |i| i - j);
+            let expected = Vec::from_fn(nrows, |i| i - j);
 
             assert_eq!((shape, got), (shape, expected));
         }
-    })
+    }
 }
 
 // MatrixColIterator
 #[test]
 fn cols() {
-    sweep_size!({
+    for shape@(nrows, _) in rand_sizes().take(NSAMPLES) {
         let m = mat::from_fn(shape, |i, j| i - j);
 
         for (j, col) in m.cols().enumerate() {
-            for i in range(0, _nrows) {
+            for i in range(0, nrows) {
                 let got = *col.index(&i);
                 let expected = i - j;
 
                 assert_eq!((shape, got), (shape, expected));
             }
         }
-    })
+    }
 }
 
 // MatrixDiag
 #[test]
 fn diag() {
-    sweep_size!({
+    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
         let m = mat::from_fn(shape, |i, j| j as int - i as int);
 
-        for d in range(-(_nrows as int) + 1, _ncols as int) {
+        for d in range(-(nrows as int) + 1, ncols as int) {
             let got = m.diag(d).iter().map(|&x| x).collect();
             let expected = if d > 0 {
-                Vec::from_elem(min(_nrows, _ncols - d as uint), d)
+                Vec::from_elem(min(nrows, ncols - d as uint), d)
             } else {
-                Vec::from_elem(min(_nrows + d as uint, _ncols), d)
+                Vec::from_elem(min(nrows + d as uint, ncols), d)
             };
 
             assert_eq!((shape, d, got), (shape, d, expected))
         }
-    })
+    }
 }
 
 #[test]
@@ -329,52 +329,52 @@ fn diag_row_out_of_bounds() {
 // MatrixRow
 #[test]
 fn iterable_row() {
-    sweep_size!({
+    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
         let m = mat::from_fn(shape, |i, j| i - j);
 
-        for i in range(0, _nrows) {
+        for i in range(0, nrows) {
             let row = m.row(i);
             let got = row.iter().map(|&x| x).collect();
-            let expected = Vec::from_fn(_ncols, |j| i - j);
+            let expected = Vec::from_fn(ncols, |j| i - j);
 
             assert_eq!((shape, got), (shape, expected));
         }
-    })
+    }
 }
 
 #[test]
 fn row() {
-    sweep_size!({
+    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
         let m = mat::from_fn(shape, |i, j| i - j);
 
-        for i in range(0, _nrows) {
+        for i in range(0, nrows) {
             let row = m.row(i);
 
-            for j in range(0, _ncols) {
+            for j in range(0, ncols) {
                 let got = *row.index(&j);
                 let expected = i - j;
 
                 assert_eq!((shape, got), (shape, expected));
             }
         }
-    })
+    }
 }
 
 // MatrixRowIterator
 #[test]
 fn rows() {
-    sweep_size!({
+    for shape@(_, ncols) in rand_sizes().take(NSAMPLES) {
         let m = mat::from_fn(shape, |i, j| i - j);
 
         for (i, row) in m.rows().enumerate() {
-            for j in range(0, _ncols) {
+            for j in range(0, ncols) {
                 let got = *row.index(&j);
                 let expected = i - j;
 
                 assert_eq!((shape, got), (shape, expected));
             }
         }
-    })
+    }
 }
 
 // MulAssign
@@ -382,7 +382,7 @@ macro_rules! mul_assign {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            sweep_size!({
+            for shape in rand_sizes().take(NSAMPLES) {
                 let mut got = mat::from_elem(shape, 2 as $ty);
                 let v = mat::from_elem(shape, 3 as $ty);
                 let expected = mat::from_elem(shape, 6 as $ty);
@@ -390,7 +390,7 @@ macro_rules! mul_assign {
                 got.mul_assign(&v);
 
                 assert_eq!((shape, got), (shape, expected));
-            })
+            }
         }
     }
 }
@@ -404,7 +404,7 @@ macro_rules! sub_assign {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            sweep_size!({
+            for shape in rand_sizes().take(NSAMPLES) {
                 let mut got = mat::from_elem(shape, 3 as $ty);
                 let v = mat::from_elem(shape, 2 as $ty);
                 let expected = mat::from_elem(shape, 1 as $ty);
@@ -412,7 +412,7 @@ macro_rules! sub_assign {
                 got.sub_assign(&v);
 
                 assert_eq!((shape, got), (shape, expected));
-            })
+            }
         }
     }
 }
@@ -425,7 +425,7 @@ macro_rules! sub_assign_complex {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            sweep_size!({
+            for shape in rand_sizes().take(NSAMPLES) {
                 let mut got =
                     mat::from_elem(shape, Complex::new(1 as $ty, 0 as $ty));
                 let v =
@@ -436,7 +436,7 @@ macro_rules! sub_assign_complex {
                 got.sub_assign(&v);
 
                 assert_eq!((shape, got), (shape, expected));
-            })
+            }
         }
     }
 }

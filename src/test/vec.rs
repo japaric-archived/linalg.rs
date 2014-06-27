@@ -2,72 +2,72 @@ use array::traits::{ArrayDot,ArrayNorm2,ArrayScale,ArrayShape};
 use num::complex::Complex;
 use rand::distributions::IndependentSample;
 use rand::distributions::range::Range;
-use std::rand::task_rng;
+use std::rand;
+use std::rand::TaskRng;
 use super::NSAMPLES;
 // FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
 // FIXME mozilla/rust#6515 Use std Index
 use traits::{AddAssign,Index,Iterable,MulAssign,SubAssign};
 use vec;
 
-fn rand_size() -> uint {
-    let mut rng = task_rng();
-    let between = Range::new(100u, 1_000_000);
-
-    between.ind_sample(&mut rng)
+struct RandSizes {
+    between: Range<uint>,
+    rng: TaskRng,
 }
 
-// FIXME mozilla/rust#12249 DRYer benchmarks using macros
-macro_rules! sweep_size {
-    ($code:expr) => ({
-        for n in range(0, NSAMPLES).map(|_| rand_size()) {
-            $code
-        }
-    })
+impl Iterator<uint> for RandSizes {
+    fn next(&mut self) -> Option<uint> {
+        Some(self.between.ind_sample(&mut self.rng))
+    }
+}
+
+fn rand_sizes() -> RandSizes {
+    RandSizes { between: Range::new(100u, 1_000_000), rng: rand::task_rng() }
 }
 
 // vec
 #[test]
 fn from_elem() {
-    sweep_size!({
-        let v = vec::from_elem(n, 0);
+    for n in rand_sizes().take(NSAMPLES) {
+        let v = vec::from_elem(n, 0u);
 
         assert_eq!(v.shape(), (n,));
-        assert_eq!(v.unwrap(), Vec::from_elem(n, 0));
-    })
+        assert_eq!(v.unwrap(), Vec::from_elem(n, 0u));
+    }
 }
 
 #[test]
 fn from_fn() {
-    sweep_size!({
+    for n in rand_sizes().take(NSAMPLES) {
         let v = vec::from_fn(n, |i| i);
 
         assert_eq!(v.shape(), (n,));
         assert_eq!(v.unwrap(), Vec::from_fn(n, |i| i));
-    })
+    }
 }
 
 #[test]
 fn map() {
-    sweep_size!({
+    for n in rand_sizes().take(NSAMPLES) {
         let mut got = vec::zeros::<f32>(n);
         let expected = vec::ones::<f32>(n);
 
         got.map(|x| x.cos());
 
         assert_eq!((n, got), (n, expected));
-    })
+    }
 }
 
 #[test]
 fn rand() {
-    let between = Range::new(0.0, 1.0);
-    let mut rng = task_rng();
+    let between = Range::new(0f64, 1f64);
+    let mut rng = rand::task_rng();
 
-    sweep_size!({
+    for n in rand_sizes().take(NSAMPLES) {
         let v = vec::rand(n, &between, &mut rng);
 
         assert_eq!((n, v.all(|&x| x >= 0.0 && x < 1.0)), (n, true));
-    })
+    }
 }
 
 // AddAssign
@@ -75,7 +75,7 @@ macro_rules! add_assign {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            sweep_size!({
+            for n in rand_sizes().take(NSAMPLES) {
                 let mut got = vec::from_elem(n, 1 as $ty);
                 let v = vec::from_elem(n, 2 as $ty);
                 let expected = vec::from_elem(n, 3 as $ty);
@@ -83,7 +83,7 @@ macro_rules! add_assign {
                 got.add_assign(&v);
 
                 assert_eq!((n, got), (n, expected));
-            })
+            }
         }
     }
 }
@@ -96,7 +96,7 @@ macro_rules! add_assign_complex {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            sweep_size!({
+            for n in rand_sizes().take(NSAMPLES) {
                 let mut got =
                     vec::from_elem(n, Complex::new(1 as $ty, 0 as $ty));
                 let v =
@@ -107,7 +107,7 @@ macro_rules! add_assign_complex {
                 got.add_assign(&v);
 
                 assert_eq!((n, got), (n, expected));
-            })
+            }
         }
     }
 }
@@ -120,14 +120,14 @@ macro_rules! dot {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            sweep_size!({
+            for n in rand_sizes().take(NSAMPLES) {
                 let x = vec::ones::<$ty>(n);
                 let y = vec::ones::<$ty>(n);
                 let got = x.dot(&y);
                 let expected = n as $ty;
 
                 assert_eq!((n, got), (n, expected));
-            })
+            }
         }
     }
 }
@@ -141,13 +141,13 @@ macro_rules! norm2 {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            sweep_size!({
+            for n in rand_sizes().take(NSAMPLES) {
                 let v = vec::ones::<$ty>(n);
                 let expected = (n as $ty).sqrt();
                 let got = v.norm2();
 
                 assert_eq!((n, got), (n, expected));
-            })
+            }
         }
     }
 }
@@ -159,13 +159,13 @@ macro_rules! norm2_complex {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            sweep_size!({
+            for n in rand_sizes().take(NSAMPLES) {
                 let v = vec::from_elem(n, Complex::new(0 as $ty, 1 as $ty));
                 let expected = (n as $ty).sqrt();
                 let got = v.norm2();
 
                 assert_eq!((n, got), (n, expected));
-            })
+            }
         }
     }
 }
@@ -178,14 +178,14 @@ macro_rules! scale {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            sweep_size!({
+            for n in rand_sizes().take(NSAMPLES) {
                 let mut got = vec::ones::<$ty>(n);
                 let expected = vec::from_elem(n, 2 as $ty);
 
                 got.scale(2 as $ty);
 
                 assert_eq!((n, got), (n, expected));
-            })
+            }
         }
     }
 }
@@ -198,7 +198,7 @@ macro_rules! scale_complex {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            sweep_size!({
+            for n in rand_sizes().take(NSAMPLES) {
                 let mut got =
                     vec::from_elem(n, Complex::new(1 as $ty, 2 as $ty));
                 let expected =
@@ -207,7 +207,7 @@ macro_rules! scale_complex {
                 got.scale(Complex::new(0 as $ty, 1 as $ty));
 
                 assert_eq!((n, got), (n, expected));
-            })
+            }
         }
     }
 }
@@ -218,13 +218,13 @@ scale_complex!(scale_zscal, f64)
 // Index
 #[test]
 fn index() {
-    sweep_size!({
+    for n in rand_sizes().take(NSAMPLES) {
         let v = vec::from_fn(n, |i| i);
 
         for i in range(0, n) {
             assert_eq!(v.index(&i), &i);
         }
-    })
+    }
 }
 
 #[test]
@@ -240,7 +240,7 @@ macro_rules! mul_assign {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            sweep_size!({
+            for n in rand_sizes().take(NSAMPLES) {
                 let mut got = vec::from_elem(n, 2 as $ty);
                 let v = vec::from_elem(n, 3 as $ty);
                 let expected = vec::from_elem(n, 6 as $ty);
@@ -248,7 +248,7 @@ macro_rules! mul_assign {
                 got.mul_assign(&v);
 
                 assert_eq!((n, got), (n, expected));
-            })
+            }
         }
     }
 }
@@ -262,7 +262,7 @@ macro_rules! sub_assign {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            sweep_size!({
+            for n in rand_sizes().take(NSAMPLES) {
                 let mut got = vec::from_elem(n, 3 as $ty);
                 let v = vec::from_elem(n, 2 as $ty);
                 let expected = vec::from_elem(n, 1 as $ty);
@@ -270,7 +270,7 @@ macro_rules! sub_assign {
                 got.sub_assign(&v);
 
                 assert_eq!((n, got), (n, expected));
-            })
+            }
         }
     }
 }
@@ -283,7 +283,7 @@ macro_rules! sub_assign_complex {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            sweep_size!({
+            for n in rand_sizes().take(NSAMPLES) {
                 let mut got =
                     vec::from_elem(n, Complex::new(1 as $ty, 0 as $ty));
                 let v =
@@ -294,7 +294,7 @@ macro_rules! sub_assign_complex {
                 got.sub_assign(&v);
 
                 assert_eq!((n, got), (n, expected));
-            })
+            }
         }
     }
 }
