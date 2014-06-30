@@ -26,7 +26,7 @@ impl<
     }
 
     #[inline]
-    pub fn as_ptr(&self) -> *T {
+    pub fn as_ptr(&self) -> *const T {
         self.data.as_ptr()
     }
 
@@ -258,7 +258,7 @@ macro_rules! mul_assign {
                 let p_self = self.as_mut_ptr();
                 let p_rhs = rhs.as_ptr();
                 let simd_p_self = p_self as *mut $simd;
-                let simd_p_rhs = p_rhs as *$simd;
+                let simd_p_rhs = p_rhs as *const $simd;
 
                 for i in range(0, n) {
                     unsafe {
