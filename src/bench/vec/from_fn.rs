@@ -1,5 +1,6 @@
-use num::complex::Complex;
-use std::num::pow;
+use num::Complex;
+use std::num;
+
 use super::super::test::Bencher;
 use vec;
 
@@ -8,7 +9,7 @@ macro_rules! from_fn {
     ($name:ident, $size:expr, $ty: ty) => {
         #[bench]
         fn $name(b: &mut Bencher) {
-            let size = pow(10u, $size);
+            let size = num::pow(10u, $size);
 
             b.iter(|| {
                 vec::from_fn(size, |i| i as $ty)
@@ -34,7 +35,7 @@ macro_rules! from_fn_complex {
     ($name:ident, $size:expr, $ty: ty) => {
         #[bench]
         fn $name(b: &mut Bencher) {
-            let size = pow(10u, $size);
+            let size = num::pow(10u, $size);
 
             b.iter(|| {
                 vec::from_fn(size, |i| Complex::new(i as $ty, i as $ty))

@@ -1,3 +1,15 @@
+use rand::Rng;
+use rand::distributions::IndependentSample;
+use std::num::{One,Zero};
+use std::num;
+
+use array::Array;
+use array::traits::ArrayShape;
+use self::traits::{MatrixCol,MatrixColIterator,MatrixDiag,MatrixRow,
+                   MatrixRowIterator,MatrixShape,MatrixView};
+// FIXME mozilla/rust#6515 Use std Index
+use traits::{Index,UnsafeIndex};
+
 pub use self::col::Col;
 pub use self::cols::Cols;
 pub use self::diag::Diag;
@@ -5,22 +17,13 @@ pub use self::row::Row;
 pub use self::rows::Rows;
 pub use self::view::View;
 
-use array::Array;
-use array::traits::ArrayShape;
-use rand::Rng;
-use rand::distributions::IndependentSample;
-use self::traits::{MatrixCol,MatrixColIterator,MatrixDiag,MatrixRow,
-                   MatrixRowIterator,MatrixShape,MatrixView};
-use std::num::{One,Zero,one,zero};
-// FIXME mozilla/rust#6515 Use std Index
-use traits::{Index,UnsafeIndex};
-
 mod col;
 mod cols;
 mod diag;
 mod row;
 mod rows;
 mod view;
+
 pub mod traits;
 
 pub type Mat<T> = Array<(uint, uint), T>;
@@ -55,7 +58,7 @@ pub fn from_fn<T>(
 
 #[inline]
 pub fn ones<T: Clone + One>(size: (uint, uint)) -> Mat<T> {
-    from_elem(size, one())
+    from_elem(size, num::one())
 }
 
 #[inline]
@@ -77,7 +80,7 @@ pub fn rand<T,
 
 #[inline]
 pub fn zeros<T: Clone + Zero>(size: (uint, uint)) -> Mat<T> {
-    from_elem(size, zero())
+    from_elem(size, num::zero())
 }
 
 // Index

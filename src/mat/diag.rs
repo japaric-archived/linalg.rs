@@ -1,7 +1,8 @@
+use std::cmp;
+
 use common::Stride;
 use mat::{Mat,View};
 use mat::traits::MatrixShape;
-use std::cmp::min;
 // FIXME mozilla/rust#6515 Use std Index
 use traits::{Index,Iterable,UnsafeIndex};
 
@@ -33,9 +34,9 @@ for Diag<M> {
     #[inline]
     fn len(&self) -> uint {
         if self.diag > 0 {
-            min(self.mat.ncols() - self.diag as uint, self.mat.nrows())
+            cmp::min(self.mat.ncols() - self.diag as uint, self.mat.nrows())
         } else {
-            min(self.mat.nrows() + self.diag as uint, self.mat.ncols())
+            cmp::min(self.mat.nrows() + self.diag as uint, self.mat.ncols())
         }
     }
 }

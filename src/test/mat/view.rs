@@ -1,11 +1,10 @@
+use rand::distributions::{IndependentSample,Range};
+use std::{cmp,rand};
+
 use array::traits::ArrayShape;
 use mat::traits::{MatrixCol,MatrixColIterator,MatrixDiag,MatrixRow,
                   MatrixRowIterator,MatrixView};
 use mat;
-use rand::distributions::IndependentSample;
-use rand::distributions::range::Range;
-use std::rand;
-use std::cmp::min;
 use super::rand_sizes;
 use super::super::NSAMPLES;
 // FIXME mozilla/rust#6515 Use std Index
@@ -192,11 +191,11 @@ fn diag() {
         for d in range(-(nrows as int) + 1, ncols as int) {
             let got = v.diag(d).iter().map(|&x| x).collect();
             let expected = if d > 0 {
-                Vec::from_elem(min(nrows, ncols - d as uint),
-                               d + start_col as int - start_row as int)
+                Vec::from_elem(cmp::min(nrows, ncols - d as uint),
+                                        d + (start_col - start_row) as int)
             } else {
-                Vec::from_elem(min(nrows + d as uint, ncols),
-                               d + start_col as int - start_row as int)
+                Vec::from_elem(cmp::min(nrows + d as uint, ncols),
+                                        d + (start_col - start_row) as int)
             };
 
             assert_eq!((shape, d, got),

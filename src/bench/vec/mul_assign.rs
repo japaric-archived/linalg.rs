@@ -1,6 +1,6 @@
-use rand::distributions::range::Range;
-use std::rand::task_rng;
-use std::num::pow;
+use rand::distributions::Range;
+use std::{num,rand};
+
 use super::super::test::Bencher;
 use traits::MulAssign;
 use vec;
@@ -10,9 +10,9 @@ macro_rules! mul_assign {
     ($name:ident, $size:expr, $ty:ty) => {
         #[bench]
         fn $name(b: &mut Bencher) {
-            let between = Range::new(0 as $ty, 1 as $ty);
-            let mut rng = task_rng();
-            let size = pow(10u, $size);
+            let between = Range::<$ty>::new(num::zero(), num::one());
+            let mut rng = rand::task_rng();
+            let size = num::pow(10u, $size);
 
             let mut x = vec::rand(size, &between, &mut rng);
             let y = vec::rand(size, &between, &mut rng);

@@ -1,13 +1,12 @@
+use num::Complex;
+use rand::distributions::{IndependentSample,Range};
+use std::{cmp,num,rand};
+use std::rand::TaskRng;
+
 use array::traits::{ArrayNorm2,ArrayScale,ArrayShape};
-use std::cmp::min;
 use mat::traits::{MatrixCol,MatrixColIterator,MatrixDiag,MatrixRow,
                   MatrixRowIterator};
 use mat;
-use num::complex::Complex;
-use rand::distributions::IndependentSample;
-use rand::distributions::range::Range;
-use std::rand;
-use std::rand::TaskRng;
 use super::NSAMPLES;
 // FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
 // FIXME mozilla/rust#6515 Use std Index
@@ -88,9 +87,13 @@ macro_rules! add_assign {
         #[test]
         fn $name() {
             for shape in rand_sizes().take(NSAMPLES) {
-                let mut got = mat::from_elem(shape, 1 as $ty);
-                let v = mat::from_elem(shape, 2 as $ty);
-                let expected = mat::from_elem(shape, 3 as $ty);
+                let one = num::one::<$ty>();
+                let two = one + one;
+                let three = two + one;
+
+                let mut got = mat::from_elem(shape, one);
+                let v = mat::from_elem(shape, two);
+                let expected = mat::from_elem(shape, three);
 
                 got.add_assign(&v);
 
@@ -109,12 +112,12 @@ macro_rules! add_assign_complex {
         #[test]
         fn $name() {
             for shape in rand_sizes().take(NSAMPLES) {
-                let mut got =
-                    mat::from_elem(shape, Complex::new(1 as $ty, 0 as $ty));
-                let v =
-                    mat::from_elem(shape, Complex::new(0 as $ty, 1 as $ty));
-                let expected =
-                    mat::from_elem(shape, Complex::new(1 as $ty, 1 as $ty));
+                let zero = num::zero::<$ty>();
+                let one = num::one::<$ty>();
+
+                let mut got = mat::from_elem(shape, Complex::new(one, zero));
+                let v = mat::from_elem(shape, Complex::new(zero, one));
+                let expected = mat::from_elem(shape, Complex::new(one, one));
 
                 got.add_assign(&v);
 
@@ -151,8 +154,10 @@ macro_rules! norm2_complex {
         #[test]
         fn $name() {
             for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
-                let v =
-                    mat::from_elem(shape, Complex::new(0 as $ty, 1 as $ty));
+                let zero = num::zero::<$ty>();
+                let one = num::one::<$ty>();
+
+                let v = mat::from_elem(shape, Complex::new(zero, one));
                 let expected = ((nrows * ncols) as $ty).sqrt();
                 let got = v.norm2();
 
@@ -171,10 +176,13 @@ macro_rules! scale {
         #[test]
         fn $name() {
             for shape in rand_sizes().take(NSAMPLES) {
-                let mut got = mat::ones::<$ty>(shape);
-                let expected = mat::from_elem(shape, 2 as $ty);
+                let one = num::one::<$ty>();
+                let two = one + one;
 
-                got.scale(2 as $ty);
+                let mut got = mat::ones::<$ty>(shape);
+                let expected = mat::from_elem(shape, two);
+
+                got.scale(two);
 
                 assert_eq!((shape, got), (shape, expected));
             }
@@ -191,12 +199,14 @@ macro_rules! scale_complex {
         #[test]
         fn $name() {
             for shape in rand_sizes().take(NSAMPLES) {
-                let mut got =
-                    mat::from_elem(shape, Complex::new(1 as $ty, 2 as $ty));
-                let expected =
-                    mat::from_elem(shape, Complex::new(-2 as $ty, 1 as $ty));
+                let zero = num::zero::<$ty>();
+                let one = num::one::<$ty>();
+                let two = one + one;
 
-                got.scale(Complex::new(0 as $ty, 1 as $ty));
+                let mut got = mat::from_elem(shape, Complex::new(one, two));
+                let expected = mat::from_elem(shape, Complex::new(-two, one));
+
+                got.scale(Complex::new(zero, one));
 
                 assert_eq!((shape, got), (shape, expected));
             }
@@ -300,9 +310,9 @@ fn diag() {
         for d in range(-(nrows as int) + 1, ncols as int) {
             let got = m.diag(d).iter().map(|&x| x).collect();
             let expected = if d > 0 {
-                Vec::from_elem(min(nrows, ncols - d as uint), d)
+                Vec::from_elem(cmp::min(nrows, ncols - d as uint), d)
             } else {
-                Vec::from_elem(min(nrows + d as uint, ncols), d)
+                Vec::from_elem(cmp::min(nrows + d as uint, ncols), d)
             };
 
             assert_eq!((shape, d, got), (shape, d, expected))
@@ -383,9 +393,14 @@ macro_rules! mul_assign {
         #[test]
         fn $name() {
             for shape in rand_sizes().take(NSAMPLES) {
-                let mut got = mat::from_elem(shape, 2 as $ty);
-                let v = mat::from_elem(shape, 3 as $ty);
-                let expected = mat::from_elem(shape, 6 as $ty);
+                let one = num::one::<$ty>();
+                let two = one + one;
+                let three = two + one;
+                let six = two * three;
+
+                let mut got = mat::from_elem(shape, two);
+                let v = mat::from_elem(shape, three);
+                let expected = mat::from_elem(shape, six);
 
                 got.mul_assign(&v);
 
@@ -405,9 +420,13 @@ macro_rules! sub_assign {
         #[test]
         fn $name() {
             for shape in rand_sizes().take(NSAMPLES) {
-                let mut got = mat::from_elem(shape, 3 as $ty);
-                let v = mat::from_elem(shape, 2 as $ty);
-                let expected = mat::from_elem(shape, 1 as $ty);
+                let one = num::one::<$ty>();
+                let two = one + one;
+                let three = two + one;
+
+                let mut got = mat::from_elem(shape, three);
+                let v = mat::from_elem(shape, two);
+                let expected = mat::from_elem(shape, one);
 
                 got.sub_assign(&v);
 
@@ -426,12 +445,12 @@ macro_rules! sub_assign_complex {
         #[test]
         fn $name() {
             for shape in rand_sizes().take(NSAMPLES) {
-                let mut got =
-                    mat::from_elem(shape, Complex::new(1 as $ty, 0 as $ty));
-                let v =
-                    mat::from_elem(shape, Complex::new(0 as $ty, 1 as $ty));
-                let expected =
-                    mat::from_elem(shape, Complex::new(1 as $ty, -1 as $ty));
+                let zero = num::zero::<$ty>();
+                let one = num::one::<$ty>();
+
+                let mut got = mat::from_elem(shape, Complex::new(one, zero));
+                let v = mat::from_elem(shape, Complex::new(zero, one));
+                let expected = mat::from_elem(shape, Complex::new(one, -one));
 
                 got.sub_assign(&v);
 

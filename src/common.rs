@@ -1,4 +1,4 @@
-use std::mem::replace;
+use std::mem;
 
 pub struct Stride<'a, T> {
     slice: &'a [T],
@@ -36,8 +36,8 @@ for Stride<'a, T> {
 
         if state < self.stop {
             Some(unsafe {
-                self.slice.unsafe_ref(replace(&mut self.state,
-                                              state + self.step))
+                self.slice.unsafe_ref(mem::replace(&mut self.state,
+                                                   state + self.step))
             })
         } else {
             None

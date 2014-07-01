@@ -1,6 +1,6 @@
-use num::complex::Complex;
-use std::rand::random;
-use std::num::pow;
+use num::Complex;
+use std::{num,rand};
+
 use super::super::test::Bencher;
 use vec;
 
@@ -9,8 +9,8 @@ macro_rules! from_elem {
     ($name:ident, $size:expr, $ty:ty) => {
         #[bench]
         fn $name(b: &mut Bencher) {
-            let size = pow(10u, $size);
-            let elem = random::<$ty>();
+            let size = num::pow(10u, $size);
+            let elem = rand::random::<$ty>();
 
             b.iter(|| {
                 vec::from_elem(size, elem)
@@ -35,8 +35,8 @@ macro_rules! from_elem_complex {
     ($name:ident, $size:expr, $ty:ty) => {
         #[bench]
         fn $name(b: &mut Bencher) {
-            let size = pow(10u, $size);
-            let elem = Complex::new(random::<$ty>(), random::<$ty>());
+            let size = num::pow(10u, $size);
+            let elem = Complex::<$ty>::new(rand::random(), rand::random());
 
             b.iter(|| {
                 vec::from_elem(size, elem)

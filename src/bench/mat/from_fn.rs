@@ -1,6 +1,7 @@
+use num::Complex;
+use std::num;
+
 use mat;
-use num::complex::Complex;
-use std::num::pow;
 use super::super::test::Bencher;
 
 // FIXME mozilla/rust#12249 DRYer benchmarks using macros
@@ -8,7 +9,7 @@ macro_rules! from_fn {
     ($name:ident, $size:expr, $ty:ty) => {
         #[bench]
         fn $name(b: &mut Bencher) {
-            let size = pow(10f64, $size).sqrt() as uint;
+            let size = num::pow(10f64, $size).sqrt() as uint;
             let size = (size, size);
 
             b.iter(|| {
@@ -34,13 +35,13 @@ macro_rules! from_fn_complex {
     ($name:ident, $size:expr, $ty:ty) => {
         #[bench]
         fn $name(b: &mut Bencher) {
-            let size = pow(10f64, $size).sqrt() as uint;
+            let size = num::pow(10f64, $size).sqrt() as uint;
             let size = (size, size);
 
             b.iter(|| {
                 mat::from_fn(size, |i, j| {
-                    Complex::new(i as $ty, 0 as $ty) -
-                    Complex::new(0 as $ty, j as $ty)
+                    Complex::new(i as $ty, num::zero()) -
+                    Complex::new(num::zero(), j as $ty)
                 })
             })
         }

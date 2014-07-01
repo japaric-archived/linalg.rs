@@ -1,6 +1,7 @@
+use std::slice::Items;
+
 use mat::{Mat,View};
 use mat::traits::MatrixShape;
-use std::slice::Items;
 // FIXME mozilla/rust#6515 Use std Index
 use traits::{Index,Iterable,UnsafeIndex};
 

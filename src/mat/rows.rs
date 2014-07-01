@@ -1,6 +1,7 @@
+use std::mem;
+
 use mat::Row;
 use mat::traits::{MatrixRow,MatrixShape};
-use std::mem::replace;
 
 // TODO mozilla/rust#13302 Enforce Copy on M
 pub struct Rows<M> {
@@ -32,7 +33,7 @@ for Rows<M> {
 
         if state < self.stop {
             Some(unsafe {
-                self.mat.unsafe_row(replace(&mut self.state, state + 1))
+                self.mat.unsafe_row(mem::replace(&mut self.state, state + 1))
             })
         } else {
             None

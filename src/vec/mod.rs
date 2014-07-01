@@ -1,10 +1,12 @@
-use array::Array;
-use array::traits::{ArrayDot,ArrayShape};
-use blas::ffi;
 use rand::Rng;
 use rand::distributions::IndependentSample;
 use std::iter::AdditiveIterator;
-use std::num::{One,Zero,one,zero};
+use std::num::{One,Zero};
+use std::num;
+
+use array::Array;
+use array::traits::{ArrayDot,ArrayShape};
+use blas::ffi;
 // FIXME mozilla/rust#6515 Use std Index
 use traits::{Index,Iterable,UnsafeIndex};
 
@@ -24,7 +26,7 @@ pub fn from_fn<T>(size: uint, op: |uint| -> T) -> Vect<T> {
 
 #[inline]
 pub fn ones<T: Clone + One>(size: uint) -> Vect<T> {
-    from_elem(size, one())
+    from_elem(size, num::one())
 }
 
 #[inline]
@@ -43,7 +45,7 @@ pub fn rand<
 
 #[inline]
 pub fn zeros<T: Clone + Zero>(size: uint) -> Vect<T> {
-    from_elem(size, zero())
+    from_elem(size, num::zero())
 }
 
 // XXX repeated macro, how to DRY?

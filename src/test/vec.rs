@@ -1,9 +1,9 @@
-use array::traits::{ArrayDot,ArrayNorm2,ArrayScale,ArrayShape};
-use num::complex::Complex;
-use rand::distributions::IndependentSample;
-use rand::distributions::range::Range;
-use std::rand;
+use num::Complex;
+use rand::distributions::{IndependentSample,Range};
 use std::rand::TaskRng;
+use std::{num,rand};
+
+use array::traits::{ArrayDot,ArrayNorm2,ArrayScale,ArrayShape};
 use super::NSAMPLES;
 // FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
 // FIXME mozilla/rust#6515 Use std Index
@@ -76,9 +76,13 @@ macro_rules! add_assign {
         #[test]
         fn $name() {
             for n in rand_sizes().take(NSAMPLES) {
-                let mut got = vec::from_elem(n, 1 as $ty);
-                let v = vec::from_elem(n, 2 as $ty);
-                let expected = vec::from_elem(n, 3 as $ty);
+                let one = num::one::<$ty>();
+                let two = one + one;
+                let three = two + one;
+
+                let mut got = vec::from_elem(n, one);
+                let v = vec::from_elem(n, two);
+                let expected = vec::from_elem(n, three);
 
                 got.add_assign(&v);
 
@@ -97,12 +101,12 @@ macro_rules! add_assign_complex {
         #[test]
         fn $name() {
             for n in rand_sizes().take(NSAMPLES) {
-                let mut got =
-                    vec::from_elem(n, Complex::new(1 as $ty, 0 as $ty));
-                let v =
-                    vec::from_elem(n, Complex::new(0 as $ty, 1 as $ty));
-                let expected =
-                    vec::from_elem(n, Complex::new(1 as $ty, 1 as $ty));
+                let zero = num::zero::<$ty>();
+                let one = num::one::<$ty>();
+
+                let mut got = vec::from_elem(n, Complex::new(one, zero));
+                let v = vec::from_elem(n, Complex::new(zero, one));
+                let expected = vec::from_elem(n, Complex::new(one, one));
 
                 got.add_assign(&v);
 
@@ -160,7 +164,10 @@ macro_rules! norm2_complex {
         #[test]
         fn $name() {
             for n in rand_sizes().take(NSAMPLES) {
-                let v = vec::from_elem(n, Complex::new(0 as $ty, 1 as $ty));
+                let zero = num::zero::<$ty>();
+                let one = num::one::<$ty>();
+
+                let v = vec::from_elem(n, Complex::new(zero, one));
                 let expected = (n as $ty).sqrt();
                 let got = v.norm2();
 
@@ -179,10 +186,13 @@ macro_rules! scale {
         #[test]
         fn $name() {
             for n in rand_sizes().take(NSAMPLES) {
-                let mut got = vec::ones::<$ty>(n);
-                let expected = vec::from_elem(n, 2 as $ty);
+                let one = num::one::<$ty>();
+                let two = one + one;
 
-                got.scale(2 as $ty);
+                let mut got = vec::ones::<$ty>(n);
+                let expected = vec::from_elem(n, two);
+
+                got.scale(two);
 
                 assert_eq!((n, got), (n, expected));
             }
@@ -199,12 +209,14 @@ macro_rules! scale_complex {
         #[test]
         fn $name() {
             for n in rand_sizes().take(NSAMPLES) {
-                let mut got =
-                    vec::from_elem(n, Complex::new(1 as $ty, 2 as $ty));
-                let expected =
-                    vec::from_elem(n, Complex::new(-2 as $ty, 1 as $ty));
+                let zero = num::zero::<$ty>();
+                let one = num::one::<$ty>();
+                let two = one + one;
 
-                got.scale(Complex::new(0 as $ty, 1 as $ty));
+                let mut got = vec::from_elem(n, Complex::new(one, two));
+                let expected = vec::from_elem(n, Complex::new(-two, one));
+
+                got.scale(Complex::new(zero, one));
 
                 assert_eq!((n, got), (n, expected));
             }
@@ -241,9 +253,14 @@ macro_rules! mul_assign {
         #[test]
         fn $name() {
             for n in rand_sizes().take(NSAMPLES) {
-                let mut got = vec::from_elem(n, 2 as $ty);
-                let v = vec::from_elem(n, 3 as $ty);
-                let expected = vec::from_elem(n, 6 as $ty);
+                let one = num::one::<$ty>();
+                let two = one + one;
+                let three = two + one;
+                let six = two * three;
+
+                let mut got = vec::from_elem(n, two);
+                let v = vec::from_elem(n, three);
+                let expected = vec::from_elem(n, six);
 
                 got.mul_assign(&v);
 
@@ -263,9 +280,13 @@ macro_rules! sub_assign {
         #[test]
         fn $name() {
             for n in rand_sizes().take(NSAMPLES) {
-                let mut got = vec::from_elem(n, 3 as $ty);
-                let v = vec::from_elem(n, 2 as $ty);
-                let expected = vec::from_elem(n, 1 as $ty);
+                let one = num::one::<$ty>();
+                let two = one + one;
+                let three = two + one;
+
+                let mut got = vec::from_elem(n, three);
+                let v = vec::from_elem(n, two);
+                let expected = vec::from_elem(n, one);
 
                 got.sub_assign(&v);
 
@@ -284,12 +305,12 @@ macro_rules! sub_assign_complex {
         #[test]
         fn $name() {
             for n in rand_sizes().take(NSAMPLES) {
-                let mut got =
-                    vec::from_elem(n, Complex::new(1 as $ty, 0 as $ty));
-                let v =
-                    vec::from_elem(n, Complex::new(0 as $ty, 1 as $ty));
-                let expected =
-                    vec::from_elem(n, Complex::new(1 as $ty, -1 as $ty));
+                let zero = num::zero::<$ty>();
+                let one = num::one::<$ty>();
+
+                let mut got = vec::from_elem(n, Complex::new(one, zero));
+                let v = vec::from_elem(n, Complex::new(zero, one));
+                let expected = vec::from_elem(n, Complex::new(one, -one));
 
                 got.sub_assign(&v);
 

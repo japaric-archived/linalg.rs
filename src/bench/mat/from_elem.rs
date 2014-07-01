@@ -1,7 +1,7 @@
+use num::Complex;
+use std::{num,rand};
+
 use mat;
-use num::complex::Complex;
-use std::rand::random;
-use std::num::pow;
 use super::super::test::Bencher;
 
 // FIXME mozilla/rust#12249 DRYer benchmarks using macros
@@ -9,9 +9,9 @@ macro_rules! from_elem {
     ($name:ident, $size:expr, $ty:ty) => {
         #[bench]
         fn $name(b: &mut Bencher) {
-            let size = pow(10f64, $size).sqrt() as uint;
+            let size = num::pow(10f64, $size).sqrt() as uint;
             let size = (size, size);
-            let elem = random::<$ty>();
+            let elem = rand::random::<$ty>();
 
             b.iter(|| {
                 mat::from_elem(size, elem)
@@ -36,9 +36,9 @@ macro_rules! from_elem_complex {
     ($name:ident, $size:expr, $ty:ty) => {
         #[bench]
         fn $name(b: &mut Bencher) {
-            let size = pow(10f64, $size).sqrt() as uint;
+            let size = num::pow(10f64, $size).sqrt() as uint;
             let size = (size, size);
-            let elem = Complex::new(random::<$ty>(), random::<$ty>());
+            let elem = Complex::<$ty>::new(rand::random(), rand::random());
 
             b.iter(|| {
                 mat::from_elem(size, elem)

@@ -1,10 +1,11 @@
-use blas::ffi;
-use num::complex::Complex;
-use self::traits::{ArrayNorm2,ArrayScale,ArrayShape};
+use num::Complex;
 use std::fmt::Show;
-use std::num::one;
-use std::slice::Items;
+use std::num;
 use std::simd::{f32x4,f64x2};
+use std::slice::Items;
+
+use blas::ffi;
+use self::traits::{ArrayNorm2,ArrayScale,ArrayShape};
 // FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
 use traits::{AddAssign,Iterable,MulAssign,SubAssign};
 
@@ -100,7 +101,7 @@ macro_rules! add_assign {
             fn add_assign(&mut self, rhs: &Array<S, $ty>) {
                 assert_shape!(add_assign, +=)
 
-                let plus_one = one::<$ty>();
+                let plus_one = num::one::<$ty>();
 
                 unsafe {
                     ffi::$ffi(&(self.len() as int), &plus_one,
@@ -305,7 +306,7 @@ macro_rules! sub_assign {
             fn sub_assign(&mut self, rhs: &Array<S, $ty>) {
                 assert_shape!(sub_assign, -=)
 
-                let minus_one = -one::<$ty>();
+                let minus_one = -num::one::<$ty>();
 
                 unsafe {
                     ffi::$ffi(&(self.len() as int), &minus_one,
