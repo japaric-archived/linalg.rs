@@ -1,10 +1,12 @@
 before_install:
   - sudo apt-get update
   - wget -O - http://static.rust-lang.org/dist/rust-nightly-x86_64-unknown-linux-gnu.tar.gz | tar -xvzf -
+  - git clone --recursive https://github.com/rust-lang/cargo
 
 install:
   - sudo apt-get install libopenblas-dev
   - sudo ./rust-nightly-x86_64-unknown-linux-gnu/install.sh --prefix=/usr
+  - cd cargo && make && sudo make install && cd ..
 
 script:
   - rustc --version
