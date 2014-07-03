@@ -5,6 +5,10 @@
 extern crate num;
 extern crate rand;
 
+#[cfg(test)] extern crate quickcheck;
+// FIXME No cargo support for quickcheck_macros (yet)
+//#[cfg(test)] extern crate quickcheck_macros;
+
 pub mod array;
 pub mod blas;
 pub mod common;
@@ -13,6 +17,5 @@ pub mod vec;
 
 mod traits;
 
-#[cfg(test)]
-mod bench;
-mod test;
+#[cfg(test)] mod bench;
+#[cfg(test)] mod test;
