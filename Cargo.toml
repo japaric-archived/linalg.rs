@@ -1,0 +1,8 @@
+[package]
+name = "linalg"
+version = "0.0.1"
+authors = ["Jorge Aparicio <japaric@linux.com>"]
+
+[[lib]]
+name = "linalg"
+path = "src/lib.rs"
