@@ -1,7 +1,7 @@
 before_install:
-  - sudo apt-get update
   - yes | sudo add-apt-repository ppa:cmrx64/cargo
   - yes | sudo add-apt-repository ppa:hansjorg/rust
+  - sudo apt-get update
 
 install:
   - sudo apt-get install cargo rust-nightly libopenblas-dev
