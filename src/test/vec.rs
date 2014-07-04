@@ -5,23 +5,19 @@ use std::iter::AdditiveIterator;
 use std::{num,rand};
 
 use array::traits::{ArrayDot,ArrayNorm2,ArrayScale,ArrayShape};
+use test::tol;
 // FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
 // FIXME mozilla/rust#6515 Use std Index
 use traits::{AddAssign,Index,Iterable,MulAssign,SubAssign};
 use vec;
 
-fn tol<T: NumCast>() -> T {
-    NumCast::from(1e-5_f64).unwrap()
-}
-
 // vec
 #[test]
 fn from_elem() {
     fn prop(nelems: uint, elem: f32) -> bool {
-        let xs = vec::from_elem(nelems, elem);
+        let v = vec::from_elem(nelems, elem);
 
-        xs.shape() == (nelems,) &&
-            xs.iter().all(|&x| x == elem)
+        v.shape() == (nelems,) && v.unwrap() == Vec::from_elem(nelems, elem)
     }
 
     quickcheck(prop);
@@ -32,8 +28,7 @@ fn from_fn() {
     fn prop(nelems: uint) -> bool {
         let v = vec::from_fn(nelems, |i| i);
 
-        v.shape() == (nelems,) &&
-            v.iter().enumerate().all(|(index, elem)| index.eq(elem))
+        v.shape() == (nelems,) && v.unwrap() == Vec::from_fn(nelems, |i| i)
     }
 
     quickcheck(prop);
@@ -41,7 +36,7 @@ fn from_fn() {
 
 #[test]
 fn map() {
-    fn prop(nelems: uint, low: f32, high: f32) -> TestResult {
+    fn prop(nelems: uint, (low, high): (f32, f32)) -> TestResult {
         if low >= high {
             return TestResult::discard();
         }
@@ -52,12 +47,12 @@ fn map() {
 
         let xs = vec::rand(nelems, &between, rng);
         let mut ys = xs.clone();
-        ys.map(|e| e.sin());
+        ys.map(|y| y.sin());
 
-        let xs = xs.iter();
-        let ys = ys.iter();
 
-        TestResult::from_bool(xs.zip(ys).all(|(x, &y)| y == x.sin()))
+        TestResult::from_bool(range(0, nelems).all(|ref i| {
+            xs.index(i).sin().eq(ys.index(i))
+        }))
     }
 
     quickcheck(prop);
@@ -65,7 +60,7 @@ fn map() {
 
 #[test]
 fn rand() {
-    fn prop(nelems: uint, low: f32, high: f32) -> TestResult {
+    fn prop(nelems: uint, (low, high): (f32, f32)) -> TestResult {
         if low >= high {
             return TestResult::discard();
         }
@@ -86,7 +81,7 @@ macro_rules! op_assign {
     ($name:ident, $ty:ty, $op:ident, $op_assign:ident) => {
         #[test]
         fn $name() {
-            fn prop(nelems: uint, low: $ty, high: $ty) -> TestResult {
+            fn prop(nelems: uint, (low, high): ($ty, $ty)) -> TestResult {
                 if low >= high {
                     return TestResult::discard();
                 }
@@ -101,11 +96,12 @@ macro_rules! op_assign {
 
                 zs.$op_assign(&ys);
 
-                TestResult::from_bool(xs.shape() == zs.shape() && {
-                    let (xs, ys, zs) = (xs.iter(), ys.iter(), zs.iter());
-
-                    xs.zip(ys).zip(zs).all(|((x, y), z)| x.$op(y).eq(z))
-                })
+                TestResult::from_bool(
+                    xs.shape() == zs.shape() &&
+                    range(0, nelems).all(|ref i| {
+                        xs.index(i).$op(ys.index(i)).eq(zs.index(i))
+                    })
+                )
             }
 
             quickcheck(prop);
@@ -117,7 +113,7 @@ macro_rules! op_assign_complex {
     ($name:ident, $ty:ty, $op:ident, $op_assign:ident) => {
         #[test]
         fn $name() {
-            fn prop(nelems: uint, low: $ty, high: $ty) -> TestResult {
+            fn prop(nelems: uint, (low, high): ($ty, $ty)) -> TestResult {
                 if low >= high {
                     return TestResult::discard();
                 }
@@ -142,11 +138,12 @@ macro_rules! op_assign_complex {
 
                 zs.$op_assign(&ys);
 
-                TestResult::from_bool(xs.shape() == zs.shape() && {
-                    let (xs, ys, zs) = (xs.iter(), ys.iter(), zs.iter());
-
-                    xs.zip(ys).zip(zs).all(|((x, y), z)| x.$op(y).eq(z))
-                })
+                TestResult::from_bool(
+                    xs.shape() == zs.shape() &&
+                    range(0, nelems).all(|ref i| {
+                        xs.index(i).$op(ys.index(i)).eq(zs.index(i))
+                    })
+                )
             }
 
             quickcheck(prop);
@@ -179,7 +176,7 @@ macro_rules! dot {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            fn prop(nelems: uint, low: $ty, high: $ty) -> TestResult {
+            fn prop(nelems: uint, (low, high): ($ty, $ty)) -> TestResult {
                 if low >= high {
                     return TestResult::discard();
                 }
@@ -221,7 +218,7 @@ macro_rules! norm2 {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            fn prop(nelems: uint, low: $ty, high: $ty) -> TestResult {
+            fn prop(nelems: uint, (low, high): ($ty, $ty)) -> TestResult {
                 if low >= high {
                     return TestResult::discard();
                 }
@@ -259,7 +256,7 @@ macro_rules! norm2_complex {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            fn prop(nelems: uint, low: $ty, high: $ty) -> TestResult {
+            fn prop(nelems: uint, (low, high): ($ty, $ty)) -> TestResult {
                 if low >= high {
                     return TestResult::discard();
                 }
@@ -303,7 +300,7 @@ macro_rules! scale {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            fn prop(nelems: uint, low: $ty, high: $ty) -> TestResult {
+            fn prop(nelems: uint, (low, high): ($ty, $ty)) -> TestResult {
                 if low >= high {
                     return TestResult::discard();
                 }
@@ -335,7 +332,7 @@ macro_rules! scale_complex {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            fn prop(nelems: uint, low: $ty, high: $ty) -> TestResult {
+            fn prop(nelems: uint, (low, high): ($ty, $ty)) -> TestResult {
                 if low >= high {
                     return TestResult::discard();
                 }

@@ -1,4 +1,6 @@
 mod mat;
 mod vec;
 
-static NSAMPLES: uint = 10;
+fn tol<T: NumCast>() -> T {
+    NumCast::from(1e-5_f64).unwrap()
+}

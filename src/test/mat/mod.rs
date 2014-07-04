@@ -1,105 +1,175 @@
 use num::Complex;
+use quickcheck::{TestResult,quickcheck};
 use rand::distributions::{IndependentSample,Range};
-use std::{cmp,num,rand};
-use std::rand::TaskRng;
+use std::iter::AdditiveIterator;
+use std::{num,rand};
 
 use array::traits::{ArrayNorm2,ArrayScale,ArrayShape};
-use mat::traits::{MatrixCol,MatrixColIterator,MatrixDiag,MatrixRow,
-                  MatrixRowIterator};
 use mat;
-use super::NSAMPLES;
+use test::tol;
 // FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
 // FIXME mozilla/rust#6515 Use std Index
 use traits::{AddAssign,Index,Iterable,MulAssign,SubAssign};
 
+mod col;
+mod diag;
+mod row;
 mod view;
-
-struct RandSizes {
-    between: Range<uint>,
-    rng: TaskRng,
-}
-
-impl Iterator<(uint, uint)> for RandSizes {
-    fn next(&mut self) -> Option<(uint, uint)> {
-        let nrows = self.between.ind_sample(&mut self.rng);
-        let ncols = self.between.ind_sample(&mut self.rng);
-
-        Some((nrows, ncols))
-    }
-}
-
-fn rand_sizes() -> RandSizes {
-    RandSizes { between: Range::new(10u, 1_000), rng: rand::task_rng() }
-}
 
 // mat
 #[test]
 fn from_elem() {
-    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
-        let m = mat::from_elem(shape, 0u);
+    fn prop(nrows: uint, ncols: uint, elem: f32) -> bool {
+        let m = mat::from_elem((nrows, ncols), elem);
 
-        assert_eq!(m.shape(), shape);
-        assert_eq!(m.unwrap(), Vec::from_elem(nrows * ncols, 0u));
+        m.shape() == (nrows, ncols) &&
+            m.unwrap() == Vec::from_elem(nrows * ncols, elem)
     }
+
+    quickcheck(prop);
 }
 
 #[test]
 fn from_fn() {
-    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
-        let m = mat::from_fn(shape, |i, j| i + j);
+    fn prop(nrows: uint, ncols: uint) -> bool {
+        let m = mat::from_fn((nrows, ncols), |i, j| i + j);
 
-        assert_eq!(m.shape(), shape);
-        assert_eq!(m.unwrap(), Vec::from_fn(nrows * ncols, |i| {
-            let r = i / ncols;
-            let c = i % ncols;
-            r + c
-        }));
+        m.shape() == (nrows, ncols) &&
+            m.unwrap() == Vec::from_fn(nrows * ncols, |i| {
+                let r = i / ncols;
+                let c = i % ncols;
+                r + c
+            })
     }
+
+    quickcheck(prop);
 }
 
 #[test]
 fn map() {
-    for shape in rand_sizes().take(NSAMPLES) {
-        let mut got = mat::zeros::<f32>(shape);
-        let expected = mat::ones::<f32>(shape);
+    fn prop(shape: (uint, uint), (low, high): (f32, f32)) -> TestResult {
+        if low >= high {
+            return TestResult::discard();
+        }
 
-        got.map(|x| x.cos());
+        let between = Range::new(low, high);
+        let mut rng = rand::task_rng();
+        let rng = &mut rng;
 
-        assert_eq!((shape, got), (shape, expected));
+        let xs = mat::rand(shape, &between, rng);
+        let mut ys = xs.clone();
+        ys.map(|y| y.sin());
+
+        let (nrows, ncols) = shape;
+        let (rows, cols) = (range(0, nrows), range(0, ncols));
+        TestResult::from_bool(rows.zip(cols).all(|ref i| {
+            xs.index(i).sin().eq(ys.index(i))
+        }))
     }
+
+    quickcheck(prop);
 }
 
 #[test]
 fn rand() {
-    let between = Range::new(0f64, 1f64);
-    let mut rng = rand::task_rng();
+    fn prop(shape: (uint, uint), (low, high): (f32, f32)) -> TestResult {
+        if low >= high {
+            return TestResult::discard();
+        }
 
-    for shape in rand_sizes().take(NSAMPLES) {
-        let v = mat::rand(shape, &between, &mut rng);
+        let between = Range::new(low, high);
+        let mut rng = rand::task_rng();
+        let rng = &mut rng;
+        let v = mat::rand(shape, &between, rng);
 
-        assert_eq!((shape, v.all(|&x| x >= 0.0 && x < 1.0)), (shape, true));
+        TestResult::from_bool(v.shape() == shape &&
+                              v.all(|&e| e >= low && e <= high))
+    }
+
+    quickcheck(prop);
+}
+
+macro_rules! op_assign {
+    ($name:ident, $ty:ty, $op:ident, $op_assign:ident) => {
+        #[test]
+        fn $name() {
+            fn prop(shape: (uint, uint),
+                    (low, high): ($ty, $ty)) -> TestResult {
+                if low >= high {
+                    return TestResult::discard();
+                }
+
+                let between = Range::new(low, high);
+                let mut rng = rand::task_rng();
+                let rng = &mut rng;
+
+                let xs = mat::rand(shape, &between, rng);
+                let ys = mat::rand(shape, &between, rng);
+                let mut zs = xs.clone();
+
+                zs.$op_assign(&ys);
+
+                let (nrows, ncols) = shape;
+                TestResult::from_bool(xs.shape() == zs.shape() &&
+                    range(0, nrows).zip(range(0, ncols)).all(|ref i| {
+                        xs.index(i).$op(ys.index(i)).eq(zs.index(i))
+                    }))
+            }
+
+            quickcheck(prop);
+        }
+    }
+}
+
+macro_rules! op_assign_complex {
+    ($name:ident, $ty:ty, $op:ident, $op_assign:ident) => {
+        #[test]
+        fn $name() {
+            fn prop(shape: (uint, uint),
+                    (low, high): ($ty, $ty))
+                    -> TestResult {
+                if low >= high {
+                    return TestResult::discard();
+                }
+
+                let between = Range::new(low, high);
+                let mut rng = rand::task_rng();
+                let rng = &mut rng;
+
+                let xs = mat::from_fn(shape, |_, _| {
+                    let re = between.ind_sample(rng);
+                    let im = between.ind_sample(rng);
+
+                    Complex::new(re, im)
+                });
+                let ys = mat::from_fn(shape, |_, _| {
+                    let re = between.ind_sample(rng);
+                    let im = between.ind_sample(rng);
+
+                    Complex::new(re, im)
+                });
+                let mut zs = xs.clone();
+
+                zs.$op_assign(&ys);
+
+                let (nrows, ncols) = shape;
+                TestResult::from_bool(
+                    xs.shape() == zs.shape() &&
+                    range(0, nrows).zip(range(0, ncols)).all(|ref i| {
+                        xs.index(i).$op(ys.index(i)).eq(zs.index(i))
+                    })
+                )
+            }
+
+            quickcheck(prop);
+        }
     }
 }
 
 // AddAssign
 macro_rules! add_assign {
     ($name:ident, $ty:ty) => {
-        #[test]
-        fn $name() {
-            for shape in rand_sizes().take(NSAMPLES) {
-                let one = num::one::<$ty>();
-                let two = one + one;
-                let three = two + one;
-
-                let mut got = mat::from_elem(shape, one);
-                let v = mat::from_elem(shape, two);
-                let expected = mat::from_elem(shape, three);
-
-                got.add_assign(&v);
-
-                assert_eq!((shape, got), (shape, expected));
-            }
-        }
+        op_assign!($name, $ty, add, add_assign)
     }
 }
 
@@ -109,21 +179,7 @@ add_assign!(add_assign_daxpy, f64)
 
 macro_rules! add_assign_complex {
     ($name:ident, $ty:ty) => {
-        #[test]
-        fn $name() {
-            for shape in rand_sizes().take(NSAMPLES) {
-                let zero = num::zero::<$ty>();
-                let one = num::one::<$ty>();
-
-                let mut got = mat::from_elem(shape, Complex::new(one, zero));
-                let v = mat::from_elem(shape, Complex::new(zero, one));
-                let expected = mat::from_elem(shape, Complex::new(one, one));
-
-                got.add_assign(&v);
-
-                assert_eq!((shape, got), (shape, expected));
-            }
-        }
+        op_assign_complex!($name, $ty, add, add_assign)
     }
 }
 
@@ -135,13 +191,35 @@ macro_rules! norm2 {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
-                let v = mat::ones::<$ty>(shape);
-                let expected = ((nrows * ncols) as $ty).sqrt();
-                let got = v.norm2();
+            fn prop(shape: (uint, uint),
+                    (low, high): ($ty, $ty))
+                    -> TestResult {
+                if low >= high {
+                    return TestResult::discard();
+                }
 
-                assert_eq!((shape, got), (shape, expected));
+                let between = Range::new(low, high);
+                let mut rng = rand::task_rng();
+                let rng = &mut rng;
+
+                let xs = mat::rand(shape, &between, rng);
+                let z = xs.norm2();
+
+                let z_ = xs.iter().zip(xs.iter()).map(|(x, y)| {
+                    x.mul(y)
+                }).sum().sqrt();
+
+                if z_ == num::zero() || z == num::zero() {
+                    return TestResult::discard();
+                }
+
+                let diff = z / z_ - num::one();
+                let tol = tol();
+
+                TestResult::from_bool(diff <= tol && diff >= -tol)
             }
+
+            quickcheck(prop);
         }
     }
 }
@@ -153,16 +231,40 @@ macro_rules! norm2_complex {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
-                let zero = num::zero::<$ty>();
-                let one = num::one::<$ty>();
+            fn prop(shape: (uint, uint),
+                    (low, high): ($ty, $ty))
+                    -> TestResult {
+                if low >= high {
+                    return TestResult::discard();
+                }
 
-                let v = mat::from_elem(shape, Complex::new(zero, one));
-                let expected = ((nrows * ncols) as $ty).sqrt();
-                let got = v.norm2();
+                let between = Range::new(low, high);
+                let mut rng = rand::task_rng();
+                let rng = &mut rng;
 
-                assert_eq!((shape, got), (shape, expected));
+                let xs = mat::from_fn(shape, |_, _| {
+                    let re = between.ind_sample(rng);
+                    let im = between.ind_sample(rng);
+
+                    Complex::new(re, im)
+                });
+                let z = xs.norm2();
+
+                let z_ = xs.iter().map(|x| {
+                    x.norm_sqr()
+                }).sum().sqrt();
+
+                if z_ == num::zero() || z == num::zero() {
+                    return TestResult::discard();
+                }
+
+                let diff = z / z_ - num::one();
+                let tol = tol();
+
+                TestResult::from_bool(diff <= tol && diff >= -tol)
             }
+
+            quickcheck(prop);
         }
     }
 }
@@ -175,17 +277,28 @@ macro_rules! scale {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            for shape in rand_sizes().take(NSAMPLES) {
-                let one = num::one::<$ty>();
-                let two = one + one;
+            fn prop(shape: (uint, uint),
+                    (low, high): ($ty, $ty))
+                    -> TestResult {
+                if low >= high {
+                    return TestResult::discard();
+                }
 
-                let mut got = mat::ones::<$ty>(shape);
-                let expected = mat::from_elem(shape, two);
+                let between = Range::new(low, high);
+                let mut rng = rand::task_rng();
+                let rng = &mut rng;
 
-                got.scale(two);
+                let xs = mat::rand(shape, &between, rng);
+                let k = between.ind_sample(rng);
+                let mut zs = xs.clone();
+                zs.scale(k);
 
-                assert_eq!((shape, got), (shape, expected));
+                TestResult::from_bool(xs.iter().zip(zs.iter()).all(|(x, z)| {
+                    x.mul(&k).eq(z)
+                }))
             }
+
+            quickcheck(prop);
         }
     }
 }
@@ -198,18 +311,37 @@ macro_rules! scale_complex {
     ($name:ident, $ty:ty) => {
         #[test]
         fn $name() {
-            for shape in rand_sizes().take(NSAMPLES) {
-                let zero = num::zero::<$ty>();
-                let one = num::one::<$ty>();
-                let two = one + one;
+            fn prop(shape: (uint, uint),
+                    (low, high): ($ty, $ty))
+                    -> TestResult {
+                if low >= high {
+                    return TestResult::discard();
+                }
 
-                let mut got = mat::from_elem(shape, Complex::new(one, two));
-                let expected = mat::from_elem(shape, Complex::new(-two, one));
+                let between = Range::new(low, high);
+                let mut rng = rand::task_rng();
+                let rng = &mut rng;
 
-                got.scale(Complex::new(zero, one));
+                let xs = mat::from_fn(shape, |_, _| {
+                    let re = between.ind_sample(rng);
+                    let im = between.ind_sample(rng);
 
-                assert_eq!((shape, got), (shape, expected));
+                    Complex::new(re, im)
+                });
+
+                let re = between.ind_sample(rng);
+                let im = between.ind_sample(rng);
+                let k = Complex::new(re, im);
+
+                let mut zs = xs.clone();
+                zs.scale(k);
+
+                TestResult::from_bool(xs.iter().zip(zs.iter()).all(|(x, z)| {
+                    x.mul(&k).eq(z)
+                }))
             }
+
+            quickcheck(prop);
         }
     }
 }
@@ -219,194 +351,46 @@ scale_complex!(scale_zscal, f64)
 
 // Index
 #[test]
-#[should_fail]
-fn col_out_of_bounds() {
-    let v = mat::zeros::<int>((10, 10));
-
-    v.index(&(0, 10));
-}
-
-#[test]
 fn index() {
-    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
-        let v = mat::from_fn(shape, |i, j| i + j);
-
-        for i in range(0, nrows) {
-            for j in range(0, ncols) {
-                let got = *v.index(&(i, j));
-                let expected = i + j;
-
-                assert_eq!((shape, got), (shape, expected));
-            }
+    fn prop(shape@(nrows, ncols): (uint, uint),
+            index@(row, col): (uint, uint))
+            -> TestResult {
+        if row >= nrows || col >= ncols {
+            return TestResult::discard();
         }
+
+        let xs = mat::from_fn(shape, |i, j| (i, j));
+        let i = &index;
+
+        TestResult::from_bool(xs.index(i).eq(i))
     }
+
+    quickcheck(prop);
 }
 
 #[test]
 #[should_fail]
-fn row_out_of_bounds() {
-    let v = mat::zeros::<int>((10, 10));
-
-    v.index(&(10, 0));
-}
-
-// MatrixCol
-#[test]
-fn col() {
-    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
-        let m = mat::from_fn(shape, |i, j| i - j);
-
-        for j in range(0, ncols) {
-            let col = m.col(j);
-
-            for i in range(0, nrows) {
-                let got = *col.index(&i);
-                let expected = i - j;
-
-                assert_eq!((shape, got), (shape, expected));
-            }
+fn out_of_bounds() {
+    fn prop(shape@(nrows, ncols): (uint, uint),
+            index@(row, col): (uint, uint))
+            -> TestResult {
+        if col < ncols || row < nrows {
+            return TestResult::discard();
         }
+
+        let xs = mat::from_fn(shape, |i, j| (i, j));
+        let i = &index;
+
+        TestResult::from_bool(xs.index(i) == &(0, 0))
     }
-}
 
-#[test]
-fn iterable_col() {
-    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
-        let m = mat::from_fn(shape, |i, j| i - j);
-
-        for j in range(0, ncols) {
-            let col = m.col(j);
-            let got = col.iter().map(|&x| x).collect();
-            let expected = Vec::from_fn(nrows, |i| i - j);
-
-            assert_eq!((shape, got), (shape, expected));
-        }
-    }
-}
-
-// MatrixColIterator
-#[test]
-fn cols() {
-    for shape@(nrows, _) in rand_sizes().take(NSAMPLES) {
-        let m = mat::from_fn(shape, |i, j| i - j);
-
-        for (j, col) in m.cols().enumerate() {
-            for i in range(0, nrows) {
-                let got = *col.index(&i);
-                let expected = i - j;
-
-                assert_eq!((shape, got), (shape, expected));
-            }
-        }
-    }
-}
-
-// MatrixDiag
-#[test]
-fn diag() {
-    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
-        let m = mat::from_fn(shape, |i, j| j as int - i as int);
-
-        for d in range(-(nrows as int) + 1, ncols as int) {
-            let got = m.diag(d).iter().map(|&x| x).collect();
-            let expected = if d > 0 {
-                Vec::from_elem(cmp::min(nrows, ncols - d as uint), d)
-            } else {
-                Vec::from_elem(cmp::min(nrows + d as uint, ncols), d)
-            };
-
-            assert_eq!((shape, d, got), (shape, d, expected))
-        }
-    }
-}
-
-#[test]
-#[should_fail]
-fn diag_col_out_of_bounds() {
-    let m = mat::ones::<int>((4, 3));
-
-    m.diag(3);
-}
-
-#[test]
-#[should_fail]
-fn diag_row_out_of_bounds() {
-    let m = mat::ones::<int>((4, 3));
-
-    m.diag(-4);
-}
-
-// MatrixRow
-#[test]
-fn iterable_row() {
-    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
-        let m = mat::from_fn(shape, |i, j| i - j);
-
-        for i in range(0, nrows) {
-            let row = m.row(i);
-            let got = row.iter().map(|&x| x).collect();
-            let expected = Vec::from_fn(ncols, |j| i - j);
-
-            assert_eq!((shape, got), (shape, expected));
-        }
-    }
-}
-
-#[test]
-fn row() {
-    for shape@(nrows, ncols) in rand_sizes().take(NSAMPLES) {
-        let m = mat::from_fn(shape, |i, j| i - j);
-
-        for i in range(0, nrows) {
-            let row = m.row(i);
-
-            for j in range(0, ncols) {
-                let got = *row.index(&j);
-                let expected = i - j;
-
-                assert_eq!((shape, got), (shape, expected));
-            }
-        }
-    }
-}
-
-// MatrixRowIterator
-#[test]
-fn rows() {
-    for shape@(_, ncols) in rand_sizes().take(NSAMPLES) {
-        let m = mat::from_fn(shape, |i, j| i - j);
-
-        for (i, row) in m.rows().enumerate() {
-            for j in range(0, ncols) {
-                let got = *row.index(&j);
-                let expected = i - j;
-
-                assert_eq!((shape, got), (shape, expected));
-            }
-        }
-    }
+    quickcheck(prop);
 }
 
 // MulAssign
 macro_rules! mul_assign {
     ($name:ident, $ty:ty) => {
-        #[test]
-        fn $name() {
-            for shape in rand_sizes().take(NSAMPLES) {
-                let one = num::one::<$ty>();
-                let two = one + one;
-                let three = two + one;
-                let six = two * three;
-
-                let mut got = mat::from_elem(shape, two);
-                let v = mat::from_elem(shape, three);
-                let expected = mat::from_elem(shape, six);
-
-                got.mul_assign(&v);
-
-                assert_eq!((shape, got), (shape, expected));
-            }
-        }
+        op_assign!($name, $ty, mul, mul_assign)
     }
 }
 
@@ -417,22 +401,7 @@ mul_assign!(mul_assign_f64x2, f64)
 // SubAssign
 macro_rules! sub_assign {
     ($name:ident, $ty:ty) => {
-        #[test]
-        fn $name() {
-            for shape in rand_sizes().take(NSAMPLES) {
-                let one = num::one::<$ty>();
-                let two = one + one;
-                let three = two + one;
-
-                let mut got = mat::from_elem(shape, three);
-                let v = mat::from_elem(shape, two);
-                let expected = mat::from_elem(shape, one);
-
-                got.sub_assign(&v);
-
-                assert_eq!((shape, got), (shape, expected));
-            }
-        }
+        op_assign!($name, $ty, sub, sub_assign)
     }
 }
 
@@ -442,21 +411,7 @@ sub_assign!(sub_assign_daxpy, f64)
 
 macro_rules! sub_assign_complex {
     ($name:ident, $ty:ty) => {
-        #[test]
-        fn $name() {
-            for shape in rand_sizes().take(NSAMPLES) {
-                let zero = num::zero::<$ty>();
-                let one = num::one::<$ty>();
-
-                let mut got = mat::from_elem(shape, Complex::new(one, zero));
-                let v = mat::from_elem(shape, Complex::new(zero, one));
-                let expected = mat::from_elem(shape, Complex::new(one, -one));
-
-                got.sub_assign(&v);
-
-                assert_eq!((shape, got), (shape, expected));
-            }
-        }
+        op_assign_complex!($name, $ty, sub, sub_assign)
     }
 }
 
