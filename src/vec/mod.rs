@@ -48,18 +48,6 @@ pub fn zeros<T: Clone + Zero>(size: uint) -> Vect<T> {
     from_elem(size, num::zero())
 }
 
-// XXX repeated macro, how to DRY?
-macro_rules! assert_shape {
-    ($method:ident, $op:tt) => ({
-        assert!(self.shape() == rhs.shape(),
-                "{}: dimension mismatch: {} {} {}",
-                stringify!($method),
-                self.shape(),
-                stringify!($op),
-                rhs.shape());
-    })
-}
-
 // ArrayDot: Vect . Vect
 // FIXME mozilla/rust#7059 convert to generic fallback
 impl
