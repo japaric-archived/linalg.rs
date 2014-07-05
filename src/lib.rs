@@ -1,5 +1,4 @@
-#![crate_id="linalg#0.11-pre"]
-#![crate_type="lib"]
+#![crate_id="linalg"]
 #![feature(macro_rules)]
 
 extern crate num;
