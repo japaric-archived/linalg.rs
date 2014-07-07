@@ -1,4 +1,4 @@
-#![crate_id="linalg"]
+#![crate_name = "linalg"]
 #![feature(macro_rules)]
 
 extern crate num;
