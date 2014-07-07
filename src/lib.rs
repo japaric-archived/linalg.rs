@@ -1,12 +1,11 @@
 #![crate_name = "linalg"]
-#![feature(macro_rules)]
+#![feature(macro_rules, phase)]
 
 extern crate num;
 extern crate rand;
 
+#[cfg(test)] #[phase(plugin)] extern crate quickcheck_macros;
 #[cfg(test)] extern crate quickcheck;
-// FIXME No cargo support for quickcheck_macros (yet)
-//#[cfg(test)] extern crate quickcheck_macros;
 
 // XXX There must be a better way to share macros between modules...
 macro_rules! assert_shape {

@@ -1,5 +1,5 @@
 use num::Complex;
-use quickcheck::{TestResult,quickcheck};
+use quickcheck::TestResult;
 use rand::distributions::{IndependentSample,Range};
 use std::iter::AdditiveIterator;
 use std::{num,rand};
@@ -12,141 +12,117 @@ use traits::{AddAssign,Index,Iterable,MulAssign,SubAssign};
 use vec;
 
 // vec
-#[test]
-fn from_elem() {
-    fn prop(nelems: uint, elem: f32) -> bool {
-        let v = vec::from_elem(nelems, elem);
+#[quickcheck]
+fn from_elem(nelems: uint, elem: f32) -> bool {
+    let v = vec::from_elem(nelems, elem);
 
-        v.shape() == (nelems,) && v.unwrap() == Vec::from_elem(nelems, elem)
-    }
-
-    quickcheck(prop);
+    v.shape() == (nelems,) && v.unwrap() == Vec::from_elem(nelems, elem)
 }
 
-#[test]
-fn from_fn() {
-    fn prop(nelems: uint) -> bool {
-        let v = vec::from_fn(nelems, |i| i);
+#[quickcheck]
+fn from_fn(nelems: uint) -> bool {
+    let v = vec::from_fn(nelems, |i| i);
 
-        v.shape() == (nelems,) && v.unwrap() == Vec::from_fn(nelems, |i| i)
-    }
-
-    quickcheck(prop);
+    v.shape() == (nelems,) && v.unwrap() == Vec::from_fn(nelems, |i| i)
 }
 
-#[test]
-fn map() {
-    fn prop(nelems: uint, (low, high): (f32, f32)) -> TestResult {
-        if low >= high {
-            return TestResult::discard();
-        }
-
-        let between = Range::new(low, high);
-        let mut rng = rand::task_rng();
-        let rng = &mut rng;
-
-        let xs = vec::rand(nelems, &between, rng);
-        let mut ys = xs.clone();
-        ys.map(|y| y.sin());
-
-
-        TestResult::from_bool(range(0, nelems).all(|ref i| {
-            xs.index(i).sin().eq(ys.index(i))
-        }))
+#[quickcheck]
+fn map(nelems: uint, (low, high): (f32, f32)) -> TestResult {
+    if low >= high {
+        return TestResult::discard();
     }
 
-    quickcheck(prop);
+    let between = Range::new(low, high);
+    let mut rng = rand::task_rng();
+    let rng = &mut rng;
+
+    let xs = vec::rand(nelems, &between, rng);
+    let mut ys = xs.clone();
+    ys.map(|y| y.sin());
+
+
+    TestResult::from_bool(range(0, nelems).all(|ref i| {
+        xs.index(i).sin().eq(ys.index(i))
+    }))
 }
 
-#[test]
-fn rand() {
-    fn prop(nelems: uint, (low, high): (f32, f32)) -> TestResult {
-        if low >= high {
-            return TestResult::discard();
-        }
-
-        let between = Range::new(low, high);
-        let mut rng = rand::task_rng();
-        let rng = &mut rng;
-        let v = vec::rand(nelems, &between, rng);
-
-        TestResult::from_bool(v.shape() == (nelems,) &&
-                              v.all(|&e| e >= low && e <= high))
+#[quickcheck]
+fn rand(nelems: uint, (low, high): (f32, f32)) -> TestResult {
+    if low >= high {
+        return TestResult::discard();
     }
 
-    quickcheck(prop);
+    let between = Range::new(low, high);
+    let mut rng = rand::task_rng();
+    let rng = &mut rng;
+    let v = vec::rand(nelems, &between, rng);
+
+    TestResult::from_bool(v.shape() == (nelems,) &&
+                          v.all(|&e| e >= low && e <= high))
 }
 
 macro_rules! op_assign {
     ($name:ident, $ty:ty, $op:ident, $op_assign:ident) => {
-        #[test]
-        fn $name() {
-            fn prop(nelems: uint, (low, high): ($ty, $ty)) -> TestResult {
-                if low >= high {
-                    return TestResult::discard();
-                }
-
-                let between = Range::new(low, high);
-                let mut rng = rand::task_rng();
-                let rng = &mut rng;
-
-                let xs = vec::rand(nelems, &between, rng);
-                let ys = vec::rand(nelems, &between, rng);
-                let mut zs = xs.clone();
-
-                zs.$op_assign(&ys);
-
-                TestResult::from_bool(
-                    xs.shape() == zs.shape() &&
-                    range(0, nelems).all(|ref i| {
-                        xs.index(i).$op(ys.index(i)).eq(zs.index(i))
-                    })
-                )
+        #[quickcheck]
+        fn $name(nelems: uint, (low, high): ($ty, $ty)) -> TestResult {
+            if low >= high {
+                return TestResult::discard();
             }
 
-            quickcheck(prop);
+            let between = Range::new(low, high);
+            let mut rng = rand::task_rng();
+            let rng = &mut rng;
+
+            let xs = vec::rand(nelems, &between, rng);
+            let ys = vec::rand(nelems, &between, rng);
+            let mut zs = xs.clone();
+
+            zs.$op_assign(&ys);
+
+            TestResult::from_bool(
+                xs.shape() == zs.shape() &&
+                range(0, nelems).all(|ref i| {
+                    xs.index(i).$op(ys.index(i)).eq(zs.index(i))
+                })
+            )
         }
     }
 }
 
 macro_rules! op_assign_complex {
     ($name:ident, $ty:ty, $op:ident, $op_assign:ident) => {
-        #[test]
-        fn $name() {
-            fn prop(nelems: uint, (low, high): ($ty, $ty)) -> TestResult {
-                if low >= high {
-                    return TestResult::discard();
-                }
-
-                let between = Range::new(low, high);
-                let mut rng = rand::task_rng();
-                let rng = &mut rng;
-
-                let xs = vec::from_fn(nelems, |_| {
-                    let re = between.ind_sample(rng);
-                    let im = between.ind_sample(rng);
-
-                    Complex::new(re, im)
-                });
-                let ys = vec::from_fn(nelems, |_| {
-                    let re = between.ind_sample(rng);
-                    let im = between.ind_sample(rng);
-
-                    Complex::new(re, im)
-                });
-                let mut zs = xs.clone();
-
-                zs.$op_assign(&ys);
-
-                TestResult::from_bool(
-                    xs.shape() == zs.shape() &&
-                    range(0, nelems).all(|ref i| {
-                        xs.index(i).$op(ys.index(i)).eq(zs.index(i))
-                    })
-                )
+        #[quickcheck]
+        fn $name(nelems: uint, (low, high): ($ty, $ty)) -> TestResult {
+            if low >= high {
+                return TestResult::discard();
             }
 
-            quickcheck(prop);
+            let between = Range::new(low, high);
+            let mut rng = rand::task_rng();
+            let rng = &mut rng;
+
+            let xs = vec::from_fn(nelems, |_| {
+                let re = between.ind_sample(rng);
+                let im = between.ind_sample(rng);
+
+                Complex::new(re, im)
+            });
+            let ys = vec::from_fn(nelems, |_| {
+                let re = between.ind_sample(rng);
+                let im = between.ind_sample(rng);
+
+                Complex::new(re, im)
+            });
+            let mut zs = xs.clone();
+
+            zs.$op_assign(&ys);
+
+            TestResult::from_bool(
+                xs.shape() == zs.shape() &&
+                range(0, nelems).all(|ref i| {
+                    xs.index(i).$op(ys.index(i)).eq(zs.index(i))
+                })
+            )
         }
     }
 }
@@ -174,37 +150,33 @@ add_assign_complex!(add_assign_zaxpy, f64)
 // ArrayDot
 macro_rules! dot {
     ($name:ident, $ty:ty) => {
-        #[test]
-        fn $name() {
-            fn prop(nelems: uint, (low, high): ($ty, $ty)) -> TestResult {
-                if low >= high {
-                    return TestResult::discard();
-                }
-
-                let between = Range::new(low, high);
-                let mut rng = rand::task_rng();
-                let rng = &mut rng;
-
-                let xs = vec::rand(nelems, &between, rng);
-                let ys = vec::rand(nelems, &between, rng);
-                let z = xs.dot(&ys);
-
-                let (xs, ys) = (xs.iter(), ys.iter());
-                let z_ = xs.zip(ys).map(|(x, y)| {
-                    x.mul(y)
-                }).sum();
-
-                if z_ == num::zero() || z == num::zero() {
-                    return TestResult::discard();
-                }
-
-                let diff = z / z_ - num::one();
-                let tol = tol();
-
-                TestResult::from_bool(diff <= tol && diff >= -tol)
+        #[quickcheck]
+        fn $name(nelems: uint, (low, high): ($ty, $ty)) -> TestResult {
+            if low >= high {
+                return TestResult::discard();
             }
 
-            quickcheck(prop);
+            let between = Range::new(low, high);
+            let mut rng = rand::task_rng();
+            let rng = &mut rng;
+
+            let xs = vec::rand(nelems, &between, rng);
+            let ys = vec::rand(nelems, &between, rng);
+            let z = xs.dot(&ys);
+
+            let (xs, ys) = (xs.iter(), ys.iter());
+            let z_ = xs.zip(ys).map(|(x, y)| {
+                x.mul(y)
+            }).sum();
+
+            if z_ == num::zero() || z == num::zero() {
+                return TestResult::discard();
+            }
+
+            let diff = z / z_ - num::one();
+            let tol = tol();
+
+            TestResult::from_bool(diff <= tol && diff >= -tol)
         }
     }
 }
@@ -216,35 +188,31 @@ dot!(dot_ddot, f64)
 // ArrayNorm2
 macro_rules! norm2 {
     ($name:ident, $ty:ty) => {
-        #[test]
-        fn $name() {
-            fn prop(nelems: uint, (low, high): ($ty, $ty)) -> TestResult {
-                if low >= high {
-                    return TestResult::discard();
-                }
-
-                let between = Range::new(low, high);
-                let mut rng = rand::task_rng();
-                let rng = &mut rng;
-
-                let xs = vec::rand(nelems, &between, rng);
-                let z = xs.norm2();
-
-                let z_ = xs.iter().zip(xs.iter()).map(|(x, y)| {
-                    x.mul(y)
-                }).sum().sqrt();
-
-                if z_ == num::zero() || z == num::zero() {
-                    return TestResult::discard();
-                }
-
-                let diff = z / z_ - num::one();
-                let tol = tol();
-
-                TestResult::from_bool(diff <= tol && diff >= -tol)
+        #[quickcheck]
+        fn $name(nelems: uint, (low, high): ($ty, $ty)) -> TestResult {
+            if low >= high {
+                return TestResult::discard();
             }
 
-            quickcheck(prop);
+            let between = Range::new(low, high);
+            let mut rng = rand::task_rng();
+            let rng = &mut rng;
+
+            let xs = vec::rand(nelems, &between, rng);
+            let z = xs.norm2();
+
+            let z_ = xs.iter().zip(xs.iter()).map(|(x, y)| {
+                x.mul(y)
+            }).sum().sqrt();
+
+            if z_ == num::zero() || z == num::zero() {
+                return TestResult::discard();
+            }
+
+            let diff = z / z_ - num::one();
+            let tol = tol();
+
+            TestResult::from_bool(diff <= tol && diff >= -tol)
         }
     }
 }
@@ -254,40 +222,36 @@ norm2!(norm2_dnrm, f64)
 
 macro_rules! norm2_complex {
     ($name:ident, $ty:ty) => {
-        #[test]
-        fn $name() {
-            fn prop(nelems: uint, (low, high): ($ty, $ty)) -> TestResult {
-                if low >= high {
-                    return TestResult::discard();
-                }
-
-                let between = Range::new(low, high);
-                let mut rng = rand::task_rng();
-                let rng = &mut rng;
-
-                let xs = vec::from_fn(nelems, |_| {
-                    let re = between.ind_sample(rng);
-                    let im = between.ind_sample(rng);
-
-                    Complex::new(re, im)
-                });
-                let z = xs.norm2();
-
-                let z_ = xs.iter().map(|x| {
-                    x.norm_sqr()
-                }).sum().sqrt();
-
-                if z_ == num::zero() || z == num::zero() {
-                    return TestResult::discard();
-                }
-
-                let diff = z / z_ - num::one();
-                let tol = tol();
-
-                TestResult::from_bool(diff <= tol && diff >= -tol)
+        #[quickcheck]
+        fn $name(nelems: uint, (low, high): ($ty, $ty)) -> TestResult {
+            if low >= high {
+                return TestResult::discard();
             }
 
-            quickcheck(prop);
+            let between = Range::new(low, high);
+            let mut rng = rand::task_rng();
+            let rng = &mut rng;
+
+            let xs = vec::from_fn(nelems, |_| {
+                let re = between.ind_sample(rng);
+                let im = between.ind_sample(rng);
+
+                Complex::new(re, im)
+            });
+            let z = xs.norm2();
+
+            let z_ = xs.iter().map(|x| {
+                x.norm_sqr()
+            }).sum().sqrt();
+
+            if z_ == num::zero() || z == num::zero() {
+                return TestResult::discard();
+            }
+
+            let diff = z / z_ - num::one();
+            let tol = tol();
+
+            TestResult::from_bool(diff <= tol && diff >= -tol)
         }
     }
 }
@@ -298,28 +262,24 @@ norm2_complex!(norm2_dznrm2, f64)
 // ArrayScale
 macro_rules! scale {
     ($name:ident, $ty:ty) => {
-        #[test]
-        fn $name() {
-            fn prop(nelems: uint, (low, high): ($ty, $ty)) -> TestResult {
-                if low >= high {
-                    return TestResult::discard();
-                }
-
-                let between = Range::new(low, high);
-                let mut rng = rand::task_rng();
-                let rng = &mut rng;
-
-                let xs = vec::rand(nelems, &between, rng);
-                let k = between.ind_sample(rng);
-                let mut zs = xs.clone();
-                zs.scale(k);
-
-                TestResult::from_bool(xs.iter().zip(zs.iter()).all(|(x, z)| {
-                    x.mul(&k).eq(z)
-                }))
+        #[quickcheck]
+        fn $name(nelems: uint, (low, high): ($ty, $ty)) -> TestResult {
+            if low >= high {
+                return TestResult::discard();
             }
 
-            quickcheck(prop);
+            let between = Range::new(low, high);
+            let mut rng = rand::task_rng();
+            let rng = &mut rng;
+
+            let xs = vec::rand(nelems, &between, rng);
+            let k = between.ind_sample(rng);
+            let mut zs = xs.clone();
+            zs.scale(k);
+
+            TestResult::from_bool(xs.iter().zip(zs.iter()).all(|(x, z)| {
+                x.mul(&k).eq(z)
+            }))
         }
     }
 }
@@ -330,37 +290,33 @@ scale!(scale_dscal, f64)
 
 macro_rules! scale_complex {
     ($name:ident, $ty:ty) => {
-        #[test]
-        fn $name() {
-            fn prop(nelems: uint, (low, high): ($ty, $ty)) -> TestResult {
-                if low >= high {
-                    return TestResult::discard();
-                }
-
-                let between = Range::new(low, high);
-                let mut rng = rand::task_rng();
-                let rng = &mut rng;
-
-                let xs = vec::from_fn(nelems, |_| {
-                    let re = between.ind_sample(rng);
-                    let im = between.ind_sample(rng);
-
-                    Complex::new(re, im)
-                });
-
-                let re = between.ind_sample(rng);
-                let im = between.ind_sample(rng);
-                let k = Complex::new(re, im);
-
-                let mut zs = xs.clone();
-                zs.scale(k);
-
-                TestResult::from_bool(xs.iter().zip(zs.iter()).all(|(x, z)| {
-                    x.mul(&k).eq(z)
-                }))
+        #[quickcheck]
+        fn $name(nelems: uint, (low, high): ($ty, $ty)) -> TestResult {
+            if low >= high {
+                return TestResult::discard();
             }
 
-            quickcheck(prop);
+            let between = Range::new(low, high);
+            let mut rng = rand::task_rng();
+            let rng = &mut rng;
+
+            let xs = vec::from_fn(nelems, |_| {
+                let re = between.ind_sample(rng);
+                let im = between.ind_sample(rng);
+
+                Complex::new(re, im)
+            });
+
+            let re = between.ind_sample(rng);
+            let im = between.ind_sample(rng);
+            let k = Complex::new(re, im);
+
+            let mut zs = xs.clone();
+            zs.scale(k);
+
+            TestResult::from_bool(xs.iter().zip(zs.iter()).all(|(x, z)| {
+                x.mul(&k).eq(z)
+            }))
         }
     }
 }
@@ -369,37 +325,29 @@ scale_complex!(scale_cscal, f32)
 scale_complex!(scale_zscal, f64)
 
 // Index
-#[test]
-fn index() {
-    fn prop(nelems: uint, index: uint) -> TestResult {
-        if index >= nelems {
-            return TestResult::discard();
-        }
-
-        let xs = vec::from_fn(nelems, |i| i);
-        let i = &index;
-
-        TestResult::from_bool(xs.index(i) == i)
+#[quickcheck]
+fn index(nelems: uint, index: uint) -> TestResult {
+    if index >= nelems {
+        return TestResult::discard();
     }
 
-    quickcheck(prop);
+    let xs = vec::from_fn(nelems, |i| i);
+    let i = &index;
+
+    TestResult::from_bool(xs.index(i) == i)
 }
 
-#[test]
+#[quickcheck]
 #[should_fail]
-fn out_of_bounds() {
-    fn prop(nelems: uint, index: uint) -> TestResult {
-        if index < nelems {
-            return TestResult::discard();
-        }
-
-        let xs = vec::from_fn(nelems, |i| i);
-        let i = &index;
-
-        TestResult::from_bool(xs.index(i) == i)
+fn out_of_bounds(nelems: uint, index: uint) -> TestResult {
+    if index < nelems {
+        return TestResult::discard();
     }
 
-    quickcheck(prop);
+    let xs = vec::from_fn(nelems, |i| i);
+    let i = &index;
+
+    TestResult::from_bool(xs.index(i) == i)
 }
 
 // MulAssign
