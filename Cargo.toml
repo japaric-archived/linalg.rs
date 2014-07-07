@@ -8,5 +8,7 @@ name = "linalg"
 path = "src/lib.rs"
 
 [dependencies.quickcheck]
+git = "https://github.com/BurntSushi/quickcheck"
 
+[dependencies.quickcheck_macros]
 git = "https://github.com/BurntSushi/quickcheck"
