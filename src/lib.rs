@@ -1,4 +1,3 @@
-#![crate_name = "linalg"]
 #![feature(macro_rules, phase)]
 
 extern crate num;

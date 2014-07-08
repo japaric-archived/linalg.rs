@@ -3,10 +3,6 @@ name = "linalg"
 version = "0.0.0"
 authors = ["Jorge Aparicio <japaric@linux.com>"]
 
-[[lib]]
-name = "linalg"
-path = "src/lib.rs"
-
 [dependencies.quickcheck]
 git = "https://github.com/BurntSushi/quickcheck"
 
