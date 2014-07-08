@@ -7,8 +7,7 @@ use array::Array;
 use array::traits::ArrayShape;
 use self::traits::{MatrixCol,MatrixColIterator,MatrixDiag,MatrixRow,
                    MatrixRowIterator,MatrixShape,MatrixView};
-// FIXME mozilla/rust#6515 Use std Index
-use traits::{Index,UnsafeIndex};
+use traits::UnsafeIndex;
 
 pub use self::col::Col;
 pub use self::cols::Cols;

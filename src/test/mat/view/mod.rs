@@ -2,14 +2,13 @@ use quickcheck::TestResult;
 
 use mat;
 use mat::traits::MatrixView;
-// FIXME mozilla/rust#6515 Use std Index
-use traits::Index;
 
 mod col;
 mod diag;
 mod row;
 
 // Index
+// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 #[quickcheck]
 fn index(shape@(nrows, ncols): (uint, uint),
          (start, end): ((uint, uint), (uint, uint)),

@@ -8,8 +8,7 @@ use array::traits::{ArrayNorm2,ArrayScale,ArrayShape};
 use mat;
 use test::tol;
 // FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
-// FIXME mozilla/rust#6515 Use std Index
-use traits::{AddAssign,Index,Iterable,MulAssign,SubAssign};
+use traits::{AddAssign,Iterable,MulAssign,SubAssign};
 
 mod col;
 mod diag;
@@ -37,6 +36,7 @@ fn from_fn(nrows: uint, ncols: uint) -> bool {
         })
 }
 
+// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 #[quickcheck]
 fn map(shape: (uint, uint), (low, high): (f32, f32)) -> TestResult {
     if low >= high {
@@ -73,6 +73,7 @@ fn rand(shape: (uint, uint), (low, high): (f32, f32)) -> TestResult {
                           v.all(|&e| e >= low && e <= high))
 }
 
+// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 macro_rules! op_assign {
     ($name:ident, $ty:ty, $op:ident, $op_assign:ident) => {
         #[quickcheck]
@@ -101,6 +102,7 @@ macro_rules! op_assign {
     }
 }
 
+// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 macro_rules! op_assign_complex {
     ($name:ident, $ty:ty, $op:ident, $op_assign:ident) => {
         #[quickcheck]
@@ -300,6 +302,7 @@ scale_complex!(scale_cscal, f32)
 scale_complex!(scale_zscal, f64)
 
 // Index
+// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 #[quickcheck]
 fn index(shape@(nrows, ncols): (uint, uint),
          index@(row, col): (uint, uint))
@@ -314,6 +317,7 @@ fn index(shape@(nrows, ncols): (uint, uint),
     TestResult::from_bool(xs.index(i).eq(i))
 }
 
+// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 #[quickcheck]
 #[should_fail]
 fn out_of_bounds(shape@(nrows, ncols): (uint, uint),

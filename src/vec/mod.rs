@@ -7,8 +7,7 @@ use std::num;
 use array::Array;
 use array::traits::{ArrayDot,ArrayShape};
 use blas::ffi;
-// FIXME mozilla/rust#6515 Use std Index
-use traits::{Index,Iterable,UnsafeIndex};
+use traits::{Iterable,UnsafeIndex};
 
 // XXX ugly name, but both Vec and Vector are taken :-(
 pub type Vect<T> = Array<(uint,), T>;

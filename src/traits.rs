@@ -3,11 +3,6 @@ pub trait AddAssign<R> {
     fn add_assign(&mut self, other: &R);
 }
 
-// FIXME mozilla/rust#6515 Use std Index
-pub trait Index<I, T> {
-    fn index<'a>(&'a self, index: &I) -> &'a T;
-}
-
 pub trait UnsafeIndex<I, T> {
     unsafe fn unsafe_index<'a>(&'a self, index: &I) -> &'a T;
 }

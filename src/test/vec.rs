@@ -7,8 +7,7 @@ use std::{num,rand};
 use array::traits::{ArrayDot,ArrayNorm2,ArrayScale,ArrayShape};
 use test::tol;
 // FIXME mozilla/rust#5992 Use std {Add,Mul,Sub}Assign
-// FIXME mozilla/rust#6515 Use std Index
-use traits::{AddAssign,Index,Iterable,MulAssign,SubAssign};
+use traits::{AddAssign,Iterable,MulAssign,SubAssign};
 use vec;
 
 // vec
@@ -26,6 +25,7 @@ fn from_fn(nelems: uint) -> bool {
     v.shape() == (nelems,) && v.unwrap() == Vec::from_fn(nelems, |i| i)
 }
 
+// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 #[quickcheck]
 fn map(nelems: uint, (low, high): (f32, f32)) -> TestResult {
     if low >= high {
@@ -61,6 +61,7 @@ fn rand(nelems: uint, (low, high): (f32, f32)) -> TestResult {
                           v.all(|&e| e >= low && e <= high))
 }
 
+// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 macro_rules! op_assign {
     ($name:ident, $ty:ty, $op:ident, $op_assign:ident) => {
         #[quickcheck]
@@ -89,6 +90,7 @@ macro_rules! op_assign {
     }
 }
 
+// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 macro_rules! op_assign_complex {
     ($name:ident, $ty:ty, $op:ident, $op_assign:ident) => {
         #[quickcheck]
@@ -325,6 +327,7 @@ scale_complex!(scale_cscal, f32)
 scale_complex!(scale_zscal, f64)
 
 // Index
+// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 #[quickcheck]
 fn index(nelems: uint, index: uint) -> TestResult {
     if index >= nelems {
@@ -337,6 +340,7 @@ fn index(nelems: uint, index: uint) -> TestResult {
     TestResult::from_bool(xs.index(i) == i)
 }
 
+// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 #[quickcheck]
 #[should_fail]
 fn out_of_bounds(nelems: uint, index: uint) -> TestResult {

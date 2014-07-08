@@ -2,8 +2,7 @@ use array::traits::ArrayShape;
 use mat::traits::{MatrixCol,MatrixColIterator,MatrixDiag,MatrixRow,
                   MatrixRowIterator, MatrixShape,MatrixView};
 use mat::{Col,Cols,Diag,Row,Rows};
-// FIXME mozilla/rust#6515 Use std Index
-use traits::{Index,UnsafeIndex};
+use traits::UnsafeIndex;
 
 // XXX I'd prefer to use Sub, but it's taken by the subtraction operator
 pub struct View<M> {

@@ -2,9 +2,9 @@ use quickcheck::TestResult;
 
 use mat;
 use mat::traits::{MatrixCol,MatrixColIterator};
-// FIXME mozilla/rust#6515 Use std Index
-use traits::{Index,Iterable};
+use traits::Iterable;
 
+// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 #[quickcheck]
 fn index(shape@(nrows, ncols): (uint, uint), col: uint) -> TestResult {
     if col >= ncols {
@@ -20,6 +20,7 @@ fn index(shape@(nrows, ncols): (uint, uint), col: uint) -> TestResult {
     }))
 }
 
+// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 #[quickcheck]
 fn iterable(shape@(_, ncols): (uint, uint), col: uint) -> TestResult {
     if col >= ncols {
@@ -34,6 +35,7 @@ fn iterable(shape@(_, ncols): (uint, uint), col: uint) -> TestResult {
     }))
 }
 
+// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 #[quickcheck]
 fn iterator(shape: (uint, uint)) -> bool {
     let m = mat::from_fn(shape, |r, c| (r, c));

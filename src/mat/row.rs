@@ -2,8 +2,7 @@ use std::slice::Items;
 
 use mat::{Mat,View};
 use mat::traits::MatrixShape;
-// FIXME mozilla/rust#6515 Use std Index
-use traits::{Index,Iterable,UnsafeIndex};
+use traits::{Iterable,UnsafeIndex};
 
 // TODO mozilla/rust#13302 Enforce Copy on M
 pub struct Row<M> {

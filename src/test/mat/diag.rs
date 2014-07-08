@@ -3,9 +3,8 @@ use std::cmp;
 
 use mat::traits::MatrixDiag;
 use mat;
-// FIXME mozilla/rust#6515 Use std Index
-use traits::Index;
 
+// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 #[quickcheck]
 fn index(shape@(nrows, ncols): (uint, uint), diag: int) -> TestResult {
     if diag <= -(nrows as int) || diag >= ncols as int {
@@ -32,6 +31,7 @@ fn index(shape@(nrows, ncols): (uint, uint), diag: int) -> TestResult {
     }
 }
 
+// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 #[quickcheck]
 #[should_fail]
 fn out_of_bounds(shape@(nrows, ncols): (uint, uint),
