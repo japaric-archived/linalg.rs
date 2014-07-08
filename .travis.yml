@@ -1,13 +1,13 @@
 before_install:
-  - yes | sudo add-apt-repository ppa:cmrx64/cargo
+  - git clone --recursive https://github.com/rust-lang/cargo
   - yes | sudo add-apt-repository ppa:hansjorg/rust
   - sudo apt-get update
 
 install:
-  - sudo apt-get install cargo rust-nightly libopenblas-dev
+  - sudo apt-get install rust-nightly libopenblas-dev
+  - cd cargo && make && sudo make install && cd .. && rm -rf cargo
 
 script:
-  - rustc --version
   - make
   - make test
 
