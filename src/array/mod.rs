@@ -71,7 +71,7 @@ impl<
 for Array<S, int> {
     #[inline]
     fn add_assign(&mut self, rhs: &Array<S, int>) {
-        assert_shape!(add_assign, +=)
+        assert_shape!(self, rhs, add_assign, +=)
 
         for (lhs, rhs) in self.data.mut_iter().zip(rhs.iter()) {
             *lhs = *lhs + *rhs;
@@ -87,7 +87,7 @@ macro_rules! add_assign {
         for Array<S, $ty> {
             #[inline]
             fn add_assign(&mut self, rhs: &Array<S, $ty>) {
-                assert_shape!(add_assign, +=)
+                assert_shape!(self, rhs, add_assign, +=)
 
                 let plus_one = num::one::<$ty>();
 
@@ -224,7 +224,7 @@ impl<
 for Array<S, int> {
     #[inline]
     fn mul_assign(&mut self, rhs: &Array<S, int>) {
-        assert_shape!(mul_assign, *=)
+        assert_shape!(self, rhs, mul_assign, *=)
 
         for (lhs, rhs) in self.data.mut_iter().zip(rhs.iter()) {
             *lhs = *lhs * *rhs;
@@ -241,7 +241,7 @@ macro_rules! mul_assign {
         for Array<S, $ty> {
             #[inline]
             fn mul_assign(&mut self, rhs: &Array<S, $ty>) {
-                assert_shape!(mul_assign, *=)
+                assert_shape!(self, rhs, mul_assign, *=)
 
                 let n = self.len() as int / $stride;
                 let p_self = self.as_mut_ptr();
@@ -276,7 +276,7 @@ impl<
 for Array<S, int> {
     #[inline]
     fn sub_assign(&mut self, rhs: &Array<S, int>) {
-        assert_shape!(sub_assign, -=)
+        assert_shape!(self, rhs, sub_assign, -=)
 
         for (lhs, rhs) in self.data.mut_iter().zip(rhs.iter()) {
             *lhs = *lhs - *rhs;
@@ -292,7 +292,7 @@ macro_rules! sub_assign {
         for Array<S, $ty> {
             #[inline]
             fn sub_assign(&mut self, rhs: &Array<S, $ty>) {
-                assert_shape!(sub_assign, -=)
+                assert_shape!(self, rhs, sub_assign, -=)
 
                 let minus_one = -num::one::<$ty>();
 

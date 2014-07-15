@@ -53,7 +53,7 @@ impl
 ArrayDot<Vect<int>, int>
 for Vect<int> {
     fn dot(&self, rhs: &Vect<int>) -> int {
-        assert_shape!(dot, .)
+        assert_shape!(self, rhs, dot, .)
 
         self.iter().zip(rhs.iter()).map(|(lhs, rhs)| lhs.mul(rhs)).sum()
     }
@@ -65,7 +65,7 @@ macro_rules! vector_dot {
         ArrayDot<Vect<$ty>, $ty>
         for Vect<$ty> {
             fn dot(&self, rhs: &Vect<$ty>) -> $ty {
-                assert_shape!(dot, .)
+                assert_shape!(self, rhs, dot, .)
 
                 unsafe {
                     ffi::$ffi(&(self.len() as int),

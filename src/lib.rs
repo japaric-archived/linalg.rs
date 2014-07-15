@@ -8,13 +8,13 @@ extern crate rand;
 
 // XXX There must be a better way to share macros between modules...
 macro_rules! assert_shape {
-    ($method:ident, $op:tt) => ({
-        assert!(self.shape() == rhs.shape(),
+    ($lhs:ident, $rhs:ident, $method:ident, $op:tt) => ({
+        assert!($lhs.shape() == $rhs.shape(),
                 "{}: dimension mismatch: {} {} {}",
                 stringify!($method),
-                self.shape(),
+                $lhs.shape(),
                 stringify!($op),
-                rhs.shape());
+                $rhs.shape());
     })
 }
 
