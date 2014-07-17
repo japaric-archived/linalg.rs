@@ -4,7 +4,7 @@ use std::cmp;
 use mat::traits::{MatrixDiag,MatrixView};
 use mat;
 
-// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
+// FIXME rust-lang/rust#15734 Replace `index` method with `[]` operator
 #[quickcheck]
 fn index(shape@(nrows, ncols): (uint, uint),
          (start, end): ((uint, uint), (uint, uint)),

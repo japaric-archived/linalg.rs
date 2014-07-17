@@ -5,7 +5,7 @@ use mat::traits::{MatrixRow,MatrixRowIterator};
 // FIXME mozilla/rust#6515 Use std Index
 use traits::Iterable;
 
-// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
+// FIXME rust-lang/rust#15734 Replace `index` method with `[]` operator
 #[quickcheck]
 fn index(shape@(nrows, ncols): (uint, uint), row: uint) -> TestResult {
     if row >= nrows {
@@ -21,7 +21,7 @@ fn index(shape@(nrows, ncols): (uint, uint), row: uint) -> TestResult {
     }))
 }
 
-// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
+// FIXME rust-lang/rust#15734 Replace `index` method with `[]` operator
 #[quickcheck]
 fn iterable(shape@(nrows, _): (uint, uint), row: uint) -> TestResult {
     if row >= nrows {
@@ -36,7 +36,7 @@ fn iterable(shape@(nrows, _): (uint, uint), row: uint) -> TestResult {
     }))
 }
 
-// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
+// FIXME rust-lang/rust#15734 Replace `index` method with `[]` operator
 #[quickcheck]
 fn iterator(shape: (uint, uint)) -> bool {
     let m = mat::from_fn(shape, |r, c| (r, c));

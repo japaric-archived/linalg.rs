@@ -4,7 +4,7 @@ use mat;
 use mat::traits::{MatrixCol,MatrixColIterator,MatrixView};
 use traits::Iterable;
 
-// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
+// FIXME rust-lang/rust#15734 Replace `index` method with `[]` operator
 #[quickcheck]
 fn index(shape@(nrows, ncols): (uint, uint),
          (start, end): ((uint, uint), (uint, uint)),
@@ -31,7 +31,7 @@ fn index(shape@(nrows, ncols): (uint, uint),
     }))
 }
 
-// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
+// FIXME rust-lang/rust#15734 Replace `index` method with `[]` operator
 #[quickcheck]
 fn iterable(shape@(nrows, ncols): (uint, uint),
             (start, end): ((uint, uint), (uint, uint)),
@@ -57,7 +57,7 @@ fn iterable(shape@(nrows, ncols): (uint, uint),
     }))
 }
 
-// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
+// FIXME rust-lang/rust#15734 Replace `index` method with `[]` operator
 #[quickcheck]
 fn iterator(shape@(nrows, ncols): (uint, uint),
             (start, end): ((uint, uint), (uint, uint)))

@@ -25,7 +25,6 @@ fn from_fn(nelems: uint) -> bool {
     v.shape() == (nelems,) && v.unwrap() == Vec::from_fn(nelems, |i| i)
 }
 
-// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 #[quickcheck]
 fn map(nelems: uint, (low, high): (f32, f32)) -> TestResult {
     if low >= high {
@@ -40,10 +39,7 @@ fn map(nelems: uint, (low, high): (f32, f32)) -> TestResult {
     let mut ys = xs.clone();
     ys.map(|y| y.sin());
 
-
-    TestResult::from_bool(range(0, nelems).all(|ref i| {
-        xs.index(i).sin().eq(ys.index(i))
-    }))
+    TestResult::from_bool(range(0, nelems).all(|i| xs[i].sin() == ys[i]))
 }
 
 #[quickcheck]
@@ -61,7 +57,6 @@ fn rand(nelems: uint, (low, high): (f32, f32)) -> TestResult {
                           v.all(|&e| e >= low && e <= high))
 }
 
-// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 macro_rules! op_assign {
     ($name:ident, $ty:ty, $op:ident, $op_assign:ident) => {
         #[quickcheck]
@@ -82,15 +77,11 @@ macro_rules! op_assign {
 
             TestResult::from_bool(
                 xs.shape() == zs.shape() &&
-                range(0, nelems).all(|ref i| {
-                    xs.index(i).$op(ys.index(i)).eq(zs.index(i))
-                })
-            )
+                range(0, nelems).all(|i| xs[i].$op(&ys[i]) == zs[i]))
         }
     }
 }
 
-// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 macro_rules! op_assign_complex {
     ($name:ident, $ty:ty, $op:ident, $op_assign:ident) => {
         #[quickcheck]
@@ -121,10 +112,7 @@ macro_rules! op_assign_complex {
 
             TestResult::from_bool(
                 xs.shape() == zs.shape() &&
-                range(0, nelems).all(|ref i| {
-                    xs.index(i).$op(ys.index(i)).eq(zs.index(i))
-                })
-            )
+                range(0, nelems).all(|i| xs[i].$op(&ys[i]) == zs[i]))
         }
     }
 }
@@ -327,7 +315,6 @@ scale_complex!(scale_cscal, f32)
 scale_complex!(scale_zscal, f64)
 
 // Index
-// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 #[quickcheck]
 fn index(nelems: uint, index: uint) -> TestResult {
     if index >= nelems {
@@ -335,12 +322,10 @@ fn index(nelems: uint, index: uint) -> TestResult {
     }
 
     let xs = vec::from_fn(nelems, |i| i);
-    let i = &index;
 
-    TestResult::from_bool(xs.index(i) == i)
+    TestResult::from_bool(xs[index] == index)
 }
 
-// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 #[quickcheck]
 #[should_fail]
 fn out_of_bounds(nelems: uint, index: uint) -> TestResult {
@@ -349,9 +334,8 @@ fn out_of_bounds(nelems: uint, index: uint) -> TestResult {
     }
 
     let xs = vec::from_fn(nelems, |i| i);
-    let i = &index;
 
-    TestResult::from_bool(xs.index(i) == i)
+    TestResult::from_bool(xs[index] == index)
 }
 
 // MulAssign

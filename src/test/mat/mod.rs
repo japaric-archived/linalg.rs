@@ -36,7 +36,6 @@ fn from_fn(nrows: uint, ncols: uint) -> bool {
         })
 }
 
-// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 #[quickcheck]
 fn map(shape: (uint, uint), (low, high): (f32, f32)) -> TestResult {
     if low >= high {
@@ -53,9 +52,7 @@ fn map(shape: (uint, uint), (low, high): (f32, f32)) -> TestResult {
 
     let (nrows, ncols) = shape;
     let (rows, cols) = (range(0, nrows), range(0, ncols));
-    TestResult::from_bool(rows.zip(cols).all(|ref i| {
-        xs.index(i).sin().eq(ys.index(i))
-    }))
+    TestResult::from_bool(rows.zip(cols).all(|i| xs[i].sin() == ys[i]))
 }
 
 #[quickcheck]
@@ -73,7 +70,6 @@ fn rand(shape: (uint, uint), (low, high): (f32, f32)) -> TestResult {
                           v.all(|&e| e >= low && e <= high))
 }
 
-// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 macro_rules! op_assign {
     ($name:ident, $ty:ty, $op:ident, $op_assign:ident) => {
         #[quickcheck]
@@ -94,15 +90,13 @@ macro_rules! op_assign {
             zs.$op_assign(&ys);
 
             let (nrows, ncols) = shape;
-            TestResult::from_bool(xs.shape() == zs.shape() &&
-                range(0, nrows).zip(range(0, ncols)).all(|ref i| {
-                    xs.index(i).$op(ys.index(i)).eq(zs.index(i))
-                }))
+            TestResult::from_bool(
+                xs.shape() == zs.shape() &&
+                range(0, nrows).zip(range(0, ncols)).all(|i| xs[i].$op(&ys[i]).eq(&zs[i])))
         }
     }
 }
 
-// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 macro_rules! op_assign_complex {
     ($name:ident, $ty:ty, $op:ident, $op_assign:ident) => {
         #[quickcheck]
@@ -134,10 +128,7 @@ macro_rules! op_assign_complex {
             let (nrows, ncols) = shape;
             TestResult::from_bool(
                 xs.shape() == zs.shape() &&
-                range(0, nrows).zip(range(0, ncols)).all(|ref i| {
-                    xs.index(i).$op(ys.index(i)).eq(zs.index(i))
-                })
-            )
+                range(0, nrows).zip(range(0, ncols)).all(|i| xs[i].$op(&ys[i]) == zs[i]))
         }
     }
 }
@@ -254,9 +245,7 @@ macro_rules! scale {
             let mut zs = xs.clone();
             zs.scale(k);
 
-            TestResult::from_bool(xs.iter().zip(zs.iter()).all(|(x, z)| {
-                x.mul(&k).eq(z)
-            }))
+            TestResult::from_bool(xs.iter().zip(zs.iter()).all(|(x, z)| x.mul(&k).eq(z)))
         }
     }
 }
@@ -291,9 +280,7 @@ macro_rules! scale_complex {
             let mut zs = xs.clone();
             zs.scale(k);
 
-            TestResult::from_bool(xs.iter().zip(zs.iter()).all(|(x, z)| {
-                x.mul(&k).eq(z)
-            }))
+            TestResult::from_bool(xs.iter().zip(zs.iter()).all(|(x, z)| x.mul(&k).eq(z)))
         }
     }
 }
@@ -302,7 +289,6 @@ scale_complex!(scale_cscal, f32)
 scale_complex!(scale_zscal, f64)
 
 // Index
-// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 #[quickcheck]
 fn index(shape@(nrows, ncols): (uint, uint),
          index@(row, col): (uint, uint))
@@ -312,12 +298,10 @@ fn index(shape@(nrows, ncols): (uint, uint),
     }
 
     let xs = mat::from_fn(shape, |i, j| (i, j));
-    let i = &index;
 
-    TestResult::from_bool(xs.index(i).eq(i))
+    TestResult::from_bool(xs[index] == index)
 }
 
-// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 #[quickcheck]
 #[should_fail]
 fn out_of_bounds(shape@(nrows, ncols): (uint, uint),
@@ -328,9 +312,8 @@ fn out_of_bounds(shape@(nrows, ncols): (uint, uint),
     }
 
     let xs = mat::from_fn(shape, |i, j| (i, j));
-    let i = &index;
 
-    TestResult::from_bool(xs.index(i) == &(0, 0))
+    TestResult::from_bool(xs[index] == (0, 0))
 }
 
 // MulAssign

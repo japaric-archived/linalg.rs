@@ -4,7 +4,6 @@ use std::cmp;
 use mat::traits::MatrixDiag;
 use mat;
 
-// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 #[quickcheck]
 fn index(shape@(nrows, ncols): (uint, uint), diag: int) -> TestResult {
     if diag <= -(nrows as int) || diag >= ncols as int {
@@ -18,20 +17,15 @@ fn index(shape@(nrows, ncols): (uint, uint), diag: int) -> TestResult {
         let d = diag as uint;
         let n = cmp::min(nrows, ncols - d);
 
-        TestResult::from_bool(range(0, n).all(|i| {
-            m_diag.index(&i).eq(&(i, d + i))
-        }))
+        TestResult::from_bool(range(0, n).all(|i| m_diag.index(&i) == &(i, d + i)))
     } else {
         let d = -diag as uint;
         let n = cmp::min(ncols, nrows - d);
 
-        TestResult::from_bool(range(0, n).all(|i| {
-            m_diag.index(&i).eq(&(d + i, i))
-        }))
+        TestResult::from_bool(range(0, n).all(|i| m_diag.index(&i) == &(d + i, i)))
     }
 }
 
-// FIXME rust-lang/rust#15525 Replace `index` method with `[]` operator
 #[quickcheck]
 #[should_fail]
 fn out_of_bounds(shape@(nrows, ncols): (uint, uint),
