@@ -3,7 +3,7 @@ RUSTC = rustc -O src/lib.rs
 .PHONY: all bench clean test
 
 all:
-	cargo build
+	cargo build --release -u --verbose
 
 #bench:
 	#mkdir -p bin

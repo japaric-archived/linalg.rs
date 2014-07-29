@@ -5,11 +5,10 @@ before_install:
 
 install:
   - sudo apt-get install rust-nightly libopenblas-dev
-  - cd cargo && ./configure && sudo make install && cd .. && sudo rm -rf cargo
+  - cd cargo && ./configure && sudo make install && cd .. && sudo rm -rf {~/.,}cargo
 
 script:
-  - make
-  - make test
+  - make && make test
 
 branches:
   only: master
