@@ -1,14 +1,17 @@
 before_install:
-  - git clone --recursive https://github.com/rust-lang/cargo
+  - curl -O http://static.rust-lang.org/cargo-dist/cargo-nightly-x86_64-unknown-linux-gnu.tar.gz
+  - tar xf cargo-nightly-x86_64-unknown-linux-gnu.tar.gz
   - yes | sudo add-apt-repository ppa:hansjorg/rust
   - sudo apt-get update
 
 install:
   - sudo apt-get install rust-nightly libopenblas-dev
-  - cd cargo && ./configure && sudo make install && cd .. && sudo rm -rf {~/.,}cargo
+  - sudo cargo-nightly-x86_64-unknown-linux-gnu/install.sh
+  - sudo rm -rf cargo-nightly-x86_64-unknown-linux-gnu
 
 script:
-  - make && make test
+  - make
+  - make test
 
 branches:
   only: master
