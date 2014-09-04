@@ -1,0 +1,11 @@
+[package]
+
+name = "linalg"
+version = "0.0.0"
+authors = ["Jorge Aparicio <japaric@linux.com>"]
+
+[dev-dependencies.quickcheck]
+git = "https://github.com/BurntSushi/quickcheck"
+
+[dev-dependencies.quickcheck_macros]
+git = "https://github.com/BurntSushi/quickcheck"
