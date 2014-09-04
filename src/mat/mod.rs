@@ -204,7 +204,6 @@ mod test {
                 use test;
                 use traits::{Iter, MatrixCols, MatrixCol, MatrixRow, MatrixRows};
 
-                // XXX This test sometimes fails when tests are run in parallel
                 #[quickcheck]
                 fn mul(m: uint, k: uint, n: uint) -> TestResult {
 
