@@ -1,0 +1,27 @@
+language: rust
+
+env:
+  global:
+    - secure: D/SGyr/TJwlfNpPgKp6oOWcy2ED9ylt+rznLJF24Sb7YqJ5V0xjYTGbvOcvzqntKzU971v8IUS+fT8E1u1eDQHzmY1GxjnPsKklhW+RxujbKqy1FALM3mdd9sf1qtHXk/55irlPumYuO9C7wgSqinm1f3yF00J2EDbkNLVUPlBY=
+
+before_install:
+  # This PPA has a newer version of OpenBLAS
+  - sudo add-apt-repository ppa:staticfloat/julia-deps -y
+  - sudo apt-get update
+
+install:
+  - sudo apt-get install libopenblas-dev
+
+script:
+  # Not sure why travis needs this, without it linking to libopenblas.so.0 fails
+  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/openblas-base
+  - cargo build --verbose
+  - cargo test --verbose
+  - cargo doc --verbose && mv target/doc doc
+  - ./check-line-length.sh
+
+after_success:
+  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh'
+
+branches:
+  only: master
