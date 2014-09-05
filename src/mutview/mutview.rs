@@ -12,7 +12,7 @@ impl<'a, 'b, T> OptionMutSlice<'b, (uint, uint), MutView<'b, T>> for MutView<'a,
         if end_col <= ncols && end_col > start_col + 1 &&
                 end_row <= nrows && end_row > start_row + 1 {
             let stride = self.stride;
-            let ptr = unsafe { self.data.offset((start_row * stride + start_col) as int) };
+            let ptr = unsafe { self.data.offset((start_col * stride + start_row) as int) };
 
             Some(MutView {
                 _contravariant: marker::ContravariantLifetime::<'a>,

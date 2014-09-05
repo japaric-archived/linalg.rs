@@ -13,7 +13,7 @@ impl<'a, 'b, T> OptionSlice<'b, (uint, uint), View<'b, T>> for MutView<'a, T> {
                 end_row <= nrows && end_row > start_row + 1 {
             let stride = self.stride;
             let ptr = unsafe {
-                self.data.offset((start_row * stride + start_col) as int) as *const T
+                self.data.offset((start_col * stride + start_row) as int) as *const T
             };
 
             Some(View {

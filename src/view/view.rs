@@ -16,7 +16,7 @@ impl<'a, 'b, T> OptionSlice<'b, (uint, uint), View<'b, T>> for View<'a, T> {
             Some(View {
                 _contravariant: marker::ContravariantLifetime::<'a>,
                 _nosend: marker::NoSend,
-                data: unsafe { self.data.offset((start_row * stride + start_col) as int) },
+                data: unsafe { self.data.offset((start_col * stride + start_row) as int) },
                 size: (end_row - start_row, end_col - start_col),
                 stride: stride,
             })
