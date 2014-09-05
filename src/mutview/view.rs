@@ -9,8 +9,8 @@ impl<'a, 'b, T> OptionSlice<'b, (uint, uint), View<'b, T>> for MutView<'a, T> {
         let (nrows, ncols) = self.size();
         let (start_row, start_col) = start;
 
-        if end_col < ncols && end_col > start_col + 1 &&
-                end_row < nrows && end_row > start_row + 1 {
+        if end_col <= ncols && end_col > start_col + 1 &&
+                end_row <= nrows && end_row > start_row + 1 {
             let stride = self.stride;
             let ptr = unsafe {
                 self.data.offset((start_row * stride + start_col) as int) as *const T

@@ -99,7 +99,7 @@ impl<'a, T, I: Iterator<T>, D: PrivateMutIter<'a, T, I>> MutIter<'a, T, I> for R
 // TODO Needs testing
 impl<'a, D: Collection + UnsafeSlice<'a, uint, D>> OptionSlice<'a, uint, Row<D>> for Row<D> {
     fn slice(&'a self, start: uint, end: uint) -> Option<Row<D>> {
-        if end > start + 1 && end < self.data.len() {
+        if end > start + 1 && end <= self.data.len() {
             Some(Row { data: unsafe { self.data.unsafe_slice(start, end) }})
         } else {
             None

@@ -9,8 +9,8 @@ impl<'a, T> OptionMutSlice<'a, (uint, uint), MutView<'a, T>> for Mat<T> {
         let (nrows, ncols) = self.size();
         let (start_row, start_col) = start;
 
-        if end_col < ncols && end_col > start_col + 1 &&
-                end_row < nrows && end_row > start_row + 1 {
+        if end_col <= ncols && end_col > start_col + 1 &&
+                end_row <= nrows && end_row > start_row + 1 {
             let stride = self.stride;
             let ptr = unsafe {
                 self.data.as_mut_ptr().offset((start_col * stride + start_row) as int)
