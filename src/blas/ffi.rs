@@ -1,9 +1,19 @@
 use libc::{c_char, c_double, c_float};
+use num::Complex;
 use super::blasint;
 
 // y := alpha * x + y
 #[link(name="blas")]
 extern {
+    pub fn caxpy_(
+        n: *const blasint,
+        alpha: *const Complex<c_float>,
+        x: *const Complex<c_float>,
+        incx: *const blasint,
+        y: *mut Complex<c_float>,
+        incy: *const blasint,
+    );
+
     pub fn daxpy_(
         n: *const blasint,
         alpha: *const c_double,
@@ -21,11 +31,28 @@ extern {
         y: *mut c_float,
         incy: *const blasint,
     );
+
+    pub fn zaxpy_(
+        n: *const blasint,
+        alpha: *const Complex<c_double>,
+        x: *const Complex<c_double>,
+        incx: *const blasint,
+        y: *mut Complex<c_double>,
+        incy: *const blasint,
+    );
 }
 
 // y := x
 #[link(name="blas")]
 extern {
+    pub fn ccopy_(
+        n: *const blasint,
+        x: *const Complex<c_float>,
+        incx: *const blasint,
+        y: *mut Complex<c_float>,
+        incy: *const blasint,
+    );
+
     pub fn dcopy_(
         n: *const blasint,
         x: *const c_double,
@@ -39,6 +66,14 @@ extern {
         x: *const c_float,
         incx: *const blasint,
         y: *mut c_float,
+        incy: *const blasint,
+    );
+
+    pub fn zcopy_(
+        n: *const blasint,
+        x: *const Complex<c_double>,
+        incx: *const blasint,
+        y: *mut Complex<c_double>,
         incy: *const blasint,
     );
 }

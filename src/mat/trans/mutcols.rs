@@ -61,7 +61,8 @@ mod test {
                 use quickcheck::TestResult;
                 use std::iter::AdditiveIterator as AI;
 
-                use test;
+                #[allow(unused_imports)]
+                use test::{c64, c128, mod};
                 use traits::{Iter, MatrixMutCols, MatrixRows, SumCols, Transpose};
 
                 #[quickcheck]
@@ -89,5 +90,5 @@ mod test {
         )+}
     }
 
-    sum!(f32, f64)
+    sum!(f32, f64, c64, c128)
 }
