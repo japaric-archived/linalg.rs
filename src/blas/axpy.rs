@@ -1,3 +1,5 @@
+use num::Complex;
+
 use blas::{blasint, ffi, BlasAccelerated};
 
 type Signature<T> = unsafe extern "C" fn (
@@ -11,6 +13,18 @@ type Signature<T> = unsafe extern "C" fn (
 
 pub trait BlasAxpy: BlasAccelerated {
     fn axpy(Option<Self>) -> Signature<Self>;
+}
+
+impl BlasAxpy for Complex<f32> {
+    fn axpy(_: Option<Complex<f32>>) -> Signature<Complex<f32>> {
+        ffi::caxpy_
+    }
+}
+
+impl BlasAxpy for Complex<f64> {
+    fn axpy(_: Option<Complex<f64>>) -> Signature<Complex<f64>> {
+        ffi::zaxpy_
+    }
 }
 
 impl BlasAxpy for f32 {

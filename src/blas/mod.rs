@@ -1,3 +1,4 @@
+use num::Complex;
 use std::num;
 
 mod ffi;
@@ -19,6 +20,8 @@ pub fn to_blasint<N: NumCast>(n: N) -> blasint {
 
 pub trait BlasAccelerated {}
 
+impl BlasAccelerated for Complex<f32> {}
+impl BlasAccelerated for Complex<f64> {}
 impl BlasAccelerated for f32 {}
 impl BlasAccelerated for f64 {}
 

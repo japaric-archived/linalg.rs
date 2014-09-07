@@ -15,6 +15,7 @@
 #![feature(macro_rules, phase)]
 
 extern crate libc;
+extern crate num;
 #[cfg(test)]
 extern crate quickcheck;
 #[cfg(test)]
@@ -22,7 +23,7 @@ extern crate quickcheck;
 extern crate quickcheck_macros;
 
 use std::kinds::marker;
-use std::num::{One, Zero, mod};
+use std::num::{One, Zero};
 use std::rand::distributions::IndependentSample;
 use std::rand::{Rand, Rng};
 
@@ -335,7 +336,7 @@ impl<T: Clone + One> Col<Vec<T>> {
     /// # }
     /// ```
     pub fn ones(length: uint) -> Col<Vec<T>> {
-        Col::from_elem(length, num::one())
+        Col::from_elem(length, ::std::num::one())
     }
 }
 
@@ -355,7 +356,7 @@ impl<T: Clone + Zero> Col<Vec<T>> {
     /// # }
     /// ```
     pub fn zeros(length: uint) -> Col<Vec<T>> {
-        Col::from_elem(length, num::zero())
+        Col::from_elem(length, ::std::num::zero())
     }
 }
 
@@ -484,7 +485,7 @@ impl<T: Clone + One> Mat<T> {
     /// # }
     /// ```
     pub fn ones(size: (uint, uint)) -> Mat<T> {
-        Mat::from_elem(size, num::one())
+        Mat::from_elem(size, ::std::num::one())
     }
 }
 
@@ -508,16 +509,16 @@ impl<T: Clone + One + Zero> Mat<T> {
 
         assert!(nrows > 1 && ncols > 1);
 
-        let mut mat = Mat::from_elem((nrows, ncols), num::zero());
+        let mut mat = Mat::from_elem((nrows, ncols), ::std::num::zero());
 
         // XXX For some reason this doesn't work
         //for x in mat.mut_diag(0).unwrap().mut_iter() {
-            //*x = num::one();
+            //*x = ::std::num::one();
         //}
         {
             let mut d: Diag<::strided::MutSlice<T>> = mat.mut_diag(0).unwrap();
             for x in d.mut_iter() {
-                *x = num::one();
+                *x = ::std::num::one();
             }
         }
 
@@ -541,7 +542,7 @@ impl<T: Clone + Zero> Mat<T> {
     /// # }
     /// ```
     pub fn zeros(size: (uint, uint)) -> Mat<T> {
-        Mat::from_elem(size, num::zero())
+        Mat::from_elem(size, ::std::num::zero())
     }
 }
 
@@ -660,7 +661,7 @@ impl<T: Clone + One> Row<Vec<T>> {
     /// # }
     /// ```
     pub fn ones(length: uint) -> Row<Vec<T>> {
-        Row::from_elem(length, num::one())
+        Row::from_elem(length, ::std::num::one())
     }
 }
 
@@ -680,7 +681,7 @@ impl<T: Clone + Zero> Row<Vec<T>> {
     /// # }
     /// ```
     pub fn zeros(length: uint) -> Row<Vec<T>> {
-        Row::from_elem(length, num::zero())
+        Row::from_elem(length, ::std::num::zero())
     }
 }
 
