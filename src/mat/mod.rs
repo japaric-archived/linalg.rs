@@ -79,7 +79,7 @@ impl<T: BlasGemm + One + Zero> Mul<Mat<T>, Mat<T>> for Mat<T> {
 
 impl<'a, T> MutIter<'a, &'a mut T, slice::MutItems<'a, T>> for Mat<T> {
     fn mut_iter(&'a mut self) -> slice::MutItems<'a, T> {
-        self.data.mut_iter()
+        self.data.iter_mut()
     }
 }
 
