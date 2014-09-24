@@ -44,7 +44,7 @@ impl<
 > SumCols<T> for I {
     fn sum(mut self) -> Option<Col<Vec<T>>> {
         self.next().map(|col| {
-            let mut sum = col.data.private_to_owned();
+            let mut sum = col.0.private_to_owned();
 
             let n = &to_blasint(sum.len());
             let y = sum.as_mut_ptr();
@@ -52,15 +52,13 @@ impl<
             let axpy = BlasAxpy::axpy(None::<T>);
 
             for col in self {
-                let x = col.data.blas_ptr();
-                let incx = &col.data.blas_stride();
+                let x = col.0.blas_ptr();
+                let incx = &col.0.blas_stride();
 
                 unsafe { axpy(n, &num::one(), x, incx, y, incy) }
             }
 
-            Col {
-                data: sum,
-            }
+            Col(sum)
         })
     }
 }

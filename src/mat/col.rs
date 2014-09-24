@@ -11,9 +11,7 @@ impl<'a, T> UnsafeMatrixCol<'a, &'a [T]> for Mat<T> {
             len: self.nrows(),
         });
 
-        Col {
-            data: data,
-        }
+        Col(data)
     }
 }
 

@@ -10,9 +10,7 @@ impl<'a, 'b, T> UnsafeMatrixMutRow<'b, strided::MutSlice<'b, T>> for MutView<'a,
 
         let data = strided::MutSlice::new(self.data.offset(row as int), len, stride);
 
-        Row {
-            data: data,
-        }
+        Row(data)
     }
 }
 

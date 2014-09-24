@@ -16,9 +16,7 @@ mod view;
 
 impl<T> Transpose<Trans<Mat<T>>> for Mat<T> {
     fn t(self) -> Trans<Mat<T>> {
-        Trans {
-            mat: self,
-        }
+        Trans(self)
     }
 }
 

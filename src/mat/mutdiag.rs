@@ -16,9 +16,7 @@ impl<T> MatrixMutDiag<T> for Mat<T> {
                 let ptr = unsafe { self.data.as_mut_ptr().offset((diag * stride) as int) };
                 let len = cmp::min(nrows, ncols - diag);
 
-                Some(Diag {
-                    data: strided::MutSlice::new(ptr, len, stride + 1),
-                })
+                Some(Diag(strided::MutSlice::new(ptr, len, stride + 1)))
             } else {
                 None
             }
@@ -29,9 +27,7 @@ impl<T> MatrixMutDiag<T> for Mat<T> {
                 let ptr = unsafe { self.data.as_mut_ptr().offset(diag as int) };
                 let len = cmp::min(nrows - diag, ncols);
 
-                Some(Diag {
-                    data: strided::MutSlice::new(ptr, len, stride + 1),
-                })
+                Some(Diag(strided::MutSlice::new(ptr, len, stride + 1)))
             } else {
                 None
             }

@@ -26,14 +26,14 @@ macro_rules! impl_items {
     ($($items:ty -> $item:ty),+,) => {$(
         impl<'a, T> Iterator<$item> for $items {
             fn next(&mut self) -> Option<$item> {
-                if self.state.val1() == self.stop.val1() {
+                if self.state.1 == self.stop.1 {
                     None
                 } else {
                     let (row, col) = self.state;
 
                     *self.state.mut0() += 1;
 
-                    if self.state.val0() == self.stop.val0() {
+                    if self.state.0 == self.stop.0 {
                         *self.state.mut0() = 0;
                         *self.state.mut1() += 1;
                     }

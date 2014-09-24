@@ -10,9 +10,7 @@ impl<'a, 'b, T> UnsafeMatrixRow<'b, strided::Slice<'b, T>> for View<'a, T> {
 
         let data = strided::Slice::new(self.data.offset(row as int), len, stride);
 
-        Row {
-            data: data,
-        }
+        Row(data)
     }
 }
 

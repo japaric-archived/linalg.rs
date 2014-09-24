@@ -9,9 +9,7 @@ impl<'a, T> UnsafeMatrixMutRow<'a, strided::MutSlice<'a, T>> for Mat<T> {
 
         let data = strided::MutSlice::new(self.data.as_mut_ptr().offset(row as int), ncols, nrows);
 
-        Row {
-            data: data,
-        }
+        Row(data)
     }
 }
 

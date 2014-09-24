@@ -11,9 +11,7 @@ impl<'a, 'b, T> UnsafeMatrixCol<'b, &'b [T]> for MutView<'a, T> {
             len: self.nrows(),
         });
 
-        Col {
-            data: data,
-        }
+        Col(data)
     }
 }
 

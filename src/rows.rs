@@ -44,7 +44,7 @@ impl<
 > SumRows<T> for I {
     fn sum(mut self) -> Option<Row<Vec<T>>> {
         self.next().map(|row| {
-            let mut sum = row.data.private_to_owned();
+            let mut sum = row.0.private_to_owned();
 
             let n = &to_blasint(sum.len());
             let y = sum.as_mut_ptr();
@@ -52,15 +52,13 @@ impl<
             let axpy = BlasAxpy::axpy(None::<T>);
 
             for row in self {
-                let x = row.data.blas_ptr();
-                let incx = &row.data.blas_stride();
+                let x = row.0.blas_ptr();
+                let incx = &row.0.blas_stride();
 
                 unsafe { axpy(n, &num::one(), x, incx, y, incy) }
             }
 
-            Row {
-                data: sum,
-            }
+            Row(sum)
         })
     }
 }

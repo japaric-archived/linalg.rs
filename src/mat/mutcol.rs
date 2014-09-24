@@ -11,9 +11,7 @@ impl<'a, T> UnsafeMatrixMutCol<'a, &'a mut [T]> for Mat<T> {
             len: self.stride,
         });
 
-        Col {
-            data: data,
-        }
+        Col(data)
     }
 }
 

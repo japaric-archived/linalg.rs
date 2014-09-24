@@ -12,7 +12,7 @@
 //! - Element-wise iteration over matrices is done in the fastest way possible, there's no
 //!   guarantee of the iteration order
 
-#![feature(macro_rules, phase)]
+#![feature(macro_rules, phase, tuple_indexing)]
 
 extern crate libc;
 extern crate num;
@@ -57,9 +57,7 @@ static EXPECT_MSG: &'static str = "capacity overflow";
 ///
 /// - Length is enforced to be greater than one (i.e. not a scalar)
 #[deriving(PartialEq)]
-pub struct Col<D> {
-    data: D,
-}
+pub struct Col<D>(D);
 
 /// Iterator over the columns of an immutable matrix
 // TODO (rust-lang/rust#16596) Add a `MatrixCol` bound on `M`
@@ -70,9 +68,7 @@ pub struct Cols<'a, M: 'a> {
 }
 
 /// View into the diagonal of a matrix
-pub struct Diag<D> {
-    data: D,
-}
+pub struct Diag<D>(D);
 
 /// Owned matrix
 ///
@@ -122,9 +118,7 @@ pub struct MutRows<'a, M: 'a> {
 ///
 /// - Length is enforced to be greater than one (i.e. not a scalar)
 #[deriving(PartialEq)]
-pub struct Row<D> {
-    data: D,
-}
+pub struct Row<D>(D);
 
 /// Iterator over the rows of an immutable matrix
 // TODO (rust-lang/rust#16596) Add a `MatrixRow` bound on `M`
@@ -199,9 +193,7 @@ impl<'a, T> StridedSlice<'a, T> {
 }
 
 /// View into the transpose of a matrix
-pub struct Trans<M> {
-    mat: M,
-}
+pub struct Trans<M>(M);
 
 /// Immutable sub-matrix view
 ///
@@ -253,9 +245,7 @@ impl<T> Col<Vec<T>> {
     pub fn new(data: Vec<T>) -> Col<Vec<T>> {
         assert!(data.len() > 1);
 
-        Col {
-            data: data,
-        }
+        Col(data)
     }
 
     /// Creates and initializes a column vector
@@ -275,9 +265,7 @@ impl<T> Col<Vec<T>> {
     pub fn from_fn(length: uint, op: |uint| -> T) -> Col<Vec<T>> {
         assert!(length > 1);
 
-        Col {
-            data: Vec::from_fn(length, op),
-        }
+        Col(Vec::from_fn(length, op))
     }
 
     /// Creates a column vector and fills it by sampling a random distribution
@@ -290,9 +278,7 @@ impl<T> Col<Vec<T>> {
     ) -> Col<Vec<T>> {
         assert!(length > 1);
 
-        Col {
-            data: Vec::from_fn(length, |_| distribution.ind_sample(rng)),
-        }
+        Col(Vec::from_fn(length, |_| distribution.ind_sample(rng)))
     }
 }
 
@@ -314,9 +300,7 @@ impl<T: Clone> Col<Vec<T>> {
     pub fn from_elem(length: uint, value: T) -> Col<Vec<T>> {
         assert!(length > 1);
 
-        Col {
-            data: Vec::from_elem(length, value),
-        }
+        Col(Vec::from_elem(length, value))
     }
 }
 
@@ -368,9 +352,7 @@ impl<T: Rand> Col<Vec<T>> {
     pub fn rand<R: Rng>(length: uint, rng: &mut R) -> Col<Vec<T>> {
         assert!(length > 1);
 
-        Col {
-            data: Vec::from_fn(length, |_| rng.gen()),
-        }
+        Col(Vec::from_fn(length, |_| rng.gen()))
     }
 }
 
@@ -578,9 +560,7 @@ impl<T> Row<Vec<T>> {
     pub fn new(data: Vec<T>) -> Row<Vec<T>> {
         assert!(data.len() > 1);
 
-        Row {
-            data: data,
-        }
+        Row(data)
     }
 
     /// Creates and initializes a row vector
@@ -600,9 +580,7 @@ impl<T> Row<Vec<T>> {
     pub fn from_fn(length: uint, op: |uint| -> T) -> Row<Vec<T>> {
         assert!(length > 1);
 
-        Row {
-            data: Vec::from_fn(length, op),
-        }
+        Row(Vec::from_fn(length, op))
     }
 
     /// Creates a row vector and fills it by sampling a random distribution
@@ -615,9 +593,7 @@ impl<T> Row<Vec<T>> {
     ) -> Row<Vec<T>> {
         assert!(length > 1);
 
-        Row {
-            data: Vec::from_fn(length, |_| distribution.ind_sample(rng)),
-        }
+        Row(Vec::from_fn(length, |_| distribution.ind_sample(rng)))
     }
 }
 
@@ -639,9 +615,7 @@ impl<T: Clone> Row<Vec<T>> {
     pub fn from_elem(length: uint, value: T) -> Row<Vec<T>> {
         assert!(length > 1);
 
-        Row {
-            data: Vec::from_elem(length, value),
-        }
+        Row(Vec::from_elem(length, value))
     }
 }
 
@@ -693,9 +667,7 @@ impl<T: Rand> Row<Vec<T>> {
     pub fn rand<R: Rng>(length: uint, rng: &mut R) -> Row<Vec<T>> {
         assert!(length > 1);
 
-        Row {
-            data: Vec::from_fn(length, |_| rng.gen()),
-        }
+        Row(Vec::from_fn(length, |_| rng.gen()))
     }
 }
 

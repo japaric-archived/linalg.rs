@@ -10,9 +10,7 @@ mod view;
 
 impl<'a, T> Transpose<Trans<View<'a, T>>> for View<'a, T> {
     fn t(self) -> Trans<View<'a, T>> {
-        Trans {
-            mat: self,
-        }
+        Trans(self)
     }
 }
 

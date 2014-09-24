@@ -116,11 +116,11 @@ pub trait MatrixRows<'a>: Matrix {
 /// The basic idea of a matrix: A rectangular array of numbers arranged in rows and columns
 pub trait Matrix {
     fn ncols(&self) -> uint {
-        self.size().val1()
+        self.size().1
     }
 
     fn nrows(&self) -> uint {
-        self.size().val0()
+        self.size().0
     }
 
     fn size(&self) -> (uint, uint) {

@@ -16,9 +16,7 @@ mod view;
 
 impl<'a, T> Transpose<Trans<MutView<'a, T>>> for MutView<'a, T> {
     fn t(self) -> Trans<MutView<'a, T>> {
-        Trans {
-            mat: self,
-        }
+        Trans(self)
     }
 }
 

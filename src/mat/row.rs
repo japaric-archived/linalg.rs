@@ -9,9 +9,7 @@ impl<'a, T> UnsafeMatrixRow<'a, strided::Slice<'a, T>> for Mat<T> {
 
         let data = strided::Slice::new(self.data.as_ptr().offset(row as int), ncols, nrows);
 
-        Row {
-            data: data,
-        }
+        Row(data)
     }
 }
 
