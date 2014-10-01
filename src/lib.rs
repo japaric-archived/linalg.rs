@@ -12,6 +12,7 @@
 //! - Element-wise iteration over matrices is done in the fastest way possible, there's no
 //!   guarantee of the iteration order
 
+#![deny(warnings)]
 #![feature(macro_rules, phase, tuple_indexing)]
 
 extern crate libc;
