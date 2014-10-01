@@ -8,7 +8,7 @@ mod test {
     use quickcheck::TestResult;
 
     use test;
-    use traits::{Iter, Matrix, MatrixMutRows, OptionMutSlice};
+    use traits::{Iter, MatrixMutRows, OptionMutSlice};
 
     #[quickcheck]
     fn iter(
@@ -33,8 +33,7 @@ mod test {
     ) -> TestResult {
         if let Some(mut v) = test::mat(size).as_mut().and_then(|m| m.mut_slice(start, end)) {
             let (start_row, start_col) = start;
-
-            let nrows = v.nrows();
+            let nrows = test::size(start, end).0;
 
             TestResult::from_bool(v.mut_rows().rev().enumerate().all(|(row, r)| {
                 r.iter().enumerate().all(|(col, e)| {
@@ -53,7 +52,7 @@ mod test {
         skip: uint,
     ) -> TestResult {
         if let Some(mut v) = test::mat(size).as_mut().and_then(|m| m.mut_slice(start, end)) {
-            let nrows = v.nrows();
+            let nrows = test::size(start, end).0;
 
             if skip < nrows {
                 let hint = v.mut_rows().skip(skip).size_hint();
@@ -88,7 +87,7 @@ mod test {
                     if let Some(mut v) = test::rand_mat::<$ty>(size).as_mut().and_then(|m| {
                         m.mut_slice(start, end)
                     }) {
-                        let (nrows, _) = test::size(start, end);
+                        let nrows = test::size(start, end).0;
 
                         if skip < nrows {
                             let sum = v.mut_rows().skip(skip).sum().unwrap();

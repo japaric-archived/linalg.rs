@@ -31,8 +31,7 @@ mod test {
         if let Some(mut t) = test::mat(size).as_mut().and_then(|m| {
             m.mut_slice(start, end)
         }).map(|v| v.t()) {
-            let (nrows, _) = test::size(start, end);
-
+            let nrows = test::size(start, end).0;
             let (start_row, start_col) = start;
 
             TestResult::from_bool(t.mut_cols().rev().enumerate().all(|(col, c)| {
@@ -54,7 +53,7 @@ mod test {
         if let Some(mut t) = test::mat(size).as_mut().and_then(|m| {
             m.mut_slice(start, end)
         }).map(|v| v.t()) {
-            let (nrows, _) = test::size(start, end);
+            let nrows = test::size(start, end).0;
 
             if skip < nrows {
                 let hint = t.mut_cols().skip(skip).size_hint();
@@ -89,7 +88,7 @@ mod test {
                     if let Some(mut t) = test::rand_mat::<$ty>(size).as_mut().and_then(|m| {
                         m.mut_slice(start, end)
                     }).map(|v| v.t()) {
-                        let (nrows, _) = test::size(start, end);
+                        let nrows = test::size(start, end).0;
 
                         if skip < nrows {
                             let sum = t.mut_cols().skip(skip).sum().unwrap();

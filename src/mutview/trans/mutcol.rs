@@ -96,7 +96,7 @@ mod test {
         if let Some(mut c) = test::mat(size).as_mut().and_then(|m| {
             m.mut_slice(start, end)
         }).map(|v| v.t()).as_mut().and_then(|t| t.mut_col(col)) {
-            let (_, ncols) = test::size(start, end);
+            let ncols = test::size(start, end).1;
 
             if skip < ncols {
                 let hint = c.mut_iter().skip(skip).size_hint();
@@ -121,7 +121,7 @@ mod test {
         if let Some(c) = test::mat(size).as_mut().and_then(|m| m.mut_slice(start, end)).map(|v| {
             v.t()
         }).as_mut().and_then(|t| t.mut_col(col)) {
-            let (_, ncols) = test::size(start, end);
+            let ncols = test::size(start, end).1;
             let (start_row, start_col) = start;
 
             TestResult::from_bool(c.iter().rev().enumerate().all(|(row, e)| {
@@ -141,7 +141,7 @@ mod test {
         if let Some(mut c) = test::mat(size).as_mut().and_then(|m| {
             m.mut_slice(start, end)
         }).map(|v| v.t()).as_mut().and_then(|t| t.mut_col(col)) {
-            let (_, ncols) = test::size(start, end);
+            let ncols = test::size(start, end).1;
             let (start_row, start_col) = start;
 
             TestResult::from_bool(c.mut_iter().rev().enumerate().all(|(row, e)| {
@@ -161,7 +161,7 @@ mod test {
         if let Some(c) = test::mat(size).as_mut().and_then(|m| m.mut_slice(start, end)).map(|v| {
             v.t()
         }).as_mut().and_then(|t| t.mut_col(col)) {
-            let (_, ncols) = test::size(start, end);
+            let ncols = test::size(start, end).1;
 
             if skip < ncols {
                 let hint = c.iter().skip(skip).size_hint();

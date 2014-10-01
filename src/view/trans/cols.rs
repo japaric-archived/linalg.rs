@@ -31,8 +31,7 @@ mod test {
         if let Some(t) = test::mat(size).as_ref().and_then(|m| {
             m.slice(start, end)
         }).map(|v| v.t()) {
-            let (nrows, _) = test::size(start, end);
-
+            let nrows = test::size(start, end).0;
             let (start_row, start_col) = start;
 
             TestResult::from_bool(t.cols().rev().enumerate().all(|(col, c)| {
@@ -54,7 +53,7 @@ mod test {
         if let Some(t) = test::mat(size).as_ref().and_then(|m| {
             m.slice(start, end)
         }).map(|v| v.t()) {
-            let (nrows, _) = test::size(start, end);
+            let nrows = test::size(start, end).0;
 
             if skip < nrows {
                 let hint = t.cols().skip(skip).size_hint();
@@ -89,7 +88,7 @@ mod test {
                     if let Some(t) = test::rand_mat::<$ty>(size).as_ref().and_then(|m| {
                         m.slice(start, end)
                     }).map(|v| v.t()) {
-                        let (nrows, _) = test::size(start, end);
+                        let nrows = test::size(start, end).0;
 
                         if skip < nrows {
                             let sum = t.cols().skip(skip).sum().unwrap();

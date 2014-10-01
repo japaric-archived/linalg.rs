@@ -19,7 +19,7 @@ mod test {
     #[quickcheck]
     fn rev_iter(size: (uint, uint)) -> TestResult {
         if let Some(t) = test::mat(size).map(|m| m.t()) {
-            let (nrows, _) = size;
+            let nrows = size.0;
 
             TestResult::from_bool(t.cols().rev().enumerate().all(|(col, c)| {
                 c.iter().enumerate().all(|(row, e)| e.eq(&(nrows - col - 1, row)))
@@ -32,7 +32,7 @@ mod test {
     #[quickcheck]
     fn size_hint(size: (uint, uint), skip: uint) -> TestResult {
         if let Some(t) = test::mat(size).map(|m| m.t()) {
-            let (nrows, _) = size;
+            let nrows = size.0;
 
             if skip < nrows {
                 let hint = t.cols().skip(skip).size_hint();
@@ -61,7 +61,7 @@ mod test {
                 #[quickcheck]
                 fn sum(size: (uint, uint), skip: uint) -> TestResult {
                     if let Some(t) = test::rand_mat::<$ty>(size).map(|m| m.t()) {
-                        let (nrows, _) = size;
+                        let nrows = size.0;
 
                         if skip < nrows {
                             let sum = t.cols().skip(skip).sum().unwrap();

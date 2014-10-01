@@ -19,7 +19,7 @@ mod test {
     #[quickcheck]
     fn iter(size: (uint, uint), col: uint) -> TestResult {
         if let Some(c) = test::mat(size).map(|m| m.t()).as_mut().and_then(|t| t.mut_col(col)) {
-            let (nrows, _) = size;
+            let nrows = size.0;
 
             if col < nrows {
                 TestResult::from_bool(c.iter().enumerate().all(|(row, e)| e.eq(&(col, row))))
@@ -34,7 +34,7 @@ mod test {
     #[quickcheck]
     fn rev_iter(size: (uint, uint), col: uint) -> TestResult {
         if let Some(c) = test::mat(size).map(|m| m.t()).as_mut().and_then(|t| t.mut_col(col)) {
-            let (_, ncols) = size;
+            let ncols = size.1;
 
             TestResult::from_bool(c.iter().rev().enumerate().all(|(row, e)| {
                 e.eq(&(col, ncols - row - 1))
@@ -47,7 +47,7 @@ mod test {
     #[quickcheck]
     fn size_hint(size: (uint, uint), col: uint, skip: uint) -> TestResult {
         if let Some(c) = test::mat(size).map(|m| m.t()).as_mut().and_then(|t| t.mut_col(col)) {
-            let (_, ncols) = size;
+            let ncols = size.1;
 
             if skip < ncols {
                 let hint = c.iter().skip(skip).size_hint();

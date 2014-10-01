@@ -77,8 +77,7 @@ mod test {
         }).as_ref().and_then(|v| {
             v.col(col)
         }) {
-            let (nrows, _) = test::size(start, end);
-
+            let nrows = test::size(start, end).0;
             let (start_row, start_col) = start;
 
             TestResult::from_bool(c.iter().rev().enumerate().all(|(row, e)| {
@@ -100,7 +99,7 @@ mod test {
         }).as_ref().and_then(|v| {
             v.col(col)
         }) {
-            let (nrows, _) = test::size(start, end);
+            let nrows = test::size(start, end).0;
 
             if skip < nrows {
                 let hint = c.iter().skip(skip).size_hint();

@@ -47,7 +47,7 @@ mod test {
     #[quickcheck]
     fn rev_iter(size: (uint, uint), col: uint) -> TestResult {
         if let Some(c) = test::mat(size).as_ref().and_then(|m| m.col(col)) {
-            let (nrows, _) = size;
+            let nrows = size.0;
 
             TestResult::from_bool(c.iter().rev().enumerate().all(|(row, e)| {
                 e.eq(&(nrows - row - 1, col))
@@ -60,7 +60,7 @@ mod test {
     #[quickcheck]
     fn size_hint(size: (uint, uint), col: uint, skip: uint) -> TestResult {
         if let Some(c) = test::mat(size).as_ref().and_then(|m| m.col(col)) {
-            let (nrows, _) = size;
+            let nrows = size.0;
 
             if skip < nrows {
                 let hint = c.iter().skip(skip).size_hint();

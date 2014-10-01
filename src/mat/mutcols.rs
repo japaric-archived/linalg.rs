@@ -8,7 +8,7 @@ mod test {
     use quickcheck::TestResult;
 
     use test;
-    use traits::{Iter, Matrix, MatrixMutCols};
+    use traits::{Iter, MatrixMutCols};
 
     #[quickcheck]
     fn iter(size: (uint, uint)) -> TestResult {
@@ -24,7 +24,7 @@ mod test {
     #[quickcheck]
     fn rev_iter(size: (uint, uint)) -> TestResult {
         if let Some(mut m) = test::mat(size) {
-            let ncols = m.ncols();
+            let ncols = size.1;
 
             TestResult::from_bool(m.mut_cols().rev().enumerate().all(|(col, c)| {
                 c.iter().enumerate().all(|(row, e)| e.eq(&(row, ncols - col - 1)))
@@ -37,7 +37,7 @@ mod test {
     #[quickcheck]
     fn size_hint(size: (uint, uint), skip: uint) -> TestResult {
         if let Some(mut m) = test::mat(size) {
-            let ncols = m.ncols();
+            let ncols = size.1;
 
             if skip < ncols {
                 let hint = m.mut_cols().skip(skip).size_hint();
@@ -66,7 +66,7 @@ mod test {
                 #[quickcheck]
                 fn sum(size: (uint, uint), skip: uint) -> TestResult {
                     if let Some(mut m) = test::rand_mat::<$ty>(size) {
-                        let (_, ncols) = size;
+                        let ncols = size.1;
 
                         if skip < ncols {
                             let sum = m.mut_cols().skip(skip).sum().unwrap();

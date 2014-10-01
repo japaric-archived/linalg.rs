@@ -50,7 +50,7 @@ mod test {
         if let Some(c) = test::mat(size).as_ref().and_then(|m| m.slice(start, end)).map(|v| {
             v.t()
         }).as_ref().and_then(|t| t.col(col)) {
-            let (_, ncols) = test::size(start, end);
+            let ncols = test::size(start, end).1;
             let (start_row, start_col) = start;
 
             TestResult::from_bool(c.iter().rev().enumerate().all(|(row, e)| {
@@ -70,7 +70,7 @@ mod test {
         if let Some(c) = test::mat(size).as_ref().and_then(|m| m.slice(start, end)).map(|v| {
             v.t()
         }).as_ref().and_then(|t| t.col(col)) {
-            let (_, ncols) = test::size(start, end);
+            let ncols = test::size(start, end).1;
 
             if skip < ncols {
                 let hint = c.iter().skip(skip).size_hint();
