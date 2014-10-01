@@ -105,93 +105,91 @@ mod test {
 
     #[quickcheck]
     fn index(size: (uint, uint), (row, col): (uint, uint)) -> TestResult {
-        match test::mat(size).as_ref().and_then(|m| m.at(&(row, col))) {
-            None => TestResult::discard(),
-            Some(e) => TestResult::from_bool((row, col).eq(e)),
+        if let Some(e) = test::mat(size).as_ref().and_then(|m| m.at(&(row, col))) {
+            TestResult::from_bool((row, col).eq(e))
+        } else {
+            TestResult::discard()
         }
     }
 
     #[quickcheck]
     fn index_mut(size: (uint, uint), (row, col): (uint, uint)) -> TestResult {
-        match test::mat(size).as_mut().and_then(|m| m.at_mut(&(row, col))) {
-            None => TestResult::discard(),
-            Some(e) => TestResult::from_bool((row, col).eq(e)),
+        if let Some(e) = test::mat(size).as_mut().and_then(|m| m.at_mut(&(row, col))) {
+            TestResult::from_bool((row, col).eq(e))
+        } else {
+            TestResult::discard()
         }
     }
 
     #[quickcheck]
     fn iter(size: (uint, uint)) -> TestResult {
-        match test::mat(size) {
-            None => TestResult::discard(),
-            Some(m) => {
-                let (nrows, ncols) = size;
+        if let Some(m) = test::mat(size) {
+            let (nrows, ncols) = size;
 
-                let mut elems = TreeSet::new();
-                for row in range(0, nrows) {
-                    for col in range(0, ncols) {
-                        elems.insert((row, col));
-                    }
+            let mut elems = TreeSet::new();
+            for row in range(0, nrows) {
+                for col in range(0, ncols) {
+                    elems.insert((row, col));
                 }
-
-                TestResult::from_bool(elems == m.iter().map(|&x| x).collect())
             }
+
+            TestResult::from_bool(elems == m.iter().map(|&x| x).collect())
+        } else {
+            TestResult::discard()
         }
     }
 
     #[quickcheck]
     fn mut_iter(size: (uint, uint)) -> TestResult {
-        match test::mat(size) {
-            None => TestResult::discard(),
-            Some(mut m) => {
-                let (nrows, ncols) = size;
+        if let Some(mut m) = test::mat(size) {
+            let (nrows, ncols) = size;
 
-                let mut elems = TreeSet::new();
-                for row in range(0, nrows) {
-                    for col in range(0, ncols) {
-                        elems.insert((row, col));
-                    }
+            let mut elems = TreeSet::new();
+            for row in range(0, nrows) {
+                for col in range(0, ncols) {
+                    elems.insert((row, col));
                 }
-
-                TestResult::from_bool(elems == m.mut_iter().map(|&x| x).collect())
             }
+
+            TestResult::from_bool(elems == m.mut_iter().map(|&x| x).collect())
+        } else {
+            TestResult::discard()
         }
     }
 
     #[quickcheck]
     fn mut_size_hint(size: (uint, uint), skip: uint) -> TestResult {
-        match test::mat(size) {
-            None => TestResult::discard(),
-            Some(mut m) => {
-                let total = m.len();
+        if let Some(mut m) = test::mat(size) {
+            let total = m.len();
 
-                if skip < total {
-                    let hint = m.mut_iter().skip(skip).size_hint();
-                    let left = total - skip;
+            if skip < total {
+                let hint = m.mut_iter().skip(skip).size_hint();
+                let left = total - skip;
 
-                    TestResult::from_bool(hint == (left, Some(left)))
-                } else {
-                    TestResult::discard()
-                }
+                TestResult::from_bool(hint == (left, Some(left)))
+            } else {
+                TestResult::discard()
             }
+        } else {
+            TestResult::discard()
         }
     }
 
     #[quickcheck]
     fn size_hint(size: (uint, uint), skip: uint) -> TestResult {
-        match test::mat(size) {
-            None => TestResult::discard(),
-            Some(m) => {
-                let total = m.len();
+        if let Some(m) = test::mat(size) {
+            let total = m.len();
 
-                if skip < total {
-                    let hint = m.iter().skip(skip).size_hint();
-                    let left = total - skip;
+            if skip < total {
+                let hint = m.iter().skip(skip).size_hint();
+                let left = total - skip;
 
-                    TestResult::from_bool(hint == (left, Some(left)))
-                } else {
-                    TestResult::discard()
-                }
+                TestResult::from_bool(hint == (left, Some(left)))
+            } else {
+                TestResult::discard()
             }
+        } else {
+            TestResult::discard()
         }
     }
 
@@ -207,38 +205,41 @@ mod test {
                 #[quickcheck]
                 fn mul(m: uint, k: uint, n: uint) -> TestResult {
 
-                    match (test::rand_mat::<$ty>((m, k)), test::rand_mat::<$ty>((k, n))) {
-                        (Some(x), Some(y)) => {
-                            let z = x * y;
+                    if let (Some(x), Some(y)) = (
+                        test::rand_mat::<$ty>((m, k)),
+                        test::rand_mat::<$ty>((k, n)),
+                    ) {
+                        let z = x * y;
 
-                            for (r, rx) in z.rows().zip(x.rows()) {
-                                for (&e, cy) in r.iter().zip(y.cols()) {
-                                    let sum = rx.iter().zip(cy.iter()).map(|(x, &y)| x * y).sum();
+                        for (r, rx) in z.rows().zip(x.rows()) {
+                            for (&e, cy) in r.iter().zip(y.cols()) {
+                                let sum = rx.iter().zip(cy.iter()).map(|(x, &y)| x * y).sum();
 
-                                    if !test::is_close(e, sum) {
-                                        return TestResult::failed();
-                                    }
+                                if !test::is_close(e, sum) {
+                                    return TestResult::failed();
                                 }
                             }
+                        }
 
-                            TestResult::passed()
-                        },
-                        _ => TestResult::discard(),
+                        TestResult::passed()
+                    } else {
+                        TestResult::discard()
                     }
                 }
 
                 #[quickcheck]
                 fn row_mul_col(length: uint, (row, col): (uint, uint)) -> TestResult {
-                    match test::rand_mat::<$ty>((length, length)).as_ref().and_then(|m| {
-                        m.row(row).and_then(|r| m.col(col).map(|c| (r, c)))
-                    }) {
-                        None => TestResult::discard(),
-                        Some((r, c)) => {
-                            TestResult::from_bool(test::is_close(
-                                r * c,
-                                r.iter().zip(c.iter()).map(|(x, y)| x.mul(y)).sum(),
-                            ))
-                        }
+                    if let Some((r, c)) =
+                        test::rand_mat::<$ty>((length, length)).
+                            as_ref().
+                            and_then(|m| m.row(row).and_then(|r| m.col(col).map(|c| (r, c))))
+                    {
+                        TestResult::from_bool(test::is_close(
+                            r * c,
+                            r.iter().zip(c.iter()).map(|(x, y)| x.mul(y)).sum(),
+                        ))
+                    } else {
+                        TestResult::discard()
                     }
                 }
             }

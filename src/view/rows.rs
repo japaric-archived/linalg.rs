@@ -15,17 +15,14 @@ mod test {
         size: (uint, uint),
         (start, end): ((uint, uint), (uint, uint))
     ) -> TestResult {
-        match test::mat(size).as_ref().and_then(|m| m.slice(start, end)) {
-            None => TestResult::discard(),
-            Some(v) => {
-                let (start_row, start_col) = start;
+        if let Some(v) = test::mat(size).as_ref().and_then(|m| m.slice(start, end)) {
+            let (start_row, start_col) = start;
 
-                TestResult::from_bool(v.rows().enumerate().all(|(row, r)| {
-                    r.iter().enumerate().all(|(col, e)| {
-                        e.eq(&(start_row + row, start_col + col))
-                    })
-                }))
-            },
+            TestResult::from_bool(v.rows().enumerate().all(|(row, r)| {
+                r.iter().enumerate().all(|(col, e)| e.eq(&(start_row + row, start_col + col)))
+            }))
+        } else {
+            TestResult::discard()
         }
     }
 
@@ -34,19 +31,18 @@ mod test {
         size: (uint, uint),
         (start, end): ((uint, uint), (uint, uint))
     ) -> TestResult {
-        match test::mat(size).as_ref().and_then(|m| m.slice(start, end)) {
-            None => TestResult::discard(),
-            Some(v) => {
-                let (start_row, start_col) = start;
+        if let Some(v) = test::mat(size).as_ref().and_then(|m| m.slice(start, end)) {
+            let (start_row, start_col) = start;
 
-                let nrows = v.nrows();
+            let nrows = v.nrows();
 
-                TestResult::from_bool(v.rows().rev().enumerate().all(|(row, r)| {
-                    r.iter().enumerate().all(|(col, e)| {
-                        e.eq(&(start_row + nrows - row - 1, start_col + col))
-                    })
-                }))
-            },
+            TestResult::from_bool(v.rows().rev().enumerate().all(|(row, r)| {
+                r.iter().enumerate().all(|(col, e)| {
+                    e.eq(&(start_row + nrows - row - 1, start_col + col))
+                })
+            }))
+        } else {
+            TestResult::discard()
         }
     }
 
@@ -56,21 +52,20 @@ mod test {
         (start, end): ((uint, uint), (uint, uint)),
         skip: uint
     ) -> TestResult {
-        match test::mat(size).as_ref().and_then(|m| m.slice(start, end)) {
-            None => TestResult::discard(),
-            Some(v) => {
-                let nrows = v.nrows();
+        if let Some(v) = test::mat(size).as_ref().and_then(|m| m.slice(start, end)) {
+            let nrows = v.nrows();
 
-                if skip < nrows {
-                    let hint = v.rows().skip(skip).size_hint();
+            if skip < nrows {
+                let hint = v.rows().skip(skip).size_hint();
 
-                    let left = nrows - skip;
+                let left = nrows - skip;
 
-                    TestResult::from_bool(hint == (left, Some(left)))
-                } else {
-                    TestResult::discard()
-                }
-            },
+                TestResult::from_bool(hint == (left, Some(left)))
+            } else {
+                TestResult::discard()
+            }
+        } else {
+            TestResult::discard()
         }
     }
 
@@ -90,23 +85,24 @@ mod test {
                     (start, end): ((uint, uint), (uint, uint)),
                     skip: uint
                 ) -> TestResult {
-                    match test::rand_mat::<$ty>(size).as_ref().and_then(|m| m.slice(start, end)) {
-                        None => TestResult::discard(),
-                        Some(v) => {
-                            let (nrows, _) = test::size(start, end);
+                    if let Some(v) = test::rand_mat::<$ty>(size).as_ref().and_then(|m| {
+                        m.slice(start, end)
+                    }) {
+                        let (nrows, _) = test::size(start, end);
 
-                            if skip < nrows {
-                                let sum = v.rows().skip(skip).sum().unwrap();
+                        if skip < nrows {
+                            let sum = v.rows().skip(skip).sum().unwrap();
 
-                                TestResult::from_bool(sum.iter().zip(v.cols()).all(|(&e, c)| {
-                                    // FIXME (rust-lang/rust#16949) Use static dispatch
-                                    let ai = &mut c.iter().skip(skip).map(|&x| x) as &mut AI<$ty>;
-                                    e == ai.sum()
-                                }))
-                            } else {
-                                TestResult::discard()
-                            }
+                            TestResult::from_bool(sum.iter().zip(v.cols()).all(|(&e, c)| {
+                                // FIXME (rust-lang/rust#16949) Use static dispatch
+                                let ai = &mut c.iter().skip(skip).map(|&x| x) as &mut AI<$ty>;
+                                e == ai.sum()
+                            }))
+                        } else {
+                            TestResult::discard()
                         }
+                    } else {
+                        TestResult::discard()
                     }
                 }
             }

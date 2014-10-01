@@ -41,20 +41,19 @@ mod test {
         (start, end): ((uint, uint), (uint, uint)),
         (sub_start, sub_end): ((uint, uint), (uint, uint)),
     ) -> TestResult {
-        match test::mat(size).as_mut().and_then(|m| {
+        if let Some(e) = test::mat(size).as_mut().and_then(|m| {
             m.mut_slice(start, end)
         }).as_mut().and_then(|v| {
             v.mut_slice(sub_start, sub_end)
         }).as_ref().and_then(|v| v.at(&(row, col))) {
-            None => TestResult::discard(),
-            Some(e) => {
-                let (start_row, start_col) = start;
-                let (sub_start_row, sub_start_col) = sub_start;
-                let col_ = sub_start_col + start_col + col;
-                let row_ = sub_start_row + start_row + row;
+            let (start_row, start_col) = start;
+            let (sub_start_row, sub_start_col) = sub_start;
+            let col_ = sub_start_col + start_col + col;
+            let row_ = sub_start_row + start_row + row;
 
-                TestResult::from_bool((row_, col_).eq(e))
-            },
+            TestResult::from_bool((row_, col_).eq(e))
+        } else {
+            TestResult::discard()
         }
     }
 
@@ -64,20 +63,19 @@ mod test {
         (start, end): ((uint, uint), (uint, uint)),
         (sub_start, sub_end): ((uint, uint), (uint, uint)),
     ) -> TestResult {
-        match test::mat(size).as_mut().and_then(|m| {
+        if let Some(e) = test::mat(size).as_mut().and_then(|m| {
             m.mut_slice(start, end)
         }).as_mut().and_then(|v| {
             v.mut_slice(sub_start, sub_end)
         }).as_mut().and_then(|v| v.at_mut(&(row, col))) {
-            None => TestResult::discard(),
-            Some(e) => {
-                let (start_row, start_col) = start;
-                let (sub_start_row, sub_start_col) = sub_start;
-                let col_ = sub_start_col + start_col + col;
-                let row_ = sub_start_row + start_row + row;
+            let (start_row, start_col) = start;
+            let (sub_start_row, sub_start_col) = sub_start;
+            let col_ = sub_start_col + start_col + col;
+            let row_ = sub_start_row + start_row + row;
 
-                TestResult::from_bool((row_, col_).eq(e))
-            },
+            TestResult::from_bool((row_, col_).eq(e))
+        } else {
+            TestResult::discard()
         }
     }
 }

@@ -29,17 +29,16 @@ mod test {
         (start, end): ((uint, uint), (uint, uint)),
         (row, col): (uint, uint),
     ) -> TestResult {
-        match test::mat(size).as_mut().and_then(|m| {
+        if let Some(e) = test::mat(size).as_mut().and_then(|m| {
             m.mut_slice(start, end)
         }).as_ref().and_then(|v| v.row(row)).as_ref().and_then(|r| r.at(&col)) {
-            None => TestResult::discard(),
-            Some(e) => {
-                let (start_row, start_col) = start;
-                let col_ = start_col + col;
-                let row_ = start_row + row;
+            let (start_row, start_col) = start;
+            let col_ = start_col + col;
+            let row_ = start_row + row;
 
-                TestResult::from_bool((row_, col_).eq(e))
-            },
+            TestResult::from_bool((row_, col_).eq(e))
+        } else {
+            TestResult::discard()
         }
     }
 
@@ -49,19 +48,18 @@ mod test {
         (start, end): ((uint, uint), (uint, uint)),
         row: uint,
     ) -> TestResult {
-        match test::mat(size).as_mut().and_then(|m| {
+        if let Some(r) = test::mat(size).as_mut().and_then(|m| {
             m.mut_slice(start, end)
         }).as_ref().and_then(|v| {
             v.row(row)
         }) {
-            None => TestResult::discard(),
-            Some(r) => {
-                let (start_row, start_col) = start;
+            let (start_row, start_col) = start;
 
-                TestResult::from_bool(r.iter().enumerate().all(|(col, e)| {
-                    e.eq(&(start_row + row, start_col + col))
-                }))
-            },
+            TestResult::from_bool(r.iter().enumerate().all(|(col, e)| {
+                e.eq(&(start_row + row, start_col + col))
+            }))
+        } else {
+            TestResult::discard()
         }
     }
 
@@ -71,19 +69,18 @@ mod test {
         (start, end): ((uint, uint), (uint, uint)),
         row: uint,
     ) -> TestResult {
-        match test::mat(size).as_mut().and_then(|m| {
+        if let Some(r) = test::mat(size).as_mut().and_then(|m| {
             m.mut_slice(start, end)
         }).as_ref().and_then(|v| v.row(row)) {
-            None => TestResult::discard(),
-            Some(r) => {
-                let (_, ncols) = test::size(start, end);
+            let (_, ncols) = test::size(start, end);
 
-                let (start_row, start_col) = start;
+            let (start_row, start_col) = start;
 
-                TestResult::from_bool(r.iter().rev().enumerate().all(|(col, e)| {
-                    e.eq(&(start_row + row, start_col + ncols - col - 1))
-                }))
-            },
+            TestResult::from_bool(r.iter().rev().enumerate().all(|(col, e)| {
+                e.eq(&(start_row + row, start_col + ncols - col - 1))
+            }))
+        } else {
+            TestResult::discard()
         }
     }
 
@@ -93,23 +90,22 @@ mod test {
         (start, end): ((uint, uint), (uint, uint)),
         (row, skip): (uint, uint),
     ) -> TestResult {
-        match test::mat(size).as_mut().and_then(|m| {
+        if let Some(r) = test::mat(size).as_mut().and_then(|m| {
             m.mut_slice(start, end)
         }).as_ref().and_then(|v| v.row(row)) {
-            None => TestResult::discard(),
-            Some(r) => {
-                let (_, ncols) = test::size(start, end);
+            let (_, ncols) = test::size(start, end);
 
-                if skip < ncols {
-                    let hint = r.iter().skip(skip).size_hint();
+            if skip < ncols {
+                let hint = r.iter().skip(skip).size_hint();
 
-                    let left = ncols - skip;
+                let left = ncols - skip;
 
-                    TestResult::from_bool(hint == (left, Some(left)))
-                } else {
-                    TestResult::discard()
-                }
-            },
+                TestResult::from_bool(hint == (left, Some(left)))
+            } else {
+                TestResult::discard()
+            }
+        } else {
+            TestResult::discard()
         }
     }
 }

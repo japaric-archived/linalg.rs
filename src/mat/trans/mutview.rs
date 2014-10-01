@@ -11,15 +11,14 @@ mod test {
         (start, end): ((uint, uint), (uint, uint)),
         (row, col): (uint, uint),
     ) -> TestResult {
-        match test::mat(size).map(|m| m.t()).as_mut().and_then(|m| {
+        if let Some(e) = test::mat(size).map(|m| m.t()).as_mut().and_then(|m| {
             m.mut_slice(start, end)
         }).as_ref().and_then(|v| v.at(&(row, col))) {
-            None => TestResult::discard(),
-            Some(e) => {
-                let (start_row, start_col) = start;
+            let (start_row, start_col) = start;
 
-                TestResult::from_bool((start_col + col, start_row + row).eq(e))
-            },
+            TestResult::from_bool((start_col + col, start_row + row).eq(e))
+        } else {
+            TestResult::discard()
         }
     }
 
@@ -29,15 +28,14 @@ mod test {
         (start, end): ((uint, uint), (uint, uint)),
         (row, col): (uint, uint),
     ) -> TestResult {
-        match test::mat(size).map(|m| m.t()).as_mut().and_then(|m| {
+        if let Some(e) = test::mat(size).map(|m| m.t()).as_mut().and_then(|m| {
             m.mut_slice(start, end)
         }).as_mut().and_then(|v| v.at_mut(&(row, col))) {
-            None => TestResult::discard(),
-            Some(e) => {
-                let (start_row, start_col) = start;
+            let (start_row, start_col) = start;
 
-                TestResult::from_bool((start_col + col, start_row + row).eq(e))
-            },
+            TestResult::from_bool((start_col + col, start_row + row).eq(e))
+        } else {
+            TestResult::discard()
         }
     }
 }

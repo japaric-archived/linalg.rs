@@ -44,15 +44,14 @@ mod test {
         (start, end): ((uint, uint), (uint, uint)),
         (row, col): (uint, uint),
     ) -> TestResult {
-        match test::mat(size).as_mut().and_then(|m| {
+        if let Some(e) = test::mat(size).as_mut().and_then(|m| {
             m.mut_slice(start, end)
         }).as_ref().and_then(|v| v.at(&(row, col))) {
-            None => TestResult::discard(),
-            Some(e) => {
-                let (start_row, start_col) = start;
+            let (start_row, start_col) = start;
 
-                TestResult::from_bool((start_row + row, start_col + col).eq(e))
-            },
+            TestResult::from_bool((start_row + row, start_col + col).eq(e))
+        } else {
+            TestResult::discard()
         }
     }
 
@@ -62,55 +61,52 @@ mod test {
         (start, end): ((uint, uint), (uint, uint)),
         (row, col): (uint, uint)
     ) -> TestResult {
-        match test::mat(size).as_mut().and_then(|m| {
+        if let Some(e) = test::mat(size).as_mut().and_then(|m| {
             m.mut_slice(start, end)
         }).as_mut().and_then(|v| v.at_mut(&(row, col))) {
-            None => TestResult::discard(),
-            Some(e) => {
-                let (start_row, start_col) = start;
+            let (start_row, start_col) = start;
 
-                TestResult::from_bool((start_row + row, start_col + col).eq(e))
-            },
+            TestResult::from_bool((start_row + row, start_col + col).eq(e))
+        } else {
+            TestResult::discard()
         }
     }
 
     #[quickcheck]
     fn iter(size: (uint, uint), (start, end): ((uint, uint), (uint, uint))) -> TestResult {
-        match test::mat(size).as_mut().and_then(|m| m.mut_slice(start, end)) {
-            None => TestResult::discard(),
-            Some(v) => {
-                let (nrows, ncols) = test::size(start, end);
-                let (start_row, start_col) = start;
+        if let Some(v) = test::mat(size).as_mut().and_then(|m| m.mut_slice(start, end)) {
+            let (nrows, ncols) = test::size(start, end);
+            let (start_row, start_col) = start;
 
-                let mut elems = TreeSet::new();
-                for row in range(0, nrows) {
-                    for col in range(0, ncols) {
-                        elems.insert((start_row + row, start_col + col));
-                    }
+            let mut elems = TreeSet::new();
+            for row in range(0, nrows) {
+                for col in range(0, ncols) {
+                    elems.insert((start_row + row, start_col + col));
                 }
-
-                TestResult::from_bool(elems == v.iter().map(|&x| x).collect())
             }
+
+            TestResult::from_bool(elems == v.iter().map(|&x| x).collect())
+        } else {
+            TestResult::discard()
         }
     }
 
     #[quickcheck]
     fn mut_iter(size: (uint, uint), (start, end): ((uint, uint), (uint, uint))) -> TestResult {
-        match test::mat(size).as_mut().and_then(|m| m.mut_slice(start, end)) {
-            None => TestResult::discard(),
-            Some(mut v) => {
-                let (nrows, ncols) = test::size(start, end);
-                let (start_row, start_col) = start;
+        if let Some(mut v) = test::mat(size).as_mut().and_then(|m| m.mut_slice(start, end)) {
+            let (nrows, ncols) = test::size(start, end);
+            let (start_row, start_col) = start;
 
-                let mut elems = TreeSet::new();
-                for row in range(0, nrows) {
-                    for col in range(0, ncols) {
-                        elems.insert((start_row + row, start_col + col));
-                    }
+            let mut elems = TreeSet::new();
+            for row in range(0, nrows) {
+                for col in range(0, ncols) {
+                    elems.insert((start_row + row, start_col + col));
                 }
-
-                TestResult::from_bool(elems == v.mut_iter().map(|&x| x).collect())
             }
+
+            TestResult::from_bool(elems == v.mut_iter().map(|&x| x).collect())
+        } else {
+            TestResult::discard()
         }
     }
 
@@ -120,20 +116,19 @@ mod test {
         (start, end): ((uint, uint), (uint, uint)),
         skip: uint,
     ) -> TestResult {
-        match test::mat(size).as_mut().and_then(|m| m.mut_slice(start, end)) {
-            None => TestResult::discard(),
-            Some(mut v) => {
-                let total = v.len();
+        if let Some(mut v) = test::mat(size).as_mut().and_then(|m| m.mut_slice(start, end)) {
+            let total = v.len();
 
-                if skip < total {
-                    let left = total - skip;
-                    let hint = v.mut_iter().skip(skip).size_hint();
+            if skip < total {
+                let left = total - skip;
+                let hint = v.mut_iter().skip(skip).size_hint();
 
-                    TestResult::from_bool(hint == (left, Some(left)))
-                } else {
-                    TestResult::discard()
-                }
+                TestResult::from_bool(hint == (left, Some(left)))
+            } else {
+                TestResult::discard()
             }
+        } else {
+            TestResult::discard()
         }
     }
 
@@ -143,20 +138,19 @@ mod test {
         (start, end): ((uint, uint), (uint, uint)),
         skip: uint,
     ) -> TestResult {
-        match test::mat(size).as_mut().and_then(|m| m.mut_slice(start, end)) {
-            None => TestResult::discard(),
-            Some(v) => {
-                let total = v.len();
+        if let Some(v) = test::mat(size).as_mut().and_then(|m| m.mut_slice(start, end)) {
+            let total = v.len();
 
-                if skip < total {
-                    let left = total - skip;
-                    let hint = v.iter().skip(skip).size_hint();
+            if skip < total {
+                let left = total - skip;
+                let hint = v.iter().skip(skip).size_hint();
 
-                    TestResult::from_bool(hint == (left, Some(left)))
-                } else {
-                    TestResult::discard()
-                }
+                TestResult::from_bool(hint == (left, Some(left)))
+            } else {
+                TestResult::discard()
             }
+        } else {
+            TestResult::discard()
         }
     }
 }

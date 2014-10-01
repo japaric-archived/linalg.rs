@@ -13,7 +13,7 @@
 //!   guarantee of the iteration order
 
 #![deny(warnings)]
-#![feature(macro_rules, phase, tuple_indexing)]
+#![feature(if_let, macro_rules, phase, tuple_indexing)]
 
 extern crate libc;
 extern crate num;
