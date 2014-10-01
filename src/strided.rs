@@ -64,7 +64,7 @@ impl_items!(
     MutItems<'a, T> -> &'a mut T;
 )
 
-impl<'a, T: BlasAccelerated> BlasMutPtr<T> for MutSlice<'a, T> {
+impl<'a, T> BlasMutPtr<T> for MutSlice<'a, T> where T: BlasAccelerated {
     fn blas_mut_ptr(&mut self) -> *mut T {
         self.data
     }
@@ -104,13 +104,13 @@ impl<'a, 'b, T> UnsafeMutSlice<'b, uint, MutSlice<'b, T>> for MutSlice<'a, T> {
 
 macro_rules! impl_slice {
     ($($ty:ty),+) => {$(
-        impl<'a, T: BlasAccelerated> BlasPtr<T> for $ty {
+        impl<'a, T> BlasPtr<T> for $ty where T: BlasAccelerated {
             fn blas_ptr(&self) -> *const T {
                 self.data as *const T
             }
         }
 
-        impl<'a, T: BlasAccelerated> BlasStride for $ty {
+        impl<'a, T> BlasStride for $ty where T: BlasAccelerated {
             fn blas_stride(&self) -> blasint {
                 to_blasint(self.stride)
             }
@@ -122,9 +122,9 @@ macro_rules! impl_slice {
             }
         }
 
-        impl<'a, T: BlasCopy> PrivateToOwned<T> for $ty {}
+        impl<'a, T> PrivateToOwned<T> for $ty where T: BlasCopy {}
 
-        impl<'a, T: Show> Show for $ty {
+        impl<'a, T> Show for $ty where T: Show {
             fn fmt(&self, f: &mut Formatter) -> fmt::Result {
                 try!(write!(f, "["));
 

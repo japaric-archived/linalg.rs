@@ -122,7 +122,7 @@ impl<'a, 'b, T> MutIter<'b, &'b mut T, MutItems<'b, T>> for MutView<'a, T> {
     }
 }
 
-impl<'a, 'b, T: BlasGemm + One + Zero> Mul<View<'b, T>, Mat<T>> for View<'a, T> {
+impl<'a, 'b, T> Mul<View<'b, T>, Mat<T>> for View<'a, T> where T: BlasGemm + One + Zero {
     /// - Memory: `O(lhs.nrows * rhs.ncols)`
     /// - Time: `O(lhs.nrows * lhs.ncols * rhs.ncols)`
     ///

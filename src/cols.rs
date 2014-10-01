@@ -8,7 +8,7 @@ use private::PrivateToOwned;
 use traits::SumCols;
 use {Col, Cols};
 
-impl<'a, D, M: UnsafeMatrixCol<'a, D>> DoubleEndedIterator<Col<D>> for Cols<'a, M> {
+impl<'a, D, M> DoubleEndedIterator<Col<D>> for Cols<'a, M> where M: UnsafeMatrixCol<'a, D> {
     fn next_back(&mut self) -> Option<Col<D>> {
         if self.state == self.stop {
             None
@@ -19,7 +19,7 @@ impl<'a, D, M: UnsafeMatrixCol<'a, D>> DoubleEndedIterator<Col<D>> for Cols<'a, 
     }
 }
 
-impl<'a, D, M: UnsafeMatrixCol<'a, D>> Iterator<Col<D>> for Cols<'a, M> {
+impl<'a, D, M> Iterator<Col<D>> for Cols<'a, M> where M: UnsafeMatrixCol<'a, D> {
     fn next(&mut self) -> Option<Col<D>> {
         if self.state == self.stop {
             None
@@ -36,12 +36,11 @@ impl<'a, D, M: UnsafeMatrixCol<'a, D>> Iterator<Col<D>> for Cols<'a, M> {
     }
 }
 
-impl<
-    'a,
+impl<'a, T, D, I> SumCols<T> for I where
     T: BlasAxpy + BlasCopy + One,
     D: PrivateToOwned<T>,
     I: Iterator<Col<D>>,
-> SumCols<T> for I {
+{
     fn sum(mut self) -> Option<Col<Vec<T>>> {
         self.next().map(|col| {
             let mut sum = col.0.private_to_owned();

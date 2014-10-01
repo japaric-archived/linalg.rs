@@ -3,7 +3,7 @@ use std::mem;
 use notsafe::UnsafeMatrixMutCol;
 use {Col, MutCols};
 
-impl<'a, D, M: UnsafeMatrixMutCol<'a, D>> DoubleEndedIterator<Col<D>> for MutCols<'a, M> {
+impl<'a, D, M> DoubleEndedIterator<Col<D>> for MutCols<'a, M> where M: UnsafeMatrixMutCol<'a, D> {
     fn next_back(&mut self) -> Option<Col<D>> {
         if self.state == self.stop {
             None
@@ -16,7 +16,7 @@ impl<'a, D, M: UnsafeMatrixMutCol<'a, D>> DoubleEndedIterator<Col<D>> for MutCol
     }
 }
 
-impl<'a, D, M: UnsafeMatrixMutCol<'a, D>> Iterator<Col<D>> for MutCols<'a, M> {
+impl<'a, D, M> Iterator<Col<D>> for MutCols<'a, M> where M: UnsafeMatrixMutCol<'a, D> {
     fn next(&mut self) -> Option<Col<D>> {
         if self.state == self.stop {
             None

@@ -14,7 +14,7 @@ pub type blasint = ::libc::c_int;
 
 pub static BLAS_NO_TRANS: i8 = 'n' as i8;
 
-pub fn to_blasint<N: NumCast>(n: N) -> blasint {
+pub fn to_blasint<N>(n: N) -> blasint where N: NumCast {
     num::cast(n).expect("casting to blasint failed")
 }
 
@@ -37,8 +37,8 @@ macro_rules! blas_mut_ptr {
     }
 }
 
-impl<'a, T: BlasAccelerated> BlasMutPtr<T> for &'a mut [T] { blas_mut_ptr!() }
-impl<T: BlasAccelerated> BlasMutPtr<T> for Vec<T> { blas_mut_ptr!() }
+impl<'a, T> BlasMutPtr<T> for &'a mut [T] where T: BlasAccelerated { blas_mut_ptr!() }
+impl<T> BlasMutPtr<T> for Vec<T> where T: BlasAccelerated { blas_mut_ptr!() }
 
 pub trait BlasPtr<T> {
     fn blas_ptr(&self) -> *const T;
@@ -52,9 +52,9 @@ macro_rules! blas_ptr {
     }
 }
 
-impl<'a, T: BlasAccelerated> BlasPtr<T> for &'a [T] { blas_ptr!() }
-impl<'a, T: BlasAccelerated> BlasPtr<T> for &'a mut [T] { blas_ptr!() }
-impl<T: BlasAccelerated> BlasPtr<T> for Vec<T> { blas_ptr!() }
+impl<'a, T> BlasPtr<T> for &'a [T] where T: BlasAccelerated { blas_ptr!() }
+impl<'a, T> BlasPtr<T> for &'a mut [T] where T: BlasAccelerated { blas_ptr!() }
+impl<T> BlasPtr<T> for Vec<T> where T: BlasAccelerated { blas_ptr!() }
 
 pub trait BlasStride {
     fn blas_stride(&self) -> blasint {
@@ -62,6 +62,6 @@ pub trait BlasStride {
     }
 }
 
-impl<T: BlasAccelerated> BlasStride for Vec<T> {}
-impl<'a, T: BlasAccelerated> BlasStride for &'a [T] {}
-impl<'a, T: BlasAccelerated> BlasStride for &'a mut [T] {}
+impl<T> BlasStride for Vec<T> where T: BlasAccelerated {}
+impl<'a, T> BlasStride for &'a [T] where T: BlasAccelerated {}
+impl<'a, T> BlasStride for &'a mut [T] where T: BlasAccelerated {}

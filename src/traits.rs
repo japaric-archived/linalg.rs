@@ -135,7 +135,7 @@ pub trait MulAssign<R> {
 }
 
 /// Mutable iteration over a collection
-pub trait MutIter<'a, T, I: Iterator<T>> {
+pub trait MutIter<'a, T, I> where I: Iterator<T> {
     fn mut_iter(&'a mut self) -> I;
 }
 

@@ -43,7 +43,7 @@ impl<D> Matrix for Mat<D> {
     }
 }
 
-impl<T: BlasGemm + One + Zero> Mul<Mat<T>, Mat<T>> for Mat<T> {
+impl<T> Mul<Mat<T>, Mat<T>> for Mat<T> where T: BlasGemm + One + Zero {
     /// - Memory: `O(lhs.nrows * rhs.ncols)`
     /// - Time: `O(lhs.nrows * lhs.ncols * rhs.ncols)`
     ///
