@@ -3,7 +3,7 @@ use std::mem;
 use notsafe::UnsafeMatrixMutRow;
 use {MutRows, Row};
 
-impl<'a, D, M: UnsafeMatrixMutRow<'a, D>> DoubleEndedIterator<Row<D>> for MutRows<'a, M> {
+impl<'a, D, M> DoubleEndedIterator<Row<D>> for MutRows<'a, M> where M: UnsafeMatrixMutRow<'a, D> {
     fn next_back(&mut self) -> Option<Row<D>> {
         if self.state == self.stop {
             None
@@ -16,7 +16,7 @@ impl<'a, D, M: UnsafeMatrixMutRow<'a, D>> DoubleEndedIterator<Row<D>> for MutRow
     }
 }
 
-impl<'a, D, M: UnsafeMatrixMutRow<'a, D>> Iterator<Row<D>> for MutRows<'a, M> {
+impl<'a, D, M> Iterator<Row<D>> for MutRows<'a, M> where M: UnsafeMatrixMutRow<'a, D> {
     fn next(&mut self) -> Option<Row<D>> {
         if self.state == self.stop {
             None

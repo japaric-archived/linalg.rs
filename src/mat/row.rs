@@ -24,57 +24,53 @@ mod test {
 
     #[quickcheck]
     fn at(size: (uint, uint), (row, col): (uint, uint)) -> TestResult {
-        match test::mat(size).as_ref().and_then(|m| {
+        if let Some(e) = test::mat(size).as_ref().and_then(|m| {
             m.row(row)
         }).as_ref().and_then(|r| r.at(&col)) {
-            None => TestResult::discard(),
-            Some(e) => TestResult::from_bool((row, col).eq(e)),
+            TestResult::from_bool((row, col).eq(e))
+        } else {
+            TestResult::discard()
         }
     }
 
     #[quickcheck]
     fn iter(size: (uint, uint), row: uint) -> TestResult {
-        match test::mat(size).as_ref().and_then(|m| m.row(row)) {
-            None => TestResult::discard(),
-            Some(r) => {
-                TestResult::from_bool(r.iter().enumerate().all(|(col, e)| {
-                    e.eq(&(row, col))
-                }))
-            },
+        if let Some(r) = test::mat(size).as_ref().and_then(|m| m.row(row)) {
+            TestResult::from_bool(r.iter().enumerate().all(|(col, e)| e.eq(&(row, col))))
+        } else {
+            TestResult::discard()
         }
     }
 
     #[quickcheck]
     fn rev_iter(size: (uint, uint), row: uint) -> TestResult {
-        match test::mat(size).as_ref().and_then(|m| m.row(row)) {
-            None => TestResult::discard(),
-            Some(r) => {
-                let (_, ncols) = size;
+        if let Some(r) = test::mat(size).as_ref().and_then(|m| m.row(row)) {
+            let ncols = size.1;
 
-                TestResult::from_bool(r.iter().rev().enumerate().all(|(col, e)| {
-                    e.eq(&(row, ncols - col - 1))
-                }))
-            },
+            TestResult::from_bool(r.iter().rev().enumerate().all(|(col, e)| {
+                e.eq(&(row, ncols - col - 1))
+            }))
+        } else {
+            TestResult::discard()
         }
     }
 
     #[quickcheck]
     fn size_hint(size: (uint, uint), row: uint, skip: uint) -> TestResult {
-        match test::mat(size).as_ref().and_then(|m| m.row(row)) {
-            None => TestResult::discard(),
-            Some(r) => {
-                let (_, ncols) = size;
+        if let Some(r) = test::mat(size).as_ref().and_then(|m| m.row(row)) {
+            let ncols = size.1;
 
-                if skip < ncols {
-                    let hint = r.iter().skip(skip).size_hint();
+            if skip < ncols {
+                let hint = r.iter().skip(skip).size_hint();
 
-                    let left = ncols - skip;
+                let left = ncols - skip;
 
-                    TestResult::from_bool(hint == (left, Some(left)))
-                } else {
-                    TestResult::discard()
-                }
-            },
+                TestResult::from_bool(hint == (left, Some(left)))
+            } else {
+                TestResult::discard()
+            }
+        } else {
+            TestResult::discard()
         }
     }
 }

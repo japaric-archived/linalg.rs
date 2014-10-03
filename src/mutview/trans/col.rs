@@ -11,15 +11,14 @@ mod test {
         (start, end): ((uint, uint), (uint, uint)),
         (row, col): (uint, uint),
     ) -> TestResult {
-        match test::mat(size).as_mut().and_then(|m| m.mut_slice(start, end)).map(|v| {
+        if let Some(e) = test::mat(size).as_mut().and_then(|m| m.mut_slice(start, end)).map(|v| {
             v.t()
         }).as_ref().and_then(|t| t.col(col)).as_ref().and_then(|c| c.at(&row)) {
-            None => TestResult::discard(),
-            Some(e) => {
-                let (start_row, start_col) = start;
+            let (start_row, start_col) = start;
 
-                TestResult::from_bool((start_row + col, start_col + row).eq(e))
-            },
+            TestResult::from_bool((start_row + col, start_col + row).eq(e))
+        } else {
+            TestResult::discard()
         }
     }
 
@@ -29,17 +28,16 @@ mod test {
         (start, end): ((uint, uint), (uint, uint)),
         col: uint,
     ) -> TestResult {
-        match test::mat(size).as_mut().and_then(|m| m.mut_slice(start, end)).map(|v| {
+        if let Some(c) = test::mat(size).as_mut().and_then(|m| m.mut_slice(start, end)).map(|v| {
             v.t()
         }).as_ref().and_then(|t| t.col(col)) {
-            None => TestResult::discard(),
-            Some(c) => {
-                let (start_row, start_col) = start;
+            let (start_row, start_col) = start;
 
-                TestResult::from_bool(c.iter().enumerate().all(|(row, e)| {
-                    e.eq(&(start_row + col, start_col + row))
-                }))
-            },
+            TestResult::from_bool(c.iter().enumerate().all(|(row, e)| {
+                e.eq(&(start_row + col, start_col + row))
+            }))
+        } else {
+            TestResult::discard()
         }
     }
 
@@ -49,18 +47,17 @@ mod test {
         (start, end): ((uint, uint), (uint, uint)),
         col: uint,
     ) -> TestResult {
-        match test::mat(size).as_mut().and_then(|m| m.mut_slice(start, end)).map(|v| {
+        if let Some(c) = test::mat(size).as_mut().and_then(|m| m.mut_slice(start, end)).map(|v| {
             v.t()
         }).as_ref().and_then(|t| t.col(col)) {
-            None => TestResult::discard(),
-            Some(c) => {
-                let (_, ncols) = test::size(start, end);
-                let (start_row, start_col) = start;
+            let ncols = test::size(start, end).1;
+            let (start_row, start_col) = start;
 
-                TestResult::from_bool(c.iter().rev().enumerate().all(|(row, e)| {
-                    e.eq(&(start_row + col, start_col + ncols - row - 1))
-                }))
-            },
+            TestResult::from_bool(c.iter().rev().enumerate().all(|(row, e)| {
+                e.eq(&(start_row + col, start_col + ncols - row - 1))
+            }))
+        } else {
+            TestResult::discard()
         }
     }
 
@@ -70,23 +67,22 @@ mod test {
         (start, end): ((uint, uint), (uint, uint)),
         (col, skip): (uint, uint),
     ) -> TestResult {
-        match test::mat(size).as_mut().and_then(|m| m.mut_slice(start, end)).map(|v| {
+        if let Some(c) = test::mat(size).as_mut().and_then(|m| m.mut_slice(start, end)).map(|v| {
             v.t()
         }).as_ref().and_then(|t| t.col(col)) {
-            None => TestResult::discard(),
-            Some(c) => {
-                let (_, ncols) = test::size(start, end);
+            let ncols = test::size(start, end).1;
 
-                if skip < ncols {
-                    let hint = c.iter().skip(skip).size_hint();
+            if skip < ncols {
+                let hint = c.iter().skip(skip).size_hint();
 
-                    let left = ncols - skip;
+                let left = ncols - skip;
 
-                    TestResult::from_bool(hint == (left, Some(left)))
-                } else {
-                    TestResult::discard()
-                }
-            },
+                TestResult::from_bool(hint == (left, Some(left)))
+            } else {
+                TestResult::discard()
+            }
+        } else {
+            TestResult::discard()
         }
     }
 }

@@ -12,7 +12,8 @@
 //! - Element-wise iteration over matrices is done in the fastest way possible, there's no
 //!   guarantee of the iteration order
 
-#![feature(macro_rules, phase, tuple_indexing)]
+#![deny(warnings)]
+#![feature(if_let, macro_rules, phase, tuple_indexing)]
 
 extern crate libc;
 extern crate num;
@@ -61,7 +62,7 @@ pub struct Col<D>(D);
 
 /// Iterator over the columns of an immutable matrix
 // TODO (rust-lang/rust#16596) Add a `MatrixCol` bound on `M`
-pub struct Cols<'a, M: 'a> {
+pub struct Cols<'a, M> where M: 'a {
     mat: &'a M,
     state: uint,
     stop: uint,
@@ -87,7 +88,7 @@ pub struct Mat<T> {
 /// # Restrictions
 ///
 /// - Size is enforced to be at least `(2, 2)` (i.e. not a scalar/vector)
-pub struct MutView<'a, T: 'a> {
+pub struct MutView<'a, T> where T: 'a {
     _contravariant: marker::ContravariantLifetime<'a>,
     _nocopy: marker::NoCopy,
     _nosend: marker::NoSend,
@@ -98,7 +99,7 @@ pub struct MutView<'a, T: 'a> {
 
 /// Iterator over the columns of a mutable matrix
 // TODO (rust-lang/rust#16596) Add a `MatrixMutCol` bound on `M`
-pub struct MutCols<'a, M: 'a> {
+pub struct MutCols<'a, M> where M: 'a {
     mat: &'a mut M,
     state: uint,
     stop: uint,
@@ -106,7 +107,7 @@ pub struct MutCols<'a, M: 'a> {
 
 /// Iterator over the rows of a mutable matrix
 // TODO (rust-lang/rust#16596) Add a `MatrixMutRow` bound on `M`
-pub struct MutRows<'a, M: 'a> {
+pub struct MutRows<'a, M> where M: 'a {
     mat: &'a mut M,
     state: uint,
     stop: uint,
@@ -122,7 +123,7 @@ pub struct Row<D>(D);
 
 /// Iterator over the rows of an immutable matrix
 // TODO (rust-lang/rust#16596) Add a `MatrixRow` bound on `M`
-pub struct Rows<'a, M: 'a> {
+pub struct Rows<'a, M> where M: 'a {
     mat: &'a M,
     state: uint,
     stop: uint,
@@ -130,7 +131,7 @@ pub struct Rows<'a, M: 'a> {
 
 // NB These Strided* structs have to live here because of visibility
 /// Immutable strided slice iterator
-pub struct StridedItems<'a, T: 'a> {
+pub struct StridedItems<'a, T> where T: 'a {
     _contravariant: marker::ContravariantLifetime<'a>,
     _nosend: marker::NoSend,
     state: *const T,
@@ -139,7 +140,7 @@ pub struct StridedItems<'a, T: 'a> {
 }
 
 /// Mutable strided slice iterator
-pub struct StridedMutItems<'a, T: 'a> {
+pub struct StridedMutItems<'a, T> where T: 'a {
     _contravariant: marker::ContravariantLifetime<'a>,
     _nocopy: marker::NoCopy,
     _nosend: marker::NoSend,
@@ -149,7 +150,7 @@ pub struct StridedMutItems<'a, T: 'a> {
 }
 
 /// Mutable strided slice
-pub struct StridedMutSlice<'a, T: 'a> {
+pub struct StridedMutSlice<'a, T> where T: 'a {
     _contravariant: marker::ContravariantLifetime<'a>,
     _nocopy: marker::NoCopy,
     _nosend: marker::NoSend,
@@ -172,7 +173,7 @@ impl<'a, T> StridedMutSlice<'a, T> {
 }
 
 /// Immutable strided slice
-pub struct StridedSlice<'a, T: 'a> {
+pub struct StridedSlice<'a, T> where T: 'a {
     _contravariant: marker::ContravariantLifetime<'a>,
     _nosend: marker::NoSend,
     data: *const T,
@@ -200,7 +201,7 @@ pub struct Trans<M>(M);
 /// # Restrictions
 ///
 /// - Size is enforced to be at least `(2, 2)` (i.e. not a scalar/vector)
-pub struct View<'a, T: 'a> {
+pub struct View<'a, T> where T: 'a {
     _contravariant: marker::ContravariantLifetime<'a>,
     _nosend: marker::NoSend,
     data: *const T,
@@ -210,7 +211,7 @@ pub struct View<'a, T: 'a> {
 
 // NB These View*Items structs have to live here because of visibility
 /// Immutable sub-matrix iterator
-pub struct ViewItems<'a, T: 'a> {
+pub struct ViewItems<'a, T> where T: 'a {
     _contravariant: marker::ContravariantLifetime<'a>,
     _nosend: marker::NoSend,
     data: *const T,
@@ -220,7 +221,7 @@ pub struct ViewItems<'a, T: 'a> {
 }
 
 /// Mutable sub-matrix iterator
-pub struct ViewMutItems<'a, T: 'a> {
+pub struct ViewMutItems<'a, T> where T: 'a {
     _contravariant: marker::ContravariantLifetime<'a>,
     _nocopy: marker::NoCopy,
     _nosend: marker::NoSend,
@@ -272,17 +273,17 @@ impl<T> Col<Vec<T>> {
     ///
     /// - Memory: `O(length)`
     /// - Time: `O(length)`
-    pub fn sample<D: IndependentSample<T>, R: Rng>(
-        length: uint,
-        distribution: &D, rng: &mut R,
-    ) -> Col<Vec<T>> {
+    pub fn sample<D, R>(length: uint, distribution: &D, rng: &mut R) -> Col<Vec<T>> where
+        D: IndependentSample<T>,
+        R: Rng,
+    {
         assert!(length > 1);
 
         Col(Vec::from_fn(length, |_| distribution.ind_sample(rng)))
     }
 }
 
-impl<T: Clone> Col<Vec<T>> {
+impl<T> Col<Vec<T>> where T: Clone {
     /// Constructs a column vector with copies of a value
     ///
     /// - Memory: `O(length)`
@@ -304,7 +305,7 @@ impl<T: Clone> Col<Vec<T>> {
     }
 }
 
-impl<T: Clone + One> Col<Vec<T>> {
+impl<T> Col<Vec<T>> where T: Clone + One {
     /// Constructs a column vector filled with ones
     ///
     /// - Memory: `O(length)`
@@ -324,7 +325,7 @@ impl<T: Clone + One> Col<Vec<T>> {
     }
 }
 
-impl<T: Clone + Zero> Col<Vec<T>> {
+impl<T> Col<Vec<T>> where T: Clone + Zero {
     /// Constructs a column vector filled with zeros
     ///
     /// - Memory: `O(length)`
@@ -344,12 +345,12 @@ impl<T: Clone + Zero> Col<Vec<T>> {
     }
 }
 
-impl<T: Rand> Col<Vec<T>> {
+impl<T> Col<Vec<T>> where T: Rand {
     /// Constructs a randomly initialized column vector
     ///
     /// - Memory: `O(length)`
     /// - Time: `O(length)`
-    pub fn rand<R: Rng>(length: uint, rng: &mut R) -> Col<Vec<T>> {
+    pub fn rand<R>(length: uint, rng: &mut R) -> Col<Vec<T>> where R: Rng {
         assert!(length > 1);
 
         Col(Vec::from_fn(length, |_| rng.gen()))
@@ -409,10 +410,14 @@ impl<T> Mat<T> {
     ///
     /// - Memory: `O(nrows * ncols)`
     /// - Time: `O(nrows * ncols)`
-    pub fn sample<D: IndependentSample<T>, R: Rng>(
+    pub fn sample<D, R>(
         (nrows, ncols): (uint, uint),
-        distribution: &D, rng: &mut R,
-    ) -> Mat<T> {
+        distribution: &D,
+        rng: &mut R,
+    ) -> Mat<T> where
+        D: IndependentSample<T>,
+        R: Rng,
+    {
         assert!(nrows > 1 && ncols > 1);
 
         let length = nrows.checked_mul(&ncols).expect(EXPECT_MSG);
@@ -424,7 +429,7 @@ impl<T> Mat<T> {
     }
 }
 
-impl<T: Clone> Mat<T> {
+impl<T> Mat<T> where T: Clone {
     /// Constructs a matrix with copies of a value
     ///
     /// - Memory: `O(nrows * ncols)`
@@ -451,7 +456,7 @@ impl<T: Clone> Mat<T> {
     }
 }
 
-impl<T: Clone + One> Mat<T> {
+impl<T> Mat<T> where T: Clone + One {
     /// Constructs a matrix filled with ones
     ///
     /// - Memory: `O(nrows * ncols)`
@@ -471,7 +476,7 @@ impl<T: Clone + One> Mat<T> {
     }
 }
 
-impl<T: Clone + One + Zero> Mat<T> {
+impl<T> Mat<T> where T: Clone + One + Zero {
     /// Constructs the identity matrix
     ///
     /// - Memory: `O(nrows * ncols)`
@@ -508,7 +513,7 @@ impl<T: Clone + One + Zero> Mat<T> {
     }
 }
 
-impl<T: Clone + Zero> Mat<T> {
+impl<T> Mat<T> where T: Clone + Zero {
     /// Constructs a matrix filled with zeros
     ///
     /// - Memory: `O(nrows * ncols)`
@@ -528,12 +533,12 @@ impl<T: Clone + Zero> Mat<T> {
     }
 }
 
-impl<T: Rand> Mat<T> {
+impl<T> Mat<T> where T: Rand {
     /// Constructs a randomly initialized matrix
     ///
     /// - Memory: `O(nrows * ncols)`
     /// - Time: `O(nrows * ncols)`
-    pub fn rand<R: Rng>((nrows, ncols): (uint, uint), rng: &mut R) -> Mat<T> {
+    pub fn rand<R>((nrows, ncols): (uint, uint), rng: &mut R) -> Mat<T> where R: Rng {
         assert!(nrows > 1 && ncols > 1);
 
         let length = nrows.checked_mul(&ncols).expect(EXPECT_MSG);
@@ -587,17 +592,17 @@ impl<T> Row<Vec<T>> {
     ///
     /// - Memory: `O(length)`
     /// - Time: `O(length)`
-    pub fn sample<D: IndependentSample<T>, R: Rng>(
-        length: uint,
-        distribution: &D, rng: &mut R,
-    ) -> Row<Vec<T>> {
+    pub fn sample<D, R>(length: uint, distribution: &D, rng: &mut R) -> Row<Vec<T>> where
+        D: IndependentSample<T>,
+        R: Rng,
+    {
         assert!(length > 1);
 
         Row(Vec::from_fn(length, |_| distribution.ind_sample(rng)))
     }
 }
 
-impl<T: Clone> Row<Vec<T>> {
+impl<T> Row<Vec<T>> where T: Clone {
     /// Constructs a row vector with copies of a value
     ///
     /// - Memory: `O(length)`
@@ -619,7 +624,7 @@ impl<T: Clone> Row<Vec<T>> {
     }
 }
 
-impl<T: Clone + One> Row<Vec<T>> {
+impl<T> Row<Vec<T>> where T: Clone + One {
     /// Constructs a row vector filled with ones
     ///
     /// - Memory: `O(length)`
@@ -639,7 +644,7 @@ impl<T: Clone + One> Row<Vec<T>> {
     }
 }
 
-impl<T: Clone + Zero> Row<Vec<T>> {
+impl<T> Row<Vec<T>> where T: Clone + Zero {
     /// Constructs a row vector filled with zeros
     ///
     /// - Memory: `O(length)`
@@ -659,12 +664,12 @@ impl<T: Clone + Zero> Row<Vec<T>> {
     }
 }
 
-impl<T: Rand> Row<Vec<T>> {
+impl<T> Row<Vec<T>> where T: Rand {
     /// Constructs a randomly initialized row vector
     ///
     /// - Memory: `O(length)`
     /// - Time: `O(length)`
-    pub fn rand<R: Rng>(length: uint, rng: &mut R) -> Row<Vec<T>> {
+    pub fn rand<R>(length: uint, rng: &mut R) -> Row<Vec<T>> where R: Rng {
         assert!(length > 1);
 
         Row(Vec::from_fn(length, |_| rng.gen()))

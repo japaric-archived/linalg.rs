@@ -7,51 +7,44 @@ mod test {
 
     #[quickcheck]
     fn iter(size: (uint, uint)) -> TestResult {
-        match test::mat(size).map(|m| m.t()) {
-            None => TestResult::discard(),
-            Some(t) => {
-                TestResult::from_bool(t.cols().enumerate().all(|(col, c)| {
-                    c.iter().enumerate().all(|(row, e)| {
-                        e.eq(&(col, row))
-                    })
-                }))
-            },
+        if let Some(t) = test::mat(size).map(|m| m.t()) {
+            TestResult::from_bool(t.cols().enumerate().all(|(col, c)| {
+                c.iter().enumerate().all(|(row, e)| e.eq(&(col, row)))
+            }))
+        } else {
+            TestResult::discard()
         }
     }
 
     #[quickcheck]
     fn rev_iter(size: (uint, uint)) -> TestResult {
-        match test::mat(size).map(|m| m.t()) {
-            None => TestResult::discard(),
-            Some(t) => {
-                let (nrows, _) = size;
+        if let Some(t) = test::mat(size).map(|m| m.t()) {
+            let nrows = size.0;
 
-                TestResult::from_bool(t.cols().rev().enumerate().all(|(col, c)| {
-                    c.iter().enumerate().all(|(row, e)| {
-                        e.eq(&(nrows - col - 1, row))
-                    })
-                }))
-            },
+            TestResult::from_bool(t.cols().rev().enumerate().all(|(col, c)| {
+                c.iter().enumerate().all(|(row, e)| e.eq(&(nrows - col - 1, row)))
+            }))
+        } else {
+            TestResult::discard()
         }
     }
 
     #[quickcheck]
     fn size_hint(size: (uint, uint), skip: uint) -> TestResult {
-        match test::mat(size).map(|m| m.t()) {
-            None => TestResult::discard(),
-            Some(t) => {
-                let (nrows, _) = size;
+        if let Some(t) = test::mat(size).map(|m| m.t()) {
+            let nrows = size.0;
 
-                if skip < nrows {
-                    let hint = t.cols().skip(skip).size_hint();
+            if skip < nrows {
+                let hint = t.cols().skip(skip).size_hint();
 
-                    let left = nrows - skip;
+                let left = nrows - skip;
 
-                    TestResult::from_bool(hint == (left, Some(left)))
-                } else {
-                    TestResult::discard()
-                }
-            },
+                TestResult::from_bool(hint == (left, Some(left)))
+            } else {
+                TestResult::discard()
+            }
+        } else {
+            TestResult::discard()
         }
     }
 
@@ -67,23 +60,22 @@ mod test {
 
                 #[quickcheck]
                 fn sum(size: (uint, uint), skip: uint) -> TestResult {
-                    match test::rand_mat::<$ty>(size).map(|m| m.t()) {
-                        None => TestResult::discard(),
-                        Some(t) => {
-                            let (nrows, _) = size;
+                    if let Some(t) = test::rand_mat::<$ty>(size).map(|m| m.t()) {
+                        let nrows = size.0;
 
-                            if skip < nrows {
-                                let sum = t.cols().skip(skip).sum().unwrap();
+                        if skip < nrows {
+                            let sum = t.cols().skip(skip).sum().unwrap();
 
-                                TestResult::from_bool(sum.iter().zip(t.rows()).all(|(&e, r)| {
-                                    // FIXME (rust-lang/rust#16949) Use static dispatch
-                                    let ai = &mut r.iter().skip(skip).map(|&x| x) as &mut AI<$ty>;
-                                    e == ai.sum()
-                                }))
-                            } else {
-                                TestResult::discard()
-                            }
+                            TestResult::from_bool(sum.iter().zip(t.rows()).all(|(&e, r)| {
+                                // FIXME (rust-lang/rust#16949) Use static dispatch
+                                let ai = &mut r.iter().skip(skip).map(|&x| x) as &mut AI<$ty>;
+                                e == ai.sum()
+                            }))
+                        } else {
+                            TestResult::discard()
                         }
+                    } else {
+                        TestResult::discard()
                     }
                 }
             }

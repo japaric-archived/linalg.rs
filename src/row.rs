@@ -8,13 +8,13 @@ use private::{PrivateIter, PrivateMutIter, PrivateToOwned};
 use traits::{Iter, Matrix, MutIter, OptionIndex, OptionIndexMut, OptionSlice, ToOwned};
 use {Col, Row};
 
-impl<D: Collection> Collection for Row<D> {
+impl<D> Collection for Row<D> where D: Collection {
     fn len(&self) -> uint {
         self.0.len()
     }
 }
 
-impl<T, D: Collection + UnsafeIndex<uint, T>> Index<uint, T> for Row<D> {
+impl<T, D> Index<uint, T> for Row<D> where D: Collection + UnsafeIndex<uint, T> {
     fn index(&self, &index: &uint) -> &T {
         assert!(index < self.len());
 
@@ -22,7 +22,7 @@ impl<T, D: Collection + UnsafeIndex<uint, T>> Index<uint, T> for Row<D> {
     }
 }
 
-impl<T, D: Collection + UnsafeIndexMut<uint, T>> IndexMut<uint, T> for Row<D> {
+impl<T, D> IndexMut<uint, T> for Row<D> where D: Collection + UnsafeIndexMut<uint, T> {
     fn index_mut(&mut self, &index: &uint) -> &mut T {
         assert!(index < self.len());
 
@@ -30,7 +30,7 @@ impl<T, D: Collection + UnsafeIndexMut<uint, T>> IndexMut<uint, T> for Row<D> {
     }
 }
 
-impl<T, D: Collection + UnsafeIndex<uint, T>> OptionIndex<uint, T> for Row<D> {
+impl<T, D> OptionIndex<uint, T> for Row<D> where D: Collection + UnsafeIndex<uint, T> {
     fn at(&self, &index: &uint) -> Option<&T> {
         if index < self.len() {
             Some(unsafe { self.0.unsafe_index(&index) })
@@ -40,7 +40,7 @@ impl<T, D: Collection + UnsafeIndex<uint, T>> OptionIndex<uint, T> for Row<D> {
     }
 }
 
-impl<T, D: Collection + UnsafeIndexMut<uint, T>> OptionIndexMut<uint, T> for Row<D> {
+impl<T, D> OptionIndexMut<uint, T> for Row<D> where D: Collection + UnsafeIndexMut<uint, T> {
     fn at_mut(&mut self, &index: &uint) -> Option<&mut T> {
         if index < self.len() {
             Some(unsafe { self.0.unsafe_index_mut(&index) })
@@ -50,13 +50,13 @@ impl<T, D: Collection + UnsafeIndexMut<uint, T>> OptionIndexMut<uint, T> for Row
     }
 }
 
-impl<'a, T, I: Iterator<T>, D: PrivateIter<'a, T, I>> Iter<'a, T, I> for Row<D> {
+impl<'a, T, I, D> Iter<'a, T, I> for Row<D> where I: Iterator<T>, D: PrivateIter<'a, T, I> {
     fn iter(&'a self) -> I {
         self.0.private_iter()
     }
 }
 
-impl<D: Collection> Matrix for Row<D> {
+impl<D> Matrix for Row<D> where D: Collection {
     fn ncols(&self) -> uint {
         self.len()
     }
@@ -66,11 +66,11 @@ impl<D: Collection> Matrix for Row<D> {
     }
 }
 
-impl<
+impl<T, D, E> Mul<Col<E>, T> for Row<D> where
     T: BlasDot,
     D: BlasPtr<T> + BlasStride + Collection,
     E: BlasPtr<T> + BlasStride + Collection,
-> Mul<Col<E>, T> for Row<D> {
+{
     /// - Time: `O(length)`
     ///
     /// # Failure
@@ -90,14 +90,19 @@ impl<
     }
 }
 
-impl<'a, T, I: Iterator<T>, D: PrivateMutIter<'a, T, I>> MutIter<'a, T, I> for Row<D> {
+impl<'a, T, I, D> MutIter<'a, T, I> for Row<D> where
+    I: Iterator<T>,
+    D: PrivateMutIter<'a, T, I>
+{
     fn mut_iter(&'a mut self) -> I {
         self.0.private_mut_iter()
     }
 }
 
 // TODO Needs testing
-impl<'a, D: Collection + UnsafeSlice<'a, uint, D>> OptionSlice<'a, uint, Row<D>> for Row<D> {
+impl<'a, D> OptionSlice<'a, uint, Row<D>> for Row<D> where
+    D: Collection + UnsafeSlice<'a, uint, D>
+{
     fn slice(&'a self, start: uint, end: uint) -> Option<Row<D>> {
         if end > start + 1 && end <= self.0.len() {
             Some(Row(unsafe { self.0.unsafe_slice(start, end) }))
@@ -107,13 +112,13 @@ impl<'a, D: Collection + UnsafeSlice<'a, uint, D>> OptionSlice<'a, uint, Row<D>>
     }
 }
 
-impl<T: BlasCopy, D: PrivateToOwned<T>> ToOwned<Row<Vec<T>>> for Row<D> {
+impl<T, D> ToOwned<Row<Vec<T>>> for Row<D> where T: BlasCopy, D: PrivateToOwned<T> {
     fn to_owned(&self) -> Row<Vec<T>> {
         Row(self.0.private_to_owned())
     }
 }
 
-impl<D: Show> Show for Row<D> {
+impl<D> Show for Row<D> where D: Show {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "Row({})", self.0)
     }

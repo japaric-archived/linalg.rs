@@ -2,7 +2,7 @@ use blas::copy::BlasCopy;
 use blas::{BlasPtr, BlasStride, to_blasint};
 use std::slice;
 
-pub trait PrivateIter<'a, T, I: Iterator<T>> {
+pub trait PrivateIter<'a, T, I> where I: Iterator<T> {
     fn private_iter(&'a self) -> I;
 }
 
@@ -18,7 +18,7 @@ impl<'a, 'b, T> PrivateIter<'b, &'b T, slice::Items<'b, T>> for &'a [T] { privat
 impl<'a, 'b, T> PrivateIter<'b, &'b T, slice::Items<'b, T>> for &'a mut [T] { private_iter!() }
 impl<'a, T> PrivateIter<'a, &'a T, slice::Items<'a, T>> for Vec<T> { private_iter!() }
 
-pub trait PrivateMutIter<'a, T, I: Iterator<T>> {
+pub trait PrivateMutIter<'a, T, I> where I: Iterator<T> {
     fn private_mut_iter(&'a mut self) -> I;
 }
 
@@ -38,7 +38,7 @@ impl<'a, T> PrivateMutIter<'a, &'a mut T, slice::MutItems<'a, T>> for Vec<T> {
     private_mut_iter!()
 }
 
-pub trait PrivateToOwned<T: BlasCopy>: BlasPtr<T> + BlasStride + Collection {
+pub trait PrivateToOwned<T>: BlasPtr<T> + BlasStride + Collection where T: BlasCopy {
     fn private_to_owned(&self) -> Vec<T> {
         let length = self.len();
         let mut data = Vec::with_capacity(length);
@@ -55,5 +55,5 @@ pub trait PrivateToOwned<T: BlasCopy>: BlasPtr<T> + BlasStride + Collection {
     }
 }
 
-impl<'a, T: BlasCopy> PrivateToOwned<T> for &'a [T] {}
-impl<'a, T: BlasCopy> PrivateToOwned<T> for &'a mut [T] {}
+impl<'a, T> PrivateToOwned<T> for &'a [T] where T: BlasCopy {}
+impl<'a, T> PrivateToOwned<T> for &'a mut [T] where T: BlasCopy {}

@@ -43,15 +43,14 @@ mod test {
         (start, end): ((uint, uint), (uint, uint)),
         (row, col): (uint, uint),
     ) -> TestResult {
-        match test::mat(size).as_ref().and_then(|m| {
+        if let Some(e) = test::mat(size).as_ref().and_then(|m| {
             m.slice(start, end)
         }).as_ref().and_then(|v| v.at(&(row, col))) {
-            None => TestResult::discard(),
-            Some(e) => {
-                let (start_row, start_col) = start;
+            let (start_row, start_col) = start;
 
-                TestResult::from_bool((start_row + row, start_col + col).eq(e))
-            },
+            TestResult::from_bool((start_row + row, start_col + col).eq(e))
+        } else {
+            TestResult::discard()
         }
     }
 
@@ -60,21 +59,20 @@ mod test {
         size: (uint, uint),
         (start, end): ((uint, uint), (uint, uint)),
     ) -> TestResult {
-        match test::mat(size).as_ref().and_then(|m| m.slice(start, end)) {
-            None => TestResult::discard(),
-            Some(v) => {
-                let (nrows, ncols) = test::size(start, end);
-                let (start_row, start_col) = start;
+        if let Some(v) = test::mat(size).as_ref().and_then(|m| m.slice(start, end)) {
+            let (nrows, ncols) = test::size(start, end);
+            let (start_row, start_col) = start;
 
-                let mut elems = TreeSet::new();
-                for row in range(0, nrows) {
-                    for col in range(0, ncols) {
-                        elems.insert((start_row + row, start_col + col));
-                    }
+            let mut elems = TreeSet::new();
+            for row in range(0, nrows) {
+                for col in range(0, ncols) {
+                    elems.insert((start_row + row, start_col + col));
                 }
+            }
 
-                TestResult::from_bool(elems == v.iter().map(|&x| x).collect())
-            },
+            TestResult::from_bool(elems == v.iter().map(|&x| x).collect())
+        } else {
+            TestResult::discard()
         }
     }
 
@@ -84,20 +82,19 @@ mod test {
         (start, end): ((uint, uint), (uint, uint)),
         skip: uint,
     ) -> TestResult {
-        match test::mat(size).as_ref().and_then(|m| m.slice(start, end)) {
-            None => TestResult::discard(),
-            Some(v) => {
-                let total = v.len();
+        if let Some(v) = test::mat(size).as_ref().and_then(|m| m.slice(start, end)) {
+            let total = v.len();
 
-                if skip < total {
-                    let hint = v.iter().skip(skip).size_hint();
-                    let left = total - skip;
+            if skip < total {
+                let hint = v.iter().skip(skip).size_hint();
+                let left = total - skip;
 
-                    TestResult::from_bool(hint == (left, Some(left)))
-                } else {
-                    TestResult::discard()
-                }
+                TestResult::from_bool(hint == (left, Some(left)))
+            } else {
+                TestResult::discard()
             }
+        } else {
+            TestResult::discard()
         }
     }
 
@@ -116,29 +113,31 @@ mod test {
                     start: (uint, uint),
                     (m, k, n): (uint, uint, uint),
                 ) -> TestResult {
-
                     let (start_row, start_col) = start;
 
-                    match test::rand_mat::<$ty>(size).as_ref().map(|mat| (
-                        mat.slice(start, (start_row + m, start_col + k)),
-                        mat.slice(start, (start_row + k, start_col + n)),
-                    )) {
-                        Some((Some(x), Some(y))) => {
-                            let z = x * y;
+                    if let Some((Some(x), Some(y))) =
+                        test::rand_mat::<$ty>(size).
+                            as_ref().
+                            map(|mat| (
+                                mat.slice(start, (start_row + m, start_col + k)),
+                                mat.slice(start, (start_row + k, start_col + n)),
+                            ))
+                    {
+                        let z = x * y;
 
-                            for (r, rx) in z.rows().zip(x.rows()) {
-                                for (&e, cy) in r.iter().zip(y.cols()) {
-                                    let sum = rx.iter().zip(cy.iter()).map(|(x, &y)| x * y).sum();
+                        for (r, rx) in z.rows().zip(x.rows()) {
+                            for (&e, cy) in r.iter().zip(y.cols()) {
+                                let sum = rx.iter().zip(cy.iter()).map(|(x, &y)| x * y).sum();
 
-                                    if !test::is_close(e, sum) {
-                                        return TestResult::failed();
-                                    }
+                                if !test::is_close(e, sum) {
+                                    return TestResult::failed();
                                 }
                             }
+                        }
 
-                            TestResult::passed()
-                        },
-                        _ => TestResult::discard(),
+                        TestResult::passed()
+                    } else {
+                        TestResult::discard()
                     }
                 }
             }

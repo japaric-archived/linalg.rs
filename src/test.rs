@@ -10,14 +10,32 @@ pub type c64 = Complex<f32>;
 pub type c128 = Complex<f64>;
 
 // NB Sadly, `Complex` does not implements `Rand` in the standard library
-trait Rand { fn gen<R: Rng>(rng: &mut R) -> Self; }
+trait Rand { fn gen<R>(rng: &mut R) -> Self where R: Rng; }
 
-impl Rand for c128 { fn gen<R: Rng>(rng: &mut R) -> c128 { Complex::new(rng.gen(), rng.gen()) } }
-impl Rand for c64 { fn gen<R: Rng>(rng: &mut R) -> c64 { Complex::new(rng.gen(), rng.gen()) } }
-impl Rand for f32 { fn gen<R: Rng>(rng: &mut R) -> f32 { rng.gen() } }
-impl Rand for f64 { fn gen<R: Rng>(rng: &mut R) -> f64 { rng.gen() } }
+impl Rand for c128 {
+    fn gen<R>(rng: &mut R) -> c128 where R: Rng {
+        Complex::new(rng.gen(), rng.gen())
+    }
+}
 
-pub fn is_close<T: Float>(x: T, y: T) -> bool {
+impl Rand for c64 {
+    fn gen<R>(rng: &mut R) -> c64 where R: Rng {
+        Complex::new(rng.gen(), rng.gen())
+    }
+}
+
+impl Rand for f32 {
+    fn gen<R>(rng: &mut R) -> f32 where R: Rng {
+        rng.gen()
+    }
+}
+impl Rand for f64 {
+    fn gen<R>(rng: &mut R) -> f64 where R: Rng {
+        rng.gen()
+    }
+}
+
+pub fn is_close<T>(x: T, y: T) -> bool where T: Float {
     let tolerance: T = num::cast(1e-5f64).unwrap();
 
     if x == num::zero() || y == num::zero() {
@@ -35,7 +53,7 @@ pub fn mat((nrows, ncols): (uint, uint)) -> Option<Mat<(uint, uint)>> {
     }
 }
 
-pub fn rand_mat<T: Rand>((nrows, ncols): (uint, uint)) -> Option<Mat<T>> {
+pub fn rand_mat<T>((nrows, ncols): (uint, uint)) -> Option<Mat<T>> where T: Rand {
     if nrows > 1 && ncols > 1 {
         let mut rng: XorShiftRng = rand::task_rng().gen();
 

@@ -8,7 +8,7 @@ use private::PrivateToOwned;
 use traits::SumRows;
 use {Row, Rows};
 
-impl<'a, D, M: UnsafeMatrixRow<'a, D>> DoubleEndedIterator<Row<D>> for Rows<'a, M> {
+impl<'a, D, M> DoubleEndedIterator<Row<D>> for Rows<'a, M> where M: UnsafeMatrixRow<'a, D> {
     fn next_back(&mut self) -> Option<Row<D>> {
         if self.state == self.stop {
             None
@@ -19,7 +19,7 @@ impl<'a, D, M: UnsafeMatrixRow<'a, D>> DoubleEndedIterator<Row<D>> for Rows<'a, 
     }
 }
 
-impl<'a, D, M: UnsafeMatrixRow<'a, D>> Iterator<Row<D>> for Rows<'a, M> {
+impl<'a, D, M> Iterator<Row<D>> for Rows<'a, M> where M: UnsafeMatrixRow<'a, D> {
     fn next(&mut self) -> Option<Row<D>> {
         if self.state == self.stop {
             None
@@ -36,12 +36,11 @@ impl<'a, D, M: UnsafeMatrixRow<'a, D>> Iterator<Row<D>> for Rows<'a, M> {
     }
 }
 
-impl<
-    'a,
+impl<'a, T, D, I> SumRows<T> for I where
     T: BlasAxpy + BlasCopy + One,
     D: PrivateToOwned<T>,
     I: Iterator<Row<D>>,
-> SumRows<T> for I {
+{
     fn sum(mut self) -> Option<Row<Vec<T>>> {
         self.next().map(|row| {
             let mut sum = row.0.private_to_owned();

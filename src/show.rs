@@ -36,8 +36,8 @@ macro_rules! fmt {
     }
 }
 
-impl<T: Show> Show for Mat<T> { fmt!() }
-impl<T: Show> Show for Trans<Mat<T>> { fmt!() }
+impl<T> Show for Mat<T> where T: Show { fmt!() }
+impl<T> Show for Trans<Mat<T>> where T: Show { fmt!() }
 
 macro_rules! impl_show {
     ($($ty:ty),+) => {$(
