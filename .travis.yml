@@ -3,18 +3,29 @@ language: rust
 env:
   global:
     - secure: D/SGyr/TJwlfNpPgKp6oOWcy2ED9ylt+rznLJF24Sb7YqJ5V0xjYTGbvOcvzqntKzU971v8IUS+fT8E1u1eDQHzmY1GxjnPsKklhW+RxujbKqy1FALM3mdd9sf1qtHXk/55irlPumYuO9C7wgSqinm1f3yF00J2EDbkNLVUPlBY=
+  matrix:
+    - BLAS=OpenBLAS
+    - BLAS=reference
 
 before_install:
   # This PPA has a newer version of OpenBLAS
-  - sudo add-apt-repository ppa:staticfloat/julia-deps -y
+  - if [[ $BLAS == 'OpenBLAS' ]]; then
+      sudo add-apt-repository ppa:staticfloat/julia-deps -y;
+    fi
   - sudo apt-get update
 
 install:
-  - sudo apt-get install libopenblas-dev
+  - if [[ $BLAS == 'OpenBLAS' ]]; then
+      sudo apt-get install libopenblas-dev;
+    else
+      sudo apt-get install libblas-dev;
+    fi
 
 script:
   # Not sure why travis needs this, without it linking to libopenblas.so.0 fails
-  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/openblas-base
+  - if [[ $BLAS == 'OpenBLAS' ]]; then
+      export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/openblas-base;
+    fi
   - cargo build --verbose
   - cargo test --verbose
   - cargo doc --verbose && mv target/doc doc
