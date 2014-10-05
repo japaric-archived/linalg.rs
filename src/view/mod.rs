@@ -74,7 +74,7 @@ macro_rules! impl_view {
         }
 
         impl<'a, 'b, T> Iter<'b, &'b T, Items<'b, T>> for $ty {
-            fn iter(&'b self) -> Items<'a, T> {
+            fn iter(&'b self) -> Items<'b, T> {
                 Items {
                     _contravariant: marker::ContravariantLifetime::<'b>,
                     _nosend: marker::NoSend,
