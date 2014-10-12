@@ -1,7 +1,24 @@
-//! An experimental linear algebra library with OpenBLAS [1] acceleration written in Rust
+//! An experimental linear algebra library with BLAS acceleration written in Rust
 //!
-//! [1] I'm developing this library against OpenBLAS, but since BLAS is a standard, it *should*
-//! work with other BLAS implementations
+//! # Cargo
+//!
+//! - Cargo.toml
+//!
+//! ``` ignore
+//! [dependencies.linalg]
+//! git = "https://github.com/japaric/linalg.rs"
+//!
+//! [dependencies.linalg_macros]
+//! git = "https://github.com/japaric/linalg.rs"
+//! ```
+//!
+//! - Crate file
+//!
+//! ``` ignore
+//! extern crate linalg;
+//! #[phase(plugin)]
+//! extern crate linalg_macros;
+//! ```
 //!
 //! # Conventions
 //!
@@ -237,7 +254,9 @@ impl<T> Col<Vec<T>> {
     /// # Example
     ///
     /// ```
-    /// # #![feature(phase)] #[phase(plugin, link)] extern crate linalg;
+    /// # #![feature(phase)]
+    /// # extern crate linalg;
+    /// # #[phase(plugin)] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::Col;
     /// assert_eq!(Col::new(vec![0i, 1, 2]), mat![0i; 1; 2])
@@ -257,7 +276,9 @@ impl<T> Col<Vec<T>> {
     /// # Example
     ///
     /// ```
-    /// # #![feature(phase)] #[phase(plugin, link)] extern crate linalg;
+    /// # #![feature(phase)]
+    /// # extern crate linalg;
+    /// # #[phase(plugin)] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::Col;
     /// assert_eq!(Col::from_fn(3, |i| i), mat![0; 1; 2])
@@ -292,7 +313,9 @@ impl<T> Col<Vec<T>> where T: Clone {
     /// # Example
     ///
     /// ```
-    /// # #![feature(phase)] #[phase(plugin, link)] extern crate linalg;
+    /// # #![feature(phase)]
+    /// # extern crate linalg;
+    /// # #[phase(plugin)] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::Col;
     /// assert_eq!(Col::from_elem(3, 2), mat![2i; 2; 2])
@@ -314,7 +337,9 @@ impl<T> Col<Vec<T>> where T: Clone + One {
     /// # Example
     ///
     /// ```
-    /// # #![feature(phase)] #[phase(plugin, link)] extern crate linalg;
+    /// # #![feature(phase)]
+    /// # extern crate linalg;
+    /// # #[phase(plugin)] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::Col;
     /// assert_eq!(Col::ones(3), mat![1i; 1; 1])
@@ -334,7 +359,9 @@ impl<T> Col<Vec<T>> where T: Clone + Zero {
     /// # Example
     ///
     /// ```
-    /// # #![feature(phase)] #[phase(plugin, link)] extern crate linalg;
+    /// # #![feature(phase)]
+    /// # extern crate linalg;
+    /// # #[phase(plugin)] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::Col;
     /// assert_eq!(Col::zeros(3), mat![0i; 0; 0])
@@ -382,7 +409,9 @@ impl<T> Mat<T> {
     /// # Example
     ///
     /// ```
-    /// # #![feature(phase)] #[phase(plugin, link)] extern crate linalg;
+    /// # #![feature(phase)]
+    /// # extern crate linalg;
+    /// # #[phase(plugin)] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::Mat;
     /// assert_eq!(Mat::from_fn((2, 2), |i| i), mat![(0, 0), (0, 1); (1, 0), (1, 1)])
@@ -438,7 +467,9 @@ impl<T> Mat<T> where T: Clone {
     /// # Example
     ///
     /// ```
-    /// # #![feature(phase)] #[phase(plugin, link)] extern crate linalg;
+    /// # #![feature(phase)]
+    /// # extern crate linalg;
+    /// # #[phase(plugin)] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::Mat;
     /// assert_eq!(Mat::from_elem((3, 2), 2), mat![2i, 2; 2, 2; 2, 2])
@@ -465,7 +496,9 @@ impl<T> Mat<T> where T: Clone + One {
     /// # Example
     ///
     /// ```
-    /// # #![feature(phase)] #[phase(plugin, link)] extern crate linalg;
+    /// # #![feature(phase)]
+    /// # extern crate linalg;
+    /// # #[phase(plugin)] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::Mat;
     /// assert_eq!(Mat::ones((2, 3)), mat![1i, 1, 1; 1, 1, 1])
@@ -485,7 +518,9 @@ impl<T> Mat<T> where T: Clone + One + Zero {
     /// # Example
     ///
     /// ```
-    /// # #![feature(phase)] #[phase(plugin, link)] extern crate linalg;
+    /// # #![feature(phase)]
+    /// # extern crate linalg;
+    /// # #[phase(plugin)] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::Mat;
     /// assert_eq!(Mat::eye((2, 2)), mat![1i, 0; 0, 1])
@@ -522,7 +557,9 @@ impl<T> Mat<T> where T: Clone + Zero {
     /// # Example
     ///
     /// ```
-    /// # #![feature(phase)] #[phase(plugin, link)] extern crate linalg;
+    /// # #![feature(phase)]
+    /// # extern crate linalg;
+    /// # #[phase(plugin)] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::Mat;
     /// assert_eq!(Mat::zeros((2, 3)), mat![0i, 0, 0; 0, 0, 0])
@@ -556,7 +593,9 @@ impl<T> Row<Vec<T>> {
     /// # Example
     ///
     /// ```
-    /// # #![feature(phase)] #[phase(plugin, link)] extern crate linalg;
+    /// # #![feature(phase)]
+    /// # extern crate linalg;
+    /// # #[phase(plugin)] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::Row;
     /// assert_eq!(Row::new(vec![0i, 1, 2]), mat![0i, 1, 2])
@@ -576,7 +615,9 @@ impl<T> Row<Vec<T>> {
     /// # Example
     ///
     /// ```
-    /// # #![feature(phase)] #[phase(plugin, link)] extern crate linalg;
+    /// # #![feature(phase)]
+    /// # extern crate linalg;
+    /// # #[phase(plugin)] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::Row;
     /// assert_eq!(Row::from_fn(3, |i| i), mat![0, 1, 2])
@@ -611,7 +652,9 @@ impl<T> Row<Vec<T>> where T: Clone {
     /// # Example
     ///
     /// ```
-    /// # #![feature(phase)] #[phase(plugin, link)] extern crate linalg;
+    /// # #![feature(phase)]
+    /// # extern crate linalg;
+    /// # #[phase(plugin)] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::Row;
     /// assert_eq!(Row::from_elem(3, 2), mat![2i, 2, 2])
@@ -633,7 +676,9 @@ impl<T> Row<Vec<T>> where T: Clone + One {
     /// # Example
     ///
     /// ```
-    /// # #![feature(phase)] #[phase(plugin, link)] extern crate linalg;
+    /// # #![feature(phase)]
+    /// # extern crate linalg;
+    /// # #[phase(plugin)] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::Row;
     /// assert_eq!(Row::ones(3), mat![1i, 1, 1])
@@ -653,7 +698,9 @@ impl<T> Row<Vec<T>> where T: Clone + Zero {
     /// # Example
     ///
     /// ```
-    /// # #![feature(phase)] #[phase(plugin, link)] extern crate linalg;
+    /// # #![feature(phase)]
+    /// # extern crate linalg;
+    /// # #[phase(plugin)] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::Row;
     /// assert_eq!(Row::zeros(3), mat![0i, 0, 0])
@@ -674,66 +721,4 @@ impl<T> Row<Vec<T>> where T: Rand {
 
         Row(Vec::from_fn(length, |_| rng.gen()))
     }
-}
-
-#[doc(hidden)]
-#[macro_export]
-// TODO (rust-lang/rfcs#88) Replace this macro with the `$#(..)` syntax
-macro_rules! count_args {
-    ($x:expr) => {
-        1
-    };
-    ($x:expr, $($xs:expr),+) => {
-        1 + count_args!($($xs),+)
-    }
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! push_columns {
-    ($data:expr <- $($e:expr);+) => ({
-        $($data.push($e);)+
-    });
-    ($data:expr <- $($x:expr, $($xs:expr),+);+) => ({
-        $($data.push($x);)+
-        push_columns!($data <- $($($xs),+);+)
-    });
-}
-
-/// Creates an owned row/column vector or matrix from the arguments
-#[macro_export]
-macro_rules! mat {
-    // Row vector: mat![0, 1, 2]
-    ($x:expr, $($xs:expr),+) => ({
-        let mut data = Vec::with_capacity(count_args!($x, $($xs),+));
-        data.push($x);
-        $(data.push($xs);)+
-
-        ::linalg::Row::new(data)
-    });
-    // Column vector: mat![0; 1; 2]
-    ($x:expr; $($xs:expr);+) => ({
-        let mut data = Vec::with_capacity(count_args!($x, $($xs),+));
-        data.push($x);
-        $(data.push($xs);)+
-
-        ::linalg::Col::new(data)
-    });
-    // Owned matrix: mat![0, 1, 2; 3, 4, 5]
-    ($x:expr, $($xs:expr),+; $($y:expr, $($ys:expr),+);+) => ({
-        let nrows = count_args!($x, $($y),+);
-        let ncols = count_args!($x, $($xs),+);
-
-        // FIXME This should be a compiler error
-        assert!($(ncols == count_args!($y, $($ys),+))&&+);
-
-        let mut data = Vec::with_capacity(nrows * ncols);
-        push_columns!(data <- $x, $($xs),+; $($y, $($ys),+);+)
-
-        ::linalg::Mat::new(data, nrows)
-    });
-    // Trailing semicolon
-    ($($($e:expr),+);+;) => {
-        mat![$($($e),+);+]
-    };
 }

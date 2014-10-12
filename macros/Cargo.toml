@@ -1,0 +1,9 @@
+[package]
+
+name = "linalg_macros"
+version = "0.0.0"
+authors = ["Jorge Aparicio <japaric@linux.com>"]
+
+[lib]
+name = "linalg_macros"
+plugin = true
