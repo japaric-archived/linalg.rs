@@ -4,6 +4,9 @@ name = "linalg"
 version = "0.0.0"
 authors = ["Jorge Aparicio <japaric@linux.com>"]
 
+[dependencies.linalg_macros]
+path = "macros"
+
 [dependencies.num]
 git = "https://github.com/rust-lang/num"
 
