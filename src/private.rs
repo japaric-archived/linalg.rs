@@ -25,7 +25,7 @@ pub trait PrivateMutIter<'a, T, I> where I: Iterator<T> {
 macro_rules! private_mut_iter {
     () => {
         fn private_mut_iter(&mut self) -> slice::MutItems<T> {
-            self.mut_iter()
+            self.iter_mut()
         }
     }
 }
