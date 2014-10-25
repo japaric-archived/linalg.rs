@@ -6,7 +6,7 @@ extern crate syntax;
 
 use rustc::plugin::registry::Registry;
 use std::ptr;
-use syntax::ast::{ExprBox, Inherited, LitInt, Plus, TTTok, TokenTree, UnsuffixedIntLit};
+use syntax::ast::{ExprBox, Inherited, LitInt, Plus, TTTok, TokenTree, TyVec, UnsuffixedIntLit};
 use syntax::codemap::Span;
 use syntax::ext::base::{DummyResult, ExtCtxt, MacExpr, MacResult, NormalTT};
 use syntax::ext::build::AstBuilder;
@@ -206,8 +206,21 @@ fn expand_mat<'cx>(
 
                 cx.expr(sp, ExprBox(heap, array))
             };
+            let ty = {
+                let path = {
+                    let segments = vec![
+                        token::str_to_ident("std"),
+                        token::str_to_ident("boxed"),
+                        token::str_to_ident("Box"),
+                    ];
+                    let ty = cx.ty(sp, TyVec(cx.ty_infer(sp)));
 
-            cx.stmt_let(sp, false, ident, expr)
+                    cx.path_all(sp, true, segments, vec![], vec![ty])
+                };
+                cx.ty_path(path, None)
+            };
+
+            cx.stmt_let_typed(sp, false, ident, ty, expr)
         }];
 
         let expr = Some({
