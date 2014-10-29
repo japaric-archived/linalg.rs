@@ -6,11 +6,11 @@ extern crate syntax;
 
 use rustc::plugin::registry::Registry;
 use std::ptr;
-use syntax::ast::{ExprBox, Inherited, LitInt, Plus, TTTok, TokenTree, TyVec, UnsuffixedIntLit};
+use syntax::ast::{ExprBox, Inherited, LitInt, Plus, TtToken, TokenTree, TyVec, UnsuffixedIntLit};
 use syntax::codemap::Span;
 use syntax::ext::base::{DummyResult, ExtCtxt, MacExpr, MacResult, NormalTT};
 use syntax::ext::build::AstBuilder;
-use syntax::parse::token::{mod, COMMA, SEMI};
+use syntax::parse::token::{mod, Comma, Semi};
 
 #[macro_export]
 /// Creates an owned matrix from its arguments
@@ -90,7 +90,7 @@ fn expand_mat<'cx>(
     tts: &[TokenTree],
 ) -> Box<MacResult + 'cx> {
     fn at_semicolons(tt: &TokenTree) -> bool {
-        if let TTTok(_, SEMI) = *tt {
+        if let TtToken(_, Semi) = *tt {
             true
         } else {
             false
@@ -98,7 +98,7 @@ fn expand_mat<'cx>(
     }
 
     fn at_commas(tt: &TokenTree) -> bool {
-        if let TTTok(_, COMMA) = *tt {
+        if let TtToken(_, Comma) = *tt {
             true
         } else {
             false
