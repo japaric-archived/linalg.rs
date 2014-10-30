@@ -73,9 +73,9 @@ impl<T, D, E> Mul<Col<E>, T> for Row<D> where
 {
     /// - Time: `O(length)`
     ///
-    /// # Failure
+    /// # Panics
     ///
-    /// Fails if the length of the vectors are different
+    /// Panics if the length of the vectors are different
     fn mul(&self, rhs: &Col<E>) -> T {
         assert!(self.len() == rhs.len());
 

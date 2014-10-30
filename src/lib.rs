@@ -389,9 +389,9 @@ impl<T> Mat<T> {
     ///
     /// **Note**: Data is considered to be arranged in column-major order
     ///
-    /// # Failure
+    /// # Panics
     ///
-    /// Fails if `data.len() % nrows != 0`
+    /// Panics if `data.len() % nrows != 0`
     pub fn new(data: Vec<T>, nrows: uint) -> Mat<T> {
         assert!(data.len() % nrows == 0);
 

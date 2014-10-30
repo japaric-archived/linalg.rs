@@ -47,9 +47,9 @@ impl<T> Mul<Mat<T>, Mat<T>> for Mat<T> where T: BlasGemm + One + Zero {
     /// - Memory: `O(lhs.nrows * rhs.ncols)`
     /// - Time: `O(lhs.nrows * lhs.ncols * rhs.ncols)`
     ///
-    /// # Failure
+    /// # Panics
     ///
-    /// Fails if `lhs.ncols != rhs.nrows`
+    /// Panics if `lhs.ncols != rhs.nrows`
     fn mul(&self, rhs: &Mat<T>) -> Mat<T> {
         assert!(self.ncols() == rhs.nrows());
 

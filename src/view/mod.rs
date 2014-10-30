@@ -126,9 +126,9 @@ impl<'a, 'b, T> Mul<View<'b, T>, Mat<T>> for View<'a, T> where T: BlasGemm + One
     /// - Memory: `O(lhs.nrows * rhs.ncols)`
     /// - Time: `O(lhs.nrows * lhs.ncols * rhs.ncols)`
     ///
-    /// # Failure
+    /// # Panics
     ///
-    /// Fails if `lhs.ncols != rhs.nrows`
+    /// Panics if `lhs.ncols != rhs.nrows`
     fn mul(&self, rhs: &View<'b, T>) -> Mat<T> {
         assert!(self.ncols() == rhs.nrows());
 
