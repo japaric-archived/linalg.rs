@@ -172,7 +172,7 @@ fn expand_mat<'cx>(
 
     for (r, row) in matrix.into_iter().enumerate() {
         for (c, elem) in row.into_iter().enumerate() {
-            let dst = elems.get_mut(c * nrows + r);
+            let dst = &mut elems[c * nrows + r];
 
             unsafe { ptr::write(dst, cx.new_parser_from_tts(elem).parse_expr()) }
         }
