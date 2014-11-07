@@ -4,6 +4,7 @@ mod test {
 
     use test;
     use traits::{
+        Collection,
         Iter,
         MatrixMutDiag,
         MutIter,

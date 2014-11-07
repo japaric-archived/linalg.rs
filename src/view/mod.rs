@@ -7,7 +7,7 @@ use std::num::{One, Zero, mod};
 use blas::{BLAS_NO_TRANS, to_blasint};
 use blas::gemm::BlasGemm;
 use notsafe::{UnsafeIndex, UnsafeIndexMut};
-use traits::{Iter, Matrix, MutIter};
+use traits::{Collection, Iter, Matrix, MutIter};
 use {Mat, MutView, View};
 
 pub use ViewItems as Items;

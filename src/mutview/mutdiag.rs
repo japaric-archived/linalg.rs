@@ -41,7 +41,9 @@ mod test {
     use quickcheck::TestResult;
 
     use test;
-    use traits::{Iter, MutIter, MatrixMutDiag, OptionMutSlice, OptionIndex, OptionIndexMut};
+    use traits::{
+        Collection, Iter, MutIter, MatrixMutDiag, OptionMutSlice, OptionIndex, OptionIndexMut,
+    };
 
     #[quickcheck]
     fn at(

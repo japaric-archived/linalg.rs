@@ -35,7 +35,7 @@ mod test {
     use std::collections::TreeSet;
 
     use test;
-    use traits::{Iter, OptionSlice, OptionIndex};
+    use traits::{Collection, Iter, OptionSlice, OptionIndex};
 
     #[quickcheck]
     fn at(

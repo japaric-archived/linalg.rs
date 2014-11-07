@@ -40,7 +40,7 @@ mod test {
     use quickcheck::TestResult;
 
     use test;
-    use traits::{Iter, MatrixDiag, OptionIndex, OptionSlice};
+    use traits::{Collection, Iter, MatrixDiag, OptionIndex, OptionSlice};
 
     #[quickcheck]
     fn at(

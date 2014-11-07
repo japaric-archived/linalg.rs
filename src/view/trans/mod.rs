@@ -20,7 +20,7 @@ mod test {
     use std::collections::TreeSet;
 
     use test;
-    use traits::{Iter, OptionSlice, OptionIndex, Transpose};
+    use traits::{Collection, Iter, OptionSlice, OptionIndex, Transpose};
 
     #[quickcheck]
     fn at(

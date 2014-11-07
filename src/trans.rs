@@ -6,6 +6,7 @@ use notsafe::{
     UnsafeMatrixRow,
 };
 use traits::{
+    Collection,
     Iter,
     Matrix,
     MatrixCol,

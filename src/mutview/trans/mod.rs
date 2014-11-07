@@ -26,7 +26,9 @@ mod test {
     use std::collections::TreeSet;
 
     use test;
-    use traits::{Iter, MutIter, OptionMutSlice, OptionIndex, OptionIndexMut, Transpose};
+    use traits::{
+        Collection, Iter, MutIter, OptionMutSlice, OptionIndex, OptionIndexMut, Transpose,
+    };
 
     #[quickcheck]
     fn at(

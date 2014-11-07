@@ -4,7 +4,7 @@ use Col;
 use blas::copy::BlasCopy;
 use notsafe::{UnsafeIndex, UnsafeIndexMut, UnsafeSlice};
 use private::{PrivateIter, PrivateMutIter, PrivateToOwned};
-use traits::{Iter, Matrix, MutIter, OptionIndex, OptionIndexMut, OptionSlice, ToOwned};
+use traits::{Collection, Iter, Matrix, MutIter, OptionIndex, OptionIndexMut, OptionSlice, ToOwned};
 
 impl<D> Collection for Col<D> where D: Collection {
     fn len(&self) -> uint {

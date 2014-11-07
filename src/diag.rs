@@ -3,7 +3,7 @@ use std::fmt::{Formatter, Show, mod};
 use Diag;
 use notsafe::{UnsafeIndex, UnsafeIndexMut, UnsafeSlice};
 use private::{PrivateIter, PrivateMutIter};
-use traits::{Iter, MutIter, OptionIndex, OptionIndexMut, OptionSlice};
+use traits::{Collection, Iter, MutIter, OptionIndex, OptionIndexMut, OptionSlice};
 
 impl<D> Collection for Diag<D> where D: Collection {
     fn len(&self) -> uint {

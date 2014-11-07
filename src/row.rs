@@ -5,7 +5,7 @@ use blas::copy::BlasCopy;
 use blas::dot::BlasDot;
 use notsafe::{UnsafeIndex, UnsafeIndexMut, UnsafeSlice};
 use private::{PrivateIter, PrivateMutIter, PrivateToOwned};
-use traits::{Iter, Matrix, MutIter, OptionIndex, OptionIndexMut, OptionSlice, ToOwned};
+use traits::{Collection, Iter, Matrix, MutIter, OptionIndex, OptionIndexMut, OptionSlice, ToOwned};
 use {Col, Row};
 
 impl<D> Collection for Row<D> where D: Collection {

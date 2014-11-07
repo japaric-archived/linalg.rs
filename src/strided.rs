@@ -8,6 +8,7 @@ use blas::copy::BlasCopy;
 use blas::{BlasAccelerated, BlasMutPtr, BlasPtr, BlasStride, blasint, to_blasint};
 use notsafe::{UnsafeIndex, UnsafeIndexMut, UnsafeMutSlice, UnsafeSlice};
 use private::{PrivateIter, PrivateMutIter, PrivateToOwned};
+use traits::Collection;
 
 pub use StridedItems as Items;
 pub use StridedMutItems as MutItems;

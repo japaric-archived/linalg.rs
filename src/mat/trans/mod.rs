@@ -27,6 +27,7 @@ mod test {
 
     use test;
     use traits::{
+        Collection,
         Iter,
         MutIter,
         OptionIndex,

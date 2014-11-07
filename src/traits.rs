@@ -1,5 +1,7 @@
 //! Traits
 
+use std::raw::Repr;
+
 use notsafe::{UnsafeMatrixCol, UnsafeMatrixMutCol, UnsafeMatrixMutRow, UnsafeMatrixRow};
 use strided;
 use {Col, Cols, Diag, MutCols, MutRows, Row, Rows};
@@ -8,6 +10,22 @@ use {Col, Cols, Diag, MutCols, MutRows, Row, Rows};
 /// The `+=` operator
 pub trait AddAssign<R> {
     fn add_assign(&mut self, rhs: &R);
+}
+
+pub trait Collection {
+    fn len(&self) -> uint;
+}
+
+impl<'a, T> Collection for &'a [T] {
+    fn len(&self) -> uint {
+        self.repr().len
+    }
+}
+
+impl<'a, T> Collection for &'a mut [T] {
+    fn len(&self) -> uint {
+        self.repr().len
+    }
 }
 
 /// Immutable iteration over a collection

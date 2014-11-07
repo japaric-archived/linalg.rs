@@ -5,7 +5,7 @@ use Mat;
 use blas::gemm::BlasGemm;
 use blas::{BLAS_NO_TRANS, to_blasint};
 use notsafe::{UnsafeIndex, UnsafeIndexMut};
-use traits::{Iter, Matrix, MutIter};
+use traits::{Collection, Iter, Matrix, MutIter};
 
 mod col;
 mod cols;
@@ -101,7 +101,7 @@ mod test {
     use std::collections::TreeSet;
 
     use test;
-    use traits::{Iter, MutIter, OptionIndex, OptionIndexMut};
+    use traits::{Collection, Iter, MutIter, OptionIndex, OptionIndexMut};
 
     #[quickcheck]
     fn index(size: (uint, uint), (row, col): (uint, uint)) -> TestResult {

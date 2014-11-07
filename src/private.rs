@@ -1,5 +1,7 @@
 use blas::copy::BlasCopy;
 use blas::{BlasPtr, BlasStride, to_blasint};
+use traits::Collection;
+
 use std::slice;
 
 pub trait PrivateIter<'a, T, I> where I: Iterator<T> {

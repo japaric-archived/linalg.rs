@@ -3,7 +3,7 @@ mod test {
     use quickcheck::TestResult;
 
     use test;
-    use traits::{Iter, MatrixDiag, OptionIndex, Transpose};
+    use traits::{Collection, Iter, MatrixDiag, OptionIndex, Transpose};
 
     #[quickcheck]
     fn at(size: (uint, uint), diag: int, index: uint) -> TestResult {
