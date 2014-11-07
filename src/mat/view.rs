@@ -127,7 +127,7 @@ mod test {
 
                         for (r, rx) in z.rows().zip(x.rows()) {
                             for (&e, cy) in r.iter().zip(y.cols()) {
-                                let sum = rx.iter().zip(cy.iter()).map(|(x, &y)| x * y).sum();
+                                let sum = rx.iter().zip(cy.iter()).map(|(&x, &y)| x * y).sum();
 
                                 if !test::is_close(e, sum) {
                                     return TestResult::failed();
