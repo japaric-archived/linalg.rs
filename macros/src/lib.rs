@@ -184,7 +184,7 @@ fn expand_mat<'cx>(
             let segments = vec![
                 token::str_to_ident("std"),
                 token::str_to_ident("slice"),
-                token::str_to_ident("BoxedSlice"),
+                token::str_to_ident("BoxedSlicePrelude"),
             ];
 
             cx.view_use_simple(sp, Inherited, cx.path_global(sp, segments))
