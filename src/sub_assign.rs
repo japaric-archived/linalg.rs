@@ -43,8 +43,12 @@ impl<'a, T> SubAssign<T> for Diag<strided::MutSlice<'a, T>> where T: Axpy + Neg<
 
 impl<T> SubAssign<T> for Mat<T> where T: Axpy + Neg<T> + One {
     fn sub_assign(&mut self, rhs: &T) {
+        let n = Collection::len(&self.data);
+
+        if n == 0 { return }
+
         let axpy = Axpy::axpy(None::<T>);
-        let n = Collection::len(&self.data).to_blasint();
+        let n = n.to_blasint();
         let alpha = {
             let _1: T = One::one();
             -_1
@@ -68,8 +72,12 @@ impl<T> SubAssign<Mat<T>> for Mat<T> where T: Axpy + Neg<T> + One {
     fn sub_assign(&mut self, rhs: &Mat<T>) {
         assert_eq!(self.size(), rhs.size());
 
+        let n = Collection::len(&self.data);
+
+        if n == 0 { return }
+
         let axpy = Axpy::axpy(None::<T>);
-        let n = Collection::len(&self.data).to_blasint();
+        let n = n.to_blasint();
         let alpha = {
             let _1: T = One::one();
             -_1
@@ -305,8 +313,12 @@ macro_rules! view {
 view!(View<'a, T>, MutView<'a, T>)
 
 fn vs<T, V: MutVector<T>>(lhs: &mut V, rhs: &T) where T: Axpy + Neg<T> + One {
+    let n = Collection::len(lhs);
+
+    if n == 0 { return }
+
     let axpy = Axpy::axpy(None::<T>);
-    let n = Vector::len(lhs);
+    let n = n.to_blasint();
     let alpha = {
         let _1: T = One::one();
         -_1
@@ -322,8 +334,12 @@ fn vs<T, V: MutVector<T>>(lhs: &mut V, rhs: &T) where T: Axpy + Neg<T> + One {
 fn vv<T, L: MutVector<T>, R: Vector<T>>(lhs: &mut L, rhs: &R) where T: Axpy + Neg<T> + One {
     assert_eq!(Collection::len(lhs), Collection::len(rhs))
 
+    let n = Collection::len(lhs);
+
+    if n == 0 { return }
+
     let axpy = Axpy::axpy(None::<T>);
-    let n = Vector::len(lhs);
+    let n = n.to_blasint();
     let alpha = {
         let _1: T = One::one();
         -_1

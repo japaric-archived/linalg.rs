@@ -5,12 +5,16 @@ use {Col, Mat, MutView, Row, Trans, View};
 use blas::{Dot, Gemm, Gemv, ToBlasInt, Vector, mod};
 use traits::{Collection, Matrix};
 
-impl<T, L, R> Mul<Col<R>, T> for Row<L> where T: Dot, L: Vector<T>, R: Vector<T> {
+impl<T, L, R> Mul<Col<R>, T> for Row<L> where T: Dot + Zero, L: Vector<T>, R: Vector<T> {
     fn mul(&self, rhs: &Col<R>) -> T {
         assert_eq!(self.len(), rhs.len());
 
+        let n = Collection::len(&self.0);
+
+        if n == 0 { return Zero::zero() }
+
         let dot = Dot::dot(None::<T>);
-        let n = Vector::len(&self.0);
+        let n = n.to_blasint();
         let x = self.0.as_ptr();
         let incx = self.0.stride();
         let y = rhs.0.as_ptr();
@@ -103,6 +107,8 @@ fn mc<T, M, V>(lhs: &M, rhs: &Col<V>) -> Col<Box<[T]>> where
     assert_eq!(lhs.ncols(), rhs.nrows());
     assert!(lhs.ncols() != 0);
 
+    if lhs.nrows() == 0 { return Col::new(box []) }
+
     let gemv = Gemv::gemv(None::<T>);
     let trans = lhs.trans();
     let (m, n) = match trans {
@@ -134,6 +140,10 @@ fn mm<T, L, R>(lhs: &L, rhs: &R) -> Mat<T> where
 {
     assert_eq!(lhs.ncols(), rhs.nrows());
     assert!(lhs.ncols() != 0);
+
+    if lhs.nrows() == 0 || rhs.ncols() == 0 {
+        return unsafe { Mat::from_parts(box [], (lhs.nrows(), rhs.ncols())) }
+    }
 
     let length = lhs.nrows().checked_mul(rhs.ncols()).unwrap();
 
@@ -173,6 +183,8 @@ fn rm<T, M, V>(lhs: &Row<V>, rhs: &M) -> Row<Box<[T]>> where
 {
     assert_eq!(lhs.ncols(), rhs.nrows());
     assert!(lhs.ncols() != 0);
+
+    if rhs.ncols() == 0 { return Row::new(box []) }
 
     let gemv = Gemv::gemv(None::<T>);
     let trans = !rhs.trans();

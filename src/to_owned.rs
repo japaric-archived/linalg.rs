@@ -6,6 +6,8 @@ impl<T, V> ToOwned<Box<[T]>> for V where T: blas::Copy, V: Vector<T> {
     fn to_owned(&self) -> Box<[T]> {
         let n = Collection::len(self);
 
+        if n == 0 { return box [] }
+
         let copy = blas::Copy::copy(None::<T>);
         let x = self.as_ptr();
         let incx = self.stride();
@@ -48,6 +50,13 @@ macro_rules! to_owned {
         fn to_owned(&self) -> Mat<T> {
             // XXX Should this use `checked_mul`?
             let n = self.nrows() * self.ncols();
+
+            if n == 0 {
+                return Mat {
+                    data: box [],
+                    size: self.size(),
+                }
+            }
 
             let mut data = Vec::with_capacity(n);
 
