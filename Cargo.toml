@@ -1,0 +1,17 @@
+[package]
+
+name = "linalg"
+version = "0.0.0"
+authors = ["Jorge Aparicio <japaricious@gmail.com>"]
+
+[dependencies.complex]
+git = "https://github.com/japaric/complex.rs"
+
+[dev-dependencies.linalg_macros]
+path = "macros"
+
+[dev-dependencies.quickcheck]
+git = "https://github.com/burntsushi/quickcheck"
+
+[dev-dependencies.quickcheck_macros]
+git = "https://github.com/burntsushi/quickcheck"

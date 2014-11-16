@@ -1,0 +1,413 @@
+#![feature(globs, macro_rules, phase, tuple_indexing)]
+
+extern crate linalg;
+extern crate quickcheck;
+#[phase(plugin)]
+extern crate quickcheck_macros;
+
+use linalg::prelude::*;
+
+mod setup;
+
+mod col {
+    mod slice {
+        use linalg::prelude::*;
+        use quickcheck::TestResult;
+
+        use setup;
+
+        // Test that `size_hint()` is correct for `Col<&[_]>::iter()` output
+        #[quickcheck]
+        fn items((nrows, ncols): (uint, uint), col: uint, skip: uint) -> TestResult {
+            enforce!{
+                col < ncols,
+            }
+
+            test!({
+                let m = setup::mat((nrows, ncols));
+                let c = try!(m.col(col));
+                let n = m.nrows();
+
+                c.iter().skip(skip).size_hint() == if skip > n {
+                    (0, Some(0))
+                } else {
+                    let left = n - skip;
+
+                    (left, Some(left))
+                }
+            })
+        }
+
+        // Test that `size_hint()` is correct for `Col<&mut [_]>::iter_mut()` output
+        #[quickcheck]
+        fn items_mut((nrows, ncols): (uint, uint), col: uint, skip: uint) -> TestResult {
+            enforce!{
+                col < ncols,
+            }
+
+            test!({
+                let mut m = setup::mat((nrows, ncols));
+                let n = m.nrows();
+                let mut c = try!(m.col_mut(col));
+
+                c.iter_mut().skip(skip).size_hint() == if skip > n {
+                    (0, Some(0))
+                } else {
+                    let left = n - skip;
+
+                    (left, Some(left))
+                }
+            })
+        }
+    }
+
+    mod strided {
+        use linalg::prelude::*;
+        use quickcheck::TestResult;
+
+        use setup;
+
+        // Test that `size_hint()` is correct for `Col<strided::Slice>::iter()` output
+        #[quickcheck]
+        fn items((nrows, ncols): (uint, uint), col: uint, skip: uint) -> TestResult {
+            enforce!{
+                col < ncols,
+            }
+
+            test!({
+                let m = setup::mat((ncols, nrows)).t();
+                let c = try!(m.col(col));
+                let n = m.nrows();
+
+                c.iter().skip(skip).size_hint() == if skip > n {
+                    (0, Some(0))
+                } else {
+                    let left = n - skip;
+
+                    (left, Some(left))
+                }
+            })
+        }
+
+        // Test that `size_hint()` is correct for `Col<strided::MutSlice>::iter_mut()` output
+        #[quickcheck]
+        fn items_mut((nrows, ncols): (uint, uint), col: uint, skip: uint) -> TestResult {
+            enforce!{
+                col < ncols,
+            }
+
+            test!({
+                let mut m = setup::mat((ncols, nrows)).t();
+                let n = m.nrows();
+                let mut c = try!(m.col_mut(col));
+
+                c.iter_mut().skip(skip).size_hint() == if skip > n {
+                    (0, Some(0))
+                } else {
+                    let left = n - skip;
+
+                    (left, Some(left))
+                }
+            })
+        }
+    }
+}
+
+mod diag {
+    use linalg::prelude::*;
+    use quickcheck::TestResult;
+
+    use setup;
+
+    // Test that `size_hint()` is correct for `Diag<strided::Slice>::iter()` output
+    #[quickcheck]
+    fn items(size: (uint, uint), diag: int, skip: uint) -> TestResult {
+        validate_diag!(diag, size)
+
+        test!({
+            let m = setup::mat(size);
+            let d = try!(m.diag(diag));
+            let n = d.len();
+
+            d.iter().skip(skip).size_hint() == if skip > n {
+                (0, Some(0))
+            } else {
+                let left = n - skip;
+
+                (left, Some(left))
+            }
+        })
+    }
+
+    // Test that `size_hint()` is correct for `Diag<strided::MutSlice>::iter_mut()` output
+    #[quickcheck]
+    fn items_mut(size: (uint, uint), diag: int, skip: uint) -> TestResult {
+        validate_diag!(diag, size)
+
+        test!({
+            let mut m = setup::mat(size);
+            let mut d = try!(m.diag_mut(diag));
+            let n = d.len();
+
+            d.iter_mut().skip(skip).size_hint() == if skip > n {
+                (0, Some(0))
+            } else {
+                let left = n - skip;
+
+                (left, Some(left))
+            }
+        })
+    }
+}
+
+mod row {
+    mod slice {
+        use linalg::prelude::*;
+        use quickcheck::TestResult;
+
+        use setup;
+
+        // Test that `size_hint()` is correct for `Row<&[_]>::iter()` output
+        #[quickcheck]
+        fn items((nrows, ncols): (uint, uint), row: uint, skip: uint) -> TestResult {
+            enforce!{
+                row < nrows,
+            }
+
+            test!({
+                let m = setup::mat((ncols, nrows)).t();
+                let r = try!(m.row(row));
+                let n = m.ncols();
+
+                r.iter().skip(skip).size_hint() == if skip > n {
+                    (0, Some(0))
+                } else {
+                    let left = n - skip;
+
+                    (left, Some(left))
+                }
+            })
+        }
+
+        // Test that `size_hint()` is correct for `Row<&mut [_]>::iter_mut()` output
+        #[quickcheck]
+        fn items_mut((nrows, ncols): (uint, uint), row: uint, skip: uint) -> TestResult {
+            enforce!{
+                row < nrows,
+            }
+
+            test!({
+                let mut m = setup::mat((ncols, nrows)).t();
+                let n = m.ncols();
+                let mut r = try!(m.row_mut(row));
+
+                r.iter_mut().skip(skip).size_hint() == if skip > n {
+                    (0, Some(0))
+                } else {
+                    let left = n - skip;
+
+                    (left, Some(left))
+                }
+            })
+        }
+    }
+
+    mod strided {
+        use linalg::prelude::*;
+        use quickcheck::TestResult;
+
+        use setup;
+
+        // Test that `size_hint()` is correct for `Row<strided::Slice>::iter()` output
+        #[quickcheck]
+        fn items((nrows, ncols): (uint, uint), row: uint, skip: uint) -> TestResult {
+            enforce!{
+                row < nrows,
+            }
+
+            test!({
+                let m = setup::mat((nrows, ncols));
+                let r = try!(m.row(row));
+                let n = m.ncols();
+
+                r.iter().skip(skip).size_hint() == if skip > n {
+                    (0, Some(0))
+                } else {
+                    let left = n - skip;
+
+                    (left, Some(left))
+                }
+            })
+        }
+
+        // Test that `size_hint()` is correct for `Row<strided::MutSlice>::iter_mut()` output
+        #[quickcheck]
+        fn items_mut((nrows, ncols): (uint, uint), row: uint, skip: uint) -> TestResult {
+            enforce!{
+                row < nrows,
+            }
+
+            test!({
+                let mut m = setup::mat((nrows, ncols));
+                let n = m.ncols();
+                let mut r = try!(m.row_mut(row));
+
+                r.iter_mut().skip(skip).size_hint() == if skip > n {
+                    (0, Some(0))
+                } else {
+                    let left = n - skip;
+
+                    (left, Some(left))
+                }
+            })
+        }
+    }
+}
+
+mod mat {
+    use linalg::prelude::*;
+
+    use setup;
+
+    // Test that `size_hint()` is correct for `Mat::iter()` output
+    #[quickcheck]
+    fn items((nrows, ncols): (uint, uint), skip: uint) -> bool {
+        let m = setup::mat((nrows, ncols));
+        let n = nrows * ncols;
+
+        m.iter().skip(skip).size_hint() == if skip > n {
+            (0, Some(0))
+        } else {
+            let left = n - skip;
+
+            (left, Some(left))
+        }
+    }
+
+    // Test that `size_hint()` is correct for `Mat::iter_mut()` output
+    #[quickcheck]
+    fn items_mut((nrows, ncols): (uint, uint), skip: uint) -> bool {
+        let mut m = setup::mat((nrows, ncols));
+        let n = nrows * ncols;
+
+        m.iter_mut().skip(skip).size_hint() == if skip > n {
+            (0, Some(0))
+        } else {
+            let left = n - skip;
+
+            (left, Some(left))
+        }
+    }
+}
+
+mod view {
+    use linalg::prelude::*;
+    use quickcheck::TestResult;
+
+    use setup;
+
+    // Test that `size_hint()` is correct for `view::Items`
+    #[quickcheck]
+    fn items(
+        start: (uint, uint),
+        (nrows, ncols): (uint, uint),
+        skip: uint,
+    ) -> TestResult {
+        let size = (start.0 + nrows, start.1 + ncols);
+        test!({
+            let m = setup::mat(size);
+            let v = try!(m.slice_from(start));
+            let n = nrows * ncols;
+
+            v.iter().skip(skip).size_hint() == if skip > n {
+                (0, Some(0))
+            } else {
+                let left = n - skip;
+
+                (left, Some(left))
+            }
+        })
+    }
+
+    // Test that `size_hint()` is correct for `view::Items`
+    #[quickcheck]
+    fn items_mut(
+        start: (uint, uint),
+        (nrows, ncols): (uint, uint),
+        skip: uint,
+    ) -> TestResult {
+        let size = (start.0 + nrows, start.1 + ncols);
+        test!({
+            let mut m = setup::mat(size);
+            let mut v = try!(m.slice_from_mut(start));
+            let n = nrows * ncols;
+
+            v.iter_mut().skip(skip).size_hint() == if skip > n {
+                (0, Some(0))
+            } else {
+                let left = n - skip;
+
+                (left, Some(left))
+            }
+        })
+    }
+}
+
+// Test that `size_hint()` is correct for `Cols`
+#[quickcheck]
+fn cols(size: (uint, uint), skip: uint) -> bool {
+    let m = setup::mat(size);
+    let n = m.ncols();
+
+    m.cols().skip(skip).size_hint() == if skip > n {
+        (0, Some(0))
+    } else {
+        let left = n - skip;
+
+        (left, Some(left))
+    }
+}
+
+// Test that `size_hint()` is correct for `MutCols`
+#[quickcheck]
+fn mut_cols(size: (uint, uint), skip: uint) -> bool {
+    let mut m = setup::mat(size);
+    let n = m.ncols();
+
+    m.mut_cols().skip(skip).size_hint() == if skip > n {
+        (0, Some(0))
+    } else {
+        let left = n - skip;
+
+        (left, Some(left))
+    }
+}
+
+// Test that `size_hint()` is correct for `MutRows`
+#[quickcheck]
+fn mut_rows((nrows, ncols): (uint, uint), skip: uint) -> bool {
+    let mut m = setup::mat((nrows, ncols));
+    let n = m.nrows();
+
+    m.mut_rows().skip(skip).size_hint() == if skip > n {
+        (0, Some(0))
+    } else {
+        let left = n - skip;
+
+        (left, Some(left))
+    }
+}
+
+// Test that `size_hint()` is correct for `Rows`
+#[quickcheck]
+fn rows((nrows, ncols): (uint, uint), skip: uint) -> bool {
+    let m = setup::mat((nrows, ncols));
+    let n = m.nrows();
+    let left = n - skip;
+
+    m.rows().skip(skip).size_hint() == if skip > n {
+        (0, Some(0))
+    } else {
+        (left, Some(left))
+    }
+}
