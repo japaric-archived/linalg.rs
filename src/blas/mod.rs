@@ -24,16 +24,18 @@ pub mod gemv;
 /// Transpose matrix before operation?
 pub enum Transpose {
     /// Don't transpose
-    NoTrans = 110, // 'n'
+    No = 110, // 'n'
     /// Transpose
-    Trans = 116,  // 't'
+    Yes = 116,  // 't'
 }
 
 impl Not<Transpose> for Transpose {
     fn not(&self) -> Transpose {
+        use blas::Transpose::{No, Yes};
+
         match *self {
-            NoTrans => Trans,
-            Trans => NoTrans,
+            No => Yes,
+            Yes => No,
         }
     }
 }
@@ -119,7 +121,7 @@ pub trait Matrix<T>: ::traits::Matrix {
     /// Returns stride
     fn stride(&self) -> Option<blasint> { None }
     /// Returns whether `Self` is a transpose view
-    fn trans(&self) -> Transpose { NoTrans }
+    fn trans(&self) -> Transpose { Transpose::No }
 }
 
 impl<T> Matrix<T> for Mat<T> {
@@ -138,7 +140,7 @@ impl<T, M> Matrix<T> for ::Trans<M> where M: Matrix<T> {
     }
 
     fn trans(&self) -> Transpose {
-        Trans
+        Transpose::Yes
     }
 }
 

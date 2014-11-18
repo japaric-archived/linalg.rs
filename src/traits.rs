@@ -1,6 +1,6 @@
 //! Traits
 
-use {Col, Cols, Diag, MutCols, MutRows, Row, Rows, strided};
+use {Col, Cols, Diag, Error, MutCols, MutRows, Row, Rows, strided};
 
 /// The `+=` operator
 // FIXME (rust-lang/rfcs#393) Use trait provided by the standard library
@@ -85,7 +85,7 @@ pub trait MatrixCol<'a, V>: Matrix {
         if col < self.ncols() {
             Ok(unsafe { self.unsafe_col(col) })
         } else {
-            Err(::NoSuchColumn)
+            Err(Error::NoSuchColumn)
         }
     }
 
@@ -105,7 +105,7 @@ pub trait MatrixColMut<'a, V>: Matrix {
         if col < self.ncols() {
             Ok(unsafe { self.unsafe_col_mut(col) })
         } else {
-            Err(::NoSuchColumn)
+            Err(Error::NoSuchColumn)
         }
     }
 
@@ -185,7 +185,7 @@ pub trait MatrixRow<'a, V>: Matrix {
         if row < self.nrows() {
             Ok(unsafe { self.unsafe_row(row) })
         } else {
-            Err(::NoSuchRow)
+            Err(Error::NoSuchRow)
         }
     }
 
@@ -206,7 +206,7 @@ pub trait MatrixRowMut<'a, V>: Matrix {
         if row < self.nrows() {
             Ok(unsafe { self.unsafe_row_mut(row) })
         } else {
-            Err(::NoSuchRow)
+            Err(Error::NoSuchRow)
         }
     }
 

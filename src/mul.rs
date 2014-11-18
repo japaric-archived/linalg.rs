@@ -2,7 +2,7 @@ use onezero::{One, Zero};
 use std::num::Int;
 
 use {Col, Mat, MutView, Row, Trans, View};
-use blas::{Dot, Gemm, Gemv, ToBlasInt, Vector, mod};
+use blas::{Dot, Gemm, Gemv, ToBlasInt, Transpose, Vector, mod};
 use traits::{Collection, Matrix};
 
 impl<T, L, R> Mul<Col<R>, T> for Row<L> where T: Dot + Zero, L: Vector<T>, R: Vector<T> {
@@ -112,8 +112,8 @@ fn mc<T, M, V>(lhs: &M, rhs: &Col<V>) -> Col<Box<[T]>> where
     let gemv = Gemv::gemv(None::<T>);
     let trans = lhs.trans();
     let (m, n) = match trans {
-        blas::NoTrans => (lhs.nrows().to_blasint(), lhs.ncols().to_blasint()),
-        blas::Trans => (lhs.ncols().to_blasint(), lhs.nrows().to_blasint()),
+        Transpose::No => (lhs.nrows().to_blasint(), lhs.ncols().to_blasint()),
+        Transpose::Yes => (lhs.ncols().to_blasint(), lhs.nrows().to_blasint()),
     };
     let alpha = One::one();
     let a = lhs.as_ptr();
@@ -156,13 +156,13 @@ fn mm<T, L, R>(lhs: &L, rhs: &R) -> Mat<T> where
     let alpha = One::one();
     let a = lhs.as_ptr();
     let lda = lhs.stride().unwrap_or_else(|| match transa {
-        blas::NoTrans => m,
-        blas::Trans => k,
+        Transpose::No => m,
+        Transpose::Yes => k,
     });
     let b = rhs.as_ptr();
     let ldb = rhs.stride().unwrap_or_else(|| match transb {
-        blas::NoTrans => k,
-        blas::Trans => n,
+        Transpose::No => k,
+        Transpose::Yes => n,
     });
     let beta = Zero::zero();
     let mut data = Vec::with_capacity(length);
@@ -189,8 +189,8 @@ fn rm<T, M, V>(lhs: &Row<V>, rhs: &M) -> Row<Box<[T]>> where
     let gemv = Gemv::gemv(None::<T>);
     let trans = !rhs.trans();
     let (m, n) = match trans {
-        blas::NoTrans => (rhs.ncols().to_blasint(), rhs.nrows().to_blasint()),
-        blas::Trans => (rhs.nrows().to_blasint(), rhs.ncols().to_blasint()),
+        Transpose::No => (rhs.ncols().to_blasint(), rhs.nrows().to_blasint()),
+        Transpose::Yes => (rhs.nrows().to_blasint(), rhs.ncols().to_blasint()),
     };
     let alpha = One::one();
     let a = rhs.as_ptr();

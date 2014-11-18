@@ -1,7 +1,7 @@
 use std::mem;
 
 use traits::{At, AtMut, Matrix};
-use {Col, Diag, Mat, MutView, Row, View};
+use {Col, Diag, Error, Mat, MutView, Row, View};
 
 // FIXME (DRY) Merge these two impls via a macro
 impl<T> At<uint, T> for [T] {
@@ -9,7 +9,7 @@ impl<T> At<uint, T> for [T] {
         if index < self.len() {
             Ok(unsafe { mem::transmute(self.as_ptr().offset(index as int)) })
         } else {
-            Err(::OutOfBounds)
+            Err(Error::OutOfBounds)
         }
     }
 }
@@ -19,7 +19,7 @@ impl<T> AtMut<uint, T> for [T] {
         if index < self.len() {
             Ok(unsafe { mem::transmute(self.as_ptr().offset(index as int)) })
         } else {
-            Err(::OutOfBounds)
+            Err(Error::OutOfBounds)
         }
     }
 }
@@ -78,7 +78,7 @@ impl<T> At<(uint, uint), T> for Mat<T> {
                 mem::transmute(self.data.as_ptr().offset((col * nrows + row) as int))
             })
         } else {
-            Err(::OutOfBounds)
+            Err(Error::OutOfBounds)
         }
     }
 }
@@ -92,7 +92,7 @@ impl<T> AtMut<(uint, uint), T> for Mat<T> {
                 mem::transmute(self.data.as_ptr().offset((col * nrows + row) as int))
             })
         } else {
-            Err(::OutOfBounds)
+            Err(Error::OutOfBounds)
         }
     }
 }
@@ -104,7 +104,7 @@ impl<'a, T> AtMut<(uint, uint), T> for MutView<'a, T> {
         if row < nrows && col < ncols {
             Ok(unsafe { mem::transmute(self.ptr.offset((col * self.stride + row) as int)) })
         } else {
-            Err(::OutOfBounds)
+            Err(Error::OutOfBounds)
         }
     }
 }
@@ -120,7 +120,7 @@ macro_rules! view {
                         mem::transmute(self.ptr.offset((col * self.stride + row) as int))
                     })
                 } else {
-                    Err(::OutOfBounds)
+                    Err(Error::OutOfBounds)
                 }
             }
         })+

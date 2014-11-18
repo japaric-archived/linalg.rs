@@ -215,7 +215,7 @@ impl<T> Mat<T> {
     pub fn from_fn((nrows, ncols): (uint, uint), f: |(uint, uint)| -> T) -> Result<Mat<T>> {
         let length = match nrows.checked_mul(ncols) {
             Some(length) => length,
-            None => return Err(LengthOverflow),
+            None => return Err(Error::LengthOverflow),
         };
 
         let mut data = Vec::with_capacity(length);
@@ -249,7 +249,7 @@ impl<T> Mat<T> {
     {
         let length = match nrows.checked_mul(ncols) {
             Some(length) => length,
-            None => return Err(LengthOverflow),
+            None => return Err(Error::LengthOverflow),
         };
 
         Ok(Mat {
@@ -283,7 +283,7 @@ impl<T> Mat<T> where T: Clone {
     pub fn from_elem((nrows, ncols): (uint, uint), value: T) -> Result<Mat<T>> {
         let length = match nrows.checked_mul(ncols) {
             Some(length) => length,
-            None => return Err(LengthOverflow),
+            None => return Err(Error::LengthOverflow),
         };
 
         Ok(Mat {
@@ -305,7 +305,7 @@ impl<T> Mat<T> where T: Rand {
     pub fn rand<R>((nrows, ncols): (uint, uint), rng: &mut R) -> Result<Mat<T>> where R: Rng {
         let length = match nrows.checked_mul(ncols) {
             Some(length) => length,
-            None => return Err(LengthOverflow),
+            None => return Err(Error::LengthOverflow),
         };
 
         Ok(Mat {

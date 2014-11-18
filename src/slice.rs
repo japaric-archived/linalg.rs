@@ -2,7 +2,7 @@ use std::kinds::marker;
 use std::mem;
 use std::raw::{Repr, mod};
 
-use {Col, Diag, Mat, MutView, Row, View};
+use {Col, Diag, Error, Mat, MutView, Row, View};
 use traits::{Slice, SliceMut};
 
 macro_rules! impl_slices {
@@ -80,9 +80,9 @@ impl<'a, T> Slice<'a, uint, &'a [T]> for [T] {
         let raw::Slice { data, len } = self.repr();
 
         if start > end {
-            Err(::InvalidSlice)
+            Err(Error::InvalidSlice)
         } else if end > len {
-            Err(::OutOfBounds)
+            Err(Error::OutOfBounds)
         } else {
             Ok(unsafe { mem::transmute(raw::Slice {
                 data: data.offset(start as int),
@@ -99,9 +99,9 @@ impl<'a, T> SliceMut<'a, uint, &'a mut [T]> for [T] {
         let raw::Slice { data, len } = self.repr();
 
         if start > end {
-            Err(::InvalidSlice)
+            Err(Error::InvalidSlice)
         } else if end > len {
-            Err(::OutOfBounds)
+            Err(Error::OutOfBounds)
         } else {
             Ok(unsafe { mem::transmute(raw::Slice {
                 data: data.offset(start as int),
@@ -164,9 +164,9 @@ impl<'a, T> Slice<'a, (uint, uint), View<'a, T>> for Mat<T> {
         let (nrows, ncols) = self.size;
 
         if end_col > ncols || end_row > nrows {
-            Err(::OutOfBounds)
+            Err(Error::OutOfBounds)
         } else if start_col > end_col || start_row > end_row {
-            Err(::InvalidSlice)
+            Err(Error::InvalidSlice)
         } else {
             let stride = nrows;
             let ptr = unsafe {
@@ -201,9 +201,9 @@ impl<'a, T> SliceMut<'a, (uint, uint), MutView<'a, T>> for Mat<T> {
         let (nrows, ncols) = self.size;
 
         if end_col > ncols || end_row > nrows {
-            Err(::OutOfBounds)
+            Err(Error::OutOfBounds)
         } else if start_col > end_col || start_row > end_row {
-            Err(::InvalidSlice)
+            Err(Error::InvalidSlice)
         } else {
             let stride = nrows;
             let ptr = unsafe {
@@ -241,9 +241,9 @@ impl<'a, 'b, T> SliceMut<'b, (uint, uint), MutView<'b, T>> for MutView<'a, T> {
         let (nrows, ncols) = self.size;
 
         if end_col > ncols || end_row > nrows {
-            Err(::OutOfBounds)
+            Err(Error::OutOfBounds)
         } else if start_col > end_col || start_row > end_row {
-            Err(::InvalidSlice)
+            Err(Error::InvalidSlice)
         } else {
             let stride = self.stride;
             let ptr = unsafe {
@@ -283,9 +283,9 @@ macro_rules! view {
                 let (nrows, ncols) = self.size;
 
                 if end_col > ncols || end_row > nrows {
-                    Err(::OutOfBounds)
+                    Err(Error::OutOfBounds)
                 } else if start_col > end_col || start_row > end_row {
-                    Err(::InvalidSlice)
+                    Err(Error::InvalidSlice)
                 } else {
                     let stride = self.stride;
                     let ptr = unsafe {
