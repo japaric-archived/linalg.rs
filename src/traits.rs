@@ -1,5 +1,6 @@
 //! Traits
 
+use error::OutOfBounds;
 use {Col, Cols, Diag, Error, MutCols, MutRows, Row, Rows, strided};
 
 /// The `+=` operator
@@ -19,7 +20,7 @@ pub trait At<I, T> for Sized? {
     /// # Errors
     ///
     /// - `OutOfBounds` if the index is out of bounds
-    fn at(&self, index: I) -> ::Result<&T>;
+    fn at(&self, index: I) -> Result<&T, OutOfBounds>;
 }
 
 /// Bounds-checked mutable indexing
@@ -30,7 +31,7 @@ pub trait AtMut<I, T> for Sized? {
     /// # Errors
     ///
     /// - `OutOfBounds` if the index is out of bounds
-    fn at_mut(&mut self, index: I) -> ::Result<&mut T>;
+    fn at_mut(&mut self, index: I) -> Result<&mut T, OutOfBounds>;
 }
 
 /// Immutable iteration over a collection

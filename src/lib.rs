@@ -55,6 +55,7 @@ mod add_assign;
 mod at;
 mod col;
 mod cols;
+mod error;
 mod iter;
 mod len;
 mod mat;

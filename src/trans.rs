@@ -1,21 +1,8 @@
 use {Col, Diag, Row, Trans, strided};
 use traits::{
-    At, AtMut, Iter, IterMut, Matrix, MatrixCol, MatrixColMut, MatrixCols, MatrixDiag,
-    MatrixDiagMut, MatrixMutCols, MatrixMutRows, MatrixRow, MatrixRowMut, MatrixRows, Slice,
-    SliceMut, Transpose,
+    Iter, IterMut, Matrix, MatrixCol, MatrixColMut, MatrixCols, MatrixDiag, MatrixDiagMut,
+    MatrixMutCols, MatrixMutRows, MatrixRow, MatrixRowMut, MatrixRows, Slice, SliceMut, Transpose,
 };
-
-impl<T, M> At<(uint, uint), T> for Trans<M> where M: At<(uint, uint), T> {
-    fn at(&self, (row, col): (uint, uint)) -> ::Result<&T> {
-        self.0.at((col, row))
-    }
-}
-
-impl<T, M> AtMut<(uint, uint), T> for Trans<M> where M: AtMut<(uint, uint), T> {
-    fn at_mut(&mut self, (row, col): (uint, uint)) -> ::Result<&mut T> {
-        self.0.at_mut((col, row))
-    }
-}
 
 impl<'a, T, I, M> Iter<'a, T, I> for Trans<M> where
     I: Iterator<T>,

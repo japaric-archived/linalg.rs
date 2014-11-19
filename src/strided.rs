@@ -5,6 +5,7 @@ use std::{fmt, mem};
 
 use Error;
 use blas::{MutVector, ToBlasInt, Vector, blasint};
+use error::OutOfBounds;
 use traits::{At, AtMut, Collection, Iter, IterMut, SliceMut};
 
 /// Iterator over an immutable strided slice
@@ -99,11 +100,11 @@ impl<'a, T> ::Strided<T> for MutSlice<'a, T> {
 }
 
 impl<'a, T> AtMut<uint, T> for MutSlice<'a, T> {
-    fn at_mut(&mut self, index: uint) -> ::Result<&mut T> {
+    fn at_mut(&mut self, index: uint) -> Result<&mut T, OutOfBounds> {
         if index < self.length {
             Ok(unsafe { mem::transmute(self.ptr.offset((index * self.stride) as int)) })
         } else {
-            Err(Error::OutOfBounds)
+            Err(OutOfBounds)
         }
     }
 }
@@ -182,11 +183,11 @@ impl<'a, T> ::Strided<T> for Slice<'a, T> {
 macro_rules! impls {
     ($($ty:ty),+) => {$(
         impl<'a, T> At<uint, T> for $ty {
-            fn at(&self, index: uint) -> ::Result<&T> {
+            fn at(&self, index: uint) -> Result<&T, OutOfBounds> {
                 if index < self.length {
                     Ok(unsafe { mem::transmute(self.ptr.offset((index * self.stride) as int)) })
                 } else {
-                    Err(Error::OutOfBounds)
+                    Err(OutOfBounds)
                 }
             }
         }
