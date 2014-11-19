@@ -4,7 +4,7 @@ use traits::{
     Matrix, MatrixCol, MatrixColMut, MatrixCols, MatrixDiag, MatrixDiagMut, MatrixMutCols,
     MatrixMutRows, MatrixRow, MatrixRowMut, MatrixRows, Transpose,
 };
-use {Col, Diag, Mat, Row, Trans, strided};
+use {Col, Diag, Error, Mat, Row, Trans, strided};
 
 impl<T> Matrix for Mat<T> {
     fn size(&self) -> (uint, uint) {
@@ -48,7 +48,7 @@ impl<T> MatrixDiag<T> for Mat<T> {
 
                 Ok(Diag(unsafe { ::Strided::from_parts(ptr, len, stride + 1) }))
             } else {
-                Err(::NoSuchDiagonal)
+                Err(Error::NoSuchDiagonal)
             }
         } else {
             let diag = -diag as uint;
@@ -59,7 +59,7 @@ impl<T> MatrixDiag<T> for Mat<T> {
 
                 Ok(Diag(unsafe { ::Strided::from_parts(ptr, len, stride + 1) }))
             } else {
-                Err(::NoSuchDiagonal)
+                Err(Error::NoSuchDiagonal)
             }
         }
     }
@@ -79,7 +79,7 @@ impl<T> MatrixDiagMut<T> for Mat<T> {
 
                 Ok(Diag(unsafe { ::Strided::from_parts(ptr, len, stride + 1) }))
             } else {
-                Err(::NoSuchDiagonal)
+                Err(Error::NoSuchDiagonal)
             }
         } else {
             let diag = -diag as uint;
@@ -90,7 +90,7 @@ impl<T> MatrixDiagMut<T> for Mat<T> {
 
                 Ok(Diag(unsafe { ::Strided::from_parts(ptr, len, stride + 1) }))
             } else {
-                Err(::NoSuchDiagonal)
+                Err(Error::NoSuchDiagonal)
             }
         }
     }

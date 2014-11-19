@@ -3,6 +3,7 @@
 use std::kinds::marker;
 use std::{fmt, mem};
 
+use Error;
 use blas::{MutVector, ToBlasInt, Vector, blasint};
 use traits::{At, AtMut, Collection, Iter, IterMut, SliceMut};
 
@@ -102,7 +103,7 @@ impl<'a, T> AtMut<uint, T> for MutSlice<'a, T> {
         if index < self.length {
             Ok(unsafe { mem::transmute(self.ptr.offset((index * self.stride) as int)) })
         } else {
-            Err(::OutOfBounds)
+            Err(Error::OutOfBounds)
         }
     }
 }
@@ -128,9 +129,9 @@ impl<'a, T> MutVector<T> for MutSlice<'a, T> {
 impl<'a, 'b, T> SliceMut<'b, uint, MutSlice<'b, T>> for MutSlice<'a, T> {
     fn slice_mut(&mut self, start: uint, end: uint) -> ::Result<MutSlice<'b, T>> {
         if start > end {
-            Err(::InvalidSlice)
+            Err(Error::InvalidSlice)
         } else if end > self.length {
-            Err(::OutOfBounds)
+            Err(Error::OutOfBounds)
         } else {
             let stride = self.stride;
 
@@ -185,7 +186,7 @@ macro_rules! impls {
                 if index < self.length {
                     Ok(unsafe { mem::transmute(self.ptr.offset((index * self.stride) as int)) })
                 } else {
-                    Err(::OutOfBounds)
+                    Err(Error::OutOfBounds)
                 }
             }
         }
@@ -233,9 +234,9 @@ macro_rules! impls {
         impl<'a, 'b, T> ::traits::Slice<'b, uint, Slice<'b, T>> for $ty {
             fn slice(&self, start: uint, end: uint) -> ::Result<Slice<'b, T>> {
                 if start > end {
-                    Err(::InvalidSlice)
+                    Err(Error::InvalidSlice)
                 } else if end > self.length {
-                    Err(::OutOfBounds)
+                    Err(Error::OutOfBounds)
                 } else {
                     let stride = self.stride;
 

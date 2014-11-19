@@ -3,7 +3,7 @@
 use std::kinds::marker;
 use std::{cmp, mem, raw};
 
-use {Col, Diag, MutView, Row, Trans, View, strided};
+use {Col, Diag, Error, MutView, Row, Trans, View, strided};
 use traits::{
     Iter, IterMut, Matrix, MatrixCol, MatrixColMut, MatrixCols, MatrixDiag, MatrixDiagMut,
     MatrixMutCols, MatrixMutRows, MatrixRow, MatrixRowMut, MatrixRows, Transpose,
@@ -109,7 +109,7 @@ impl<'a, T> MatrixDiagMut<T> for MutView<'a, T> {
 
                 Ok(Diag(unsafe { ::Strided::from_parts(ptr, len, stride + 1) }))
             } else {
-                Err(::NoSuchDiagonal)
+                Err(Error::NoSuchDiagonal)
             }
         } else {
             let diag = -diag as uint;
@@ -120,7 +120,7 @@ impl<'a, T> MatrixDiagMut<T> for MutView<'a, T> {
 
                 Ok(Diag(unsafe { ::Strided::from_parts(ptr, len, stride + 1) }))
             } else {
-                Err(::NoSuchDiagonal)
+                Err(Error::NoSuchDiagonal)
             }
         }
     }
@@ -184,7 +184,7 @@ macro_rules! impls {
 
                         Ok(Diag(unsafe { ::Strided::from_parts(ptr, len, stride + 1) }))
                     } else {
-                        Err(::NoSuchDiagonal)
+                        Err(Error::NoSuchDiagonal)
                     }
                 } else {
                     let diag = -diag as uint;
@@ -195,7 +195,7 @@ macro_rules! impls {
 
                         Ok(Diag(unsafe { ::Strided::from_parts(ptr, len, stride + 1) }))
                     } else {
-                        Err(::NoSuchDiagonal)
+                        Err(Error::NoSuchDiagonal)
                     }
                 }
             }
