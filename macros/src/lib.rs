@@ -1,5 +1,5 @@
 #![deny(warnings)]
-#![feature(if_let, macro_rules, plugin_registrar, slicing_syntax)]
+#![feature(macro_rules, plugin_registrar, slicing_syntax)]
 
 extern crate rustc;
 extern crate syntax;

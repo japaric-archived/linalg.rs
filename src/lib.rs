@@ -40,7 +40,7 @@
 //!   guarantee of the iteration order
 
 #![deny(warnings, missing_docs)]
-#![feature(macro_rules, slicing_syntax, tuple_indexing)]
+#![feature(macro_rules, slicing_syntax)]
 
 extern crate complex;
 extern crate libc;

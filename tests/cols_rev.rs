@@ -1,4 +1,4 @@
-#![feature(globs, macro_rules, phase, tuple_indexing)]
+#![feature(globs, macro_rules, phase)]
 
 extern crate linalg;
 extern crate quickcheck;
