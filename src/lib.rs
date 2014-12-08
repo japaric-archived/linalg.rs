@@ -462,6 +462,7 @@ pub enum Error {
     OutOfBounds,
 }
 
+/// The result of a matrix operation
 pub type Result<T> = ::std::result::Result<T, Error>;
 
 /// Constructor trait used to not expose this unsafe constructor in the API
