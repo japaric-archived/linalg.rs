@@ -2,7 +2,7 @@ language: rust
 
 env:
   global:
-    - secure: D/SGyr/TJwlfNpPgKp6oOWcy2ED9ylt+rznLJF24Sb7YqJ5V0xjYTGbvOcvzqntKzU971v8IUS+fT8E1u1eDQHzmY1GxjnPsKklhW+RxujbKqy1FALM3mdd9sf1qtHXk/55irlPumYuO9C7wgSqinm1f3yF00J2EDbkNLVUPlBY=
+    - secure: Z5RWhf46arYopatBUgJRN4f7eSPfKe6glRTa8w6f0J4zfATDiUF/Bj9S6iFff310E/jt/gIO0y4zQp7N3DoB/d+GAB33QjKuQd0s8Qp0WeJx+afHv/7M7b0lV8v7MieNNAjxbP8Z4QMnlelPwvSGG39LUvGJTPBJT0SkTSnAHDw=
   matrix:
     # FIXME (#12) Reenable OpenBLAS testing
     #- BLAS=OpenBLAS
@@ -29,11 +29,11 @@ script:
     fi
   - cargo build --verbose
   - cargo test --verbose
-  - cargo doc --verbose && mv target/doc doc
+  - cargo doc --verbose
   - ./check-line-length.sh
 
 after_success:
-  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh'
+  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && bash upload-docs.sh'
 
 branches:
   only: master
