@@ -10,6 +10,7 @@ use traits::{
 };
 
 /// Immutable sub-matrix iterator
+// FIXME This should be `Copy`
 pub struct Items<'a, T> {
     _contravariant: marker::ContravariantLifetime<'a>,
     _nosend: marker::NoSend,
@@ -22,7 +23,6 @@ pub struct Items<'a, T> {
 /// Mutable sub-matrix iterator
 pub struct MutItems<'a, T> where T: 'a {
     _contravariant: marker::ContravariantLifetime<'a>,
-    _nocopy: marker::NoCopy,
     _nosend: marker::NoSend,
     ptr: *mut T,
     state: (uint, uint),
@@ -76,7 +76,6 @@ impl<'a, 'b, T> IterMut<'b, &'b mut T, MutItems<'b, T>> for MutView<'a, T> {
     fn iter_mut(&'b mut self) -> MutItems<'b, T> {
         MutItems {
             _contravariant: marker::ContravariantLifetime::<'b>,
-            _nocopy: marker::NoCopy,
             _nosend: marker::NoSend,
             ptr: self.ptr,
             state: (0, 0),

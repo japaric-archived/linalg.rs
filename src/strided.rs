@@ -9,6 +9,7 @@ use error::OutOfBounds;
 use traits::{At, AtMut, Collection, Iter, IterMut, SliceMut};
 
 /// Iterator over an immutable strided slice
+// FIXME This should be `Copy`
 pub struct Items<'a, T> where T: 'a {
     _contravariant: marker::ContravariantLifetime<'a>,
     _nosend: marker::NoSend,
@@ -79,7 +80,6 @@ impl_items!{
 /// A mutable strided slice
 pub struct MutSlice<'a, T> where T: 'a {
     _contravariant: marker::ContravariantLifetime<'a>,
-    _nocopy: marker::NoCopy,
     _nosend: marker::NoSend,
     ptr: *mut T,
     length: uint,
@@ -90,7 +90,6 @@ impl<'a, T> ::Strided<T> for MutSlice<'a, T> {
     unsafe fn from_parts(ptr: *const T, length: uint, stride: uint) -> MutSlice<'a, T> {
         MutSlice {
             _contravariant: marker::ContravariantLifetime,
-            _nocopy: marker::NoCopy,
             _nosend: marker::NoSend,
             length: length,
             ptr: ptr as *mut T,
@@ -138,7 +137,6 @@ impl<'a, 'b, T> SliceMut<'b, uint, MutSlice<'b, T>> for MutSlice<'a, T> {
 
             Ok(MutSlice {
                 _contravariant: marker::ContravariantLifetime,
-                _nocopy: marker::NoCopy,
                 _nosend: marker::NoSend,
                 length: end - start,
                 ptr: unsafe { self.ptr.offset((start * stride) as int) },
@@ -160,6 +158,7 @@ impl<'a, 'b, T> SliceMut<'b, uint, MutSlice<'b, T>> for MutSlice<'a, T> {
 
 /// An immutable strided slice
 // XXX I really really wish I could write this as a DST: &Slice<T>, &mut Slice<T>
+// FIXME This should be `Copy`
 pub struct Slice<'a, T> where T: 'a {
     _contravariant: marker::ContravariantLifetime<'a>,
     _nosend: marker::NoSend,

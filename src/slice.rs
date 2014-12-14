@@ -212,7 +212,6 @@ impl<'a, T> SliceMut<'a, (uint, uint), MutView<'a, T>> for Mat<T> {
 
             Ok(MutView {
                 _contravariant: marker::ContravariantLifetime::<'a>,
-                _nocopy: marker::NoCopy,
                 _nosend: marker::NoSend,
                 ptr: ptr,
                 size: (end_row - start_row, end_col - start_col),
@@ -252,7 +251,6 @@ impl<'a, 'b, T> SliceMut<'b, (uint, uint), MutView<'b, T>> for MutView<'a, T> {
 
             Ok(MutView {
                 _contravariant: marker::ContravariantLifetime::<'a>,
-                _nocopy: marker::NoCopy,
                 _nosend: marker::NoSend,
                 ptr: ptr,
                 size: (end_row - start_row, end_col - start_col),

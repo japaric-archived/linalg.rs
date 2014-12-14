@@ -75,7 +75,7 @@ pub mod traits;
 pub mod view;
 
 /// Column vector
-#[deriving(PartialEq)]
+#[deriving(Copy, PartialEq)]
 pub struct Col<V>(V);
 
 impl<T> Col<Box<[T]>> {
@@ -161,6 +161,7 @@ impl<T> Col<Box<[T]>> where T: Rand {
 }
 
 /// Iterator over the columns of an immutable matrix
+#[deriving(Copy)]
 pub struct Cols<'a, M> where M: 'a {
     mat: &'a M,
     state: uint,
@@ -168,6 +169,7 @@ pub struct Cols<'a, M> where M: 'a {
 }
 
 /// View into the diagonal of a matrix
+#[deriving(Copy)]
 pub struct Diag<V>(V);
 
 /// Owned matrix
@@ -333,7 +335,6 @@ pub struct MutRows<'a, M> where M: 'a {
 /// Mutable sub-matrix view
 pub struct MutView<'a, T> where T: 'a {
     _contravariant: marker::ContravariantLifetime<'a>,
-    _nocopy: marker::NoCopy,
     _nosend: marker::NoSend,
     ptr: *mut T,
     size: (uint, uint),
@@ -341,7 +342,7 @@ pub struct MutView<'a, T> where T: 'a {
 }
 
 /// Row vector
-#[deriving(PartialEq)]
+#[deriving(Copy, PartialEq)]
 pub struct Row<V>(V);
 
 impl<T> Row<Box<[T]>> {
@@ -427,6 +428,7 @@ impl<T> Row<Box<[T]>> where T: Rand {
 }
 
 /// Iterator over the rows of an immutable matrix
+#[deriving(Copy)]
 pub struct Rows<'a, M> where M: 'a {
     mat: &'a M,
     state: uint,
@@ -434,9 +436,11 @@ pub struct Rows<'a, M> where M: 'a {
 }
 
 /// View into the transpose of a matrix
+#[deriving(Copy)]
 pub struct Trans<M>(M);
 
 /// Immutable sub-matrix view
+// FIXME This should be `Copy`
 pub struct View<'a, T> where T: 'a {
     _contravariant: marker::ContravariantLifetime<'a>,
     _nosend: marker::NoSend,
@@ -446,7 +450,7 @@ pub struct View<'a, T> where T: 'a {
 }
 
 /// Errors
-#[deriving(PartialEq, Show)]
+#[deriving(Copy, PartialEq, Show)]
 pub enum Error {
     /// Invalid slice range, usually: `start > end`
     InvalidSlice,

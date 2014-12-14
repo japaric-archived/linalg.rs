@@ -22,6 +22,7 @@ pub mod gemv;
 
 #[repr(i8)]
 /// Transpose matrix before operation?
+#[deriving(Copy)]
 pub enum Transpose {
     /// Don't transpose
     No = 110, // 'n'
