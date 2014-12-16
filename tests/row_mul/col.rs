@@ -13,7 +13,7 @@ macro_rules! blas {
 
                 let rhs = setup::rand::col::<$ty>(size);
 
-                let result = lhs * rhs;
+                let result = &lhs * &rhs;
 
                 test!(result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
             }
@@ -31,7 +31,7 @@ macro_rules! blas {
 
                     let rhs = try!(m.col(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -50,7 +50,7 @@ macro_rules! blas {
 
                     let rhs = try!(m.col_mut(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -69,7 +69,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((ncols, nrows)).t();
                     let rhs = try!(m.col(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -88,7 +88,7 @@ macro_rules! blas {
                     let mut m = setup::rand::mat::<$ty>((ncols, nrows)).t();
                     let rhs = try!(m.col_mut(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -114,7 +114,7 @@ macro_rules! blas {
 
                     let rhs = setup::rand::col::<$ty>(ncols);
 
-                    let result = lhs * rhs;
+                    let result = lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -156,7 +156,7 @@ macro_rules! blas {
                     let mut m = setup::rand::mat::<$ty>((k, n));
                     let rhs = try!(m.col_mut(col));
 
-                    let result = lhs * rhs;
+                    let result = lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -198,7 +198,7 @@ macro_rules! blas {
                     let mut m = setup::rand::mat::<$ty>((n, k)).t();
                     let rhs = try!(m.col_mut(col));
 
-                    let result = lhs * rhs;
+                    let result = lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -224,7 +224,7 @@ macro_rules! blas {
 
                     let rhs = setup::rand::col::<$ty>(ncols);
 
-                    let result = lhs * rhs;
+                    let result = &lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -245,7 +245,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((k, n));
                     let rhs = try!(m.col(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -266,7 +266,7 @@ macro_rules! blas {
                     let mut m = setup::rand::mat::<$ty>((k, n));
                     let rhs = try!(m.col_mut(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -287,7 +287,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((n, k)).t();
                     let rhs = try!(m.col(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -308,7 +308,7 @@ macro_rules! blas {
                     let mut m = setup::rand::mat::<$ty>((n, k)).t();
                     let rhs = try!(m.col_mut(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -334,7 +334,7 @@ macro_rules! blas {
 
                     let rhs = setup::rand::col::<$ty>(ncols);
 
-                    let result = lhs * rhs;
+                    let result = lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -376,7 +376,7 @@ macro_rules! blas {
                     let mut m = setup::rand::mat::<$ty>((k, n));
                     let rhs = try!(m.col_mut(col));
 
-                    let result = lhs * rhs;
+                    let result = lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -418,7 +418,7 @@ macro_rules! blas {
                     let mut m = setup::rand::mat::<$ty>((n, k)).t();
                     let rhs = try!(m.col_mut(col));
 
-                    let result = lhs * rhs;
+                    let result = lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -444,7 +444,7 @@ macro_rules! blas {
 
                     let rhs = setup::rand::col::<$ty>(ncols);
 
-                    let result = lhs * rhs;
+                    let result = &lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -465,7 +465,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((k, n));
                     let rhs = try!(m.col(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -486,7 +486,7 @@ macro_rules! blas {
                     let mut m = setup::rand::mat::<$ty>((k, n));
                     let rhs = try!(m.col_mut(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -507,7 +507,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((n, k)).t();
                     let rhs = try!(m.col(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -528,7 +528,7 @@ macro_rules! blas {
                     let mut m = setup::rand::mat::<$ty>((n, k)).t();
                     let rhs = try!(m.col_mut(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })

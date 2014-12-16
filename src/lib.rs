@@ -39,7 +39,7 @@
 //! - Element-wise iteration over [sub]matrices is done in the fastest way possible, there's no
 //!   guarantee of the iteration order
 
-#![deny(warnings, missing_docs)]
+//#![deny(warnings, missing_docs)]
 #![feature(macro_rules, slicing_syntax, unboxed_closures)]
 
 extern crate complex;

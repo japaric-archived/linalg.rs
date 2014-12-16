@@ -3,7 +3,7 @@
 use std::num;
 use std::raw::Repr;
 
-use {Mat, MutView, View};
+use {Col, Mat, MutView, Row, View};
 use traits::Collection;
 
 pub use self::axpy::Axpy;
@@ -71,6 +71,20 @@ pub trait Vector<T>: Collection {
     }
 }
 
+impl<'a, T, V> Vector<T> for &'a V where V: Vector<T> {
+    fn as_ptr(&self) -> *const T {
+        Vector::as_ptr(*self)
+    }
+
+    fn stride(&self) -> blasint {
+        Vector::stride(*self)
+    }
+
+    fn len(&self) -> blasint {
+        Vector::len(*self)
+    }
+}
+
 macro_rules! impl_vector {
     ($($ty:ty),+) => {$(
         impl<'a, T> Vector<T> for $ty {
@@ -94,6 +108,34 @@ impl<T> Vector<T> for Box<[T]> {
 
     fn stride(&self) -> blasint {
         1
+    }
+}
+
+impl<T, V> Vector<T> for Col<V> where V: Vector<T> {
+    fn as_ptr(&self) -> *const T {
+        Vector::as_ptr(&self.0)
+    }
+
+    fn stride(&self) -> blasint {
+        Vector::stride(&self.0)
+    }
+
+    fn len(&self) -> blasint {
+        Vector::len(&self.0)
+    }
+}
+
+impl<T, V> Vector<T> for Row<V> where V: Vector<T> {
+    fn as_ptr(&self) -> *const T {
+        Vector::as_ptr(&self.0)
+    }
+
+    fn stride(&self) -> blasint {
+        Vector::stride(&self.0)
+    }
+
+    fn len(&self) -> blasint {
+        Vector::len(&self.0)
     }
 }
 
@@ -123,6 +165,20 @@ pub trait Matrix<T>: ::traits::Matrix {
     fn stride(&self) -> Option<blasint> { None }
     /// Returns whether `Self` is a transpose view
     fn trans(&self) -> Transpose { Transpose::No }
+}
+
+impl<'a, T, M> Matrix<T> for &'a M where M: Matrix<T> {
+    fn as_ptr(&self) -> *const T {
+        Matrix::as_ptr(*self)
+    }
+
+    fn stride(&self) -> Option<blasint> {
+        Matrix::stride(*self)
+    }
+
+    fn trans(&self) -> Transpose {
+        Matrix::trans(*self)
+    }
 }
 
 impl<T> Matrix<T> for Mat<T> {

@@ -26,7 +26,7 @@ macro_rules! blas {
 
                 let rhs = setup::rand::col::<$ty>(ncols);
 
-                let result = lhs * rhs;
+                let result = lhs * &rhs;
                 let _0: $ty = Zero::zero();
                 let product = r.iter().zip(rhs.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
@@ -90,7 +90,7 @@ macro_rules! blas {
                 let mut m = setup::rand::mat::<$ty>((k, n));
                 let rhs = try!(m.col_mut(col));
 
-                let result = lhs * rhs;
+                let result = lhs * &rhs;
                 let _0: $ty = Zero::zero();
                 let product = r.iter().zip(rhs.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
@@ -154,7 +154,7 @@ macro_rules! blas {
                 let mut m = setup::rand::mat::<$ty>((n, k)).t();
                 let rhs = try!(m.col_mut(col));
 
-                let result = lhs * rhs;
+                let result = lhs * &rhs;
                 let _0: $ty = Zero::zero();
                 let product = r.iter().zip(rhs.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 

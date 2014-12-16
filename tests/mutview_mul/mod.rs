@@ -31,7 +31,7 @@ mod trans {
                     let rhs = setup::rand::mat::<$ty>((n, k)).t();
                     let c = try!(rhs.col(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * &rhs;
                     let _0: $ty = Zero::zero();
                     let product = r.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
@@ -63,7 +63,7 @@ mod trans {
                     let rhs = try!(m.slice_from(rhs_start)).t();
                     let c = try!(rhs.col(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * rhs;
                     let _0: $ty = Zero::zero();
                     let product = r.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
@@ -95,7 +95,7 @@ mod trans {
                     let rhs = try!(m.slice_from_mut(rhs_start)).t();
                     let c = try!(rhs.col(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * &rhs;
                     let _0: $ty = Zero::zero();
                     let product = r.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
@@ -138,7 +138,7 @@ macro_rules! blas {
                 let rhs = setup::rand::mat::<$ty>((k, n));
                 let c = try!(rhs.col(col));
 
-                let result = lhs * rhs;
+                let result = &lhs * &rhs;
                 let _0: $ty = Zero::zero();
                 let product = r.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
@@ -170,7 +170,7 @@ macro_rules! blas {
                 let rhs = try!(m.slice_from(rhs_start));
                 let c = try!(rhs.col(col));
 
-                let result = lhs * rhs;
+                let result = &lhs * rhs;
                 let _0: $ty = Zero::zero();
                 let product = r.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
@@ -202,7 +202,7 @@ macro_rules! blas {
                 let rhs = try!(m.slice_from_mut(rhs_start));
                 let c = try!(rhs.col(col));
 
-                let result = lhs * rhs;
+                let result = &lhs * &rhs;
                 let _0: $ty = Zero::zero();
                 let product = r.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
