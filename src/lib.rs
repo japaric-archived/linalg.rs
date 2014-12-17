@@ -442,7 +442,6 @@ pub struct Rows<'a, M> where M: 'a {
 pub struct Trans<M>(M);
 
 /// Immutable sub-matrix view
-// FIXME This should be `Copy`
 pub struct View<'a, T> where T: 'a {
     _contravariant: marker::ContravariantLifetime<'a>,
     _nosend: marker::NoSend,
@@ -450,6 +449,8 @@ pub struct View<'a, T> where T: 'a {
     size: (uint, uint),
     stride: uint,
 }
+
+impl<'a, T> Copy for View<'a, T> {}
 
 /// Errors
 #[deriving(Copy, PartialEq, Show)]
