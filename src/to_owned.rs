@@ -1,45 +1,62 @@
 use blas::{ToBlasInt, Vector, mod};
+use strided;
 use traits::{Collection, Matrix, MatrixCols, MatrixRows, ToOwned};
 use {Col, Mat, MutView, Row, Trans, View};
 
-impl<T, V> ToOwned<Box<[T]>> for V where T: blas::Copy, V: Vector<T> {
-    fn to_owned(&self) -> Box<[T]> {
-        let n = Collection::len(self);
+fn to<T, V>(v: &V) -> Box<[T]> where V: Vector<T>, T: blas::Copy {
+    let n = Collection::len(v);
 
-        if n == 0 { return box [] }
+    if n == 0 { return box [] }
 
-        let copy = blas::Copy::copy(None::<T>);
-        let x = self.as_ptr();
-        let incx = self.stride();
-        let mut data = Vec::with_capacity(n);
-        let y = data.as_mut_ptr();
-        let incy = 1;
+    let copy = blas::Copy::copy(None::<T>);
+    let x = v.as_ptr();
+    let incx = v.stride();
+    let mut data = Vec::with_capacity(n);
+    let y = data.as_mut_ptr();
+    let incy = 1;
 
-        unsafe {
-            copy(&n.to_blasint(), x, &incx, y, &incy);
-            data.set_len(n)
+    unsafe {
+        copy(&n.to_blasint(), x, &incx, y, &incy);
+        data.set_len(n)
+    }
+
+    data.into_boxed_slice()
+}
+
+macro_rules! impls {
+    ($($ty:ty),+) => {$(
+        impl<'a, T> ToOwned<Col<Box<[T]>>> for Col<$ty> where T: blas::Copy {
+            fn to_owned(&self) -> Col<Box<[T]>> {
+                Col(to(&self.0))
+            }
         }
 
-        data.into_boxed_slice()
+        impl<'a, T> ToOwned<Row<Box<[T]>>> for Row<$ty> where T: blas::Copy {
+            fn to_owned(&self) -> Row<Box<[T]>> {
+                Row(to(&self.0))
+            }
+        })+
     }
 }
 
-impl<T, V> ToOwned<Col<Box<[T]>>> for Col<V> where T: blas::Copy, V: Vector<T> {
+impls!(&'a [T], &'a mut [T], strided::Slice<'a, T>, strided::MutSlice<'a, T>)
+
+impl<'a, T> ToOwned<Col<Box<[T]>>> for Col<Box<[T]>> where T: blas::Copy {
     fn to_owned(&self) -> Col<Box<[T]>> {
-        Col(self.0.to_owned())
+        Col(to(&self.0))
     }
 }
 
-impl<T, V> ToOwned<Row<Box<[T]>>> for Row<V> where T: blas::Copy, V: Vector<T> {
+impl<'a, T> ToOwned<Row<Box<[T]>>> for Row<Box<[T]>> where T: blas::Copy {
     fn to_owned(&self) -> Row<Box<[T]>> {
-        Row(self.0.to_owned())
+        Row(to(&self.0))
     }
 }
 
 impl<T> ToOwned<Mat<T>> for Mat<T> where T: blas::Copy {
     fn to_owned(&self) -> Mat<T> {
         Mat {
-            data: self.data.to_owned(),
+            data: to(&self.data),
             size: self.size,
         }
     }
