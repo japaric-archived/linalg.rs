@@ -3,19 +3,19 @@ use {Col, Diag, Row};
 
 impl<'a, T> Collection for &'a [T] {
     fn len(&self) -> uint {
-        SlicePrelude::len(*self)
+        SliceExt::len(*self)
     }
 }
 
 impl<'a, T> Collection for &'a mut [T] {
     fn len(&self) -> uint {
-        SlicePrelude::len(*self)
+        SliceExt::len(*self)
     }
 }
 
 impl<T> Collection for Box<[T]> {
     fn len(&self) -> uint {
-        SlicePrelude::len(&**self)
+        SliceExt::len(&**self)
     }
 }
 
