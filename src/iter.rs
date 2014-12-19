@@ -17,19 +17,19 @@ impl<'a, T> IterMut<'a, &'a mut T, slice::MutItems<'a, T>> for Mat<T> {
 
 impl<'a, T> Iter<'a, &'a T, slice::Items<'a, T>> for Box<[T]> {
     fn iter(&self) -> slice::Items<T> {
-        SlicePrelude::iter(&**self)
+        SliceExt::iter(&**self)
     }
 }
 
 impl<'a, T> IterMut<'a, &'a mut T, slice::MutItems<'a, T>> for Box<[T]> {
     fn iter_mut(&mut self) -> slice::MutItems<T> {
-        SlicePrelude::iter_mut(&mut **self)
+        SliceExt::iter_mut(&mut **self)
     }
 }
 
 impl<'a, 'b, T> IterMut<'b, &'b mut T, slice::MutItems<'b, T>> for &'a mut [T] {
     fn iter_mut(&mut self) -> slice::MutItems<T> {
-        SlicePrelude::iter_mut(*self)
+        SliceExt::iter_mut(*self)
     }
 }
 
@@ -37,13 +37,13 @@ macro_rules! impl_iter {
     ($($ty:ty),+) => {$(
         impl<'a, 'b, T> Iter<'b, &'b T, slice::Items<'b, T>> for $ty {
             fn iter(&self) -> slice::Items<T> {
-                SlicePrelude::iter(*self)
+                SliceExt::iter(*self)
             }
         })+
     }
 }
 
-impl_iter!(&'a [T], &'a mut [T])
+impl_iter!(&'a [T], &'a mut [T]);
 
 macro_rules! impls {
     ($($ty:ty),+) => {$(
@@ -67,5 +67,4 @@ macro_rules! impls {
    }
 }
 
-impls!(Col<V>, Diag<V>, Row<V>)
-
+impls!(Col<V>, Diag<V>, Row<V>);

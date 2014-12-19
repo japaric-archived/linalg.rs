@@ -22,7 +22,7 @@ mod col {
     // Test that `slice(_, _)` is correct for `Col<Box<[_]>>`
     #[quickcheck]
     fn owned(size: uint, (start, end): (uint, uint), idx: uint) -> TestResult {
-        enforce!{
+        enforce! {
             end <= size,
             start <= end,
             idx < end - start,
@@ -45,7 +45,7 @@ mod col {
         (start, end): (uint, uint),
         idx: uint,
     ) -> TestResult {
-        enforce!{
+        enforce! {
             col < ncols,
             end < nrows,
             start <= end,
@@ -70,7 +70,7 @@ mod col {
         (start, end): (uint, uint),
         idx: uint,
     ) -> TestResult {
-        enforce!{
+        enforce! {
             col < ncols,
             end < nrows,
             start <= end,
@@ -95,7 +95,7 @@ mod col {
         (start, end): (uint, uint),
         idx: uint,
     ) -> TestResult {
-        enforce!{
+        enforce! {
             col < ncols,
             end < nrows,
             start <= end,
@@ -120,7 +120,7 @@ mod col {
         (start, end): (uint, uint),
         idx: uint,
     ) -> TestResult {
-        enforce!{
+        enforce! {
             col < ncols,
             end < nrows,
             start <= end,
@@ -157,7 +157,7 @@ mod diag {
         if diag > 0 {
             let diag = diag as uint;
 
-            enforce!{
+            enforce! {
                 diag < ncols,
                 end <= cmp::min(ncols - diag, nrows),
                 start <= end,
@@ -166,7 +166,7 @@ mod diag {
         } else {
             let diag = -diag as uint;
 
-            enforce!{
+            enforce! {
                 diag < nrows,
                 end <= cmp::min(nrows - diag, ncols),
                 start <= end,
@@ -201,7 +201,7 @@ mod diag {
         if diag > 0 {
             let diag = diag as uint;
 
-            enforce!{
+            enforce! {
                 diag < ncols,
                 end <= cmp::min(ncols - diag, nrows),
                 start <= end,
@@ -210,7 +210,7 @@ mod diag {
         } else {
             let diag = -diag as uint;
 
-            enforce!{
+            enforce! {
                 diag < nrows,
                 end <= cmp::min(nrows - diag, ncols),
                 start <= end,
@@ -243,7 +243,7 @@ mod row {
     // Test that `slice(_, _)` is correct for `Row<Box<[_]>>`
     #[quickcheck]
     fn owned(size: uint, (start, end): (uint, uint), idx: uint) -> TestResult {
-        enforce!{
+        enforce! {
             end <= size,
             start <= end,
             idx < end - start,
@@ -266,7 +266,7 @@ mod row {
         (start, end): (uint, uint),
         idx: uint,
     ) -> TestResult {
-        enforce!{
+        enforce! {
             row < nrows,
             end < ncols,
             start <= end,
@@ -291,7 +291,7 @@ mod row {
         (start, end): (uint, uint),
         idx: uint,
     ) -> TestResult {
-        enforce!{
+        enforce! {
             row < nrows,
             end < ncols,
             start <= end,
@@ -316,7 +316,7 @@ mod row {
         (start, end): (uint, uint),
         idx: uint,
     ) -> TestResult {
-        enforce!{
+        enforce! {
             row < nrows,
             end < ncols,
             start <= end,
@@ -341,7 +341,7 @@ mod row {
         (start, end): (uint, uint),
         idx: uint,
     ) -> TestResult {
-        enforce!{
+        enforce! {
             row < nrows,
             end < ncols,
             start <= end,
@@ -374,7 +374,7 @@ mod trans {
         (start, end): ((uint, uint), (uint, uint)),
         (row, col): (uint, uint),
     ) -> TestResult {
-        enforce!{
+        enforce! {
             end.is_within((nrows, ncols)),
             start.is_within(end),
             row < end.0 - start.0,
@@ -400,7 +400,7 @@ mod trans {
         (inner_start, inner_end): ((uint, uint), (uint, uint)),
         (row, col): (uint, uint),
     ) -> TestResult {
-        enforce!{
+        enforce! {
             inner_end.is_within((nrows, ncols)),
             inner_start.is_within(inner_end),
             row < inner_end.0 - inner_start.0,
@@ -431,7 +431,7 @@ mod trans {
         (inner_start, inner_end): ((uint, uint), (uint, uint)),
         (row, col): (uint, uint),
     ) -> TestResult {
-        enforce!{
+        enforce! {
             inner_end.is_within((nrows, ncols)),
             inner_start.is_within(inner_end),
             row < inner_end.0 - inner_start.0,
@@ -461,7 +461,7 @@ fn mat(
     (start, end): ((uint, uint), (uint, uint)),
     (row, col): (uint, uint),
 ) -> TestResult {
-    enforce!{
+    enforce! {
         end.is_within(size),
         start.is_within(end),
         row < end.0 - start.0,
@@ -487,7 +487,7 @@ fn view(
     (inner_start, inner_end): ((uint, uint), (uint, uint)),
     (row, col): (uint, uint),
 ) -> TestResult {
-    enforce!{
+    enforce! {
         inner_end.is_within((nrows, ncols)),
         inner_start.is_within(inner_end),
         row < inner_end.0 - inner_start.0,
@@ -518,7 +518,7 @@ fn view_mut(
     (inner_start, inner_end): ((uint, uint), (uint, uint)),
     (row, col): (uint, uint),
 ) -> TestResult {
-    enforce!{
+    enforce! {
         inner_end.is_within((nrows, ncols)),
         inner_start.is_within(inner_end),
         row < inner_end.0 - inner_start.0,

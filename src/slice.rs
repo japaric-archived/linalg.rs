@@ -23,7 +23,7 @@ macro_rules! impl_slices {
     }
 }
 
-impl_slices!(&'a [T], &'a mut [T])
+impl_slices!(&'a [T], &'a mut [T]);
 
 macro_rules! from_to {
     () => {
@@ -56,7 +56,7 @@ impl<'a, 'b, T> SliceMut<'b, uint, &'b mut [T]> for &'a mut [T] {
         SliceMut::slice_mut(*self, start, end)
     }
 
-    from_to_mut!()
+    from_to_mut!();
 }
 
 impl<'a, T> Slice<'a, uint, &'a [T]> for Box<[T]> {
@@ -64,7 +64,7 @@ impl<'a, T> Slice<'a, uint, &'a [T]> for Box<[T]> {
         Slice::slice(&**self, start, end)
     }
 
-    from_to!()
+    from_to!();
 }
 
 impl<'a, T> SliceMut<'a, uint, &'a mut [T]> for Box<[T]> {
@@ -72,7 +72,7 @@ impl<'a, T> SliceMut<'a, uint, &'a mut [T]> for Box<[T]> {
         SliceMut::slice_mut(&mut **self, start, end)
     }
 
-    from_to_mut!()
+    from_to_mut!();
 }
 
 impl<'a, T> Slice<'a, uint, &'a [T]> for [T] {
@@ -91,7 +91,7 @@ impl<'a, T> Slice<'a, uint, &'a [T]> for [T] {
         }
     }
 
-    from_to!()
+    from_to!();
 }
 
 impl<'a, T> SliceMut<'a, uint, &'a mut [T]> for [T] {
@@ -110,7 +110,7 @@ impl<'a, T> SliceMut<'a, uint, &'a mut [T]> for [T] {
         }
     }
 
-    from_to_mut!()
+    from_to_mut!();
 }
 
 macro_rules! impls {
@@ -149,7 +149,7 @@ macro_rules! impls {
     }
 }
 
-impls!{
+impls! {
     Col Col<V> Col<S>,
     Diag Diag<V> Diag<S>,
     Row Row<V> Row<S>,
@@ -311,4 +311,4 @@ macro_rules! view {
     }
 }
 
-view!(MutView<'a, T>, View<'a, T>)
+view!(MutView<'a, T>, View<'a, T>);

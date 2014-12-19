@@ -10,7 +10,7 @@ mod trans {
             // Test that `mul(Trans<Mat>)` is correct for `Row<&[T]>`
             #[quickcheck]
             fn mat((m, k, n): (uint, uint, uint), row: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     k != 0,
                     row < m,
                     idx < n,
@@ -23,7 +23,7 @@ mod trans {
                     let rhs = setup::rand::mat::<$ty>((n, k)).t();
                     let c = try!(rhs.col(idx));
 
-                    let result = lhs * rhs;
+                    let result = lhs * &rhs;
 
                     let _0: $ty = Zero::zero();
                     let product = lhs.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
@@ -40,7 +40,7 @@ mod trans {
                 row: uint,
                 idx: uint,
             ) -> TestResult {
-                enforce!{
+                enforce! {
                     k != 0,
                     row < m,
                     idx < n,
@@ -71,7 +71,7 @@ mod trans {
                 row: uint,
                 idx: uint,
             ) -> TestResult {
-                enforce!{
+                enforce! {
                     k != 0,
                     row < m,
                     idx < n,
@@ -87,7 +87,7 @@ mod trans {
                     let c = try!(rhs.col(idx));
 
                     let _0: $ty = Zero::zero();
-                    let result = lhs * rhs;
+                    let result = lhs * &rhs;
                     let product = lhs.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
                     product == *try!(result.at(idx))
@@ -96,7 +96,7 @@ mod trans {
         }
     }
 
-    blas!(f32, f64, c64, c128)
+    blas!(f32, f64, c64, c128);
 }
 
 macro_rules! blas {
@@ -110,7 +110,7 @@ macro_rules! blas {
         // Test that `mul(Mat)` is correct for `Row<&[T]>`
         #[quickcheck]
         fn mat((m, k, n): (uint, uint, uint), row: uint, idx: uint) -> TestResult {
-            enforce!{
+            enforce! {
                 k != 0,
                 row < m,
                 idx < n,
@@ -123,7 +123,7 @@ macro_rules! blas {
                 let rhs = setup::rand::mat::<$ty>((k, n));
                 let c = try!(rhs.col(idx));
 
-                let result = lhs * rhs;
+                let result = lhs * &rhs;
 
                 let _0: $ty = Zero::zero();
                 let product = lhs.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
@@ -140,7 +140,7 @@ macro_rules! blas {
             row: uint,
             idx: uint,
         ) -> TestResult {
-            enforce!{
+            enforce! {
                 k != 0,
                 row < m,
                 idx < n,
@@ -171,7 +171,7 @@ macro_rules! blas {
             row: uint,
             idx: uint,
         ) -> TestResult {
-            enforce!{
+            enforce! {
                 k != 0,
                 row < m,
                 idx < n,
@@ -187,7 +187,7 @@ macro_rules! blas {
                 let c = try!(rhs.col(idx));
 
                 let _0: $ty = Zero::zero();
-                let result = lhs * rhs;
+                let result = lhs * &rhs;
                 let product = lhs.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
                 product == *try!(result.at(idx))
@@ -196,4 +196,4 @@ macro_rules! blas {
     }
 }
 
-blas!(f32, f64, c64, c128)
+blas!(f32, f64, c64, c128);

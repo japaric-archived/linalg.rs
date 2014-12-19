@@ -39,8 +39,8 @@
 //! - Element-wise iteration over [sub]matrices is done in the fastest way possible, there's no
 //!   guarantee of the iteration order
 
-#![deny(warnings, missing_docs)]
-#![feature(macro_rules, slicing_syntax)]
+//#![deny(warnings, missing_docs)]
+#![feature(macro_rules, slicing_syntax, unboxed_closures)]
 
 extern crate complex;
 extern crate libc;
@@ -112,7 +112,7 @@ impl<T> Col<Box<[T]>> {
     /// assert_eq!(Col::from_fn(3, |i| i), mat![0; 1; 2])
     /// # }
     /// ```
-    pub fn from_fn(length: uint, f: |uint| -> T) -> Col<Box<[T]>> {
+    pub fn from_fn<F>(length: uint, f: F) -> Col<Box<[T]>> where F: FnMut(uint) -> T {
         Col(Vec::from_fn(length, f).into_boxed_slice())
     }
 
@@ -215,7 +215,9 @@ impl<T> Mat<T> {
     /// assert_eq!(Mat::from_fn((2, 2), |i| i).unwrap(), mat![(0, 0), (0, 1); (1, 0), (1, 1)])
     /// # }
     /// ```
-    pub fn from_fn((nrows, ncols): (uint, uint), f: |(uint, uint)| -> T) -> Result<Mat<T>> {
+    pub fn from_fn<F>((nrows, ncols): (uint, uint), mut f: F) -> Result<Mat<T>> where
+        F: FnMut((uint, uint)) -> T,
+    {
         let length = match nrows.checked_mul(ncols) {
             Some(length) => length,
             None => return Err(Error::LengthOverflow),
@@ -379,7 +381,7 @@ impl<T> Row<Box<[T]>> {
     /// assert_eq!(Row::from_fn(3, |i| i), mat![0, 1, 2])
     /// # }
     /// ```
-    pub fn from_fn(length: uint, f: |uint| -> T) -> Row<Box<[T]>> {
+    pub fn from_fn<F>(length: uint, f: F) -> Row<Box<[T]>> where F: FnMut(uint) -> T {
         Row(Vec::from_fn(length, f).into_boxed_slice())
     }
 
@@ -440,7 +442,6 @@ pub struct Rows<'a, M> where M: 'a {
 pub struct Trans<M>(M);
 
 /// Immutable sub-matrix view
-// FIXME This should be `Copy`
 pub struct View<'a, T> where T: 'a {
     _contravariant: marker::ContravariantLifetime<'a>,
     _nosend: marker::NoSend,
@@ -448,6 +449,8 @@ pub struct View<'a, T> where T: 'a {
     size: (uint, uint),
     stride: uint,
 }
+
+impl<'a, T> Copy for View<'a, T> {}
 
 /// Errors
 #[deriving(Copy, PartialEq, Show)]

@@ -13,7 +13,7 @@ macro_rules! blas {
 
                 let rhs = setup::rand::col::<$ty>(size);
 
-                let result = lhs * rhs;
+                let result = &lhs * &rhs;
 
                 test!(result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
             }
@@ -21,7 +21,7 @@ macro_rules! blas {
             // Test that `mul(Col<&[T]>)` is correct for `Row<Box<[T]>>`
             #[quickcheck]
             fn slice((nrows, ncols): (uint, uint), col: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                 }
 
@@ -31,7 +31,7 @@ macro_rules! blas {
 
                     let rhs = try!(m.col(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -40,7 +40,7 @@ macro_rules! blas {
             // Test that `mul(Col<&mut [T]>)` is correct for `Row<Box<[T]>>`
             #[quickcheck]
             fn slice_mut((nrows, ncols): (uint, uint), col: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                 }
 
@@ -50,7 +50,7 @@ macro_rules! blas {
 
                     let rhs = try!(m.col_mut(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -59,7 +59,7 @@ macro_rules! blas {
             // Test that `mul(Col<strided::Slice>)` is correct for `Row<Box<[T]>>`
             #[quickcheck]
             fn strided((nrows, ncols): (uint, uint), col: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                 }
 
@@ -69,7 +69,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((ncols, nrows)).t();
                     let rhs = try!(m.col(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -78,7 +78,7 @@ macro_rules! blas {
             // Test that `mul(Col<strided::MutSlice>)` is correct for `Row<Box<[T]>>`
             #[quickcheck]
             fn strided_mut((nrows, ncols): (uint, uint), col: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                 }
 
@@ -88,7 +88,7 @@ macro_rules! blas {
                     let mut m = setup::rand::mat::<$ty>((ncols, nrows)).t();
                     let rhs = try!(m.col_mut(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -104,7 +104,7 @@ macro_rules! blas {
             // Test that `mul(Col<Box<[T]>>)` is correct for `Row<&[T]>`
             #[quickcheck]
             fn owned((nrows, ncols): (uint, uint), row: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     row < nrows,
                 }
 
@@ -114,7 +114,7 @@ macro_rules! blas {
 
                     let rhs = setup::rand::col::<$ty>(ncols);
 
-                    let result = lhs * rhs;
+                    let result = lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -123,7 +123,7 @@ macro_rules! blas {
             // Test that `mul(Col<&[T]>)` is correct for `Row<&[T]>`
             #[quickcheck]
             fn slice((m, k, n): (uint, uint, uint), (row, col): (uint, uint)) -> TestResult {
-                enforce!{
+                enforce! {
                     row < m,
                     col < n,
                 }
@@ -144,7 +144,7 @@ macro_rules! blas {
             // Test that `mul(Col<&mut [T]>)` is correct for `Row<&[T]>`
             #[quickcheck]
             fn slice_mut((m, k, n): (uint, uint, uint), (row, col): (uint, uint)) -> TestResult {
-                enforce!{
+                enforce! {
                     row < m,
                     col < n,
                 }
@@ -156,7 +156,7 @@ macro_rules! blas {
                     let mut m = setup::rand::mat::<$ty>((k, n));
                     let rhs = try!(m.col_mut(col));
 
-                    let result = lhs * rhs;
+                    let result = lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -165,7 +165,7 @@ macro_rules! blas {
             // Test that `mul(Col<strided::Slice>)` is correct for `Row<&[T]>`
             #[quickcheck]
             fn strided((m, k, n): (uint, uint, uint), (row, col): (uint, uint)) -> TestResult {
-                enforce!{
+                enforce! {
                     row < m,
                     col < n,
                 }
@@ -186,7 +186,7 @@ macro_rules! blas {
             // Test that `mul(Col<strided::MutSlice>)` is correct for `Row<&[T]>`
             #[quickcheck]
             fn strided_mut((m, k, n): (uint, uint, uint), (row, col): (uint, uint)) -> TestResult {
-                enforce!{
+                enforce! {
                     row < m,
                     col < n,
                 }
@@ -198,7 +198,7 @@ macro_rules! blas {
                     let mut m = setup::rand::mat::<$ty>((n, k)).t();
                     let rhs = try!(m.col_mut(col));
 
-                    let result = lhs * rhs;
+                    let result = lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -214,7 +214,7 @@ macro_rules! blas {
             // Test that `mul(Col<Box<[T]>>)` is correct for `Row<&mut [T]>`
             #[quickcheck]
             fn owned((nrows, ncols): (uint, uint), row: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     row < nrows,
                 }
 
@@ -224,7 +224,7 @@ macro_rules! blas {
 
                     let rhs = setup::rand::col::<$ty>(ncols);
 
-                    let result = lhs * rhs;
+                    let result = &lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -233,7 +233,7 @@ macro_rules! blas {
             // Test that `mul(Col<&[T]>)` is correct for `Row<&mut [T]>`
             #[quickcheck]
             fn slice((m, k, n): (uint, uint, uint), (row, col): (uint, uint)) -> TestResult {
-                enforce!{
+                enforce! {
                     row < m,
                     col < n,
                 }
@@ -245,7 +245,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((k, n));
                     let rhs = try!(m.col(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -254,7 +254,7 @@ macro_rules! blas {
             // Test that `mul(Col<&mut [T]>)` is correct for `Row<&mut [T]>`
             #[quickcheck]
             fn slice_mut((m, k, n): (uint, uint, uint), (row, col): (uint, uint)) -> TestResult {
-                enforce!{
+                enforce! {
                     row < m,
                     col < n,
                 }
@@ -266,7 +266,7 @@ macro_rules! blas {
                     let mut m = setup::rand::mat::<$ty>((k, n));
                     let rhs = try!(m.col_mut(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -275,7 +275,7 @@ macro_rules! blas {
             // Test that `mul(Col<strided::Slice>)` is correct for `Row<&mut [T]>`
             #[quickcheck]
             fn strided((m, k, n): (uint, uint, uint), (row, col): (uint, uint)) -> TestResult {
-                enforce!{
+                enforce! {
                     row < m,
                     col < n,
                 }
@@ -287,7 +287,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((n, k)).t();
                     let rhs = try!(m.col(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -296,7 +296,7 @@ macro_rules! blas {
             // Test that `mul(Col<strided::MutSlice>)` is correct for `Row<&mut [T]>`
             #[quickcheck]
             fn strided_mut((m, k, n): (uint, uint, uint), (row, col): (uint, uint)) -> TestResult {
-                enforce!{
+                enforce! {
                     row < m,
                     col < n,
                 }
@@ -308,7 +308,7 @@ macro_rules! blas {
                     let mut m = setup::rand::mat::<$ty>((n, k)).t();
                     let rhs = try!(m.col_mut(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -324,7 +324,7 @@ macro_rules! blas {
             // Test that `mul(Col<Box<[T]>>)` is correct for `Row<strided::Slice>`
             #[quickcheck]
             fn owned((nrows, ncols): (uint, uint), row: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     row < nrows,
                 }
 
@@ -334,7 +334,7 @@ macro_rules! blas {
 
                     let rhs = setup::rand::col::<$ty>(ncols);
 
-                    let result = lhs * rhs;
+                    let result = lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -343,7 +343,7 @@ macro_rules! blas {
             // Test that `mul(Col<&[T]>)` is correct for `Row<strided::Slice>`
             #[quickcheck]
             fn slice((m, k, n): (uint, uint, uint), (row, col): (uint, uint)) -> TestResult {
-                enforce!{
+                enforce! {
                     row < m,
                     col < n,
                 }
@@ -364,7 +364,7 @@ macro_rules! blas {
             // Test that `mul(Col<&mut [T]>)` is correct for `Row<strided::Slice>`
             #[quickcheck]
             fn slice_mut((m, k, n): (uint, uint, uint), (row, col): (uint, uint)) -> TestResult {
-                enforce!{
+                enforce! {
                     row < m,
                     col < n,
                 }
@@ -376,7 +376,7 @@ macro_rules! blas {
                     let mut m = setup::rand::mat::<$ty>((k, n));
                     let rhs = try!(m.col_mut(col));
 
-                    let result = lhs * rhs;
+                    let result = lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -385,7 +385,7 @@ macro_rules! blas {
             // Test that `mul(Col<strided::Slice>)` is correct for `Row<strided::Slice>`
             #[quickcheck]
             fn strided((m, k, n): (uint, uint, uint), (row, col): (uint, uint)) -> TestResult {
-                enforce!{
+                enforce! {
                     row < m,
                     col < n,
                 }
@@ -406,7 +406,7 @@ macro_rules! blas {
             // Test that `mul(Col<strided::MutSlice>)` is correct for `Row<strided::Slice>`
             #[quickcheck]
             fn strided_mut((m, k, n): (uint, uint, uint), (row, col): (uint, uint)) -> TestResult {
-                enforce!{
+                enforce! {
                     row < m,
                     col < n,
                 }
@@ -418,7 +418,7 @@ macro_rules! blas {
                     let mut m = setup::rand::mat::<$ty>((n, k)).t();
                     let rhs = try!(m.col_mut(col));
 
-                    let result = lhs * rhs;
+                    let result = lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -434,7 +434,7 @@ macro_rules! blas {
             // Test that `mul(Col<Box<[T]>>)` is correct for `Row<strided::MutSlice>`
             #[quickcheck]
             fn owned((nrows, ncols): (uint, uint), row: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     row < nrows,
                 }
 
@@ -444,7 +444,7 @@ macro_rules! blas {
 
                     let rhs = setup::rand::col::<$ty>(ncols);
 
-                    let result = lhs * rhs;
+                    let result = &lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -453,7 +453,7 @@ macro_rules! blas {
             // Test that `mul(Col<&[T]>)` is correct for `Row<strided::MutSlice>`
             #[quickcheck]
             fn slice((m, k, n): (uint, uint, uint), (row, col): (uint, uint)) -> TestResult {
-                enforce!{
+                enforce! {
                     row < m,
                     col < n,
                 }
@@ -465,7 +465,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((k, n));
                     let rhs = try!(m.col(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -474,7 +474,7 @@ macro_rules! blas {
             // Test that `mul(Col<&mut [T]>)` is correct for `Row<strided::MutSlice>`
             #[quickcheck]
             fn slice_mut((m, k, n): (uint, uint, uint), (row, col): (uint, uint)) -> TestResult {
-                enforce!{
+                enforce! {
                     row < m,
                     col < n,
                 }
@@ -486,7 +486,7 @@ macro_rules! blas {
                     let mut m = setup::rand::mat::<$ty>((k, n));
                     let rhs = try!(m.col_mut(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -495,7 +495,7 @@ macro_rules! blas {
             // Test that `mul(Col<strided::Slice>)` is correct for `Row<strided::MutSlice>`
             #[quickcheck]
             fn strided((m, k, n): (uint, uint, uint), (row, col): (uint, uint)) -> TestResult {
-                enforce!{
+                enforce! {
                     row < m,
                     col < n,
                 }
@@ -507,7 +507,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((n, k)).t();
                     let rhs = try!(m.col(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -516,7 +516,7 @@ macro_rules! blas {
             // Test that `mul(Col<strided::MutSlice>)` is correct for `Row<strided::MutSlice>`
             #[quickcheck]
             fn strided_mut((m, k, n): (uint, uint, uint), (row, col): (uint, uint)) -> TestResult {
-                enforce!{
+                enforce! {
                     row < m,
                     col < n,
                 }
@@ -528,7 +528,7 @@ macro_rules! blas {
                     let mut m = setup::rand::mat::<$ty>((n, k)).t();
                     let rhs = try!(m.col_mut(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * &rhs;
 
                     result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
                 })
@@ -537,4 +537,4 @@ macro_rules! blas {
     }
 }
 
-blas!(f32, f64)
+blas!(f32, f64);

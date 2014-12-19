@@ -20,7 +20,7 @@ mod trans {
     // Test that `diag_mut(_)` is correct for `Trans<Mat>`
     #[quickcheck]
     fn mat((nrows, ncols): (uint, uint), (diag, idx): (int, uint)) -> TestResult {
-        validate_diag_index!(diag, (nrows, ncols), idx)
+        validate_diag_index!(diag, (nrows, ncols), idx);
 
         test!({
             let mut m = setup::mat((ncols, nrows)).t();
@@ -42,7 +42,7 @@ mod trans {
         (nrows, ncols): (uint, uint),
         (diag, idx): (int, uint),
     ) -> TestResult {
-        validate_diag_index!(diag, (nrows, ncols), idx)
+        validate_diag_index!(diag, (nrows, ncols), idx);
 
         let size = (start.0 + ncols, start.1 + nrows);
         test!({
@@ -65,7 +65,7 @@ mod trans {
 // Test that `diag_mut(_)` is correct for `Mat`
 #[quickcheck]
 fn mat(size: (uint, uint), (diag, idx): (int, uint)) -> TestResult {
-    validate_diag_index!(diag, size, idx)
+    validate_diag_index!(diag, size, idx);
 
     test!({
         let mut m = setup::mat(size);
@@ -87,7 +87,7 @@ fn view_mut(
     (nrows, ncols): (uint, uint),
     (diag, idx): (int, uint),
 ) -> TestResult {
-    validate_diag_index!(diag, (nrows, ncols), idx)
+    validate_diag_index!(diag, (nrows, ncols), idx);
 
     let size = (start.0 + nrows, start.1 + ncols);
     test!({

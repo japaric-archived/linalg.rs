@@ -9,7 +9,6 @@ use error::OutOfBounds;
 use traits::{At, AtMut, Collection, Iter, IterMut, SliceMut};
 
 /// Iterator over an immutable strided slice
-// FIXME This should be `Copy`
 pub struct Items<'a, T> where T: 'a {
     _contravariant: marker::ContravariantLifetime<'a>,
     _nosend: marker::NoSend,
@@ -17,6 +16,8 @@ pub struct Items<'a, T> where T: 'a {
     stride: uint,
     stop: *const T,
 }
+
+impl<'a, T> Copy for Items<'a, T> {}
 
 /// Iterator over a mutable strided slice
 pub struct MutItems<'a, T> where T: 'a {
@@ -72,7 +73,7 @@ macro_rules! impl_items {
     }
 }
 
-impl_items!{
+impl_items! {
     MutItems<'a, T> -> &'a mut T,
     Items<'a, T> -> &'a T,
 }
@@ -158,7 +159,6 @@ impl<'a, 'b, T> SliceMut<'b, uint, MutSlice<'b, T>> for MutSlice<'a, T> {
 
 /// An immutable strided slice
 // XXX I really really wish I could write this as a DST: &Slice<T>, &mut Slice<T>
-// FIXME This should be `Copy`
 pub struct Slice<'a, T> where T: 'a {
     _contravariant: marker::ContravariantLifetime<'a>,
     _nosend: marker::NoSend,
@@ -166,6 +166,8 @@ pub struct Slice<'a, T> where T: 'a {
     ptr: *const T,
     stride: uint,
 }
+
+impl<'a, T> Copy for Slice<'a, T> {}
 
 impl<'a, T> ::Strided<T> for Slice<'a, T> {
     unsafe fn from_parts(ptr: *const T, length: uint, stride: uint) -> Slice<'a, T> {
@@ -273,4 +275,4 @@ macro_rules! impls {
     }
 }
 
-impls!(MutSlice<'a, T>, Slice<'a, T>)
+impls!(MutSlice<'a, T>, Slice<'a, T>);

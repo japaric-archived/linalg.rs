@@ -12,7 +12,7 @@ mod trans {
             // Test that `mul(Trans<Mat>)` is correct for `Mat`
             #[quickcheck]
             fn mat((m, k, n): (uint, uint, uint), (row, col): (uint, uint)) -> TestResult {
-                enforce!{
+                enforce! {
                     k != 0,
                     row < m,
                     col < n,
@@ -25,7 +25,7 @@ mod trans {
                     let rhs = setup::rand::mat::<$ty>((n, k)).t();
                     let c = try!(rhs.col(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * &rhs;
                     let _0: $ty = Zero::zero();
                     let product = r.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
@@ -40,7 +40,7 @@ mod trans {
                 (m, k, n): (uint, uint, uint),
                 (row, col): (uint, uint),
             ) -> TestResult {
-                enforce!{
+                enforce! {
                     k != 0,
                     row < m,
                     col < n,
@@ -55,7 +55,7 @@ mod trans {
                     let rhs = try!(m.slice_from(start)).t();
                     let c = try!(rhs.col(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * rhs;
                     let _0: $ty = Zero::zero();
                     let product = r.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
@@ -70,7 +70,7 @@ mod trans {
                 (m, k, n): (uint, uint, uint),
                 (row, col): (uint, uint),
             ) -> TestResult {
-                enforce!{
+                enforce! {
                     k != 0,
                     row < m,
                     col < n,
@@ -85,7 +85,7 @@ mod trans {
                     let rhs = try!(m.slice_from_mut(start)).t();
                     let c = try!(rhs.col(col));
 
-                    let result = lhs * rhs;
+                    let result = &lhs * &rhs;
                     let _0: $ty = Zero::zero();
                     let product = r.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
@@ -95,7 +95,7 @@ mod trans {
         }
     }
 
-    blas!(f32, f64, c64, c128)
+    blas!(f32, f64, c64, c128);
 }
 
 macro_rules! blas {
@@ -109,7 +109,7 @@ macro_rules! blas {
         // Test that `mul(Mat)` is correct for `Mat`
         #[quickcheck]
         fn mat((m, k, n): (uint, uint, uint), (row, col): (uint, uint)) -> TestResult {
-            enforce!{
+            enforce! {
                 k != 0,
                 row < m,
                 col < n,
@@ -122,7 +122,7 @@ macro_rules! blas {
                 let rhs = setup::rand::mat::<$ty>((k, n));
                 let c = try!(rhs.col(col));
 
-                let result = lhs * rhs;
+                let result = &lhs * &rhs;
                 let _0: $ty = Zero::zero();
                 let product = r.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
@@ -137,7 +137,7 @@ macro_rules! blas {
             (m, k, n): (uint, uint, uint),
             (row, col): (uint, uint),
         ) -> TestResult {
-            enforce!{
+            enforce! {
                 k != 0,
                 row < m,
                 col < n,
@@ -153,7 +153,7 @@ macro_rules! blas {
                 let c = try!(rhs.col(col));
 
                 let _0: $ty = Zero::zero();
-                let result = lhs * rhs;
+                let result = &lhs * rhs;
                 let product = r.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
                 product == *try!(result.at((row, col)))
@@ -167,7 +167,7 @@ macro_rules! blas {
             (m, k, n): (uint, uint, uint),
             (row, col): (uint, uint),
         ) -> TestResult {
-            enforce!{
+            enforce! {
                 k != 0,
                 row < m,
                 col < n,
@@ -182,7 +182,7 @@ macro_rules! blas {
                 let rhs = try!(m.slice_from_mut(start));
                 let c = try!(rhs.col(col));
 
-                let result = lhs * rhs;
+                let result = &lhs * &rhs;
                 let _0: $ty = Zero::zero();
                 let product = r.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
@@ -192,4 +192,4 @@ macro_rules! blas {
     }
 }
 
-blas!(f32, f64, c64, c128)
+blas!(f32, f64, c64, c128);

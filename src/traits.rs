@@ -56,6 +56,12 @@ pub trait Collection {
     fn len(&self) -> uint;
 }
 
+impl<'a, C> Collection for &'a C where C: Collection {
+    fn len(&self) -> uint {
+        Collection::len(*self)
+    }
+}
+
 /// The basic idea of a matrix: A rectangular array arranged in rows and columns
 pub trait Matrix {
     /// Returns the number of columns the matrix has
@@ -71,6 +77,20 @@ pub trait Matrix {
     /// Returns the size of the matrix
     fn size(&self) -> (uint, uint) {
         (self.nrows(), self.ncols())
+    }
+}
+
+impl<'a, M> Matrix for &'a M where M: Matrix {
+    fn ncols(&self) -> uint {
+        Matrix::ncols(*self)
+    }
+
+    fn nrows(&self) -> uint {
+        Matrix::nrows(*self)
+    }
+
+    fn size(&self) -> (uint, uint) {
+        Matrix::size(*self)
     }
 }
 

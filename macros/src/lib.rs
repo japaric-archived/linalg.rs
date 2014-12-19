@@ -199,7 +199,7 @@ fn expand_mat<'cx>(
             let heap = cx.expr_ident(sp, cx.ident_of("HEAP"));
             let array = cx.expr_vec(sp, elems);
 
-            Some(cx.expr(sp, ExprBox(heap, array)))
+            Some(cx.expr(sp, ExprBox(Some(heap), array)))
         };
 
         cx.expr_block(cx.block_all(sp, uses, stmts, expr))

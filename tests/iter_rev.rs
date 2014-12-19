@@ -26,7 +26,7 @@ mod col {
     // Test that `iter().rev()` is correct for `Col<&[_]>`
     #[quickcheck]
     fn slice((nrows, ncols): (uint, uint), col: uint) -> TestResult {
-        enforce!{
+        enforce! {
             col < ncols,
         }
 
@@ -46,7 +46,7 @@ mod col {
     // Test that `iter().rev()` is correct for `Col<&mut [_]>`
     #[quickcheck]
     fn slice_mut((nrows, ncols): (uint, uint), col: uint) -> TestResult {
-        enforce!{
+        enforce! {
             col < ncols,
         }
 
@@ -66,7 +66,7 @@ mod col {
     // Test that `iter().rev()` is correct for `Col<strided::Slice>`
     #[quickcheck]
     fn strided((nrows, ncols): (uint, uint), col: uint) -> TestResult {
-        enforce!{
+        enforce! {
             col < ncols,
         }
 
@@ -86,7 +86,7 @@ mod col {
     // Test that `iter().rev()` is correct for `Col<strided::MutSlice>`
     #[quickcheck]
     fn strided_mut((nrows, ncols): (uint, uint), col: uint) -> TestResult {
-        enforce!{
+        enforce! {
             col < ncols,
         }
 
@@ -182,7 +182,7 @@ mod row {
     // Test that `iter().rev()` is correct for `Row<&[_]>`
     #[quickcheck]
     fn slice((nrows, ncols): (uint, uint), row: uint) -> TestResult {
-        enforce!{
+        enforce! {
             row < nrows,
         }
 
@@ -202,7 +202,7 @@ mod row {
     // Test that `iter().rev()` is correct for `Row<&mut [_]>`
     #[quickcheck]
     fn slice_mut((nrows, ncols): (uint, uint), row: uint) -> TestResult {
-        enforce!{
+        enforce! {
             row < nrows,
         }
 
@@ -222,7 +222,7 @@ mod row {
     // Test that `iter().rev()` is correct for `Row<strided::Slice>`
     #[quickcheck]
     fn strided((nrows, ncols): (uint, uint), row: uint) -> TestResult {
-        enforce!{
+        enforce! {
             row < nrows,
         }
 
@@ -242,7 +242,7 @@ mod row {
     // Test that `iter().rev()` is correct for `Row<strided::MutSlice>`
     #[quickcheck]
     fn strided_mut((nrows, ncols): (uint, uint), row: uint) -> TestResult {
-        enforce!{
+        enforce! {
             row < nrows,
         }
 

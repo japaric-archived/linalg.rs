@@ -26,7 +26,7 @@ mod col {
     // Test that `iter_mut()` is correct for `Col<&mut [_]>`
     #[quickcheck]
     fn slice_mut((nrows, ncols): (uint, uint), col: uint) -> TestResult {
-        enforce!{
+        enforce! {
             col < ncols,
         }
 
@@ -41,7 +41,7 @@ mod col {
     // Test that `iter_mut()` is correct for `Col<strided::MutSlice>`
     #[quickcheck]
     fn strided_mut((nrows, ncols): (uint, uint), col: uint) -> TestResult {
-        enforce!{
+        enforce! {
             col < ncols,
         }
 
@@ -63,7 +63,7 @@ mod diag {
     // Test that `iter_mut()` is correct for `Diag<strided::MutSlice>`
     #[quickcheck]
     fn strided_mut(size: (uint, uint), diag: int) -> TestResult {
-        validate_diag!(diag, size)
+        validate_diag!(diag, size);
 
         test!({
             let mut m = setup::mat(size);
@@ -93,7 +93,7 @@ mod row {
     // Test that `iter_mut()` is correct for `Row<&mut [_]>`
     #[quickcheck]
     fn slice_mut((nrows, ncols): (uint, uint), row: uint) -> TestResult {
-        enforce!{
+        enforce! {
             row < nrows,
         }
 
@@ -108,7 +108,7 @@ mod row {
     // Test that `iter_mut()` is correct for `Row<strided::MutSlice>`
     #[quickcheck]
     fn strided_mut((nrows, ncols): (uint, uint), row: uint) -> TestResult {
-        enforce!{
+        enforce! {
             row < nrows,
         }
 
