@@ -29,4 +29,4 @@ macro_rules! impls {
     }
 }
 
-impls!(Col<V>, Diag<V>, Row<V>)
+impls!(Col<V>, Diag<V>, Row<V>);

@@ -42,9 +42,9 @@ macro_rules! rc1 {
     }
 }
 
-rc1!(&'a Col<Box<[T]>>)
-rc1!(Col<&'a [T]>)
-rc1!(Col<strided::Slice<'a, T>>)
+rc1!(&'a Col<Box<[T]>>);
+rc1!(Col<&'a [T]>);
+rc1!(Col<strided::Slice<'a, T>>);
 
 macro_rules! rc2 {
     ($col:ty) => {
@@ -82,8 +82,8 @@ macro_rules! rc2 {
     }
 }
 
-rc2!(&'a Col<&'b mut [T]>)
-rc2!(&'a Col<strided::MutSlice<'b, T>>)
+rc2!(&'a Col<&'b mut [T]>);
+rc2!(&'a Col<strided::MutSlice<'b, T>>);
 
 macro_rules! mc1 {
     ($col:ty) => {
@@ -131,9 +131,9 @@ macro_rules! mc1 {
     }
 }
 
-mc1!(Col<&'a [T]>)
-mc1!(Col<strided::Slice<'a, T>>)
-mc1!(&'a Col<Box<[T]>>)
+mc1!(Col<&'a [T]>);
+mc1!(Col<strided::Slice<'a, T>>);
+mc1!(&'a Col<Box<[T]>>);
 
 macro_rules! mc2 {
     ($col:ty) => {
@@ -185,8 +185,8 @@ macro_rules! mc2 {
     }
 }
 
-mc2!(&'a Col<&'b mut [T]>)
-mc2!(&'a Col<strided::MutSlice<'b, T>>)
+mc2!(&'a Col<&'b mut [T]>);
+mc2!(&'a Col<strided::MutSlice<'b, T>>);
 
 macro_rules! mm2 {
     ($lhs:ty, $rhs:ty) => {
@@ -200,10 +200,10 @@ macro_rules! mm2 {
     }
 }
 
-mm2!(&'a Mat<T>, &'b Mat<T>)
-mm2!(&'a Trans<Mat<T>>, &'b Trans<Mat<T>>)
-mm2!(View<'a, T>, View<'b, T>)
-mm2!(Trans<View<'a, T>>, Trans<View<'b, T>>)
+mm2!(&'a Mat<T>, &'b Mat<T>);
+mm2!(&'a Trans<Mat<T>>, &'b Trans<Mat<T>>);
+mm2!(View<'a, T>, View<'b, T>);
+mm2!(Trans<View<'a, T>>, Trans<View<'b, T>>);
 
 macro_rules! mm4 {
     ($lhs:ty, $rhs:ty) => {
@@ -217,8 +217,8 @@ macro_rules! mm4 {
     }
 }
 
-mm4!(&'a MutView<'b, T>, &'c MutView<'d, T>)
-mm4!(&'a Trans<MutView<'b, T>>, &'c Trans<MutView<'d, T>>)
+mm4!(&'a MutView<'b, T>, &'c MutView<'d, T>);
+mm4!(&'a Trans<MutView<'b, T>>, &'c Trans<MutView<'d, T>>);
 
 macro_rules! cmm2 {
     ($lhs:ty, $rhs:ty) => {
@@ -240,12 +240,12 @@ macro_rules! cmm2 {
     }
 }
 
-cmm2!(&'a Mat<T>, &'b Trans<Mat<T>>)
-cmm2!(&'a Mat<T>, Trans<View<'b, T>>)
-cmm2!(&'a Mat<T>, View<'b, T>)
-cmm2!(View<'a, T>, &'b Trans<Mat<T>>)
-cmm2!(View<'a, T>, Trans<View<'b, T>>)
-cmm2!(&'a Trans<Mat<T>>, Trans<View<'b, T>>)
+cmm2!(&'a Mat<T>, &'b Trans<Mat<T>>);
+cmm2!(&'a Mat<T>, Trans<View<'b, T>>);
+cmm2!(&'a Mat<T>, View<'b, T>);
+cmm2!(View<'a, T>, &'b Trans<Mat<T>>);
+cmm2!(View<'a, T>, Trans<View<'b, T>>);
+cmm2!(&'a Trans<Mat<T>>, Trans<View<'b, T>>);
 
 macro_rules! cmm3 {
     ($lhs:ty, $rhs:ty) => {
@@ -267,14 +267,14 @@ macro_rules! cmm3 {
     }
 }
 
-cmm3!(&'a Mat<T>, &'b MutView<'c, T>)
-cmm3!(&'a Mat<T>, &'b Trans<MutView<'c, T>>)
-cmm3!(View<'a, T>, &'b MutView<'c, T>)
-cmm3!(View<'a, T>, &'b Trans<MutView<'c, T>>)
-cmm3!(&'a MutView<'b, T>, &'c Trans<Mat<T>>)
-cmm3!(&'a MutView<'b, T>, Trans<View<'c, T>>)
-cmm3!(&'a Trans<Mat<T>>, &'b Trans<MutView<'c, T>>)
-cmm3!(Trans<View<'a, T>>, &'b Trans<MutView<'c, T>>)
+cmm3!(&'a Mat<T>, &'b MutView<'c, T>);
+cmm3!(&'a Mat<T>, &'b Trans<MutView<'c, T>>);
+cmm3!(View<'a, T>, &'b MutView<'c, T>);
+cmm3!(View<'a, T>, &'b Trans<MutView<'c, T>>);
+cmm3!(&'a MutView<'b, T>, &'c Trans<Mat<T>>);
+cmm3!(&'a MutView<'b, T>, Trans<View<'c, T>>);
+cmm3!(&'a Trans<Mat<T>>, &'b Trans<MutView<'c, T>>);
+cmm3!(Trans<View<'a, T>>, &'b Trans<MutView<'c, T>>);
 
 macro_rules! cmm4 {
     ($lhs:ty, $rhs:ty) => {
@@ -296,7 +296,7 @@ macro_rules! cmm4 {
     }
 }
 
-cmm4!(&'a MutView<'b, T>, &'c Trans<MutView<'d, T>>)
+cmm4!(&'a MutView<'b, T>, &'c Trans<MutView<'d, T>>);
 
 macro_rules! rm2 {
     ($row:ty) => {
@@ -350,9 +350,9 @@ macro_rules! rm2 {
     }
 }
 
-rm2!(&'a Row<Box<[T]>>)
-rm2!(Row<&'a [T]>)
-rm2!(Row<strided::Slice<'a, T>>)
+rm2!(&'a Row<Box<[T]>>);
+rm2!(Row<&'a [T]>);
+rm2!(Row<strided::Slice<'a, T>>);
 
 macro_rules! rm3 {
     ($row:ty) => {
@@ -390,8 +390,8 @@ macro_rules! rm3 {
     }
 }
 
-rm2!(&'a Row<&'b mut [T]>)
-rm2!(&'a Row<strided::MutSlice<'b, T>>)
+rm2!(&'a Row<&'b mut [T]>);
+rm2!(&'a Row<strided::MutSlice<'b, T>>);
 
 fn mc<T, M, V>(lhs: M, rhs: V) -> Col<Box<[T]>> where
     T: Gemv + One + Zero,

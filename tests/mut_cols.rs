@@ -19,7 +19,7 @@ mod trans {
     // Test that `mut_cols()` is correct for `Trans<Mat>`
     #[quickcheck]
     fn mat((nrows, ncols): (uint, uint), row: uint) -> TestResult {
-        enforce!{
+        enforce! {
             row < nrows,
         }
 
@@ -36,7 +36,7 @@ mod trans {
         (nrows, ncols): (uint, uint),
         row: uint,
     ) -> TestResult {
-        enforce!{
+        enforce! {
             row < nrows,
         }
 
@@ -56,7 +56,7 @@ mod trans {
 // Test that `mut_cols()` is correct for `Mat`
 #[quickcheck]
 fn mat((nrows, ncols): (uint, uint), row: uint) -> TestResult {
-    enforce!{
+    enforce! {
         row < nrows,
     }
 
@@ -74,7 +74,7 @@ fn view_mut(
     (nrows, ncols): (uint, uint),
     row: uint,
 ) -> TestResult {
-    enforce!{
+    enforce! {
         row < nrows,
     }
 

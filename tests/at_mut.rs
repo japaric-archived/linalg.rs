@@ -19,7 +19,7 @@ mod col {
     // Test that `at_mut(_)` is correct for `Col<Box<[_]>>`
     #[quickcheck]
     fn owned(size: uint, idx: uint) -> TestResult {
-        enforce!{
+        enforce! {
             idx < size,
         }
 
@@ -34,7 +34,7 @@ mod col {
     // Test that `at_mut(_)` is correct for `Col<&mut [_]>`
     #[quickcheck]
     fn slice_mut((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
-        enforce!{
+        enforce! {
             row < nrows,
             col < ncols,
         }
@@ -51,7 +51,7 @@ mod col {
     // Test that `at_mut(_)` is correct for `Col<strided::MutSlice>`
     #[quickcheck]
     fn strided_mut((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
-        enforce!{
+        enforce! {
             row < nrows,
             col < ncols,
         }
@@ -75,7 +75,7 @@ mod diag {
     // Test that `at_mut(_)` is correct for `Diag<stride::MutSlice>`
     #[quickcheck]
     fn strided_mut(size: (uint, uint), (diag, idx): (int, uint)) -> TestResult {
-        validate_diag_index!(diag, size, idx)
+        validate_diag_index!(diag, size, idx);
 
         test!({
             let mut m = setup::mat(size);
@@ -100,7 +100,7 @@ mod row {
     // Test that `at_mut(_)` is correct for `Row<Box<[_]>>`
     #[quickcheck]
     fn owned(size: uint, idx: uint) -> TestResult {
-        enforce!{
+        enforce! {
             idx < size,
         }
 
@@ -115,7 +115,7 @@ mod row {
     // Test that `at_mut(_)` is correct for `Row<&mut [_]>`
     #[quickcheck]
     fn slice_mut((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
-        enforce!{
+        enforce! {
             row < nrows,
             col < ncols,
         }
@@ -132,7 +132,7 @@ mod row {
     // Test that `at_mut(_)` is correct for `Row<strided::MutSlice>`
     #[quickcheck]
     fn strided_mut((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
-        enforce!{
+        enforce! {
             row < nrows,
             col < ncols,
         }
@@ -156,7 +156,7 @@ mod trans {
     // Test that `at_mut(_)` is correct for `Trans<Mat>`
     #[quickcheck]
     fn mat((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
-        enforce!{
+        enforce! {
             row < nrows,
             col < ncols,
         }
@@ -176,7 +176,7 @@ mod trans {
         (nrows, ncols): (uint, uint),
         (row, col): (uint, uint),
     ) -> TestResult {
-        enforce!{
+        enforce! {
             row < nrows,
             col < ncols,
         }
@@ -196,7 +196,7 @@ mod trans {
 // Test that `at_mut(_)` is correct for `Mat`
 #[quickcheck]
 fn mat((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
-    enforce!{
+    enforce! {
         row < nrows,
         col < ncols,
     }
@@ -216,7 +216,7 @@ fn view_mut(
     (nrows, ncols): (uint, uint),
     (row, col): (uint, uint),
 ) -> TestResult {
-    enforce!{
+    enforce! {
         row < nrows,
         col < ncols,
     }

@@ -43,7 +43,7 @@ macro_rules! impl_iter {
     }
 }
 
-impl_iter!(&'a [T], &'a mut [T])
+impl_iter!(&'a [T], &'a mut [T]);
 
 macro_rules! impls {
     ($($ty:ty),+) => {$(
@@ -67,5 +67,4 @@ macro_rules! impls {
    }
 }
 
-impls!(Col<V>, Diag<V>, Row<V>)
-
+impls!(Col<V>, Diag<V>, Row<V>);

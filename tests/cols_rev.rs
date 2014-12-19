@@ -19,7 +19,7 @@ mod trans {
     // Test that `cols().rev()` is correct for `Trans<Mat>`
     #[quickcheck]
     fn mat((nrows, ncols): (uint, uint), row: uint) -> TestResult {
-        enforce!{
+        enforce! {
             row < nrows,
         }
 
@@ -42,7 +42,7 @@ mod trans {
         (nrows, ncols): (uint, uint),
         row: uint,
     ) -> TestResult {
-        enforce!{
+        enforce! {
             row < nrows,
         }
 
@@ -68,7 +68,7 @@ mod trans {
         (nrows, ncols): (uint, uint),
         row: uint,
     ) -> TestResult {
-        enforce!{
+        enforce! {
             row < nrows,
         }
 
@@ -91,7 +91,7 @@ mod trans {
 // Test that `cols().rev()` is correct for `Mat`
 #[quickcheck]
 fn mat((nrows, ncols): (uint, uint), row: uint) -> TestResult {
-    enforce!{
+    enforce! {
         row < nrows,
     }
 
@@ -114,7 +114,7 @@ fn view(
     (nrows, ncols): (uint, uint),
     row: uint,
 ) -> TestResult {
-    enforce!{
+    enforce! {
         row < nrows,
     }
 
@@ -140,7 +140,7 @@ fn view_mut(
     (nrows, ncols): (uint, uint),
     row: uint,
 ) -> TestResult {
-    enforce!{
+    enforce! {
         row < nrows,
     }
 

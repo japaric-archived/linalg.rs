@@ -10,7 +10,7 @@ mod trans {
             // Test that `mul(Trans<Mat>)` is correct for `Row<strided::Slice>`
             #[quickcheck]
             fn mat((m, k, n): (uint, uint, uint), row: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     k != 0,
                     row < m,
                     idx < n,
@@ -40,7 +40,7 @@ mod trans {
                 row: uint,
                 idx: uint,
             ) -> TestResult {
-                enforce!{
+                enforce! {
                     k != 0,
                     row < m,
                     idx < n,
@@ -71,7 +71,7 @@ mod trans {
                 row: uint,
                 idx: uint,
             ) -> TestResult {
-                enforce!{
+                enforce! {
                     k != 0,
                     row < m,
                     idx < n,
@@ -96,7 +96,7 @@ mod trans {
         }
     }
 
-    blas!(f32, f64, c64, c128)
+    blas!(f32, f64, c64, c128);
 }
 
 macro_rules! blas {
@@ -110,7 +110,7 @@ macro_rules! blas {
         // Test that `mul(Mat)` is correct for `Row<strided::Slice>`
         #[quickcheck]
         fn mat((m, k, n): (uint, uint, uint), row: uint, idx: uint) -> TestResult {
-            enforce!{
+            enforce! {
                 k != 0,
                 row < m,
                 idx < n,
@@ -140,7 +140,7 @@ macro_rules! blas {
             row: uint,
             idx: uint,
         ) -> TestResult {
-            enforce!{
+            enforce! {
                 k != 0,
                 row < m,
                 idx < n,
@@ -171,7 +171,7 @@ macro_rules! blas {
             row: uint,
             idx: uint,
         ) -> TestResult {
-            enforce!{
+            enforce! {
                 k != 0,
                 row < m,
                 idx < n,
@@ -196,4 +196,4 @@ macro_rules! blas {
     }
 }
 
-blas!(f32, f64, c64, c128)
+blas!(f32, f64, c64, c128);

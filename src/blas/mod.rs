@@ -99,7 +99,7 @@ macro_rules! impl_vector {
     }
 }
 
-impl_vector!(&'a [T], &'a mut [T])
+impl_vector!(&'a [T], &'a mut [T]);
 
 impl<T> Vector<T> for Box<[T]> {
     fn as_ptr(&self) -> *const T {
@@ -215,4 +215,4 @@ macro_rules! impl_view {
    )+}
 }
 
-impl_view!(View<'a, T>, MutView<'a, T>)
+impl_view!(View<'a, T>, MutView<'a, T>);

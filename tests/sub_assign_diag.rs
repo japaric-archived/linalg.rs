@@ -17,7 +17,7 @@ macro_rules! blas {
         // Test that `sub_assign(T)` is correct for `Diag<strided::MutSlice>`
         #[quickcheck]
         fn scalar(size: (uint, uint), diag: int, idx: uint) -> TestResult {
-            validate_diag_index!(diag, size, idx)
+            validate_diag_index!(diag, size, idx);
 
             test!({
                 let mut m = setup::rand::mat::<$ty>(size);
@@ -34,4 +34,4 @@ macro_rules! blas {
     }
 }
 
-blas!(f32, f64, c64, c128)
+blas!(f32, f64, c64, c128);

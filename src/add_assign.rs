@@ -30,7 +30,7 @@ macro_rules! add_assign {
     }
 }
 
-add_assign!{
+add_assign! {
     Col<L> Col<R>,
     Row<L> Row<R>,
 }
@@ -163,7 +163,7 @@ macro_rules! impls {
      }
 }
 
-impls!{
+impls! {
     MutView<'a, T> Mat<T>,
     MutView<'a, T> Trans<Mat<T>>,
     Trans<MutView<'a, T>> Mat<T>,
@@ -302,7 +302,7 @@ macro_rules! view {
     }
 }
 
-view!(View<'a, T>, MutView<'a, T>)
+view!(View<'a, T>, MutView<'a, T>);
 
 fn vs<T, V: MutVector<T>>(lhs: &mut V, rhs: &T) where T: Axpy + One {
     let n = Collection::len(lhs);
@@ -321,7 +321,7 @@ fn vs<T, V: MutVector<T>>(lhs: &mut V, rhs: &T) where T: Axpy + One {
 }
 
 fn vv<T, L: MutVector<T>, R: Vector<T>>(lhs: &mut L, rhs: &R) where T: Axpy + One {
-    assert_eq!(Collection::len(lhs), Collection::len(rhs))
+    assert_eq!(Collection::len(lhs), Collection::len(rhs));
 
     let n = Collection::len(lhs);
 

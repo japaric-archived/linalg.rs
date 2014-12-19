@@ -45,7 +45,7 @@ macro_rules! impl_at {
     }
 }
 
-impl_at!(&'a [T], &'a mut [T])
+impl_at!(&'a [T], &'a mut [T]);
 
 impl<'a, T> AtMut<uint, T> for &'a mut [T] {
     fn at_mut(&mut self, index: uint) -> Result<&mut T, OutOfBounds> {
@@ -69,7 +69,7 @@ macro_rules! impls {
     }
 }
 
-impls!(Col<V>, Diag<V>, Row<V>)
+impls!(Col<V>, Diag<V>, Row<V>);
 
 // FIXME (DRY) Merge these two impls via a macro
 impl<T> At<(uint, uint), T> for Mat<T> {
@@ -130,7 +130,7 @@ macro_rules! view {
     }
 }
 
-view!(View<'a, T>, MutView<'a, T>)
+view!(View<'a, T>, MutView<'a, T>);
 
 impl<T, M> At<(uint, uint), T> for Trans<M> where M: At<(uint, uint), T> {
     fn at(&self, (row, col): (uint, uint)) -> Result<&T, OutOfBounds> {

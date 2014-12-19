@@ -18,7 +18,7 @@ mod col {
             // Test that `to_owned()` is correct for `Col<Box<[T]>>`
             #[quickcheck]
             fn owned(size: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     idx < size,
                 }
 
@@ -34,7 +34,7 @@ mod col {
             // Test that `to_owned()` is correct for `Col<&[T]>`
             #[quickcheck]
             fn slice((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                     idx < nrows,
                 }
@@ -52,7 +52,7 @@ mod col {
             // Test that `to_owned()` is correct for `Col<&mut [T]>`
             #[quickcheck]
             fn slice_mut((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                     idx < nrows,
                 }
@@ -70,7 +70,7 @@ mod col {
             // Test that `to_owned()` is correct for `Col<strided::Slice>`
             #[quickcheck]
             fn strided((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                     idx < nrows,
                 }
@@ -88,7 +88,7 @@ mod col {
             // Test that `to_owned()` is correct for `Col<strided::MutSlice>`
             #[quickcheck]
             fn strided_mut((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                     idx < nrows,
                 }
@@ -105,7 +105,7 @@ mod col {
         }
     }
 
-    blas!(f32, f64, c64, c128)
+    blas!(f32, f64, c64, c128);
 }
 
 mod row {
@@ -119,7 +119,7 @@ mod row {
             // Test that `to_owned()` is correct for `Row<Box<[T]>>`
             #[quickcheck]
             fn owned(size: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     idx < size,
                 }
 
@@ -135,7 +135,7 @@ mod row {
             // Test that `to_owned()` is correct for `Row<&[T]>`
             #[quickcheck]
             fn slice((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     row < nrows,
                     idx < ncols,
                 }
@@ -153,7 +153,7 @@ mod row {
             // Test that `to_owned()` is correct for `Row<mut &[T]>`
             #[quickcheck]
             fn slice_mut((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     row < nrows,
                     idx < ncols,
                 }
@@ -171,7 +171,7 @@ mod row {
             // Test that `to_owned()` is correct for `Row<strided::Slice>`
             #[quickcheck]
             fn strided((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     row < nrows,
                     idx < ncols,
                 }
@@ -189,7 +189,7 @@ mod row {
             // Test that `to_owned()` is correct for `Row<strided::MutSlice>`
             #[quickcheck]
             fn strided_mut((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     row < nrows,
                     idx < ncols,
                 }
@@ -206,7 +206,7 @@ mod row {
         }
     }
 
-    blas!(f32, f64, c64, c128)
+    blas!(f32, f64, c64, c128);
 }
 
 mod trans {
@@ -220,7 +220,7 @@ mod trans {
             // Test that `to_owned()` is correct for `Trans<Mat>`
             #[quickcheck]
             fn mat((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
-                enforce!{
+                enforce! {
                     row < nrows,
                     col < ncols,
                 }
@@ -240,7 +240,7 @@ mod trans {
                 (nrows, ncols): (uint, uint),
                 (row, col): (uint, uint),
             ) -> TestResult {
-                enforce!{
+                enforce! {
                     row < nrows,
                     col < ncols,
                 }
@@ -262,7 +262,7 @@ mod trans {
                 (nrows, ncols): (uint, uint),
                 (row, col): (uint, uint),
             ) -> TestResult {
-                enforce!{
+                enforce! {
                     row < nrows,
                     col < ncols,
                 }
@@ -279,7 +279,7 @@ mod trans {
         }
     }
 
-    blas!(f32, f64, c64, c128)
+    blas!(f32, f64, c64, c128);
 }
 
 macro_rules! blas {
@@ -292,7 +292,7 @@ macro_rules! blas {
         // Test that `to_owned()` is correct for `Mat`
         #[quickcheck]
         fn mat((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
-            enforce!{
+            enforce! {
                 row < nrows,
                 col < ncols,
             }
@@ -312,7 +312,7 @@ macro_rules! blas {
             (nrows, ncols): (uint, uint),
             (row, col): (uint, uint),
         ) -> TestResult {
-            enforce!{
+            enforce! {
                 row < nrows,
                 col < ncols,
             }
@@ -334,7 +334,7 @@ macro_rules! blas {
             (nrows, ncols): (uint, uint),
             (row, col): (uint, uint),
         ) -> TestResult {
-            enforce!{
+            enforce! {
                 row < nrows,
                 col < ncols,
             }
@@ -351,4 +351,4 @@ macro_rules! blas {
     }
 }
 
-blas!(f32, f64, c64, c128)
+blas!(f32, f64, c64, c128);

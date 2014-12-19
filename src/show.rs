@@ -38,18 +38,18 @@ macro_rules! fmt {
     }
 }
 
-impl<T> fmt::Show for Mat<T> where T: fmt::Show { fmt!() }
-impl<T> fmt::Show for Trans<Mat<T>> where T: fmt::Show { fmt!() }
+impl<T> fmt::Show for Mat<T> where T: fmt::Show { fmt!(); }
+impl<T> fmt::Show for Trans<Mat<T>> where T: fmt::Show { fmt!(); }
 
 macro_rules! mat_impls {
     ($($ty:ty),+) => {$(
         impl<'a, T> fmt::Show for $ty where T: fmt::Show {
-            fmt!()
+            fmt!();
         }
     )+}
 }
 
-mat_impls!(MutView<'a, T>, Trans<MutView<'a, T>>, Trans<View<'a, T>>, View<'a, T>)
+mat_impls!(MutView<'a, T>, Trans<MutView<'a, T>>, Trans<View<'a, T>>, View<'a, T>);
 
 macro_rules! impls {
     ($($ty:ty -> $str:expr),+,) => {$(
@@ -61,7 +61,7 @@ macro_rules! impls {
    )+}
 }
 
-impls!{
+impls! {
     Col<V> -> "Col",
     Diag<V> -> "Diag",
     Row<V> -> "Row",

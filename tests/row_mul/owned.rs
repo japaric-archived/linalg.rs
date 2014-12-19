@@ -10,7 +10,7 @@ mod trans {
             // Test that `mul(Trans<Mat>)` is correct for `Row<Box<[T]>>`
             #[quickcheck]
             fn mat((k, n): (uint, uint), idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     k != 0,
                     idx < n,
                 }
@@ -37,7 +37,7 @@ mod trans {
                 (k, n): (uint, uint),
                 idx: uint,
             ) -> TestResult {
-                enforce!{
+                enforce! {
                     k != 0,
                     idx < n,
                 }
@@ -65,7 +65,7 @@ mod trans {
                 (k, n): (uint, uint),
                 idx: uint,
             ) -> TestResult {
-                enforce!{
+                enforce! {
                     k != 0,
                     idx < n,
                 }
@@ -88,7 +88,7 @@ mod trans {
         }
     }
 
-    blas!(f32, f64, c64, c128)
+    blas!(f32, f64, c64, c128);
 }
 
 macro_rules! blas {
@@ -102,7 +102,7 @@ macro_rules! blas {
         // Test that `mul(Mat)` is correct for `Row<Box<[T]>>`
         #[quickcheck]
         fn mat((k, n): (uint, uint), idx: uint) -> TestResult {
-            enforce!{
+            enforce! {
                 k != 0,
                 idx < n,
             }
@@ -129,7 +129,7 @@ macro_rules! blas {
             (k, n): (uint, uint),
             idx: uint,
         ) -> TestResult {
-            enforce!{
+            enforce! {
                 k != 0,
                 idx < n,
             }
@@ -157,7 +157,7 @@ macro_rules! blas {
             (k, n): (uint, uint),
             idx: uint,
         ) -> TestResult {
-            enforce!{
+            enforce! {
                 k != 0,
                 idx < n,
             }
@@ -180,4 +180,4 @@ macro_rules! blas {
     }
 }
 
-blas!(f32, f64, c64, c128)
+blas!(f32, f64, c64, c128);

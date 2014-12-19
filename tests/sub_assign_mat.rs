@@ -18,7 +18,7 @@ mod trans {
             // Test that `sub_assign(Trans<Mat>)` is correct for `Mat`
             #[quickcheck]
             fn mat((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
-                enforce!{
+                enforce! {
                     row < nrows,
                     col < ncols,
                 }
@@ -46,7 +46,7 @@ mod trans {
                 (nrows, ncols): (uint, uint),
                 (row, col): (uint, uint),
             ) -> TestResult {
-                enforce!{
+                enforce! {
                     row < nrows,
                     col < ncols,
                 }
@@ -76,7 +76,7 @@ mod trans {
                 (nrows, ncols): (uint, uint),
                 (row, col): (uint, uint),
             ) -> TestResult {
-                enforce!{
+                enforce! {
                     row < nrows,
                     col < ncols,
                 }
@@ -101,7 +101,7 @@ mod trans {
         }
     }
 
-    blas!(f32, f64, c64, c128)
+    blas!(f32, f64, c64, c128);
 }
 
 macro_rules! blas {
@@ -114,7 +114,7 @@ macro_rules! blas {
         // Test that `sub_assign(Mat)` is correct for `Mat`
         #[quickcheck]
         fn mat((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
-            enforce!{
+            enforce! {
                 row < nrows,
                 col < ncols,
             }
@@ -139,7 +139,7 @@ macro_rules! blas {
         // Test that `sub_assign(T)` is correct for `Mat`
         #[quickcheck]
         fn scalar((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
-            enforce!{
+            enforce! {
                 row < nrows,
                 col < ncols,
             }
@@ -166,7 +166,7 @@ macro_rules! blas {
             (nrows, ncols): (uint, uint),
             (row, col): (uint, uint),
         ) -> TestResult {
-            enforce!{
+            enforce! {
                 row < nrows,
                 col < ncols,
             }
@@ -196,7 +196,7 @@ macro_rules! blas {
             (nrows, ncols): (uint, uint),
             (row, col): (uint, uint),
         ) -> TestResult {
-            enforce!{
+            enforce! {
                 row < nrows,
                 col < ncols,
             }
@@ -221,4 +221,4 @@ macro_rules! blas {
     }
 }
 
-blas!(f32, f64, c64, c128)
+blas!(f32, f64, c64, c128);

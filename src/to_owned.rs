@@ -39,7 +39,7 @@ macro_rules! impls {
     }
 }
 
-impls!(&'a [T], &'a mut [T], strided::Slice<'a, T>, strided::MutSlice<'a, T>)
+impls!(&'a [T], &'a mut [T], strided::Slice<'a, T>, strided::MutSlice<'a, T>);
 
 impl<'a, T> ToOwned<Col<Box<[T]>>> for Col<Box<[T]>> where T: blas::Copy {
     fn to_owned(&self) -> Col<Box<[T]>> {
@@ -114,21 +114,21 @@ macro_rules! to_owned {
 }
 
 impl<T> ToOwned<Mat<T>> for Trans<Mat<T>> where T: blas::Copy {
-    to_owned!()
+    to_owned!();
 }
 
 impl<'a, T> ToOwned<Mat<T>> for View<'a, T> where T: blas::Copy {
-    to_owned!()
+    to_owned!();
 }
 
 impl<'a, T> ToOwned<Mat<T>> for MutView<'a, T> where T: blas::Copy {
-    to_owned!()
+    to_owned!();
 }
 
 impl<'a, T> ToOwned<Mat<T>> for Trans<View<'a, T>> where T: blas::Copy {
-    to_owned!()
+    to_owned!();
 }
 
 impl<'a, T> ToOwned<Mat<T>> for Trans<MutView<'a, T>> where T: blas::Copy {
-    to_owned!()
+    to_owned!();
 }

@@ -16,7 +16,7 @@ mod trans {
                 (m, k, n): (uint, uint, uint),
                 (row, col): (uint, uint),
             ) -> TestResult {
-                enforce!{
+                enforce! {
                     k != 0,
                     row < m,
                     col < n,
@@ -46,7 +46,7 @@ mod trans {
                 (m, k, n): (uint, uint, uint),
                 (row, col): (uint, uint),
             ) -> TestResult {
-                enforce!{
+                enforce! {
                     k != 0,
                     row < m,
                     col < n,
@@ -78,7 +78,7 @@ mod trans {
                 (m, k, n): (uint, uint, uint),
                 (row, col): (uint, uint),
             ) -> TestResult {
-                enforce!{
+                enforce! {
                     k != 0,
                     row < m,
                     col < n,
@@ -105,7 +105,7 @@ mod trans {
         }
     }
 
-    blas!(f32, f64, c64, c128)
+    blas!(f32, f64, c64, c128);
 }
 
 macro_rules! blas {
@@ -123,7 +123,7 @@ macro_rules! blas {
             (m, k, n): (uint, uint, uint),
             (row, col): (uint, uint),
         ) -> TestResult {
-            enforce!{
+            enforce! {
                 k != 0,
                 row < m,
                 col < n,
@@ -153,7 +153,7 @@ macro_rules! blas {
             (m, k, n): (uint, uint, uint),
             (row, col): (uint, uint),
         ) -> TestResult {
-            enforce!{
+            enforce! {
                 k != 0,
                 row < m,
                 col < n,
@@ -185,7 +185,7 @@ macro_rules! blas {
             (m, k, n): (uint, uint, uint),
             (row, col): (uint, uint),
         ) -> TestResult {
-            enforce!{
+            enforce! {
                 k != 0,
                 row < m,
                 col < n,
@@ -212,4 +212,4 @@ macro_rules! blas {
     }
 }
 
-blas!(f32, f64, c64, c128)
+blas!(f32, f64, c64, c128);

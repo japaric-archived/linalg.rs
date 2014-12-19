@@ -19,7 +19,7 @@ mod col {
         // Test that `size_hint()` is correct for `Col<&[_]>::iter()` output
         #[quickcheck]
         fn items((nrows, ncols): (uint, uint), col: uint, skip: uint) -> TestResult {
-            enforce!{
+            enforce! {
                 col < ncols,
             }
 
@@ -41,7 +41,7 @@ mod col {
         // Test that `size_hint()` is correct for `Col<&mut [_]>::iter_mut()` output
         #[quickcheck]
         fn items_mut((nrows, ncols): (uint, uint), col: uint, skip: uint) -> TestResult {
-            enforce!{
+            enforce! {
                 col < ncols,
             }
 
@@ -70,7 +70,7 @@ mod col {
         // Test that `size_hint()` is correct for `Col<strided::Slice>::iter()` output
         #[quickcheck]
         fn items((nrows, ncols): (uint, uint), col: uint, skip: uint) -> TestResult {
-            enforce!{
+            enforce! {
                 col < ncols,
             }
 
@@ -92,7 +92,7 @@ mod col {
         // Test that `size_hint()` is correct for `Col<strided::MutSlice>::iter_mut()` output
         #[quickcheck]
         fn items_mut((nrows, ncols): (uint, uint), col: uint, skip: uint) -> TestResult {
-            enforce!{
+            enforce! {
                 col < ncols,
             }
 
@@ -122,7 +122,7 @@ mod diag {
     // Test that `size_hint()` is correct for `Diag<strided::Slice>::iter()` output
     #[quickcheck]
     fn items(size: (uint, uint), diag: int, skip: uint) -> TestResult {
-        validate_diag!(diag, size)
+        validate_diag!(diag, size);
 
         test!({
             let m = setup::mat(size);
@@ -142,7 +142,7 @@ mod diag {
     // Test that `size_hint()` is correct for `Diag<strided::MutSlice>::iter_mut()` output
     #[quickcheck]
     fn items_mut(size: (uint, uint), diag: int, skip: uint) -> TestResult {
-        validate_diag!(diag, size)
+        validate_diag!(diag, size);
 
         test!({
             let mut m = setup::mat(size);
@@ -170,7 +170,7 @@ mod row {
         // Test that `size_hint()` is correct for `Row<&[_]>::iter()` output
         #[quickcheck]
         fn items((nrows, ncols): (uint, uint), row: uint, skip: uint) -> TestResult {
-            enforce!{
+            enforce! {
                 row < nrows,
             }
 
@@ -192,7 +192,7 @@ mod row {
         // Test that `size_hint()` is correct for `Row<&mut [_]>::iter_mut()` output
         #[quickcheck]
         fn items_mut((nrows, ncols): (uint, uint), row: uint, skip: uint) -> TestResult {
-            enforce!{
+            enforce! {
                 row < nrows,
             }
 
@@ -221,7 +221,7 @@ mod row {
         // Test that `size_hint()` is correct for `Row<strided::Slice>::iter()` output
         #[quickcheck]
         fn items((nrows, ncols): (uint, uint), row: uint, skip: uint) -> TestResult {
-            enforce!{
+            enforce! {
                 row < nrows,
             }
 
@@ -243,7 +243,7 @@ mod row {
         // Test that `size_hint()` is correct for `Row<strided::MutSlice>::iter_mut()` output
         #[quickcheck]
         fn items_mut((nrows, ncols): (uint, uint), row: uint, skip: uint) -> TestResult {
-            enforce!{
+            enforce! {
                 row < nrows,
             }
 

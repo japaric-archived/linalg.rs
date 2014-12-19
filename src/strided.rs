@@ -73,7 +73,7 @@ macro_rules! impl_items {
     }
 }
 
-impl_items!{
+impl_items! {
     MutItems<'a, T> -> &'a mut T,
     Items<'a, T> -> &'a T,
 }
@@ -275,4 +275,4 @@ macro_rules! impls {
     }
 }
 
-impls!(MutSlice<'a, T>, Slice<'a, T>)
+impls!(MutSlice<'a, T>, Slice<'a, T>);

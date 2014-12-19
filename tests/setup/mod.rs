@@ -59,13 +59,13 @@ macro_rules! validate_diag {
         if diag > 0 {
             let diag = diag as uint;
 
-            enforce!{
+            enforce! {
                 diag < ncols,
             }
         } else {
             let diag = -diag as uint;
 
-            enforce!{
+            enforce! {
                 diag < nrows,
             }
         }
@@ -81,14 +81,14 @@ macro_rules! validate_diag_index {
         if diag > 0 {
             let diag = diag as uint;
 
-            enforce!{
+            enforce! {
                 diag < ncols,
                 idx < ::std::cmp::min(ncols - diag, nrows),
             }
         } else {
             let diag = -diag as uint;
 
-            enforce!{
+            enforce! {
                 diag < nrows,
                 idx < ::std::cmp::min(nrows - diag, ncols),
             }

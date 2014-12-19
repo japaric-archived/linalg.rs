@@ -9,7 +9,7 @@ macro_rules! blas {
         // Test that `mul(Col<Box<[T]>>)` is correct for `Trans<Mat>`
         #[quickcheck]
         fn owned((nrows, ncols): (uint, uint), idx: uint) -> TestResult {
-            enforce!{
+            enforce! {
                 idx < nrows,
                 ncols != 0,
             }
@@ -24,7 +24,6 @@ macro_rules! blas {
                 let _0: $ty = Zero::zero();
                 let product = r.iter().zip(rhs.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                assert_eq!(product , *try!(result.at(idx)))
                 product == *try!(result.at(idx))
             })
         }
@@ -32,7 +31,7 @@ macro_rules! blas {
         // Test that `mul(Col<&[T]>)` is correct for `Trans<Mat>`
         #[quickcheck]
         fn slice((m, k, n): (uint, uint, uint), col: uint, idx: uint) -> TestResult {
-            enforce!{
+            enforce! {
                 col < n,
                 idx < m,
                 k != 0,
@@ -49,7 +48,6 @@ macro_rules! blas {
                 let _0: $ty = Zero::zero();
                 let product = r.iter().zip(rhs.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                assert_eq!(product , *try!(result.at(idx)))
                 product == *try!(result.at(idx))
             })
         }
@@ -57,7 +55,7 @@ macro_rules! blas {
         // Test that `mul(Col<&mut [T]>)` is correct for `Trans<Mat>`
         #[quickcheck]
         fn slice_mut((m, k, n): (uint, uint, uint), col: uint, idx: uint) -> TestResult {
-            enforce!{
+            enforce! {
                 col < n,
                 idx < m,
                 k != 0,
@@ -74,7 +72,6 @@ macro_rules! blas {
                 let _0: $ty = Zero::zero();
                 let product = r.iter().zip(rhs.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                assert_eq!(product , *try!(result.at(idx)))
                 product == *try!(result.at(idx))
             })
         }
@@ -82,7 +79,7 @@ macro_rules! blas {
         // Test that `mul(Col<strided::Slice>)` is correct for `Trans<Mat>`
         #[quickcheck]
         fn strided((m, k, n): (uint, uint, uint), col: uint, idx: uint) -> TestResult {
-            enforce!{
+            enforce! {
                 col < n,
                 idx < m,
                 k != 0,
@@ -99,7 +96,6 @@ macro_rules! blas {
                 let _0: $ty = Zero::zero();
                 let product = r.iter().zip(rhs.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                assert_eq!(product , *try!(result.at(idx)))
                 product == *try!(result.at(idx))
             })
         }
@@ -107,7 +103,7 @@ macro_rules! blas {
         // Test that `mul(Col<strided::MutSlice>)` is correct for `Trans<Mat>`
         #[quickcheck]
         fn strided_mut((m, k, n): (uint, uint, uint), col: uint, idx: uint) -> TestResult {
-            enforce!{
+            enforce! {
                 col < n,
                 idx < m,
                 k != 0,
@@ -124,11 +120,10 @@ macro_rules! blas {
                 let _0: $ty = Zero::zero();
                 let product = r.iter().zip(rhs.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                assert_eq!(product , *try!(result.at(idx)))
                 product == *try!(result.at(idx))
             })
         }})+
     }
 }
 
-blas!(f32, f64, c64, c128)
+blas!(f32, f64, c64, c128);

@@ -13,7 +13,7 @@ macro_rules! blas {
             (nrows, ncols): (uint, uint),
             idx: uint,
         ) -> TestResult {
-            enforce!{
+            enforce! {
                 idx < nrows,
                 ncols != 0,
             }
@@ -30,7 +30,6 @@ macro_rules! blas {
                 let _0: $ty = Zero::zero();
                 let product = r.iter().zip(rhs.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                assert_eq!(product , *try!(result.at(idx)))
                 product == *try!(result.at(idx))
             })
         }
@@ -43,7 +42,7 @@ macro_rules! blas {
             col: uint,
             idx: uint,
         ) -> TestResult {
-            enforce!{
+            enforce! {
                 col < n,
                 idx < m,
                 k != 0,
@@ -62,7 +61,6 @@ macro_rules! blas {
                 let _0: $ty = Zero::zero();
                 let product = r.iter().zip(rhs.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                assert_eq!(product , *try!(result.at(idx)))
                 product == *try!(result.at(idx))
             })
         }
@@ -75,7 +73,7 @@ macro_rules! blas {
             col: uint,
             idx: uint,
         ) -> TestResult {
-            enforce!{
+            enforce! {
                 col < n,
                 idx < m,
                 k != 0,
@@ -94,7 +92,6 @@ macro_rules! blas {
                 let _0: $ty = Zero::zero();
                 let product = r.iter().zip(rhs.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                assert_eq!(product , *try!(result.at(idx)))
                 product == *try!(result.at(idx))
             })
         }
@@ -107,7 +104,7 @@ macro_rules! blas {
             col: uint,
             idx: uint,
         ) -> TestResult {
-            enforce!{
+            enforce! {
                 col < n,
                 idx < m,
                 k != 0,
@@ -126,7 +123,6 @@ macro_rules! blas {
                 let _0: $ty = Zero::zero();
                 let product = r.iter().zip(rhs.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                assert_eq!(product , *try!(result.at(idx)))
                 product == *try!(result.at(idx))
             })
         }
@@ -139,7 +135,7 @@ macro_rules! blas {
             col: uint,
             idx: uint,
         ) -> TestResult {
-            enforce!{
+            enforce! {
                 col < n,
                 idx < m,
                 k != 0,
@@ -158,11 +154,10 @@ macro_rules! blas {
                 let _0: $ty = Zero::zero();
                 let product = r.iter().zip(rhs.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                assert_eq!(product , *try!(result.at(idx)))
                 product == *try!(result.at(idx))
             })
         }})+
     }
 }
 
-blas!(f32, f64, c64, c128)
+blas!(f32, f64, c64, c128);

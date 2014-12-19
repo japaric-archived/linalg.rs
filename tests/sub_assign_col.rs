@@ -18,7 +18,7 @@ macro_rules! blas {
             // Test that `sub_assign(Col<Box<[T]>>)` is correct for `Col<Box<[T]>>`
             #[quickcheck]
             fn owned(size: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     idx < size,
                 }
 
@@ -39,7 +39,7 @@ macro_rules! blas {
             // Test that `sub_assign(T)` is correct for `Col<Box<[T]>>`
             #[quickcheck]
             fn scalar(size: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     idx < size,
                 }
 
@@ -58,7 +58,7 @@ macro_rules! blas {
             // Test that `sub_assign(Col<&[T]>)` is correct for `Col<Box<[T]>>`
             #[quickcheck]
             fn slice((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                     idx < nrows,
                 }
@@ -81,7 +81,7 @@ macro_rules! blas {
             // Test that `sub_assign(Col<&mut [T]>)` is correct for `Col<Box<[T]>>`
             #[quickcheck]
             fn slice_mut((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                     idx < nrows,
                 }
@@ -104,7 +104,7 @@ macro_rules! blas {
             // Test that `sub_assign(Col<strided::Slice>)` is correct for `Col<Box<[T]>>`
             #[quickcheck]
             fn strided((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                     idx < nrows,
                 }
@@ -127,7 +127,7 @@ macro_rules! blas {
             // Test that `sub_assign(Col<strided::MutSlice>)` is correct for `Col<Box<[T]>>`
             #[quickcheck]
             fn strided_mut((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                     idx < nrows,
                 }
@@ -157,7 +157,7 @@ macro_rules! blas {
             // Test that `sub_assign(Col<Box<[T]>>)` is correct for `Col<&mut [T]>`
             #[quickcheck]
             fn owned((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                     idx < nrows,
                 }
@@ -180,7 +180,7 @@ macro_rules! blas {
             // Test that `sub_assign(T)` is correct for `Col<&mut [T]>`
             #[quickcheck]
             fn scalar((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                     idx < nrows,
                 }
@@ -201,7 +201,7 @@ macro_rules! blas {
             // Test that `sub_assign(Col<&[T]>)` is correct for `Col<&mut [T]>`
             #[quickcheck]
             fn slice((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                     idx < nrows,
                 }
@@ -225,7 +225,7 @@ macro_rules! blas {
             // Test that `sub_assign(Col<&mut [T]>)` is correct for `Col<&mut [T]>`
             #[quickcheck]
             fn slice_mut((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                     idx < nrows,
                 }
@@ -249,7 +249,7 @@ macro_rules! blas {
             // Test that `sub_assign(Col<strided::Slice>)` is correct for `Col<&mut [T]>`
             #[quickcheck]
             fn strided((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                     idx < nrows,
                 }
@@ -273,7 +273,7 @@ macro_rules! blas {
             // Test that `sub_assign(Col<strided::MutSlice>)` is correct for `Col<&mut [T]>`
             #[quickcheck]
             fn strided_mut((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                     idx < nrows,
                 }
@@ -304,7 +304,7 @@ macro_rules! blas {
             // Test that `sub_assign(T)` is correct for `Col<strided::MutSlice>`
             #[quickcheck]
             fn owned((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                     idx < nrows,
                 }
@@ -327,7 +327,7 @@ macro_rules! blas {
             // Test that `sub_assign(T)` is correct for `Col<strided::MutSlice>`
             #[quickcheck]
             fn scalar((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                     idx < nrows,
                 }
@@ -348,7 +348,7 @@ macro_rules! blas {
             // Test that `sub_assign(Col<&[T]>)` is correct for `Col<strided::MutSlice>`
             #[quickcheck]
             fn slice((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                     idx < nrows,
                 }
@@ -372,7 +372,7 @@ macro_rules! blas {
             // Test that `sub_assign(Col<&mut [T]>)` is correct for `Col<strided::MutSlice>`
             #[quickcheck]
             fn slice_mut((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                     idx < nrows,
                 }
@@ -396,7 +396,7 @@ macro_rules! blas {
             // Test that `sub_assign(Col<strided::Slice>)` is correct for `Col<strided::MutSlice>`
             #[quickcheck]
             fn strided((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                     idx < nrows,
                 }
@@ -420,7 +420,7 @@ macro_rules! blas {
             // Test that `sub_assign(Col<strided::Slice>)` is correct for `Col<strided::MutSlice>`
             #[quickcheck]
             fn strided_mut((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
-                enforce!{
+                enforce! {
                     col < ncols,
                     idx < nrows,
                 }
@@ -444,4 +444,4 @@ macro_rules! blas {
     }
 }
 
-blas!(f32, f64, c64, c128)
+blas!(f32, f64, c64, c128);
