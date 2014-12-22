@@ -118,7 +118,7 @@ impl<'a, T> ::From<(*const T, uint, uint)> for Slice<'a, T> {
     }
 }
 
-impl<'a, T> PartialEq for Slice<'a, T> where T: PartialEq {
+impl<'a, 'b, T, U> PartialEq<Slice<'a, T>> for Slice<'b, U> where U: PartialEq<T> {
     fn eq(&self, rhs: &Slice<'a, T>) -> bool {
         self.len == rhs.len && order::eq(self.iter(), rhs.iter())
     }

@@ -40,7 +40,7 @@
 //!   guarantee of the iteration order
 
 #![deny(missing_docs, warnings)]
-#![feature(macro_rules)]
+#![feature(default_type_params, macro_rules)]
 
 extern crate complex;
 extern crate libc;
@@ -55,6 +55,7 @@ mod add_assign;
 mod at;
 mod col;
 mod cols;
+mod eq;
 mod error;
 mod iter;
 mod mat;
@@ -87,7 +88,6 @@ impl<'a, T> Col<'a, T> {
 impl<'a, T> Copy for Col<'a, T> {}
 
 /// An owned column vector
-#[deriving(PartialEq)]
 pub struct ColVec<T>(Box<[T]>);
 
 impl<T> ColVec<T> {
@@ -226,7 +226,6 @@ pub struct Items<'a, T: 'a>(raw::view::Items<'a, T>);
 impl<'a, T> Copy for Items<'a, T> {}
 
 /// Owned matrix
-#[deriving(PartialEq)]
 pub struct Mat<T> {
     ncols: uint,
     nrows: uint,
@@ -423,7 +422,6 @@ impl<T> Clone for Mat<T> where T: Clone {
 }
 
 /// Mutable view into the column of a matrix
-#[deriving(PartialEq)]
 pub struct MutCol<'a, T: 'a>(strided::MutSlice<'a, T>);
 
 impl<'a, T> MutCol<'a, T> {
@@ -441,10 +439,13 @@ impl<'a, T> MutCol<'a, T> {
 pub struct MutCols<'a, M: 'a>(raw::Cols<'a, M>);
 
 /// Immutable view into the diagonal of a matrix
-#[deriving(PartialEq)]
 pub struct MutDiag<'a, T: 'a>(strided::MutSlice<'a, T>);
 
 impl<'a, T> MutDiag<'a, T> {
+    fn as_diag(&self) -> Diag<T> {
+        Diag(strided::Slice((self.0).0))
+    }
+
     /// Returns the length of the diagonal
     pub fn len(&self) -> uint {
         self.0.len()
@@ -455,7 +456,6 @@ impl<'a, T> MutDiag<'a, T> {
 pub struct MutItems<'a, T: 'a>(raw::view::Items<'a, T>);
 
 /// Mutable view into the row of a matrix
-#[deriving(PartialEq)]
 pub struct MutRow<'a, T: 'a>(strided::MutSlice<'a, T>);
 
 impl<'a, T> MutRow<'a, T> {
@@ -473,7 +473,6 @@ impl<'a, T> MutRow<'a, T> {
 pub struct MutRows<'a, M: 'a>(raw::Rows<'a, M>);
 
 /// Mutable sub-matrix view
-#[deriving(PartialEq)]
 pub struct MutView<'a, T: 'a>(raw::View<'a, T>);
 
 impl<'a, T> MutView<'a, T> {
@@ -495,7 +494,6 @@ impl<'a, T> Row<'a, T> {
 impl<'a, T> Copy for Row<'a, T> {}
 
 /// An owned row vector
-#[deriving(PartialEq)]
 pub struct RowVec<T>(Box<[T]>);
 
 impl<T> RowVec<T> {
@@ -617,11 +615,10 @@ pub struct Rows<'a, M: 'a>(raw::Rows<'a, M>);
 impl<'a, M> Copy for Rows<'a, M> {}
 
 /// View into the transpose of a matrix
-#[deriving(Copy, PartialEq)]
+#[deriving(Copy)]
 pub struct Trans<M>(M);
 
 /// Immutable sub-matrix view
-#[deriving(PartialEq)]
 pub struct View<'a, T: 'a>(raw::View<'a, T>);
 
 impl<'a, T> Copy for View<'a, T> {}
