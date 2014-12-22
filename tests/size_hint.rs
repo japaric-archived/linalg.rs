@@ -16,7 +16,7 @@ mod col {
 
         use setup;
 
-        // Test that `size_hint()` is correct for `Col<&[_]>::iter()` output
+        // Test that `size_hint()` is correct for `Col::iter()` output
         #[quickcheck]
         fn items((nrows, ncols): (uint, uint), col: uint, skip: uint) -> TestResult {
             enforce! {
@@ -38,7 +38,7 @@ mod col {
             })
         }
 
-        // Test that `size_hint()` is correct for `Col<&mut [_]>::iter_mut()` output
+        // Test that `size_hint()` is correct for `MutCol::iter_mut()` output
         #[quickcheck]
         fn items_mut((nrows, ncols): (uint, uint), col: uint, skip: uint) -> TestResult {
             enforce! {
@@ -67,7 +67,7 @@ mod col {
 
         use setup;
 
-        // Test that `size_hint()` is correct for `Col<strided::Slice>::iter()` output
+        // Test that `size_hint()` is correct for `strided::Col::iter()` output
         #[quickcheck]
         fn items((nrows, ncols): (uint, uint), col: uint, skip: uint) -> TestResult {
             enforce! {
@@ -89,7 +89,7 @@ mod col {
             })
         }
 
-        // Test that `size_hint()` is correct for `Col<strided::MutSlice>::iter_mut()` output
+        // Test that `size_hint()` is correct for `strided::MutCol::iter_mut()` output
         #[quickcheck]
         fn items_mut((nrows, ncols): (uint, uint), col: uint, skip: uint) -> TestResult {
             enforce! {
@@ -119,7 +119,7 @@ mod diag {
 
     use setup;
 
-    // Test that `size_hint()` is correct for `Diag<strided::Slice>::iter()` output
+    // Test that `size_hint()` is correct for `Diag:iter()` output
     #[quickcheck]
     fn items(size: (uint, uint), diag: int, skip: uint) -> TestResult {
         validate_diag!(diag, size);
@@ -139,7 +139,7 @@ mod diag {
         })
     }
 
-    // Test that `size_hint()` is correct for `Diag<strided::MutSlice>::iter_mut()` output
+    // Test that `size_hint()` is correct for `MutDiag::iter_mut()` output
     #[quickcheck]
     fn items_mut(size: (uint, uint), diag: int, skip: uint) -> TestResult {
         validate_diag!(diag, size);
@@ -167,7 +167,7 @@ mod row {
 
         use setup;
 
-        // Test that `size_hint()` is correct for `Row<&[_]>::iter()` output
+        // Test that `size_hint()` is correct for `Row::iter()` output
         #[quickcheck]
         fn items((nrows, ncols): (uint, uint), row: uint, skip: uint) -> TestResult {
             enforce! {
@@ -189,7 +189,7 @@ mod row {
             })
         }
 
-        // Test that `size_hint()` is correct for `Row<&mut [_]>::iter_mut()` output
+        // Test that `size_hint()` is correct for `MutRow::iter_mut()` output
         #[quickcheck]
         fn items_mut((nrows, ncols): (uint, uint), row: uint, skip: uint) -> TestResult {
             enforce! {
@@ -218,7 +218,7 @@ mod row {
 
         use setup;
 
-        // Test that `size_hint()` is correct for `Row<strided::Slice>::iter()` output
+        // Test that `size_hint()` is correct for `strided::Row::iter()` output
         #[quickcheck]
         fn items((nrows, ncols): (uint, uint), row: uint, skip: uint) -> TestResult {
             enforce! {
@@ -240,7 +240,7 @@ mod row {
             })
         }
 
-        // Test that `size_hint()` is correct for `Row<strided::MutSlice>::iter_mut()` output
+        // Test that `size_hint()` is correct for `strided::MutRow::iter_mut()` output
         #[quickcheck]
         fn items_mut((nrows, ncols): (uint, uint), row: uint, skip: uint) -> TestResult {
             enforce! {
@@ -306,7 +306,7 @@ mod view {
 
     use setup;
 
-    // Test that `size_hint()` is correct for `view::Items`
+    // Test that `size_hint()` is correct for `Items`
     #[quickcheck]
     fn items(
         start: (uint, uint),
@@ -329,7 +329,7 @@ mod view {
         })
     }
 
-    // Test that `size_hint()` is correct for `view::Items`
+    // Test that `size_hint()` is correct for `MutItems`
     #[quickcheck]
     fn items_mut(
         start: (uint, uint),

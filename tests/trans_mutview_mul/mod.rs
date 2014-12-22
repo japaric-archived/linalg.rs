@@ -9,7 +9,7 @@ mod trans {
 
             use setup;
 
-            // Test that `mul(Trans<Mat>)` is correct for `Trans<MutViwe>`
+            // Test that `mul(&Trans<Mat>)` is correct for `Trans<MutViwe>`
             #[quickcheck]
             fn mat(
                 start: (uint, uint),
@@ -71,7 +71,7 @@ mod trans {
                 })
             }
 
-            // Test that `mul(Trans<MutView>)` is correct for `Trans<MutView>`
+            // Test that `mul(&Trans<MutView>)` is correct for `Trans<MutView>`
             #[quickcheck]
             fn view_mut(
                 (lhs_start, rhs_start): ((uint, uint), (uint, uint)),
@@ -116,7 +116,7 @@ macro_rules! blas {
 
         use setup;
 
-        // Test that `mul(Mat)` is correct for `Trans<MutView>`
+        // Test that `mul(&Mat)` is correct for `Trans<MutView>`
         #[quickcheck]
         fn mat(
             start: (uint, uint),
@@ -178,7 +178,7 @@ macro_rules! blas {
             })
         }
 
-        // Test that `mul(MutView)` is correct for `Trans<MutView>`
+        // Test that `mul(&MutView)` is correct for `Trans<MutView>`
         #[quickcheck]
         fn view_mut(
             (lhs_start, rhs_start): ((uint, uint), (uint, uint)),

@@ -1,10 +1,7 @@
 use std::fmt;
 
-use {Col, Diag, Mat, MutView, Row, Trans, View};
+use {Col, ColVec, Diag, Mat, MutCol, MutDiag, MutRow, MutView, Row, RowVec, Trans, View};
 use traits::{Iter, MatrixRows};
-
-// FIXME (trait reform) This should be replaced with a blanked impl when the crate concatenability
-// restriction gets lifted
 
 // TODO Precision, padding
 macro_rules! fmt {
@@ -42,27 +39,46 @@ impl<T> fmt::Show for Mat<T> where T: fmt::Show { fmt!(); }
 impl<T> fmt::Show for Trans<Mat<T>> where T: fmt::Show { fmt!(); }
 
 macro_rules! mat_impls {
-    ($($ty:ty),+) => {$(
-        impl<'a, T> fmt::Show for $ty where T: fmt::Show {
-            fmt!();
-        }
-    )+}
+    ($($ty:ty),+) => {
+        $(
+            impl<'a, T> fmt::Show for $ty where T: fmt::Show {
+                fmt!();
+            }
+        )+
+    }
 }
 
 mat_impls!(MutView<'a, T>, Trans<MutView<'a, T>>, Trans<View<'a, T>>, View<'a, T>);
 
+impl<'a, T> fmt::Show for ColVec<T> where T: fmt::Show {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Col({})", self.0)
+    }
+}
+
+impl<'a, T> fmt::Show for RowVec<T> where T: fmt::Show {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Row({})", self.0)
+    }
+}
+
 macro_rules! impls {
-    ($($ty:ty -> $str:expr),+,) => {$(
-        impl<V> fmt::Show for $ty where V: fmt::Show {
-            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                write!(f, concat!($str, "({})"), self.0)
+    ($($ty:ty -> $str:expr),+,) => {
+        $(
+            impl<'a, T> fmt::Show for $ty where T: fmt::Show {
+                fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                    write!(f, concat!($str, "({})"), self.0)
+                }
             }
-        }
-   )+}
+        )+
+    }
 }
 
 impls! {
-    Col<V> -> "Col",
-    Diag<V> -> "Diag",
-    Row<V> -> "Row",
+    Col<'a, T> -> "Col",
+    Diag<'a, T> -> "Diag",
+    MutCol<'a, T> -> "Col",
+    MutDiag<'a, T> -> "Diag",
+    MutRow<'a, T> -> "Row",
+    Row<'a, T> -> "Row",
 }

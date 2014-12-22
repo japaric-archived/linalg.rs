@@ -1,7 +1,8 @@
 //! y := x
 
-use blas::ffi::{blasint, mod};
 use complex::Complex;
+
+use blas::{blasint, ffi};
 
 /// The signature of `copy`
 pub type Fn<T> = unsafe extern "C" fn (

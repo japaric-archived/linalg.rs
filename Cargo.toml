@@ -15,3 +15,9 @@ git = "https://github.com/burntsushi/quickcheck"
 
 [dev-dependencies.quickcheck_macros]
 git = "https://github.com/burntsushi/quickcheck"
+
+[profile.dev]
+debug = false
+
+[profile.test]
+debug = false

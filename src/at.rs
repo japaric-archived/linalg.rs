@@ -1,11 +1,10 @@
 use std::mem;
 
 use error::OutOfBounds;
-use traits::{At, AtMut, Matrix};
-use {Col, Diag, Mat, MutView, Row, Trans, View};
+use traits::{At, AtMut};
+use {Col, ColVec, Diag, Mat, MutCol, MutDiag, MutRow, MutView, Row, RowVec, View};
 
-// FIXME (DRY) Merge these two impls via a macro
-impl<T> At<uint, T> for [T] {
+impl<T> ::At<uint, T> for [T] {
     fn at(&self, index: uint) -> Result<&T, OutOfBounds> {
         if index < self.len() {
             Ok(unsafe { mem::transmute(self.as_ptr().offset(index as int)) })
@@ -15,131 +14,116 @@ impl<T> At<uint, T> for [T] {
     }
 }
 
-impl<T> AtMut<uint, T> for [T] {
-    fn at_mut(&mut self, index: uint) -> Result<&mut T, OutOfBounds> {
-        if index < self.len() {
-            Ok(unsafe { mem::transmute(self.as_ptr().offset(index as int)) })
-        } else {
-            Err(OutOfBounds)
-        }
+impl<'a, T> At<uint, T> for Col<'a, T> {
+    fn at(&self, index: uint) -> Result<&T, OutOfBounds> {
+        self.0.at(index)
     }
 }
 
-impl<T> At<uint, T> for Box<[T]> {
-    fn at(&self, index: uint) -> Result<&T, OutOfBounds> { At::at(&**self, index) }
-}
-
-impl<T> AtMut<uint, T> for Box<[T]> {
-    fn at_mut(&mut self, index: uint) -> Result<&mut T, OutOfBounds> {
-        AtMut::at_mut(&mut **self, index)
+impl<T> At<uint, T> for ColVec<T> {
+    fn at(&self, index: uint) -> Result<&T, OutOfBounds> {
+        ::At::at(&*self.0, index)
     }
 }
 
-macro_rules! impl_at {
-    ($($ty:ty),+) => {$(
-        impl<'a, T> At<uint, T> for $ty {
-            fn at(&self, index: uint) -> Result<&T, OutOfBounds> {
-                At::at(*self, index)
-            }
-        })+
+impl<'a, T> At<uint, T> for Diag<'a, T> {
+    fn at(&self, index: uint) -> Result<&T, OutOfBounds> {
+        self.0.at(index)
     }
 }
 
-impl_at!(&'a [T], &'a mut [T]);
-
-impl<'a, T> AtMut<uint, T> for &'a mut [T] {
-    fn at_mut(&mut self, index: uint) -> Result<&mut T, OutOfBounds> {
-        AtMut::at_mut(*self, index)
-    }
-}
-
-macro_rules! impls {
-    ($($ty:ty),+) => {$(
-        impl<T, V> At<uint, T> for $ty where V: At<uint, T> {
-            fn at(&self, index: uint) -> Result<&T, OutOfBounds> {
-                self.0.at(index)
-            }
-        }
-
-        impl<T, V> AtMut<uint, T> for $ty where V: AtMut<uint, T> {
-            fn at_mut(&mut self, index: uint) -> Result<&mut T, OutOfBounds> {
-                self.0.at_mut(index)
-            }
-        })+
-    }
-}
-
-impls!(Col<V>, Diag<V>, Row<V>);
-
-// FIXME (DRY) Merge these two impls via a macro
 impl<T> At<(uint, uint), T> for Mat<T> {
     fn at(&self, (row, col): (uint, uint)) -> Result<&T, OutOfBounds> {
-        let (nrows, ncols) = self.size();
+        let (nrows, ncols) = (self.nrows, self.ncols);
 
         if row < nrows && col < ncols {
-            Ok(unsafe {
-                mem::transmute(self.data.as_ptr().offset((col * nrows + row) as int))
-            })
+            Ok(unsafe { mem::transmute(self.data.as_ptr().offset((col * nrows + row) as int)) })
         } else {
             Err(OutOfBounds)
         }
+    }
+}
+
+impl<'a, T> At<uint, T> for MutCol<'a, T> {
+    fn at(&self, index: uint) -> Result<&T, OutOfBounds> {
+        self.0.at(index)
+    }
+}
+
+impl<'a, T> At<uint, T> for MutDiag<'a, T> {
+    fn at(&self, index: uint) -> Result<&T, OutOfBounds> {
+        self.0.at(index)
+    }
+}
+
+impl<'a, T> At<uint, T> for MutRow<'a, T> {
+    fn at(&self, index: uint) -> Result<&T, OutOfBounds> {
+        self.0.at(index)
+    }
+}
+
+impl<'a, T> At<(uint, uint), T> for MutView<'a, T> {
+    fn at(&self, (row, col): (uint, uint)) -> Result<&T, OutOfBounds> {
+        self.0.at((row, col))
+    }
+}
+
+impl<'a, T> At<uint, T> for Row<'a, T> {
+    fn at(&self, index: uint) -> Result<&T, OutOfBounds> {
+        self.0.at(index)
+    }
+}
+
+impl<T> At<uint, T> for RowVec<T> {
+    fn at(&self, index: uint) -> Result<&T, OutOfBounds> {
+        ::At::at(&*self.0, index)
+    }
+}
+
+impl<'a, T> At<(uint, uint), T> for View<'a, T> {
+    fn at(&self, (row, col): (uint, uint)) -> Result<&T, OutOfBounds> {
+        self.0.at((row, col))
+    }
+}
+
+impl<T> AtMut<uint, T> for ColVec<T> {
+    fn at_mut(&mut self, index: uint) -> Result<&mut T, OutOfBounds> {
+        unsafe { mem::transmute(::At::at(&*self.0, index)) }
     }
 }
 
 impl<T> AtMut<(uint, uint), T> for Mat<T> {
     fn at_mut(&mut self, (row, col): (uint, uint)) -> Result<&mut T, OutOfBounds> {
-        let (nrows, ncols) = self.size();
+        unsafe { mem::transmute(self.at((row, col))) }
+    }
+}
 
-        if row < nrows && col < ncols {
-            Ok(unsafe {
-                mem::transmute(self.data.as_ptr().offset((col * nrows + row) as int))
-            })
-        } else {
-            Err(OutOfBounds)
-        }
+impl<'a, T> AtMut<uint, T> for MutCol<'a, T> {
+    fn at_mut(&mut self, index: uint) -> Result<&mut T, OutOfBounds> {
+        self.0.at_mut(index)
+    }
+}
+
+impl<'a, T> AtMut<uint, T> for MutDiag<'a, T> {
+    fn at_mut(&mut self, index: uint) -> Result<&mut T, OutOfBounds> {
+        self.0.at_mut(index)
+    }
+}
+
+impl<'a, T> AtMut<uint, T> for MutRow<'a, T> {
+    fn at_mut(&mut self, index: uint) -> Result<&mut T, OutOfBounds> {
+        self.0.at_mut(index)
     }
 }
 
 impl<'a, T> AtMut<(uint, uint), T> for MutView<'a, T> {
     fn at_mut(&mut self, (row, col): (uint, uint)) -> Result<&mut T, OutOfBounds> {
-        let (nrows, ncols) = self.size();
-
-        if row < nrows && col < ncols {
-            Ok(unsafe { mem::transmute(self.ptr.offset((col * self.stride + row) as int)) })
-        } else {
-            Err(OutOfBounds)
-        }
+        unsafe { mem::transmute(self.0.at((row, col))) }
     }
 }
 
-macro_rules! view {
-    ($($ty:ty),+) => {$(
-        impl<'a, T> At<(uint, uint), T> for $ty {
-            fn at(&self, (row, col): (uint, uint)) -> Result<&T, OutOfBounds> {
-                let (nrows, ncols) = self.size();
-
-                if row < nrows && col < ncols {
-                    Ok(unsafe {
-                        mem::transmute(self.ptr.offset((col * self.stride + row) as int))
-                    })
-                } else {
-                    Err(OutOfBounds)
-                }
-            }
-        })+
-    }
-}
-
-view!(View<'a, T>, MutView<'a, T>);
-
-impl<T, M> At<(uint, uint), T> for Trans<M> where M: At<(uint, uint), T> {
-    fn at(&self, (row, col): (uint, uint)) -> Result<&T, OutOfBounds> {
-        self.0.at((col, row))
-    }
-}
-
-impl<T, M> AtMut<(uint, uint), T> for Trans<M> where M: AtMut<(uint, uint), T> {
-    fn at_mut(&mut self, (row, col): (uint, uint)) -> Result<&mut T, OutOfBounds> {
-        self.0.at_mut((col, row))
+impl<T> AtMut<uint, T> for RowVec<T> {
+    fn at_mut(&mut self, index: uint) -> Result<&mut T, OutOfBounds> {
+        unsafe { mem::transmute(::At::at(&*self.0, index)) }
     }
 }

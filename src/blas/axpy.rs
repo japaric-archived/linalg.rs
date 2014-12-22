@@ -1,7 +1,8 @@
 //! y := alpha * x + y
 
-use blas::ffi::{blasint, mod};
 use complex::Complex;
+
+use blas::{blasint, ffi};
 
 /// The signature of `axpy`
 pub type Fn<T> = unsafe extern "C" fn (

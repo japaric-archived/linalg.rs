@@ -13,7 +13,7 @@ mod col {
 
     use setup;
 
-    // Test that `iter_mut().rev()` is correct for `Col<Box<[_]>>`
+    // Test that `iter_mut().rev()` is correct for `ColVec`
     #[quickcheck]
     fn owned(size: uint) -> bool {
         setup::col(size).iter_mut().rev().enumerate().all(|(i, &e)| {
@@ -23,7 +23,7 @@ mod col {
         })
     }
 
-    // Test that `iter_mut().rev()` is correct for `Col<&mut [_]>`
+    // Test that `iter_mut().rev()` is correct for `MutCol`
     #[quickcheck]
     fn slice_mut((nrows, ncols): (uint, uint), col: uint) -> TestResult {
         enforce! {
@@ -43,7 +43,7 @@ mod col {
         })
     }
 
-    // Test that `iter_mut().rev()` is correct for `Col<strided::MutSlice>`
+    // Test that `iter_mut().rev()` is correct for `strided::MutCol`
     #[quickcheck]
     fn strided_mut((nrows, ncols): (uint, uint), col: uint) -> TestResult {
         enforce! {
@@ -70,7 +70,7 @@ mod diag {
 
     use setup;
 
-    // Test that `iter_mut().rev()` is correct for `Diag<strided::MutSlice>`
+    // Test that `iter_mut().rev()` is correct for `MutDiag`
     #[quickcheck]
     fn strided_mut(size: (uint, uint), diag: int) -> TestResult {
         validate_diag!(diag, size);
@@ -103,7 +103,7 @@ mod row {
 
     use setup;
 
-    // Test that `iter_mut().rev()` is correct for `Row<Box<[_]>>`
+    // Test that `iter_mut().rev()` is correct for `RowVec`
     #[quickcheck]
     fn owned(size: uint) -> bool {
         setup::row(size).iter_mut().rev().enumerate().all(|(i, &e)| {
@@ -113,7 +113,7 @@ mod row {
         })
     }
 
-    // Test that `iter_mut().rev()` is correct for `Row<&mut [_]>`
+    // Test that `iter_mut().rev()` is correct for `MutRow`
     #[quickcheck]
     fn slice_mut((nrows, ncols): (uint, uint), row: uint) -> TestResult {
         enforce! {
@@ -133,7 +133,7 @@ mod row {
         })
     }
 
-    // Test that `iter_mut().rev()` is correct for `Row<strided::MutSlice>`
+    // Test that `iter_mut().rev()` is correct for `strided::MutRow`
     #[quickcheck]
     fn strided_mut((nrows, ncols): (uint, uint), row: uint) -> TestResult {
         enforce! {

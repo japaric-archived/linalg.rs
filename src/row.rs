@@ -1,9 +1,9 @@
-use {Col, Row};
-use traits::{Collection, Matrix, Transpose};
+use traits::{Matrix, Transpose};
+use {Col, MutCol, MutRow, Row};
 
-impl<V> Matrix for Row<V> where V: Collection {
+impl<'a, T> Matrix for MutRow<'a, T> {
     fn ncols(&self) -> uint {
-        Collection::len(&self.0)
+        self.len()
     }
 
     fn nrows(&self) -> uint {
@@ -11,8 +11,24 @@ impl<V> Matrix for Row<V> where V: Collection {
     }
 }
 
-impl<V> Transpose<Col<V>> for Row<V> {
-    fn t(self) -> Col<V> {
+impl<'a, T> Transpose<MutCol<'a, T>> for MutRow<'a, T> {
+    fn t(self) -> MutCol<'a, T> {
+        MutCol(self.0)
+    }
+}
+
+impl<'a, T> Matrix for Row<'a, T> {
+    fn ncols(&self) -> uint {
+        self.len()
+    }
+
+    fn nrows(&self) -> uint {
+        1
+    }
+}
+
+impl<'a, T> Transpose<Col<'a, T>> for Row<'a, T> {
+    fn t(self) -> Col<'a, T> {
         Col(self.0)
     }
 }

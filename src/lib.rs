@@ -39,17 +39,17 @@
 //! - Element-wise iteration over [sub]matrices is done in the fastest way possible, there's no
 //!   guarantee of the iteration order
 
-//#![deny(warnings, missing_docs)]
-#![feature(macro_rules, slicing_syntax, unboxed_closures)]
+#![deny(missing_docs, warnings)]
+#![feature(macro_rules)]
 
 extern crate complex;
 extern crate libc;
 extern crate onezero;
 
-use std::kinds::marker;
 use std::num::Int;
 use std::rand::distributions::IndependentSample;
 use std::rand::{Rand, Rng};
+use std::raw::Repr;
 
 mod add_assign;
 mod at;
@@ -57,9 +57,9 @@ mod col;
 mod cols;
 mod error;
 mod iter;
-mod len;
 mod mat;
 mod mul;
+mod raw;
 mod row;
 mod rows;
 mod show;
@@ -67,18 +67,30 @@ mod slice;
 mod sub_assign;
 mod to_owned;
 mod trans;
+mod view;
 
 pub mod blas;
 pub mod prelude;
 pub mod strided;
 pub mod traits;
-pub mod view;
 
-/// Column vector
-#[deriving(Copy, PartialEq)]
-pub struct Col<V>(V);
+/// Immutable view into the column of a matrix
+pub struct Col<'a, T: 'a>(strided::Slice<'a, T>);
 
-impl<T> Col<Box<[T]>> {
+impl<'a, T> Col<'a, T> {
+    /// Returns the length of the column
+    pub fn len(&self) -> uint {
+        self.0.len()
+    }
+}
+
+impl<'a, T> Copy for Col<'a, T> {}
+
+/// An owned column vector
+#[deriving(PartialEq)]
+pub struct ColVec<T>(Box<[T]>);
+
+impl<T> ColVec<T> {
     /// Creates a column vector from an existing vector
     ///
     /// # Examples
@@ -88,12 +100,12 @@ impl<T> Col<Box<[T]>> {
     /// # extern crate linalg;
     /// # #[phase(plugin)] extern crate linalg_macros;
     /// # fn main() {
-    /// # use linalg::Col;
-    /// assert_eq!(Col::new(box [0i, 1, 2]), mat![0i; 1; 2])
+    /// # use linalg::ColVec;
+    /// assert_eq!(ColVec::new(box [0i, 1, 2]), mat![0i; 1; 2])
     /// # }
     /// ```
-    pub fn new(data: Box<[T]>) -> Col<Box<[T]>> {
-        Col(data)
+    pub fn new(data: Box<[T]>) -> ColVec<T> {
+        ColVec(data)
     }
 
     /// Creates a column vector and initializes each element to `f(index)`
@@ -108,27 +120,52 @@ impl<T> Col<Box<[T]>> {
     /// # extern crate linalg;
     /// # #[phase(plugin)] extern crate linalg_macros;
     /// # fn main() {
-    /// # use linalg::Col;
-    /// assert_eq!(Col::from_fn(3, |i| i), mat![0; 1; 2])
+    /// # use linalg::ColVec;
+    /// assert_eq!(ColVec::from_fn(3, |i| i), mat![0; 1; 2])
     /// # }
     /// ```
-    pub fn from_fn<F>(length: uint, f: F) -> Col<Box<[T]>> where F: FnMut(uint) -> T {
-        Col(Vec::from_fn(length, f).into_boxed_slice())
+    pub fn from_fn<F>(length: uint, f: F) -> ColVec<T> where F: FnMut(uint) -> T {
+        ColVec(Vec::from_fn(length, f).into_boxed_slice())
     }
 
     /// Creates a column vector and fills it by sampling a random distribution
     ///
     /// - Memory: `O(length)`
     /// - Time: `O(length)`
-    pub fn sample<D, R>(length: uint, distribution: &D, rng: &mut R) -> Col<Box<[T]>> where
+    pub fn sample<D, R>(length: uint, distribution: &D, rng: &mut R) -> ColVec<T> where
         D: IndependentSample<T>,
         R: Rng,
     {
-        Col(Vec::from_fn(length, |_| distribution.ind_sample(rng)).into_boxed_slice())
+        ColVec(Vec::from_fn(length, |_| distribution.ind_sample(rng)).into_boxed_slice())
+    }
+
+    fn as_col(&self) -> Col<T> {
+        let std::raw::Slice { data, len } = self.0.repr();
+
+        Col(unsafe { From::parts((
+            data,
+            len,
+            1,
+        ))})
+    }
+
+    fn as_mut_col(&mut self) -> MutCol<T> {
+        let std::raw::Slice { data, len } = self.0.repr();
+
+        MutCol(unsafe { From::parts((
+            data,
+            len,
+            1,
+        ))})
+    }
+
+    /// Returns the length of the column
+    pub fn len(&self) -> uint {
+        self.0.len()
     }
 }
 
-impl<T> Col<Box<[T]>> where T: Clone {
+impl<T> ColVec<T> where T: Clone {
     /// Constructs a column vector with copies of a value
     ///
     /// - Memory: `O(length)`
@@ -141,42 +178,58 @@ impl<T> Col<Box<[T]>> where T: Clone {
     /// # extern crate linalg;
     /// # #[phase(plugin)] extern crate linalg_macros;
     /// # fn main() {
-    /// # use linalg::Col;
-    /// assert_eq!(Col::from_elem(3, 2), mat![2i; 2; 2])
+    /// # use linalg::ColVec;
+    /// assert_eq!(ColVec::from_elem(3, 2), mat![2i; 2; 2])
     /// # }
     /// ```
-    pub fn from_elem(length: uint, value: T) -> Col<Box<[T]>> {
-        Col(Vec::from_elem(length, value).into_boxed_slice())
+    pub fn from_elem(length: uint, value: T) -> ColVec<T> {
+        ColVec(Vec::from_elem(length, value).into_boxed_slice())
     }
 }
 
-impl<T> Col<Box<[T]>> where T: Rand {
+impl<T> ColVec<T> where T: Rand {
     /// Constructs a randomly initialized column vector
     ///
     /// - Memory: `O(length)`
     /// - Time: `O(length)`
-    pub fn rand<R>(length: uint, rng: &mut R) -> Col<Box<[T]>> where R: Rng {
-        Col(Vec::from_fn(length, |_| rng.gen()).into_boxed_slice())
+    pub fn rand<R>(length: uint, rng: &mut R) -> ColVec<T> where R: Rng {
+        ColVec(Vec::from_fn(length, |_| rng.gen()).into_boxed_slice())
+    }
+}
+
+impl<T> Clone for ColVec<T> where T: Clone {
+    fn clone(&self) -> ColVec<T> {
+        ColVec(self.0.to_vec().into_boxed_slice())
     }
 }
 
 /// Iterator over the columns of an immutable matrix
-#[deriving(Copy)]
-pub struct Cols<'a, M> where M: 'a {
-    mat: &'a M,
-    state: uint,
-    stop: uint,
+pub struct Cols<'a, M: 'a>(raw::Cols<'a, M>);
+
+impl<'a, M> Copy for Cols<'a, M> {}
+
+/// Immutable view into the diagonal of a matrix
+pub struct Diag<'a, T: 'a>(strided::Slice<'a, T>);
+
+impl<'a, T> Diag<'a, T> {
+    /// Returns the length of the diagonal
+    pub fn len(&self) -> uint {
+        self.0.len()
+    }
 }
 
-/// View into the diagonal of a matrix
-#[deriving(Copy)]
-pub struct Diag<V>(V);
+impl<'a, T> Copy for Diag<'a, T> {}
+
+/// Immutable sub-matrix iterator
+pub struct Items<'a, T: 'a>(raw::view::Items<'a, T>);
+
+impl<'a, T> Copy for Items<'a, T> {}
 
 /// Owned matrix
 #[deriving(PartialEq)]
 pub struct Mat<T> {
-    // NB `size` goes first to optimize the `PartialEq` derived implementation
-    size: (uint, uint),
+    ncols: uint,
+    nrows: uint,
     data: Box<[T]>,
 }
 
@@ -191,7 +244,8 @@ impl<T> Mat<T> {
     pub unsafe fn from_parts(data: Box<[T]>, (nrows, ncols): (uint, uint)) -> Mat<T> {
         Mat {
             data: data,
-            size: (nrows, ncols),
+            ncols: ncols,
+            nrows: nrows,
         }
     }
 
@@ -232,7 +286,8 @@ impl<T> Mat<T> {
 
         Ok(Mat {
             data: data.into_boxed_slice(),
-            size: (nrows, ncols),
+            ncols: ncols,
+            nrows: nrows,
         })
     }
 
@@ -259,8 +314,43 @@ impl<T> Mat<T> {
 
         Ok(Mat {
             data: Vec::from_fn(length, |_| distribution.ind_sample(rng)).into_boxed_slice(),
-            size: (nrows, ncols),
+            ncols: ncols,
+            nrows: nrows,
         })
+    }
+
+    fn as_mut_view(&mut self) -> MutView<T> {
+        MutView(unsafe { From::parts((
+            self.data.as_ptr(),
+            self.nrows,
+            self.ncols,
+            self.nrows,
+        ))})
+    }
+
+    fn as_view(&self) -> View<T> {
+        View(unsafe { From::parts((
+            self.data.as_ptr(),
+            self.nrows,
+            self.ncols,
+            self.nrows,
+        ))})
+    }
+
+    fn unroll(&self) -> Col<T> {
+        Col(unsafe { From::parts((
+            self.data.as_ptr(),
+            self.nrows * self.ncols,
+            1,
+        ))})
+    }
+
+    fn unroll_mut(&mut self) -> MutCol<T> {
+        MutCol(unsafe { From::parts((
+            self.data.as_ptr(),
+            self.nrows * self.ncols,
+            1,
+        ))})
     }
 }
 
@@ -293,7 +383,8 @@ impl<T> Mat<T> where T: Clone {
 
         Ok(Mat {
             data: Vec::from_elem(length, value).into_boxed_slice(),
-            size: (nrows, ncols),
+            ncols: ncols,
+            nrows: nrows,
         })
     }
 }
@@ -315,39 +406,99 @@ impl<T> Mat<T> where T: Rand {
 
         Ok(Mat {
             data: Vec::from_fn(length, |_| rng.gen()).into_boxed_slice(),
-            size: (nrows, ncols),
+            ncols: ncols,
+            nrows: nrows,
         })
     }
 }
 
+impl<T> Clone for Mat<T> where T: Clone {
+    fn clone(&self) -> Mat<T> {
+        Mat {
+            data: self.data.to_vec().into_boxed_slice(),
+            ncols: self.ncols,
+            nrows: self.nrows,
+        }
+    }
+}
+
+/// Mutable view into the column of a matrix
+#[deriving(PartialEq)]
+pub struct MutCol<'a, T: 'a>(strided::MutSlice<'a, T>);
+
+impl<'a, T> MutCol<'a, T> {
+    fn as_col(&self) -> Col<T> {
+        Col(strided::Slice((self.0).0))
+    }
+
+    /// Returns the length of the column
+    pub fn len(&self) -> uint {
+        self.0.len()
+    }
+}
+
 /// Iterator over the columns of a mutable matrix
-pub struct MutCols<'a, M> where M: 'a {
-    mat: &'a mut M,
-    state: uint,
-    stop: uint,
+pub struct MutCols<'a, M: 'a>(raw::Cols<'a, M>);
+
+/// Immutable view into the diagonal of a matrix
+#[deriving(PartialEq)]
+pub struct MutDiag<'a, T: 'a>(strided::MutSlice<'a, T>);
+
+impl<'a, T> MutDiag<'a, T> {
+    /// Returns the length of the diagonal
+    pub fn len(&self) -> uint {
+        self.0.len()
+    }
+}
+
+/// Mutable sub-matrix iterator
+pub struct MutItems<'a, T: 'a>(raw::view::Items<'a, T>);
+
+/// Mutable view into the row of a matrix
+#[deriving(PartialEq)]
+pub struct MutRow<'a, T: 'a>(strided::MutSlice<'a, T>);
+
+impl<'a, T> MutRow<'a, T> {
+    fn as_row(&self) -> Row<T> {
+        Row(strided::Slice((self.0).0))
+    }
+
+    /// Returns the length of the row
+    pub fn len(&self) -> uint {
+        self.0.len()
+    }
 }
 
 /// Iterator over the rows of a mutable matrix
-pub struct MutRows<'a, M> where M: 'a {
-    mat: &'a mut M,
-    state: uint,
-    stop: uint,
-}
+pub struct MutRows<'a, M: 'a>(raw::Rows<'a, M>);
 
 /// Mutable sub-matrix view
-pub struct MutView<'a, T> where T: 'a {
-    _contravariant: marker::ContravariantLifetime<'a>,
-    _nosend: marker::NoSend,
-    ptr: *mut T,
-    size: (uint, uint),
-    stride: uint,
+#[deriving(PartialEq)]
+pub struct MutView<'a, T: 'a>(raw::View<'a, T>);
+
+impl<'a, T> MutView<'a, T> {
+    fn as_view(&self) -> View<T> {
+        View(self.0)
+    }
 }
 
-/// Row vector
-#[deriving(Copy, PartialEq)]
-pub struct Row<V>(V);
+/// Immutable view into the row of a matrix
+pub struct Row<'a, T: 'a>(strided::Slice<'a, T>);
 
-impl<T> Row<Box<[T]>> {
+impl<'a, T> Row<'a, T> {
+    /// Returns the length of the row
+    pub fn len(&self) -> uint {
+        self.0.len()
+    }
+}
+
+impl<'a, T> Copy for Row<'a, T> {}
+
+/// An owned row vector
+#[deriving(PartialEq)]
+pub struct RowVec<T>(Box<[T]>);
+
+impl<T> RowVec<T> {
     /// Creates a row vector from an existing vector
     ///
     /// # Examples
@@ -357,12 +508,12 @@ impl<T> Row<Box<[T]>> {
     /// # extern crate linalg;
     /// # #[phase(plugin)] extern crate linalg_macros;
     /// # fn main() {
-    /// # use linalg::Row;
-    /// assert_eq!(Row::new(box [0i, 1, 2]), mat![0i, 1, 2])
+    /// # use linalg::RowVec;
+    /// assert_eq!(RowVec::new(box [0i, 1, 2]), mat![0i, 1, 2])
     /// # }
     /// ```
-    pub fn new(data: Box<[T]>) -> Row<Box<[T]>> {
-        Row(data)
+    pub fn new(data: Box<[T]>) -> RowVec<T> {
+        RowVec(data)
     }
 
     /// Creates a row vector and initializes each element to `f(index)`
@@ -377,27 +528,52 @@ impl<T> Row<Box<[T]>> {
     /// # extern crate linalg;
     /// # #[phase(plugin)] extern crate linalg_macros;
     /// # fn main() {
-    /// # use linalg::Row;
-    /// assert_eq!(Row::from_fn(3, |i| i), mat![0, 1, 2])
+    /// # use linalg::RowVec;
+    /// assert_eq!(RowVec::from_fn(3, |i| i), mat![0, 1, 2])
     /// # }
     /// ```
-    pub fn from_fn<F>(length: uint, f: F) -> Row<Box<[T]>> where F: FnMut(uint) -> T {
-        Row(Vec::from_fn(length, f).into_boxed_slice())
+    pub fn from_fn<F>(length: uint, f: F) -> RowVec<T> where F: FnMut(uint) -> T {
+        RowVec(Vec::from_fn(length, f).into_boxed_slice())
     }
 
     /// Creates a row vector and fills it by sampling a random distribution
     ///
     /// - Memory: `O(length)`
     /// - Time: `O(length)`
-    pub fn sample<D, R>(length: uint, distribution: &D, rng: &mut R) -> Row<Box<[T]>> where
+    pub fn sample<D, R>(length: uint, distribution: &D, rng: &mut R) -> RowVec<T> where
         D: IndependentSample<T>,
         R: Rng,
     {
-        Row(Vec::from_fn(length, |_| distribution.ind_sample(rng)).into_boxed_slice())
+        RowVec(Vec::from_fn(length, |_| distribution.ind_sample(rng)).into_boxed_slice())
+    }
+
+    fn as_mut_row(&mut self) -> MutRow<T> {
+        let std::raw::Slice { data, len } = self.0.repr();
+
+        MutRow(unsafe { From::parts((
+            data,
+            len,
+            1,
+        ))})
+    }
+
+    fn as_row(&self) -> Row<T> {
+        let std::raw::Slice { data, len } = self.0.repr();
+
+        Row(unsafe { From::parts((
+            data,
+            len,
+            1,
+        ))})
+    }
+
+    /// Returns the length of the row
+    pub fn len(&self) -> uint {
+        self.0.len()
     }
 }
 
-impl<T> Row<Box<[T]>> where T: Clone {
+impl<T> RowVec<T> where T: Clone {
     /// Constructs a row vector with copies of a value
     ///
     /// - Memory: `O(length)`
@@ -410,47 +586,48 @@ impl<T> Row<Box<[T]>> where T: Clone {
     /// # extern crate linalg;
     /// # #[phase(plugin)] extern crate linalg_macros;
     /// # fn main() {
-    /// # use linalg::Row;
-    /// assert_eq!(Row::from_elem(3, 2), mat![2i, 2, 2])
+    /// # use linalg::RowVec;
+    /// assert_eq!(RowVec::from_elem(3, 2), mat![2i, 2, 2])
     /// # }
     /// ```
-    pub fn from_elem(length: uint, value: T) -> Row<Box<[T]>> {
-        Row(Vec::from_elem(length, value).into_boxed_slice())
+    pub fn from_elem(length: uint, value: T) -> RowVec<T> {
+        RowVec(Vec::from_elem(length, value).into_boxed_slice())
     }
 }
 
-impl<T> Row<Box<[T]>> where T: Rand {
+impl<T> RowVec<T> where T: Rand {
     /// Constructs a randomly initialized row vector
     ///
     /// - Memory: `O(length)`
     /// - Time: `O(length)`
-    pub fn rand<R>(length: uint, rng: &mut R) -> Row<Box<[T]>> where R: Rng {
-        Row(Vec::from_fn(length, |_| rng.gen()).into_boxed_slice())
+    pub fn rand<R>(length: uint, rng: &mut R) -> RowVec<T> where R: Rng {
+        RowVec(Vec::from_fn(length, |_| rng.gen()).into_boxed_slice())
+    }
+}
+
+impl<T> Clone for RowVec<T> where T: Clone {
+    fn clone(&self) -> RowVec<T> {
+        RowVec(self.0.to_vec().into_boxed_slice())
     }
 }
 
 /// Iterator over the rows of an immutable matrix
-#[deriving(Copy)]
-pub struct Rows<'a, M> where M: 'a {
-    mat: &'a M,
-    state: uint,
-    stop: uint,
-}
+pub struct Rows<'a, M: 'a>(raw::Rows<'a, M>);
+
+impl<'a, M> Copy for Rows<'a, M> {}
 
 /// View into the transpose of a matrix
-#[deriving(Copy)]
+#[deriving(Copy, PartialEq)]
 pub struct Trans<M>(M);
 
 /// Immutable sub-matrix view
-pub struct View<'a, T> where T: 'a {
-    _contravariant: marker::ContravariantLifetime<'a>,
-    _nosend: marker::NoSend,
-    ptr: *const T,
-    size: (uint, uint),
-    stride: uint,
-}
+#[deriving(PartialEq)]
+pub struct View<'a, T: 'a>(raw::View<'a, T>);
 
 impl<'a, T> Copy for View<'a, T> {}
+
+/// The result of a matrix operation
+pub type Result<T> = ::std::result::Result<T, Error>;
 
 /// Errors
 #[deriving(Copy, PartialEq, Show)]
@@ -469,17 +646,42 @@ pub enum Error {
     OutOfBounds,
 }
 
-/// The result of a matrix operation
-pub type Result<T> = ::std::result::Result<T, Error>;
+// Private versions of `traits::{At, Slice}` to not expose implementations on stdlib types
+// XXX Why do I have to document private traits?
+/// Private
+trait At<I, T> for Sized? {
+    /// private
+    fn at(&self, I) -> std::result::Result<&T, error::OutOfBounds>;
+}
 
-/// Constructor trait used to not expose this unsafe constructor in the API
-trait Strided<T> {
-    /// Creates an strided slice from its parts
-    ///
-    /// # Safety requirements
-    ///
-    /// - `ptr` must point to a valid slice with a length of at least
-    ///   `if len == 0 { 0 } else { (len - 1) * stride * mem::size_of::<T>() + 1 } `
-    /// - Usual aliasing/freezing rules must be enforced by the user
-    unsafe fn from_parts(ptr: *const T, len: uint, stride: uint) -> Self;
+/// Private
+trait Slice<'a, I, S> for Sized? {
+    /// Private
+    fn slice(&'a self, start: I, end: I) -> Result<S>;
+}
+
+// FIXME Use `cast.rs` instead of this trait
+/// Private
+trait ToBlasint {
+    /// Private
+    fn to_blasint(self) -> blas::blasint;
+}
+
+impl ToBlasint for uint {
+    fn to_blasint(self) -> blas::blasint {
+        let max: blas::blasint = ::std::num::Int::max_value();
+
+        if self > max as uint {
+            panic!("Cast overflow (`uint` -> `blasint`)");
+        } else {
+            self as blas::blasint
+        }
+    }
+}
+
+// Hack because the intra-crate privacy rules are weird
+/// Private
+trait From<T> {
+    /// Private
+    unsafe fn parts(T) -> Self;
 }

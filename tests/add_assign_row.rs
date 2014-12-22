@@ -15,7 +15,7 @@ macro_rules! blas {
 
             use setup;
 
-            // Test that `add_assign(Row<Box<[T]>>)` is correct for `Row<Box<[T]>>`
+            // Test that `add_assign(&RowVec)` is correct for `RowVec`
             #[quickcheck]
             fn owned(size: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -36,7 +36,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `add_assign(T)` is correct for `Row<Box<[T]>>`
+            // Test that `add_assign(T)` is correct for `RowVec`
             #[quickcheck]
             fn scalar(size: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -49,13 +49,13 @@ macro_rules! blas {
 
                     let rhs: $ty = ::std::rand::random();
 
-                    result.add_assign(&rhs);
+                    result.add_assign(rhs);
 
                     lhs + rhs == *try!(result.at(idx))
                 })
             }
 
-            // Test that `add_assign(Row<&[T]>)` is correct for `Row<Box<[T]>>`
+            // Test that `add_assign(Row)` is correct for `RowVec`
             #[quickcheck]
             fn slice((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -70,7 +70,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((ncols, nrows)).t();
                     let rhs = try!(m.row(row));
 
-                    result.add_assign(&rhs);
+                    result.add_assign(rhs);
 
                     let &rhs = try!(rhs.at(idx));
 
@@ -78,7 +78,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `add_assign(Row<&mut [T]>)` is correct for `Row<Box<[T]>>`
+            // Test that `add_assign(&MutRow)` is correct for `RowVec`
             #[quickcheck]
             fn slice_mut((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -101,7 +101,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `add_assign(Row<strided::Slice>)` is correct for `Row<Box<[T]>>`
+            // Test that `add_assign(strided::Row)` is correct for `RowVec`
             #[quickcheck]
             fn strided((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -116,7 +116,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((nrows, ncols));
                     let rhs = try!(m.row(row));
 
-                    result.add_assign(&rhs);
+                    result.add_assign(rhs);
 
                     let &rhs = try!(rhs.at(idx));
 
@@ -124,7 +124,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `add_assign(Row<strided::MutSlice>)` is correct for `Row<Box<[T]>>`
+            // Test that `add_assign(&strided::MutRow)` is correct for `RowVec`
             #[quickcheck]
             fn strided_mut((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -154,7 +154,7 @@ macro_rules! blas {
 
             use setup;
 
-            // Test that `add_assign(Row<Box<[T]>>)` is correct for `Row<&mut [T]>`
+            // Test that `add_assign(&RowVec)` is correct for `MutRow`
             #[quickcheck]
             fn owned((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -177,7 +177,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `add_assign(T)` is correct for `Row<&mut [T]>`
+            // Test that `add_assign(T)` is correct for `MutRow`
             #[quickcheck]
             fn scalar((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -192,13 +192,13 @@ macro_rules! blas {
 
                     let rhs: $ty = ::std::rand::random();
 
-                    result.add_assign(&rhs);
+                    result.add_assign(rhs);
 
                     lhs + rhs == *try!(result.at(idx))
                 })
             }
 
-            // Test that `add_assign(Row<&[T]>)` is correct for `Row<&mut [T]>`
+            // Test that `add_assign(Row)` is correct for `MutRow`
             #[quickcheck]
             fn slice((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -214,7 +214,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((ncols, nrows)).t();
                     let rhs = try!(m.row(row));
 
-                    result.add_assign(&rhs);
+                    result.add_assign(rhs);
 
                     let &rhs = try!(rhs.at(idx));
 
@@ -222,7 +222,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `add_assign(Row<&mut [T]>)` is correct for `Row<&mut [T]>`
+            // Test that `add_assign(&MutRow)` is correct for `MutRow`
             #[quickcheck]
             fn slice_mut((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -246,7 +246,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `add_assign(Row<strided::Slice>)` is correct for `Row<&mut [T]>`
+            // Test that `add_assign(strided::Row)` is correct for `MutRow`
             #[quickcheck]
             fn strided((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -262,7 +262,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((nrows, ncols));
                     let rhs = try!(m.row(row));
 
-                    result.add_assign(&rhs);
+                    result.add_assign(rhs);
 
                     let &rhs = try!(rhs.at(idx));
 
@@ -270,7 +270,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `add_assign(Row<strided::MutSlice>)` is correct for `Row<&mut [T]>`
+            // Test that `add_assign(&strided::MutRow)` is correct for `MutRow`
             #[quickcheck]
             fn strided_mut((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -301,7 +301,7 @@ macro_rules! blas {
 
             use setup;
 
-            // Test that `add_assign(T)` is correct for `Row<strided::MutSlice>`
+            // Test that `add_assign(&RowVec)` is correct for `strided::MutRow`
             #[quickcheck]
             fn owned((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -324,7 +324,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `add_assign(T)` is correct for `Row<strided::MutSlice>`
+            // Test that `add_assign(T)` is correct for `strided::MutRow`
             #[quickcheck]
             fn scalar((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -339,13 +339,13 @@ macro_rules! blas {
 
                     let rhs: $ty = ::std::rand::random();
 
-                    result.add_assign(&rhs);
+                    result.add_assign(rhs);
 
                     lhs + rhs == *try!(result.at(idx))
                 })
             }
 
-            // Test that `add_assign(Row<&[T]>)` is correct for `Row<strided::MutSlice>`
+            // Test that `add_assign(Row)` is correct for `strided::MutRow`
             #[quickcheck]
             fn slice((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -361,7 +361,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((ncols, nrows)).t();
                     let rhs = try!(m.row(row));
 
-                    result.add_assign(&rhs);
+                    result.add_assign(rhs);
 
                     let &rhs = try!(rhs.at(idx));
 
@@ -369,7 +369,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `add_assign(Row<&mut [T]>)` is correct for `Row<strided::MutSlice>`
+            // Test that `add_assign(&MutRow)` is correct for `strided::MutRow`
             #[quickcheck]
             fn slice_mut((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -393,7 +393,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `add_assign(Row<strided::Slice>)` is correct for `Row<strided::MutSlice>`
+            // Test that `add_assign(strided::Row)` is correct for `strided::MutRow`
             #[quickcheck]
             fn strided((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -409,7 +409,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((nrows, ncols));
                     let rhs = try!(m.row(row));
 
-                    result.add_assign(&rhs);
+                    result.add_assign(rhs);
 
                     let &rhs = try!(rhs.at(idx));
 
@@ -417,7 +417,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `add_assign(Row<strided::Slice>)` is correct for `Row<strided::MutSlice>`
+            // Test that `add_assign(&strided::MutRow)` is correct for `strided::MutRow`
             #[quickcheck]
             fn strided_mut((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
                 enforce! {

@@ -6,7 +6,7 @@ macro_rules! blas {
 
         use setup;
 
-        // Test that `mul(Col<Box<[T]>>)` is correct for `View`
+        // Test that `mul(&ColVec)` is correct for `View`
         #[quickcheck]
         fn owned(
             start: (uint, uint),
@@ -34,7 +34,7 @@ macro_rules! blas {
             })
         }
 
-        // Test that `mul(Col<&[T]>)` is correct for `View`
+        // Test that `mul(Col)` is correct for `View`
         #[quickcheck]
         fn slice(
             start: (uint, uint),
@@ -65,7 +65,7 @@ macro_rules! blas {
             })
         }
 
-        // Test that `mul(Col<&mut [T]>)` is correct for `View`
+        // Test that `mul(&MutCol)` is correct for `View`
         #[quickcheck]
         fn slice_mut(
             start: (uint, uint),
@@ -96,7 +96,7 @@ macro_rules! blas {
             })
         }
 
-        // Test that `mul(Col<strided::Slice>)` is correct for `View`
+        // Test that `mul(strided::Col)` is correct for `View`
         #[quickcheck]
         fn strided(
             start: (uint, uint),
@@ -127,7 +127,7 @@ macro_rules! blas {
             })
         }
 
-        // Test that `mul(Col<strided::MutSlice>)` is correct for `View`
+        // Test that `mul(&strided::MutCol)` is correct for `View`
         #[quickcheck]
         fn strided_mut(
             start: (uint, uint),

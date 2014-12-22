@@ -1,29 +1,29 @@
 #![allow(dead_code)]
 #![macro_escape]
 
-use linalg::{Col, Mat, Row};
+use linalg::{ColVec, Mat, RowVec};
 
-pub fn col(length: uint) -> Col<Box<[uint]>> {
-    Col::from_fn(length, |i| i)
+pub fn col(length: uint) -> ColVec<uint> {
+    ColVec::from_fn(length, |i| i)
 }
 
 pub fn mat((nrows, ncols): (uint, uint)) -> Mat<(uint, uint)> {
     Mat::from_fn((nrows, ncols), |i| i).unwrap()
 }
 
-pub fn row(length: uint) -> Row<Box<[uint]>> {
-    Row::from_fn(length, |i| i)
+pub fn row(length: uint) -> RowVec<uint> {
+    RowVec::from_fn(length, |i| i)
 }
 
 pub mod rand {
     use std::rand::{Rand, Rng, XorShiftRng, mod};
 
-    use linalg::{Col, Mat, Row};
+    use linalg::{ColVec, Mat, RowVec};
 
-    pub fn col<T>(length: uint) -> Col<Box<[T]>> where T: Rand {
+    pub fn col<T>(length: uint) -> ColVec<T> where T: Rand {
         let ref mut rng: XorShiftRng = rand::task_rng().gen();
 
-        Col::rand(length, rng)
+        ColVec::rand(length, rng)
     }
 
     pub fn mat<T>((nrows, ncols): (uint, uint)) -> Mat<T> where T: Rand {
@@ -32,10 +32,10 @@ pub mod rand {
         Mat::rand((nrows, ncols), rng).unwrap()
     }
 
-    pub fn row<T>(length: uint) -> Row<Box<[T]>> where T: Rand {
+    pub fn row<T>(length: uint) -> RowVec<T> where T: Rand {
         let ref mut rng: XorShiftRng = rand::task_rng().gen();
 
-        Row::rand(length, rng)
+        RowVec::rand(length, rng)
     }
 }
 

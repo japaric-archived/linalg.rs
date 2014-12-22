@@ -19,7 +19,7 @@ mod col {
 
     use setup;
 
-    // Test that `slice_mut(_, _)` is correct for `Col<Box<[_]>>`
+    // Test that `slice_mut(_, _)` is correct for `ColVec`
     #[quickcheck]
     fn owned(size: uint, (start, end): (uint, uint), idx: uint) -> TestResult {
         enforce! {
@@ -37,7 +37,7 @@ mod col {
         })
     }
 
-    // Test that `slice_mut(_, _)` is correct for `Col<&mut [_]>`
+    // Test that `slice_mut(_, _)` is correct for `MutCol`
     #[quickcheck]
     fn slice_mut(
         (nrows, ncols): (uint, uint),
@@ -62,7 +62,7 @@ mod col {
         })
     }
 
-    // Test that `slice_mut(_, _)` is correct for `Col<strided::MutSlice>`
+    // Test that `slice_mut(_, _)` is correct for `strided::MutCol`
     #[quickcheck]
     fn strided_mut(
         (nrows, ncols): (uint, uint),
@@ -96,7 +96,7 @@ mod diag {
     use setup;
 
     // XXX Discards too many QC tests
-    // Test that `slice_mut(_, _)` is correct for `Diag<strided::MutSlice>`
+    // Test that `slice_mut(_, _)` is correct for `MutDiag`
     #[quickcheck]
     fn strided_mut(
         (nrows, ncols): (uint, uint),
@@ -146,7 +146,7 @@ mod row {
 
     use setup;
 
-    // Test that `slice_mut(_, _)` is correct for `Row<Box<[_]>>`
+    // Test that `slice_mut(_, _)` is correct for `RowVec`
     #[quickcheck]
     fn owned(size: uint, (start, end): (uint, uint), idx: uint) -> TestResult {
         enforce! {
@@ -164,7 +164,7 @@ mod row {
         })
     }
 
-    // Test that `slice_mut(_, _)` is correct for `Row<&mut [_]>`
+    // Test that `slice_mut(_, _)` is correct for `MutRow`
     #[quickcheck]
     fn slice_mut(
         (nrows, ncols): (uint, uint),
@@ -189,7 +189,7 @@ mod row {
         })
     }
 
-    // Test that `slice_mut(_, _)` is correct for `Row<strided::MutSlice>`
+    // Test that `slice_mut(_, _)` is correct for `strided::MutRow`
     #[quickcheck]
     fn strided_mut(
         (nrows, ncols): (uint, uint),

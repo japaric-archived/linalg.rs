@@ -1,70 +1,69 @@
 use std::slice;
 
-use {Col, Diag, Mat, Row};
+use strided;
 use traits::{Iter, IterMut};
+use {Col, ColVec, Diag, Mat, MutCol, MutDiag, MutRow, Row, RowVec};
+
+impl<'a, T> Iter<'a, &'a T, slice::Items<'a, T>> for ColVec<T> {
+    fn iter(&'a self) -> slice::Items<'a, T> {
+        self.0.iter()
+    }
+}
 
 impl<'a, T> Iter<'a, &'a T, slice::Items<'a, T>> for Mat<T> {
-    fn iter(&self) -> slice::Items<T> {
+    fn iter(&'a self) -> slice::Items<'a, T> {
         self.data.iter()
     }
 }
 
+impl<'a, T> Iter<'a, &'a T, slice::Items<'a, T>> for RowVec<T> {
+    fn iter(&'a self) -> slice::Items<'a, T> {
+        self.0.iter()
+    }
+}
+
+macro_rules! impls {
+    ($($ty:ty),+) => {
+        $(
+            impl<'a, 'b, T> Iter<'a, &'a T, strided::Items<'a, T>> for $ty {
+                fn iter(&'a self) -> strided::Items<'a, T> {
+                    self.0.iter()
+                }
+            }
+        )+
+    }
+}
+
+impls!(Col<'b, T>, Diag<'b, T>, MutCol<'b, T>, MutDiag<'b, T>, MutRow<'b, T>, Row<'b, T>);
+
+impl<'a, T> IterMut<'a, &'a mut T, slice::MutItems<'a, T>> for ColVec<T> {
+    fn iter_mut(&'a mut self) -> slice::MutItems<'a, T> {
+        self.0.iter_mut()
+    }
+}
+
 impl<'a, T> IterMut<'a, &'a mut T, slice::MutItems<'a, T>> for Mat<T> {
-    fn iter_mut(&mut self) -> slice::MutItems<T> {
+    fn iter_mut(&'a mut self) -> slice::MutItems<'a, T> {
         self.data.iter_mut()
     }
 }
 
-impl<'a, T> Iter<'a, &'a T, slice::Items<'a, T>> for Box<[T]> {
-    fn iter(&self) -> slice::Items<T> {
-        SliceExt::iter(&**self)
+impl<'a, T> IterMut<'a, &'a mut T, slice::MutItems<'a, T>> for RowVec<T> {
+    fn iter_mut(&'a mut self) -> slice::MutItems<'a, T> {
+        self.0.iter_mut()
     }
 }
 
-impl<'a, T> IterMut<'a, &'a mut T, slice::MutItems<'a, T>> for Box<[T]> {
-    fn iter_mut(&mut self) -> slice::MutItems<T> {
-        SliceExt::iter_mut(&mut **self)
-    }
-}
-
-impl<'a, 'b, T> IterMut<'b, &'b mut T, slice::MutItems<'b, T>> for &'a mut [T] {
-    fn iter_mut(&mut self) -> slice::MutItems<T> {
-        SliceExt::iter_mut(*self)
-    }
-}
-
-macro_rules! impl_iter {
-    ($($ty:ty),+) => {$(
-        impl<'a, 'b, T> Iter<'b, &'b T, slice::Items<'b, T>> for $ty {
-            fn iter(&self) -> slice::Items<T> {
-                SliceExt::iter(*self)
+macro_rules! impls_mut {
+    ($($ty:ty),+) => {
+        $(
+            impl<'a, 'b, T> IterMut<'a, &'a mut T, strided::MutItems<'a, T>> for $ty {
+                fn iter_mut(&'a mut self) -> strided::MutItems<'a, T> {
+                    self.0.iter_mut()
+                }
             }
-        })+
+        )+
     }
 }
 
-impl_iter!(&'a [T], &'a mut [T]);
-
-macro_rules! impls {
-    ($($ty:ty),+) => {$(
-        impl<'a, T, I, V> Iter<'a, T, I> for $ty where
-            I: Iterator<T>,
-            V: Iter<'a, T, I>,
-        {
-            fn iter(&'a self) -> I {
-                self.0.iter()
-            }
-        }
-
-        impl<'a, T, I, V> IterMut<'a, T, I> for $ty where
-            I: Iterator<T>,
-            V: IterMut<'a, T, I>,
-        {
-            fn iter_mut(&'a mut self) -> I {
-                self.0.iter_mut()
-            }
-        })+
-   }
-}
-
-impls!(Col<V>, Diag<V>, Row<V>);
+impls_mut!(MutCol<'b, T>, MutDiag<'b, T>, MutRow<'b, T>);

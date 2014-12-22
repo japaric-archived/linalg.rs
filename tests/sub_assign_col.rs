@@ -15,7 +15,7 @@ macro_rules! blas {
 
             use setup;
 
-            // Test that `sub_assign(Col<Box<[T]>>)` is correct for `Col<Box<[T]>>`
+            // Test that `sub_assign(&ColVec)` is correct for `ColVec`
             #[quickcheck]
             fn owned(size: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -36,7 +36,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `sub_assign(T)` is correct for `Col<Box<[T]>>`
+            // Test that `sub_assign(T)` is correct for `ColVec`
             #[quickcheck]
             fn scalar(size: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -49,13 +49,13 @@ macro_rules! blas {
 
                     let rhs: $ty = ::std::rand::random();
 
-                    result.sub_assign(&rhs);
+                    result.sub_assign(rhs);
 
                     lhs - rhs == *try!(result.at(idx))
                 })
             }
 
-            // Test that `sub_assign(Col<&[T]>)` is correct for `Col<Box<[T]>>`
+            // Test that `sub_assign(Col)` is correct for `ColVec`
             #[quickcheck]
             fn slice((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -70,7 +70,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((nrows, ncols));
                     let rhs = try!(m.col(col));
 
-                    result.sub_assign(&rhs);
+                    result.sub_assign(rhs);
 
                     let &rhs = try!(rhs.at(idx));
 
@@ -78,7 +78,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `sub_assign(Col<&mut [T]>)` is correct for `Col<Box<[T]>>`
+            // Test that `sub_assign(&MutCol)` is correct for `ColVec`
             #[quickcheck]
             fn slice_mut((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -101,7 +101,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `sub_assign(Col<strided::Slice>)` is correct for `Col<Box<[T]>>`
+            // Test that `sub_assign(strided::Col)` is correct for `ColVec`
             #[quickcheck]
             fn strided((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -116,7 +116,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((ncols, nrows)).t();
                     let rhs = try!(m.col(col));
 
-                    result.sub_assign(&rhs);
+                    result.sub_assign(rhs);
 
                     let &rhs = try!(rhs.at(idx));
 
@@ -124,7 +124,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `sub_assign(Col<strided::MutSlice>)` is correct for `Col<Box<[T]>>`
+            // Test that `sub_assign(&strided::MutCol)` is correct for `ColVec`
             #[quickcheck]
             fn strided_mut((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -154,7 +154,7 @@ macro_rules! blas {
 
             use setup;
 
-            // Test that `sub_assign(Col<Box<[T]>>)` is correct for `Col<&mut [T]>`
+            // Test that `sub_assign(&ColVec)` is correct for `MutCol`
             #[quickcheck]
             fn owned((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -177,7 +177,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `sub_assign(T)` is correct for `Col<&mut [T]>`
+            // Test that `sub_assign(T)` is correct for `MutCol`
             #[quickcheck]
             fn scalar((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -192,13 +192,13 @@ macro_rules! blas {
 
                     let rhs: $ty = ::std::rand::random();
 
-                    result.sub_assign(&rhs);
+                    result.sub_assign(rhs);
 
                     lhs - rhs == *try!(result.at(idx))
                 })
             }
 
-            // Test that `sub_assign(Col<&[T]>)` is correct for `Col<&mut [T]>`
+            // Test that `sub_assign(Col)` is correct for `MutCol`
             #[quickcheck]
             fn slice((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -214,7 +214,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((nrows, ncols));
                     let rhs = try!(m.col(col));
 
-                    result.sub_assign(&rhs);
+                    result.sub_assign(rhs);
 
                     let &rhs = try!(rhs.at(idx));
 
@@ -222,7 +222,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `sub_assign(Col<&mut [T]>)` is correct for `Col<&mut [T]>`
+            // Test that `sub_assign(&MutCol)` is correct for `MutCol`
             #[quickcheck]
             fn slice_mut((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -246,7 +246,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `sub_assign(Col<strided::Slice>)` is correct for `Col<&mut [T]>`
+            // Test that `sub_assign(strided::Col)` is correct for `MutCol`
             #[quickcheck]
             fn strided((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -262,7 +262,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((ncols, nrows)).t();
                     let rhs = try!(m.col(col));
 
-                    result.sub_assign(&rhs);
+                    result.sub_assign(rhs);
 
                     let &rhs = try!(rhs.at(idx));
 
@@ -270,7 +270,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `sub_assign(Col<strided::MutSlice>)` is correct for `Col<&mut [T]>`
+            // Test that `sub_assign(&strided::MutCol)` is correct for `MutCol`
             #[quickcheck]
             fn strided_mut((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -301,7 +301,7 @@ macro_rules! blas {
 
             use setup;
 
-            // Test that `sub_assign(T)` is correct for `Col<strided::MutSlice>`
+            // Test that `sub_assign(&ColVec)` is correct for `strided::MutCol`
             #[quickcheck]
             fn owned((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -324,7 +324,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `sub_assign(T)` is correct for `Col<strided::MutSlice>`
+            // Test that `sub_assign(T)` is correct for `strided::MutCol`
             #[quickcheck]
             fn scalar((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -339,13 +339,13 @@ macro_rules! blas {
 
                     let rhs: $ty = ::std::rand::random();
 
-                    result.sub_assign(&rhs);
+                    result.sub_assign(rhs);
 
                     lhs - rhs == *try!(result.at(idx))
                 })
             }
 
-            // Test that `sub_assign(Col<&[T]>)` is correct for `Col<strided::MutSlice>`
+            // Test that `sub_assign(Col)` is correct for `strided::MutCol`
             #[quickcheck]
             fn slice((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -361,7 +361,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((nrows, ncols));
                     let rhs = try!(m.col(col));
 
-                    result.sub_assign(&rhs);
+                    result.sub_assign(rhs);
 
                     let &rhs = try!(rhs.at(idx));
 
@@ -369,7 +369,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `sub_assign(Col<&mut [T]>)` is correct for `Col<strided::MutSlice>`
+            // Test that `sub_assign(&MutCol)` is correct for `strided::MutCol`
             #[quickcheck]
             fn slice_mut((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -393,7 +393,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `sub_assign(Col<strided::Slice>)` is correct for `Col<strided::MutSlice>`
+            // Test that `sub_assign(strided::Col)` is correct for `strided::MutCol`
             #[quickcheck]
             fn strided((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -409,7 +409,7 @@ macro_rules! blas {
                     let m = setup::rand::mat::<$ty>((ncols, nrows)).t();
                     let rhs = try!(m.col(col));
 
-                    result.sub_assign(&rhs);
+                    result.sub_assign(rhs);
 
                     let &rhs = try!(rhs.at(idx));
 
@@ -417,7 +417,7 @@ macro_rules! blas {
                 })
             }
 
-            // Test that `sub_assign(Col<strided::Slice>)` is correct for `Col<strided::MutSlice>`
+            // Test that `sub_assign(&strided::MutCol)` is correct for `strided::MutCol`
             #[quickcheck]
             fn strided_mut((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
                 enforce! {
