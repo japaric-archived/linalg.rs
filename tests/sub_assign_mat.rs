@@ -15,7 +15,7 @@ mod trans {
 
             use setup;
 
-            // Test that `sub_assign(Trans<Mat>)` is correct for `Mat`
+            // Test that `sub_assign(&Trans<Mat>)` is correct for `Mat`
             #[quickcheck]
             fn mat((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
                 enforce! {
@@ -61,7 +61,7 @@ mod trans {
                     let m = setup::rand::mat::<$ty>(size);
                     let rhs = try!(m.slice_from(start)).t();
 
-                    result.sub_assign(&rhs);
+                    result.sub_assign(rhs);
 
                     let &rhs = try!(rhs.at(idx));
 
@@ -69,7 +69,7 @@ mod trans {
                 })
             }
 
-            // Test that `sub_assign(Trans<MutView>)` is correct for `Mat`
+            // Test that `sub_assign(&Trans<MutView>)` is correct for `Mat`
             #[quickcheck]
             fn view_mut(
                 start: (uint, uint),
@@ -111,7 +111,7 @@ macro_rules! blas {
 
         use setup;
 
-        // Test that `sub_assign(Mat)` is correct for `Mat`
+        // Test that `sub_assign(&Mat)` is correct for `Mat`
         #[quickcheck]
         fn mat((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
             enforce! {
@@ -153,7 +153,7 @@ macro_rules! blas {
 
                 let rhs: $ty = ::std::rand::random();
 
-                result.sub_assign(&rhs);
+                result.sub_assign(rhs);
 
                 lhs - rhs == *try!(result.at(idx))
             })
@@ -181,7 +181,7 @@ macro_rules! blas {
                 let m = setup::rand::mat::<$ty>(size);
                 let rhs = try!(m.slice_from(start));
 
-                result.sub_assign(&rhs);
+                result.sub_assign(rhs);
 
                 let &rhs = try!(rhs.at(idx));
 
@@ -189,7 +189,7 @@ macro_rules! blas {
             })
         }
 
-        // Test that `sub_assign(MutView)` is correct for `Mat`
+        // Test that `sub_assign(&MutView)` is correct for `Mat`
         #[quickcheck]
         fn view_mut(
             start: (uint, uint),

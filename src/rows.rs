@@ -1,66 +1,36 @@
+use std::mem;
+
 use traits::{MatrixRow, MatrixRowMut};
-use {MutRows, Row, Rows};
+use {Row, Rows, MutRow, MutRows};
 
-impl<'a, V, M> DoubleEndedIterator<Row<V>> for Rows<'a, M> where
-    M: MatrixRow<'a, V>,
-{
-    fn next_back(&mut self) -> Option<Row<V>> {
-        if self.state == self.stop {
-            None
-        } else {
-            self.stop -= 1;
-            Some(unsafe { self.mat.unsafe_row(self.stop) })
-        }
+impl<'a, T, M> DoubleEndedIterator<Row<'a, T>> for Rows<'a, M> where M: MatrixRow<T> {
+    fn next_back(&mut self) -> Option<Row<'a, T>> {
+        self.0.next_back()
     }
 }
 
-impl<'a, V, M> Iterator<Row<V>> for Rows<'a, M> where
-    M: MatrixRow<'a, V>,
-{
-    fn next(&mut self) -> Option<Row<V>> {
-        if self.state == self.stop {
-            None
-        } else {
-            let row = unsafe { self.mat.unsafe_row(self.state) };
-            self.state += 1;
-            Some(row)
-        }
+impl<'a, T, M> Iterator<Row<'a, T>> for Rows<'a, M> where M: MatrixRow<T> {
+    fn next(&mut self) -> Option<Row<'a, T>> {
+        self.0.next()
     }
 
     fn size_hint(&self) -> (uint, Option<uint>) {
-        let exact = self.stop - self.state;
-        (exact, Some(exact))
+        self.0.size_hint()
     }
 }
 
-impl<'a, V, M> DoubleEndedIterator<Row<V>> for MutRows<'a, M> where
-    M: MatrixRowMut<'a, V>,
-{
-    fn next_back(&mut self) -> Option<Row<V>> {
-        if self.state == self.stop {
-            None
-        } else {
-            self.stop -= 1;
-            // NB This doesn't *really* alias memory, because the rows are not overlapping
-            Some(unsafe { (*(self.mat as *mut _)).unsafe_row_mut(self.stop) })
-        }
+impl<'a, T, M> DoubleEndedIterator<MutRow<'a, T>> for MutRows<'a, M> where M: MatrixRowMut<T> {
+    fn next_back(&mut self) -> Option<MutRow<'a, T>> {
+        unsafe { mem::transmute(self.0.next_back()) }
     }
 }
 
-impl<'a, V, M> Iterator<Row<V>> for MutRows<'a, M> where M: MatrixRowMut<'a, V> {
-    fn next(&mut self) -> Option<Row<V>> {
-        if self.state == self.stop {
-            None
-        } else {
-            // NB This doesn't *really* alias memory, because the rows are not overlapping
-            let row = unsafe { (*(self.mat as *mut _)).unsafe_row_mut(self.state) };
-            self.state += 1;
-            Some(row)
-        }
+impl<'a, T, M> Iterator<MutRow<'a, T>> for MutRows<'a, M> where M: MatrixRowMut<T> {
+    fn next(&mut self) -> Option<MutRow<'a, T>> {
+        unsafe { mem::transmute(self.0.next()) }
     }
 
     fn size_hint(&self) -> (uint, Option<uint>) {
-        let exact = self.stop - self.state;
-        (exact, Some(exact))
+        self.0.size_hint()
     }
 }

@@ -7,7 +7,7 @@ extern crate quickcheck_macros;
 
 use linalg::prelude::*;
 use quickcheck::TestResult;
-use std::collections::TreeSet;
+use std::collections::BTreeSet;
 
 mod setup;
 
@@ -17,13 +17,13 @@ mod col {
 
     use setup;
 
-    // Test that `iter_mut()` is correct for `Col<Box<[_]>>`
+    // Test that `iter_mut()` is correct for `ColVec`
     #[quickcheck]
     fn owned(size: uint) -> bool {
         setup::col(size).iter_mut().enumerate().all(|(i, &e)| e == i)
     }
 
-    // Test that `iter_mut()` is correct for `Col<&mut [_]>`
+    // Test that `iter_mut()` is correct for `MutCol`
     #[quickcheck]
     fn slice_mut((nrows, ncols): (uint, uint), col: uint) -> TestResult {
         enforce! {
@@ -38,7 +38,7 @@ mod col {
         })
     }
 
-    // Test that `iter_mut()` is correct for `Col<strided::MutSlice>`
+    // Test that `iter_mut()` is correct for `strided::MutCol`
     #[quickcheck]
     fn strided_mut((nrows, ncols): (uint, uint), col: uint) -> TestResult {
         enforce! {
@@ -60,7 +60,7 @@ mod diag {
 
     use setup;
 
-    // Test that `iter_mut()` is correct for `Diag<strided::MutSlice>`
+    // Test that `iter_mut()` is correct for `MutDiag`
     #[quickcheck]
     fn strided_mut(size: (uint, uint), diag: int) -> TestResult {
         validate_diag!(diag, size);
@@ -84,13 +84,13 @@ mod row {
 
     use setup;
 
-    // Test that `iter_mut()` is correct for `Row<Box<[_]>>`
+    // Test that `iter_mut()` is correct for `RowVec`
     #[quickcheck]
     fn owned(size: uint) -> bool {
         setup::row(size).iter_mut().enumerate().all(|(i, &e)| e == i)
     }
 
-    // Test that `iter_mut()` is correct for `Row<&mut [_]>`
+    // Test that `iter_mut()` is correct for `MutRow`
     #[quickcheck]
     fn slice_mut((nrows, ncols): (uint, uint), row: uint) -> TestResult {
         enforce! {
@@ -105,7 +105,7 @@ mod row {
         })
     }
 
-    // Test that `iter_mut()` is correct for `Row<strided::MutSlice>`
+    // Test that `iter_mut()` is correct for `strided::MutRow`
     #[quickcheck]
     fn strided_mut((nrows, ncols): (uint, uint), row: uint) -> TestResult {
         enforce! {
@@ -124,14 +124,14 @@ mod row {
 mod trans {
     use linalg::prelude::*;
     use quickcheck::TestResult;
-    use std::collections::TreeSet;
+    use std::collections::BTreeSet;
 
     use setup;
 
     // Test that `iter_mut()` is correct for `Trans<Mat>`
     #[quickcheck]
     fn mat((nrows, ncols): (uint, uint)) -> bool {
-        let mut elems = TreeSet::new();
+        let mut elems = BTreeSet::new();
         for r in range(0, nrows) {
             for c in range(0, ncols) {
                 elems.insert((r, c));
@@ -151,7 +151,7 @@ mod trans {
             let mut v = try!(m.slice_from_mut(start)).t();
             let (start_row, start_col) = start;
 
-            let mut t = TreeSet::new();
+            let mut t = BTreeSet::new();
             for r in range(0, nrows) {
                 for c in range(0, ncols) {
                     t.insert((start_row + c, start_col + r));
@@ -166,7 +166,7 @@ mod trans {
 // Test that `iter_mut()` is correct for `Mat`
 #[quickcheck]
 fn mat((nrows, ncols): (uint, uint)) -> bool {
-    let mut elems = TreeSet::new();
+    let mut elems = BTreeSet::new();
     for r in range(0, nrows) {
         for c in range(0, ncols) {
             elems.insert((r, c));
@@ -186,7 +186,7 @@ fn view_mut(start: (uint, uint), (nrows, ncols): (uint, uint)) -> TestResult {
         let mut v = try!(m.slice_from_mut(start));
         let (start_row, start_col) = start;
 
-        let mut t = TreeSet::new();
+        let mut t = BTreeSet::new();
         for r in range(0, nrows) {
             for c in range(0, ncols) {
                 t.insert((start_row + r, start_col + c));

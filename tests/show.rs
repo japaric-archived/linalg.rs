@@ -11,16 +11,16 @@ macro_rules! eq {
 mod col {
     use linalg::prelude::*;
 
-    // Test that `Show` is correct for `Col<Box<[_]>>`
+    // Test that `Show` is correct for `ColVec`
     #[test]
     fn owned() {
         eq! {
-            Col::from_fn(3, |i| i),
+            ColVec::from_fn(3, |i| i),
             "Col([0, 1, 2])",
         }
     }
 
-    // Test that `Show` is correct for `Col<&[_]>`
+    // Test that `Show` is correct for `Col`
     #[test]
     fn slice() {
         eq! {
@@ -29,7 +29,7 @@ mod col {
         }
     }
 
-    // Test that `Show` is correct for `Col<&mut [_]>`
+    // Test that `Show` is correct for `MutCol`
     #[test]
     fn slice_mut() {
         eq! {
@@ -38,7 +38,7 @@ mod col {
         }
     }
 
-    // Test that `Show` is correct for `Col<strided::Slice>`
+    // Test that `Show` is correct for `strided::Col`
     #[test]
     fn strided() {
         eq! {
@@ -47,7 +47,7 @@ mod col {
         }
     }
 
-    // Test that `Show` is correct for `Col<strided::MutSlice>`
+    // Test that `Show` is correct for `strided::MutCol`
     #[test]
     fn strided_mut() {
         eq! {
@@ -60,7 +60,7 @@ mod col {
 mod diag {
     use linalg::prelude::*;
 
-    // Test that `Show` is correct for `Diag<strided::Slice>`
+    // Test that `Show` is correct for `Diag`
     #[test]
     fn strided() {
         eq! {
@@ -69,7 +69,7 @@ mod diag {
         }
     }
 
-    // Test that `Show` is correct for `Diag<strided::MutSlice>`
+    // Test that `Show` is correct for `MutDiag`
     #[test]
     fn strided_mut() {
         eq! {
@@ -82,16 +82,16 @@ mod diag {
 mod row {
     use linalg::prelude::*;
 
-    // Test that `Show` is correct for `Row<Box<[_]>>`
+    // Test that `Show` is correct for `RowVec`
     #[test]
     fn owned() {
         eq! {
-            Row::from_fn(3, |i| i),
+            RowVec::from_fn(3, |i| i),
             "Row([0, 1, 2])",
         }
     }
 
-    // Test that `Show` is correct for `Row<&[_]>`
+    // Test that `Show` is correct for `Row`
     #[test]
     fn slice() {
         eq! {
@@ -100,7 +100,7 @@ mod row {
         }
     }
 
-    // Test that `Show` is correct for `Row<&mut [_]>`
+    // Test that `Show` is correct for `MutRow`
     #[test]
     fn slice_mut() {
         eq! {
@@ -109,7 +109,7 @@ mod row {
         }
     }
 
-    // Test that `Show` is correct for `Row<strided::Slice>`
+    // Test that `Show` is correct for `strided::Row`
     #[test]
     fn strided() {
         eq! {
@@ -118,7 +118,7 @@ mod row {
         }
     }
 
-    // Test that `Show` is correct for `Row<strided::MutSlice>`
+    // Test that `Show` is correct for `strided::MutRow`
     #[test]
     fn strided_mut() {
         eq! {

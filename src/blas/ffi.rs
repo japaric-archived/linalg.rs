@@ -1,14 +1,6 @@
-//! FFI
-
-use blas::Transpose;
-use libc::{c_double, c_float};
-
+use blas::{Transpose, blasint};
 use complex::Complex;
-
-/// The integer used by the BLAS library
-// TODO Handle 64-bit BLAS
-#[allow(non_camel_case_types)]
-pub type blasint = ::libc::c_int;
+use libc::{c_double, c_float};
 
 // y := alpha * x + y
 #[link(name="blas")]

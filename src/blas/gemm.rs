@@ -1,7 +1,6 @@
 //! C := alpha * A * B + beta * C
 
-use blas::Transpose;
-use blas::ffi::{blasint, mod};
+use blas::{Transpose, blasint, ffi};
 use complex::Complex;
 
 /// The signature of `gemm`

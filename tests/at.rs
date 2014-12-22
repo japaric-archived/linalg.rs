@@ -16,7 +16,7 @@ mod col {
 
     use setup;
 
-    // Test that `at(_)` is correct for `Col<Box<[_]>>`
+    // Test that `at(_)` is correct for `ColVec`
     #[quickcheck]
     fn owned(size: uint, idx: uint) -> TestResult {
         enforce! {
@@ -31,7 +31,7 @@ mod col {
         })
     }
 
-    // Test that `at(_)` is correct for `Col<&[_]>`
+    // Test that `at(_)` is correct for `Col`
     #[quickcheck]
     fn slice((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
         enforce! {
@@ -48,7 +48,7 @@ mod col {
         })
     }
 
-    // Test that `at(_)` is correct for `Col<&mut [_]>`
+    // Test that `at(_)` is correct for `MutCol`
     #[quickcheck]
     fn slice_mut((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
         enforce! {
@@ -65,7 +65,7 @@ mod col {
         })
     }
 
-    // Test that `at(_)` is correct for `Col<strided::Slice>`
+    // Test that `at(_)` is correct for `strided::Col`
     #[quickcheck]
     fn strided((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
         enforce! {
@@ -82,7 +82,7 @@ mod col {
         })
     }
 
-    // Test that `at(_)` is correct for `Col<strided::MutSlice>`
+    // Test that `at(_)` is correct for `strided::MutCol`
     #[quickcheck]
     fn strided_mut((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
         enforce! {
@@ -106,7 +106,7 @@ mod diag {
 
     use setup;
 
-    // Test that `at(_)` is correct for `Diag<stride::Slice>`
+    // Test that `at(_)` is correct for `Diag`
     #[quickcheck]
     fn strided(size: (uint, uint), (diag, idx): (int, uint)) -> TestResult {
         validate_diag_index!(diag, size, idx);
@@ -124,7 +124,7 @@ mod diag {
         })
     }
 
-    // Test that `at(_)` is correct for `Diag<stride::MutSlice>`
+    // Test that `at(_)` is correct for `MutDiag`
     #[quickcheck]
     fn strided_mut(size: (uint, uint), (diag, idx): (int, uint)) -> TestResult {
         validate_diag_index!(diag, size, idx);
@@ -149,7 +149,7 @@ mod row {
 
     use setup;
 
-    // Test that `at(_)` is correct for `Row<Box<[_]>>`
+    // Test that `at(_)` is correct for `RowVec`
     #[quickcheck]
     fn owned(size: uint, idx: uint) -> TestResult {
         enforce! {
@@ -164,7 +164,7 @@ mod row {
         })
     }
 
-    // Test that `at(_)` is correct for `Row<&[_]>`
+    // Test that `at(_)` is correct for `Row`
     #[quickcheck]
     fn slice((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
         enforce! {
@@ -181,7 +181,7 @@ mod row {
         })
     }
 
-    // Test that `at(_)` is correct for `Row<&mut [_]>`
+    // Test that `at(_)` is correct for `MutRow`
     #[quickcheck]
     fn slice_mut((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
         enforce! {
@@ -198,7 +198,7 @@ mod row {
         })
     }
 
-    // Test that `at(_)` is correct for `Row<strided::Slice>`
+    // Test that `at(_)` is correct for `strided::Row`
     #[quickcheck]
     fn strided((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
         enforce! {
@@ -215,7 +215,7 @@ mod row {
         })
     }
 
-    // Test that `at(_)` is correct for `Row<strided::MutSlice>`
+    // Test that `at(_)` is correct for `strided::MutRow`
     #[quickcheck]
     fn strided_mut((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
         enforce! {

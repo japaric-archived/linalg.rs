@@ -15,7 +15,7 @@ mod col {
 
             use setup;
 
-            // Test that `to_owned()` is correct for `Col<Box<[T]>>`
+            // Test that `to_owned()` is correct for `ColVec`
             #[quickcheck]
             fn owned(size: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -31,7 +31,7 @@ mod col {
                 })
             }
 
-            // Test that `to_owned()` is correct for `Col<&[T]>`
+            // Test that `to_owned()` is correct for `Col`
             #[quickcheck]
             fn slice((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -49,7 +49,7 @@ mod col {
                 })
             }
 
-            // Test that `to_owned()` is correct for `Col<&mut [T]>`
+            // Test that `to_owned()` is correct for `MutCol`
             #[quickcheck]
             fn slice_mut((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -67,7 +67,7 @@ mod col {
                 })
             }
 
-            // Test that `to_owned()` is correct for `Col<strided::Slice>`
+            // Test that `to_owned()` is correct for `strided::Col`
             #[quickcheck]
             fn strided((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -85,7 +85,7 @@ mod col {
                 })
             }
 
-            // Test that `to_owned()` is correct for `Col<strided::MutSlice>`
+            // Test that `to_owned()` is correct for `strided::MutCol`
             #[quickcheck]
             fn strided_mut((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -116,7 +116,7 @@ mod row {
 
             use setup;
 
-            // Test that `to_owned()` is correct for `Row<Box<[T]>>`
+            // Test that `to_owned()` is correct for `RowVec`
             #[quickcheck]
             fn owned(size: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -132,7 +132,7 @@ mod row {
                 })
             }
 
-            // Test that `to_owned()` is correct for `Row<&[T]>`
+            // Test that `to_owned()` is correct for `Row`
             #[quickcheck]
             fn slice((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -150,7 +150,7 @@ mod row {
                 })
             }
 
-            // Test that `to_owned()` is correct for `Row<mut &[T]>`
+            // Test that `to_owned()` is correct for `MutRow`
             #[quickcheck]
             fn slice_mut((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -168,7 +168,7 @@ mod row {
                 })
             }
 
-            // Test that `to_owned()` is correct for `Row<strided::Slice>`
+            // Test that `to_owned()` is correct for `strided::Row`
             #[quickcheck]
             fn strided((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
                 enforce! {
@@ -186,7 +186,7 @@ mod row {
                 })
             }
 
-            // Test that `to_owned()` is correct for `Row<strided::MutSlice>`
+            // Test that `to_owned()` is correct for `strided::MutRow`
             #[quickcheck]
             fn strided_mut((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
                 enforce! {

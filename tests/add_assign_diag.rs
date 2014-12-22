@@ -14,7 +14,7 @@ macro_rules! blas {
 
         use setup;
 
-        // Test that `add_assign(T)` is correct for `Diag<strided::MutSlice>`
+        // Test that `add_assign(T)` is correct for `MutDiag`
         #[quickcheck]
         fn scalar(size: (uint, uint), diag: int, idx: uint) -> TestResult {
             validate_diag_index!(diag, size, idx);
@@ -26,7 +26,7 @@ macro_rules! blas {
 
                 let rhs: $ty = ::std::rand::random();
 
-                result.add_assign(&rhs);
+                result.add_assign(rhs);
 
                 lhs + rhs == *try!(result.at(idx))
             })

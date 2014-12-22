@@ -16,7 +16,7 @@ mod col {
 
     use setup;
 
-    // Test that `at_mut(_)` is correct for `Col<Box<[_]>>`
+    // Test that `at_mut(_)` is correct for `ColVec`
     #[quickcheck]
     fn owned(size: uint, idx: uint) -> TestResult {
         enforce! {
@@ -31,7 +31,7 @@ mod col {
         })
     }
 
-    // Test that `at_mut(_)` is correct for `Col<&mut [_]>`
+    // Test that `at_mut(_)` is correct for `MutCol`
     #[quickcheck]
     fn slice_mut((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
         enforce! {
@@ -48,7 +48,7 @@ mod col {
         })
     }
 
-    // Test that `at_mut(_)` is correct for `Col<strided::MutSlice>`
+    // Test that `at_mut(_)` is correct for `strided::MutCol`
     #[quickcheck]
     fn strided_mut((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
         enforce! {
@@ -72,7 +72,7 @@ mod diag {
 
     use setup;
 
-    // Test that `at_mut(_)` is correct for `Diag<stride::MutSlice>`
+    // Test that `at_mut(_)` is correct for `MutDiag`
     #[quickcheck]
     fn strided_mut(size: (uint, uint), (diag, idx): (int, uint)) -> TestResult {
         validate_diag_index!(diag, size, idx);
@@ -97,7 +97,7 @@ mod row {
 
     use setup;
 
-    // Test that `at_mut(_)` is correct for `Row<Box<[_]>>`
+    // Test that `at_mut(_)` is correct for `RowVec`
     #[quickcheck]
     fn owned(size: uint, idx: uint) -> TestResult {
         enforce! {
@@ -112,7 +112,7 @@ mod row {
         })
     }
 
-    // Test that `at_mut(_)` is correct for `Row<&mut [_]>`
+    // Test that `at_mut(_)` is correct for `MutRow`
     #[quickcheck]
     fn slice_mut((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
         enforce! {
@@ -129,7 +129,7 @@ mod row {
         })
     }
 
-    // Test that `at_mut(_)` is correct for `Row<strided::MutSlice>`
+    // Test that `at_mut(_)` is correct for `strided::MutRow`
     #[quickcheck]
     fn strided_mut((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
         enforce! {

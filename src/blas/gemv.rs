@@ -1,7 +1,6 @@
 //! y := alpha * A * x + beta * y
 
-use blas::Transpose;
-use blas::ffi::{blasint, mod};
+use blas::{Transpose, blasint, ffi};
 use complex::Complex;
 
 /// The signature of `gemv`

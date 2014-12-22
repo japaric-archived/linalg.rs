@@ -209,7 +209,7 @@ fn expand_mat<'cx>(
         let fn_name = {
             let segments = vec![
                 cx.ident_of("linalg"),
-                cx.ident_of("Row"),
+                cx.ident_of("RowVec"),
                 cx.ident_of("new"),
             ];
 
@@ -222,7 +222,7 @@ fn expand_mat<'cx>(
         let fn_name = {
             let segments = vec![
                 cx.ident_of("linalg"),
-                cx.ident_of("Col"),
+                cx.ident_of("ColVec"),
                 cx.ident_of("new"),
             ];
 
