@@ -134,7 +134,7 @@ impl<'a, T> ::From<(*const T, uint, uint, uint)> for View<'a, T> {
     }
 }
 
-impl<'a, T> PartialEq for View<'a, T> where T: PartialEq {
+impl<'a, 'b, T, U> PartialEq<View<'a, T>> for View<'b, U> where U: PartialEq<T> {
     fn eq(&self, rhs: &View<'a, T>) -> bool {
         self.size() == rhs.size() && order::eq(self.iter(), rhs.iter())
     }

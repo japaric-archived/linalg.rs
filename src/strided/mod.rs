@@ -38,12 +38,6 @@ impl<'a, T> ::From<(*const T, uint, uint)> for Slice<'a, T> {
     }
 }
 
-impl<'a, T> PartialEq for Slice<'a, T> where T: PartialEq {
-    fn eq(&self, rhs: &Slice<'a, T>) -> bool {
-        self.0 == rhs.0
-    }
-}
-
 impl<'a, T> fmt::Show for Slice<'a, T> where T: fmt::Show {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         fmt::Show::fmt(&self.0, f)
@@ -93,12 +87,6 @@ impl<'a, T> MutSlice<'a, T> {
 impl<'a, T> ::From<(*const T, uint, uint)> for MutSlice<'a, T> {
     unsafe fn parts((data, len, stride): (*const T, uint, uint)) -> MutSlice<'a, T> {
         MutSlice(::From::parts((data, len, stride)))
-    }
-}
-
-impl<'a, T> PartialEq for MutSlice<'a, T> where T: PartialEq {
-    fn eq(&self, rhs: &MutSlice<'a, T>) -> bool {
-        self.0 == rhs.0
     }
 }
 
