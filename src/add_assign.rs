@@ -1,6 +1,9 @@
 use onezero::One;
 
-use {Col, ColVec, Mat, MutCol, MutDiag, MutRow, MutView, Row, RowVec, ToBlasint, Trans, View};
+use {
+    Col, ColVec, Mat, MutCol, MutDiag, MutRow, MutView, Row, RowVec, Scaled, ToBlasint, Trans,
+    View,
+};
 use blas::axpy::Axpy;
 use traits::{AddAssign, Matrix, MatrixCols, MatrixMutCols, MatrixMutRows, MatrixRows};
 
@@ -83,7 +86,7 @@ impl<'a, T> AddAssign<T> for Trans<MutView<'a, T>> where T: Axpy + Clone + One {
 }
 
 // vector += vector
-fn vv<T>(lhs: ::raw::strided::Slice<T>, rhs: ::raw::strided::Slice<T>) where T: Axpy + One {
+fn vv<T>(lhs: ::raw::strided::Slice<T>, alpha: T, rhs: ::raw::strided::Slice<T>) where T: Axpy {
     assert_eq!(lhs.len, rhs.len);
 
     let n = lhs.len;
@@ -92,7 +95,6 @@ fn vv<T>(lhs: ::raw::strided::Slice<T>, rhs: ::raw::strided::Slice<T>) where T: 
 
     let axpy = Axpy::axpy(None::<T>);
     let n = n.to_blasint();
-    let alpha = One::one();
     let x = rhs.data;
     let incx = rhs.stride.to_blasint();
     let y = lhs.data;
@@ -138,6 +140,12 @@ impl<'a, 'b, T> AddAssign<&'a MutCol<'b, T>> for ColVec<T> where T: Axpy + One {
     }
 }
 
+impl<'a, T> AddAssign<Scaled<T, Col<'a, T>>> for ColVec<T> where T: Axpy + One {
+    fn add_assign(&mut self, rhs: Scaled<T, Col<T>>) {
+        self.as_mut_col().add_assign(rhs)
+    }
+}
+
 // XXX (nit) double "equal size" assertion
 impl<'a, T> AddAssign<&'a Mat<T>> for Mat<T> where T: Axpy + One {
     fn add_assign(&mut self, rhs: &Mat<T>) {
@@ -150,6 +158,18 @@ impl<'a, T> AddAssign<&'a Mat<T>> for Mat<T> where T: Axpy + One {
 impl<'a, 'b, T> AddAssign<&'a MutView<'b, T>> for Mat<T> where T: Axpy + One {
     fn add_assign(&mut self, rhs: &MutView<T>) {
         self.as_mut_view().add_assign(rhs.as_view())
+    }
+}
+
+impl<'a, T> AddAssign<Scaled<T, Trans<View<'a, T>>>> for Mat<T> where T: Axpy + Clone + One {
+    fn add_assign(&mut self, rhs: Scaled<T, Trans<View<T>>>) {
+        self.as_mut_view().add_assign(rhs)
+    }
+}
+
+impl<'a, T> AddAssign<Scaled<T, View<'a, T>>> for Mat<T> where T: Axpy + Clone + One {
+    fn add_assign(&mut self, rhs: Scaled<T, View<T>>) {
+        self.as_mut_view().add_assign(rhs)
     }
 }
 
@@ -179,7 +199,7 @@ impl<'a, 'b, T> AddAssign<View<'a, T>> for Mat<T> where T: Axpy + One {
 
 impl<'a, 'b, T> AddAssign<Col<'a, T>> for MutCol<'b, T> where T: Axpy + One {
     fn add_assign(&mut self, rhs: Col<T>) {
-        vv((self.0).0, (rhs.0).0)
+        vv((self.0).0, One::one(), (rhs.0).0)
     }
 }
 
@@ -195,9 +215,21 @@ impl<'a, 'b, 'c, T> AddAssign<&'a MutCol<'b, T>> for MutCol<'c, T> where T: Axpy
     }
 }
 
+impl<'a, 'b, T> AddAssign<Scaled<T, Col<'a, T>>> for MutCol<'b, T> where T: Axpy + One {
+    fn add_assign(&mut self, rhs: Scaled<T, Col<T>>) {
+        vv((self.0).0, rhs.0, ((rhs.1).0).0)
+    }
+}
+
+impl<'a, 'b, 'c, T> AddAssign<&'a MutRow<'b, T>> for MutRow<'c, T> where T: Axpy + One {
+    fn add_assign(&mut self, rhs: &MutRow<T>) {
+        self.add_assign(rhs.as_row())
+    }
+}
+
 impl<'a, 'b, T> AddAssign<Row<'a, T>> for MutRow<'b, T> where T: Axpy + One {
     fn add_assign(&mut self, rhs: Row<T>) {
-        vv((self.0).0, (rhs.0).0)
+        vv((self.0).0, One::one(), (rhs.0).0)
     }
 }
 
@@ -207,9 +239,9 @@ impl<'a, 'b, T> AddAssign<&'a RowVec<T>> for MutRow<'b, T> where T: Axpy + One {
     }
 }
 
-impl<'a, 'b, 'c, T> AddAssign<&'a MutRow<'b, T>> for MutRow<'c, T> where T: Axpy + One {
-    fn add_assign(&mut self, rhs: &MutRow<T>) {
-        self.add_assign(rhs.as_row())
+impl<'a, 'b, T> AddAssign<Scaled<T, Row<'a, T>>> for MutRow<'b, T> where T: Axpy + One {
+    fn add_assign(&mut self, rhs: Scaled<T, Row<T>>) {
+        vv((self.0).0, rhs.0, ((rhs.1).0).0)
     }
 }
 
@@ -223,6 +255,16 @@ impl<'a, 'b, 'c, T> AddAssign<&'a MutView<'b, T>> for MutView<'c, T> where T: Ax
     fn add_assign(&mut self, rhs: &MutView<T>) {
         self.add_assign(rhs.as_view())
     }
+}
+
+impl<'a, 'b, T> AddAssign<Scaled<T, Trans<View<'a, T>>>> for MutView<'b, T> where
+    T: Axpy + Clone + One,
+{
+    mm!(Scaled<T, Trans<View<T>>>);
+}
+
+impl<'a, 'b, T> AddAssign<Scaled<T, View<'a, T>>> for MutView<'b, T> where T: Axpy + Clone + One {
+    mm!(Scaled<T, View<T>>);
 }
 
 impl<'a, 'b, T> AddAssign<&'a Trans<Mat<T>>> for MutView<'b, T> where T: Axpy + One {
@@ -245,6 +287,12 @@ impl<'a, 'b, T> AddAssign<View<'a, T>> for MutView<'b, T> where T: Axpy + One {
     mm!(View<T>);
 }
 
+impl<'a, 'b, T> AddAssign<&'a MutRow<'b, T>> for RowVec<T> where T: Axpy + One {
+    fn add_assign(&mut self, rhs: &MutRow<T>) {
+        self.as_mut_row().add_assign(rhs.as_row())
+    }
+}
+
 impl<'a, T> AddAssign<Row<'a, T>> for RowVec<T> where T: Axpy + One {
     fn add_assign(&mut self, rhs: Row<T>) {
         self.as_mut_row().add_assign(rhs)
@@ -257,9 +305,9 @@ impl<'a, T> AddAssign<&'a RowVec<T>> for RowVec<T> where T: Axpy + One {
     }
 }
 
-impl<'a, 'b, T> AddAssign<&'a MutRow<'b, T>> for RowVec<T> where T: Axpy + One {
-    fn add_assign(&mut self, rhs: &MutRow<T>) {
-        self.as_mut_row().add_assign(rhs.as_row())
+impl<'a, T> AddAssign<Scaled<T, Row<'a, T>>> for RowVec<T> where T: Axpy + One {
+    fn add_assign(&mut self, rhs: Scaled<T, Row<T>>) {
+        self.as_mut_row().add_assign(rhs)
     }
 }
 
@@ -272,6 +320,20 @@ impl<'a, T> AddAssign<&'a Mat<T>> for Trans<Mat<T>> where T: Axpy + One {
 impl<'a, 'b, T> AddAssign<&'a MutView<'b, T>> for Trans<Mat<T>> where T: Axpy + One {
     fn add_assign(&mut self, rhs: &MutView<T>) {
         Trans(self.0.as_mut_view()).add_assign(rhs.as_view())
+    }
+}
+
+impl<'a, T> AddAssign<Scaled<T, Trans<View<'a, T>>>> for Trans<Mat<T>> where
+    T: Axpy + Clone + One,
+{
+    fn add_assign(&mut self, rhs: Scaled<T, Trans<View<T>>>) {
+        self.0.as_mut_view().add_assign(Scaled(rhs.0, (rhs.1).0))
+    }
+}
+
+impl<'a, T> AddAssign<Scaled<T, View<'a, T>>> for Trans<Mat<T>> where T: Axpy + Clone + One {
+    fn add_assign(&mut self, rhs: Scaled<T, View<T>>) {
+        Trans(self.0.as_mut_view()).add_assign(rhs)
     }
 }
 
@@ -311,8 +373,18 @@ impl<'a, 'b, 'c, T> AddAssign<&'a MutView<'b, T>> for Trans<MutView<'c, T>> wher
     }
 }
 
-impl<'a, 'b, T> AddAssign<View<'a, T>> for Trans<MutView<'b, T>> where T: Axpy + One {
-    mm!(View<T>);
+impl<'a, 'b, T> AddAssign<Scaled<T, Trans<View<'a, T>>>> for Trans<MutView<'b, T>> where
+    T: Axpy + Clone + One,
+{
+    fn add_assign(&mut self, rhs: Scaled<T, Trans<View<T>>>) {
+        self.0.add_assign(Scaled(rhs.0, (rhs.1).0))
+    }
+}
+
+impl<'a, 'b, T> AddAssign<Scaled<T, View<'a, T>>> for Trans<MutView<'b, T>> where
+    T: Axpy + Clone + One,
+{
+    mm!(Scaled<T, View<T>>);
 }
 
 impl<'a, 'b, T> AddAssign<&'a Trans<Mat<T>>> for Trans<MutView<'b, T>> where T: Axpy + One {
@@ -333,4 +405,8 @@ impl<'a, 'b, T> AddAssign<Trans<View<'a, T>>> for Trans<MutView<'b, T>> where T:
     fn add_assign(&mut self, rhs: Trans<View<T>>) {
         self.0.add_assign(rhs.0)
     }
+}
+
+impl<'a, 'b, T> AddAssign<View<'a, T>> for Trans<MutView<'b, T>> where T: Axpy + One {
+    mm!(View<T>);
 }

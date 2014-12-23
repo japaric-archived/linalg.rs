@@ -1,4 +1,37 @@
-use {Col, ColVec, Mat, MutCol, MutRow, MutView, Row, RowVec, Scaled, Trans, View};
+use {Col, ColVec, Cols, Mat, MutCol, MutRow, MutView, Row, RowVec, Rows, Scaled, Trans, View};
+use traits::{Matrix, MatrixCol, MatrixRow};
+
+impl<'a, T, M> Iterator<Scaled<T, Row<'a, T>>> for Scaled<T, Rows<'a, M>> where
+    T: Clone,
+    M: MatrixRow<T>,
+{
+    fn next(&mut self) -> Option<Scaled<T, Row<'a, T>>> {
+        self.1.next().map(|r| Scaled(self.0.clone(), r))
+    }
+}
+
+impl<'a, T, M> Iterator<Scaled<T, Col<'a, T>>> for Scaled<T, Cols<'a, M>> where
+    T: Clone,
+    M: MatrixCol<T>,
+{
+    fn next(&mut self) -> Option<Scaled<T, Col<'a, T>>> {
+        self.1.next().map(|r| Scaled(self.0.clone(), r))
+    }
+}
+
+impl<T, M> Matrix for Scaled<T, M> where M: Matrix {
+    fn ncols(&self) -> uint {
+        self.1.ncols()
+    }
+
+    fn nrows(&self) -> uint {
+        self.1.nrows()
+    }
+
+    fn size(&self) -> (uint, uint) {
+        self.1.size()
+    }
+}
 
 // col
 impl<'a, T> Mul<T, Scaled<T, Col<'a, T>>> for Col<'a, T> {
