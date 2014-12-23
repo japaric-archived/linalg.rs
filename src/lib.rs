@@ -51,6 +51,7 @@ use std::rand::distributions::IndependentSample;
 use std::rand::{Rand, Rng};
 use std::raw::Repr;
 
+mod add;
 mod add_assign;
 mod at;
 mod col;
