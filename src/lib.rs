@@ -64,6 +64,7 @@ mod mul;
 mod raw;
 mod row;
 mod rows;
+mod scaled;
 mod show;
 mod slice;
 mod sub;
@@ -615,6 +616,10 @@ impl<T> Clone for RowVec<T> where T: Clone {
 pub struct Rows<'a, M: 'a>(raw::Rows<'a, M>);
 
 impl<'a, M> Copy for Rows<'a, M> {}
+
+/// A lazily scaled matrix
+#[deriving(Copy)]
+pub struct Scaled<T, M>(T, M);
 
 /// View into the transpose of a matrix
 #[deriving(Copy)]
