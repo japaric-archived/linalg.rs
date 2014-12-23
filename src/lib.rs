@@ -51,6 +51,8 @@ use std::rand::distributions::IndependentSample;
 use std::rand::{Rand, Rng};
 use std::raw::Repr;
 
+use traits::{MatrixCols, MatrixRows};
+
 mod add;
 mod add_assign;
 mod at;
@@ -64,6 +66,7 @@ mod mul;
 mod raw;
 mod row;
 mod rows;
+mod scaled;
 mod show;
 mod slice;
 mod sub;
@@ -615,6 +618,24 @@ impl<T> Clone for RowVec<T> where T: Clone {
 pub struct Rows<'a, M: 'a>(raw::Rows<'a, M>);
 
 impl<'a, M> Copy for Rows<'a, M> {}
+
+/// A lazily scaled matrix
+#[deriving(Copy)]
+pub struct Scaled<T, M>(T, M);
+
+impl<T, M> Scaled<T, M> where M: MatrixCols, T: Clone {
+    /// Returns an iterator that yields immutable views into the columns of the matrix
+    pub fn cols(&self) -> Scaled<T, Cols<M>> {
+        Scaled(self.0.clone(), self.1.cols())
+    }
+}
+
+impl<T, M> Scaled<T, M> where M: MatrixRows, T: Clone {
+    /// Returns an iterator that yields immutable views into each row of the matrix
+    pub fn rows(&self) -> Scaled<T, Rows<M>> {
+        Scaled(self.0.clone(), self.1.rows())
+    }
+}
 
 /// View into the transpose of a matrix
 #[deriving(Copy)]
