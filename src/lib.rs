@@ -66,6 +66,7 @@ mod row;
 mod rows;
 mod show;
 mod slice;
+mod sub;
 mod sub_assign;
 mod to_owned;
 mod trans;
