@@ -178,3 +178,16 @@ impl<'a, 'b, T> Mul<&'a MutRow<'b, T>, Scaled<T, Row<'a, T>>> for T {
         rhs * self
     }
 }
+
+// scaled
+impl<T, M> Mul<T, Scaled<T, M>> for Scaled<T, M> where T: Mul<T, T> {
+    fn mul(self, rhs: T) -> Scaled<T, M> {
+        Scaled(self.0 * rhs, self.1)
+    }
+}
+
+impl<T, M> Mul<Scaled<T, M>, Scaled<T, M>> for T where T: Mul<T, T> {
+    fn mul(self, rhs: Scaled<T, M>) -> Scaled<T, M> {
+        rhs * self
+    }
+}
