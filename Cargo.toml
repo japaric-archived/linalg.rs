@@ -15,9 +15,3 @@ git = "https://github.com/japaric/quickcheck"
 
 [dev-dependencies.quickcheck_macros]
 git = "https://github.com/japaric/quickcheck"
-
-[profile.dev]
-debug = false
-
-[profile.test]
-debug = false
