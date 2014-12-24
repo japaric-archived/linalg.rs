@@ -4,20 +4,20 @@ use strided;
 use traits::{Iter, IterMut};
 use {Col, ColVec, Diag, Mat, MutCol, MutDiag, MutRow, Row, RowVec};
 
-impl<'a, T> Iter<'a, &'a T, slice::Items<'a, T>> for ColVec<T> {
-    fn iter(&'a self) -> slice::Items<'a, T> {
+impl<'a, T> Iter<'a, &'a T, slice::Iter<'a, T>> for ColVec<T> {
+    fn iter(&'a self) -> slice::Iter<'a, T> {
         self.0.iter()
     }
 }
 
-impl<'a, T> Iter<'a, &'a T, slice::Items<'a, T>> for Mat<T> {
-    fn iter(&'a self) -> slice::Items<'a, T> {
+impl<'a, T> Iter<'a, &'a T, slice::Iter<'a, T>> for Mat<T> {
+    fn iter(&'a self) -> slice::Iter<'a, T> {
         self.data.iter()
     }
 }
 
-impl<'a, T> Iter<'a, &'a T, slice::Items<'a, T>> for RowVec<T> {
-    fn iter(&'a self) -> slice::Items<'a, T> {
+impl<'a, T> Iter<'a, &'a T, slice::Iter<'a, T>> for RowVec<T> {
+    fn iter(&'a self) -> slice::Iter<'a, T> {
         self.0.iter()
     }
 }
@@ -36,20 +36,20 @@ macro_rules! impls {
 
 impls!(Col<'b, T>, Diag<'b, T>, MutCol<'b, T>, MutDiag<'b, T>, MutRow<'b, T>, Row<'b, T>);
 
-impl<'a, T> IterMut<'a, &'a mut T, slice::MutItems<'a, T>> for ColVec<T> {
-    fn iter_mut(&'a mut self) -> slice::MutItems<'a, T> {
+impl<'a, T> IterMut<'a, &'a mut T, slice::IterMut<'a, T>> for ColVec<T> {
+    fn iter_mut(&'a mut self) -> slice::IterMut<'a, T> {
         self.0.iter_mut()
     }
 }
 
-impl<'a, T> IterMut<'a, &'a mut T, slice::MutItems<'a, T>> for Mat<T> {
-    fn iter_mut(&'a mut self) -> slice::MutItems<'a, T> {
+impl<'a, T> IterMut<'a, &'a mut T, slice::IterMut<'a, T>> for Mat<T> {
+    fn iter_mut(&'a mut self) -> slice::IterMut<'a, T> {
         self.data.iter_mut()
     }
 }
 
-impl<'a, T> IterMut<'a, &'a mut T, slice::MutItems<'a, T>> for RowVec<T> {
-    fn iter_mut(&'a mut self) -> slice::MutItems<'a, T> {
+impl<'a, T> IterMut<'a, &'a mut T, slice::IterMut<'a, T>> for RowVec<T> {
+    fn iter_mut(&'a mut self) -> slice::IterMut<'a, T> {
         self.0.iter_mut()
     }
 }
