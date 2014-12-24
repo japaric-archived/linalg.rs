@@ -11,10 +11,10 @@ git = "https://github.com/japaric/complex.rs"
 path = "macros"
 
 [dev-dependencies.quickcheck]
-git = "https://github.com/burntsushi/quickcheck"
+git = "https://github.com/japaric/quickcheck"
 
 [dev-dependencies.quickcheck_macros]
-git = "https://github.com/burntsushi/quickcheck"
+git = "https://github.com/japaric/quickcheck"
 
 [profile.dev]
 debug = false
