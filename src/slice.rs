@@ -1,6 +1,5 @@
 use std::mem;
-use std::raw;
-use std::raw::Repr;
+use std::raw::{self, Repr};
 
 use {
     Col, ColVec, Diag, Error, Mat, MutCol, MutDiag, MutRow, MutView, Result, Row, RowVec, View,
