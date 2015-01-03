@@ -1,3 +1,5 @@
+use std::ops::Mul;
+
 use {Col, ColVec, Cols, Mat, MutCol, MutRow, MutView, Row, RowVec, Rows, Scaled, Trans, View};
 use traits::{Matrix, MatrixCol, MatrixRow};
 

@@ -1,4 +1,5 @@
 use onezero::One;
+use std::ops::Neg;
 
 use {
     Col, ColVec, Mat, MutCol, MutDiag, MutRow, MutView, Row, RowVec, Scaled, ToBlasint, Trans,

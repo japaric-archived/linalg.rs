@@ -1,4 +1,5 @@
 use onezero::One;
+use std::ops::{Sub, Neg};
 
 use {Col, ColVec, Mat, MutCol, MutRow, MutView, Row, RowVec, Scaled, Trans, View};
 use blas::axpy::Axpy;

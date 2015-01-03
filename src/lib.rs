@@ -49,6 +49,7 @@ extern crate onezero;
 use std::num::Int;
 use std::rand::distributions::IndependentSample;
 use std::rand::{Rand, Rng};
+use std::iter::{range, repeat};
 use std::raw::Repr;
 
 use traits::{MatrixCols, MatrixRows};
@@ -130,7 +131,7 @@ impl<T> ColVec<T> {
     /// # }
     /// ```
     pub fn from_fn<F>(length: uint, f: F) -> ColVec<T> where F: FnMut(uint) -> T {
-        ColVec(Vec::from_fn(length, f).into_boxed_slice())
+        ColVec(range(0, length).map(f).collect::<Vec<T>>().into_boxed_slice())
     }
 
     /// Creates a column vector and fills it by sampling a random distribution
@@ -141,7 +142,7 @@ impl<T> ColVec<T> {
         D: IndependentSample<T>,
         R: Rng,
     {
-        ColVec(Vec::from_fn(length, |_| distribution.ind_sample(rng)).into_boxed_slice())
+        ColVec(range(0, length).map(|_| distribution.ind_sample(rng)).collect::<Vec<T>>().into_boxed_slice())
     }
 
     fn as_col(&self) -> Col<T> {
@@ -188,7 +189,7 @@ impl<T> ColVec<T> where T: Clone {
     /// # }
     /// ```
     pub fn from_elem(length: uint, value: T) -> ColVec<T> {
-        ColVec(Vec::from_elem(length, value).into_boxed_slice())
+        ColVec(repeat(value).take(length).collect::<Vec<T>>().into_boxed_slice())
     }
 }
 
@@ -198,7 +199,7 @@ impl<T> ColVec<T> where T: Rand {
     /// - Memory: `O(length)`
     /// - Time: `O(length)`
     pub fn rand<R>(length: uint, rng: &mut R) -> ColVec<T> where R: Rng {
-        ColVec(Vec::from_fn(length, |_| rng.gen()).into_boxed_slice())
+        ColVec(range(0, length).map(|_| rng.gen()).collect::<Vec<T>>().into_boxed_slice())
     }
 }
 
@@ -317,7 +318,7 @@ impl<T> Mat<T> {
         };
 
         Ok(Mat {
-            data: Vec::from_fn(length, |_| distribution.ind_sample(rng)).into_boxed_slice(),
+            data: range(0, length).map(|_| distribution.ind_sample(rng)).collect::<Vec<T>>().into_boxed_slice(),
             ncols: ncols,
             nrows: nrows,
         })
@@ -386,7 +387,7 @@ impl<T> Mat<T> where T: Clone {
         };
 
         Ok(Mat {
-            data: Vec::from_elem(length, value).into_boxed_slice(),
+            data: repeat(value).take(length).collect::<Vec<T>>().into_boxed_slice(),
             ncols: ncols,
             nrows: nrows,
         })
@@ -409,7 +410,7 @@ impl<T> Mat<T> where T: Rand {
         };
 
         Ok(Mat {
-            data: Vec::from_fn(length, |_| rng.gen()).into_boxed_slice(),
+            data: range(0, length).map(|_| rng.gen()).collect::<Vec<T>>().into_boxed_slice(),
             ncols: ncols,
             nrows: nrows,
         })
@@ -536,7 +537,7 @@ impl<T> RowVec<T> {
     /// # }
     /// ```
     pub fn from_fn<F>(length: uint, f: F) -> RowVec<T> where F: FnMut(uint) -> T {
-        RowVec(Vec::from_fn(length, f).into_boxed_slice())
+        RowVec(range(0, length).map(f).collect::<Vec<T>>().into_boxed_slice())
     }
 
     /// Creates a row vector and fills it by sampling a random distribution
@@ -547,7 +548,7 @@ impl<T> RowVec<T> {
         D: IndependentSample<T>,
         R: Rng,
     {
-        RowVec(Vec::from_fn(length, |_| distribution.ind_sample(rng)).into_boxed_slice())
+        RowVec(range(0, length).map(|_| distribution.ind_sample(rng)).collect::<Vec<T>>().into_boxed_slice())
     }
 
     fn as_mut_row(&mut self) -> MutRow<T> {
@@ -594,7 +595,7 @@ impl<T> RowVec<T> where T: Clone {
     /// # }
     /// ```
     pub fn from_elem(length: uint, value: T) -> RowVec<T> {
-        RowVec(Vec::from_elem(length, value).into_boxed_slice())
+        RowVec(repeat(value).take(length).collect::<Vec<T>>().into_boxed_slice())
     }
 }
 
@@ -604,7 +605,7 @@ impl<T> RowVec<T> where T: Rand {
     /// - Memory: `O(length)`
     /// - Time: `O(length)`
     pub fn rand<R>(length: uint, rng: &mut R) -> RowVec<T> where R: Rng {
-        RowVec(Vec::from_fn(length, |_| rng.gen()).into_boxed_slice())
+        RowVec(range(0, length).map(|_| rng.gen()).collect::<Vec<T>>().into_boxed_slice())
     }
 }
 
@@ -620,7 +621,7 @@ pub struct Rows<'a, M: 'a>(raw::Rows<'a, M>);
 impl<'a, M> Copy for Rows<'a, M> {}
 
 /// A lazily scaled matrix
-#[deriving(Copy)]
+#[derive(Copy)]
 pub struct Scaled<T, M>(T, M);
 
 impl<T, M> Scaled<T, M> where M: MatrixCols, T: Clone {
@@ -638,7 +639,7 @@ impl<T, M> Scaled<T, M> where M: MatrixRows, T: Clone {
 }
 
 /// View into the transpose of a matrix
-#[deriving(Copy)]
+#[derive(Copy)]
 pub struct Trans<M>(M);
 
 /// Immutable sub-matrix view
@@ -650,7 +651,7 @@ impl<'a, T> Copy for View<'a, T> {}
 pub type Result<T> = ::std::result::Result<T, Error>;
 
 /// Errors
-#[deriving(Copy, PartialEq, Show)]
+#[derive(Copy, PartialEq, Show)]
 pub enum Error {
     /// Invalid slice range, usually: `start > end`
     InvalidSlice,

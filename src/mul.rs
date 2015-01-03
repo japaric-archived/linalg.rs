@@ -1,5 +1,6 @@
 use onezero::{One, Zero};
 use std::num::Int;
+use std::ops::Mul;
 
 use blas::Transpose;
 use blas::dot::Dot;

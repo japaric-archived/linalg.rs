@@ -49,7 +49,7 @@ pub trait IterMut<'a, T, I: Iterator<T>> {
 }
 
 /// The basic idea of a matrix: A rectangular array arranged in rows and columns
-pub trait Matrix {
+pub trait Matrix: Sized {
     /// Returns the number of columns the matrix has
     fn ncols(&self) -> uint {
         self.size().1
