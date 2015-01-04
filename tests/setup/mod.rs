@@ -16,24 +16,24 @@ pub fn row(length: uint) -> RowVec<uint> {
 }
 
 pub mod rand {
-    use std::rand::{Rand, Rng, XorShiftRng, mod};
+    use std::rand::{Rand, Rng, XorShiftRng, self};
 
     use linalg::{ColVec, Mat, RowVec};
 
     pub fn col<T>(length: uint) -> ColVec<T> where T: Rand {
-        let ref mut rng: XorShiftRng = rand::task_rng().gen();
+        let ref mut rng: XorShiftRng = rand::thread_rng().gen();
 
         ColVec::rand(length, rng)
     }
 
     pub fn mat<T>((nrows, ncols): (uint, uint)) -> Mat<T> where T: Rand {
-        let ref mut rng: XorShiftRng = rand::task_rng().gen();
+        let ref mut rng: XorShiftRng = rand::thread_rng().gen();
 
         Mat::rand((nrows, ncols), rng).unwrap()
     }
 
     pub fn row<T>(length: uint) -> RowVec<T> where T: Rand {
-        let ref mut rng: XorShiftRng = rand::task_rng().gen();
+        let ref mut rng: XorShiftRng = rand::thread_rng().gen();
 
         RowVec::rand(length, rng)
     }
