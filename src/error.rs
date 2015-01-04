@@ -4,7 +4,7 @@ use std::error::FromError;
 
 use Error;
 
-#[deriving(Copy, Show)]
+#[derive(Copy, Show)]
 pub struct OutOfBounds;
 
 impl FromError<OutOfBounds> for Error {

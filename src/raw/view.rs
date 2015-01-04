@@ -153,7 +153,8 @@ pub struct Items<'a, T: 'a> {
 
 impl<'a, T> Copy for Items<'a, T> {}
 
-impl<'a, T> Iterator<&'a T> for Items<'a, T> {
+impl<'a, T> Iterator for Items<'a, T> {
+    type Item = &'a T;
     fn next(&mut self) -> Option<&'a T> {
         if self.col == self.ncols {
             None

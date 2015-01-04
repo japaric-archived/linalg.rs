@@ -101,13 +101,14 @@ pub struct Items<'a, T: 'a>(::raw::strided::Items<'a, T>);
 
 impl<'a, T> Copy for Items<'a, T> {}
 
-impl<'a, T> DoubleEndedIterator<&'a T> for Items<'a, T> {
+impl<'a, T> DoubleEndedIterator for Items<'a, T> {
     fn next_back(&mut self) -> Option<&'a T> {
         unsafe { mem::transmute(self.0.next_back()) }
     }
 }
 
-impl<'a, T> Iterator<&'a T> for Items<'a, T> {
+impl<'a, T> Iterator for Items<'a, T> {
+    type Item = &'a T;
     fn next(&mut self) -> Option<&'a T> {
         unsafe { mem::transmute(self.0.next()) }
     }
@@ -120,13 +121,14 @@ impl<'a, T> Iterator<&'a T> for Items<'a, T> {
 /// Iterator over an mutable strided slice
 pub struct MutItems<'a, T: 'a>(::raw::strided::Items<'a, T>);
 
-impl<'a, T> DoubleEndedIterator<&'a mut T> for MutItems<'a, T> {
+impl<'a, T> DoubleEndedIterator for MutItems<'a, T> {
     fn next_back(&mut self) -> Option<&'a mut T> {
         unsafe { mem::transmute(self.0.next_back()) }
     }
 }
 
-impl<'a, T> Iterator<&'a mut T> for MutItems<'a, T> {
+impl<'a, T> Iterator for MutItems<'a, T> {
+    type Item = &'a mut T;
     fn next(&mut self) -> Option<&'a mut T> {
         unsafe { mem::transmute(self.0.next()) }
     }

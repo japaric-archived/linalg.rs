@@ -13,7 +13,7 @@ use syntax::ast::{
 use syntax::codemap::Span;
 use syntax::ext::base::{DummyResult, ExtCtxt, MacExpr, MacResult, NormalTT};
 use syntax::ext::build::AstBuilder;
-use syntax::parse::token::{mod, Comma, Semi};
+use syntax::parse::token::{self, Comma, Semi};
 use syntax::ptr::P;
 
 #[macro_export]

@@ -1,4 +1,5 @@
 use onezero::One;
+use std::ops::{Sub, Neg};
 
 use {Col, ColVec, Mat, MutCol, MutRow, MutView, Row, RowVec, Scaled, Trans, View};
 use blas::axpy::Axpy;
@@ -6,7 +7,8 @@ use traits::SubAssign;
 
 macro_rules! sub0 {
     ($lhs:ty, $rhs:ty) => {
-        impl<T> Sub<$rhs, $lhs> for $lhs where T: Axpy + Neg<T> + One {
+        impl<T> Sub<$rhs> for $lhs where T: Axpy + Neg<Output=T> + One {
+            type Output = $lhs;
             fn sub(mut self, rhs: $rhs) -> $lhs {
                 self.sub_assign(rhs);
                 self
@@ -17,7 +19,8 @@ macro_rules! sub0 {
 
 macro_rules! sub1 {
     ($lhs:ty, $rhs:ty) => {
-        impl<'a, T> Sub<$rhs, $lhs> for $lhs where T: Axpy + Neg<T> + One {
+        impl<'a, T> Sub<$rhs> for $lhs where T: Axpy + Neg<Output=T> + One {
+            type Output = $lhs;
             fn sub(mut self, rhs: $rhs) -> $lhs {
                 self.sub_assign(rhs);
                 self
@@ -28,7 +31,8 @@ macro_rules! sub1 {
 
 macro_rules! sub1c {
     ($lhs:ty, $rhs:ty) => {
-        impl<'a, T> Sub<$rhs, $lhs> for $lhs where T: Axpy + Neg<T> + One + Clone {
+        impl<'a, T> Sub<$rhs> for $lhs where T: Axpy + Neg<Output=T> + One + Clone {
+            type Output = $lhs;
             fn sub(mut self, rhs: $rhs) -> $lhs {
                 self.sub_assign(rhs);
                 self
@@ -39,7 +43,8 @@ macro_rules! sub1c {
 
 macro_rules! sub2 {
     ($lhs:ty, $rhs:ty) => {
-        impl<'a, 'b, T> Sub<$rhs, $lhs> for $lhs where T: Axpy + Neg<T> + One {
+        impl<'a, 'b, T> Sub<$rhs> for $lhs where T: Axpy + Neg<Output=T> + One {
+            type Output = $lhs;
             fn sub(mut self, rhs: $rhs) -> $lhs {
                 self.sub_assign(rhs);
                 self
@@ -50,7 +55,8 @@ macro_rules! sub2 {
 
 macro_rules! sub2c {
     ($lhs:ty, $rhs:ty) => {
-        impl<'a, 'b, T> Sub<$rhs, $lhs> for $lhs where T: Axpy + Clone + Neg<T> + One {
+        impl<'a, 'b, T> Sub<$rhs> for $lhs where T: Axpy + Clone + Neg<Output=T> + One {
+            type Output = $lhs;
             fn sub(mut self, rhs: $rhs) -> $lhs {
                 self.sub_assign(rhs);
                 self
@@ -61,7 +67,8 @@ macro_rules! sub2c {
 
 macro_rules! sub3 {
     ($lhs:ty, $rhs:ty) => {
-        impl<'a, 'b, 'c, T> Sub<$rhs, $lhs> for $lhs where T: Axpy + Neg<T> + One {
+        impl<'a, 'b, 'c, T> Sub<$rhs> for $lhs where T: Axpy + Neg<Output=T> + One {
+            type Output = $lhs;
             fn sub(mut self, rhs: $rhs) -> $lhs {
                 self.sub_assign(rhs);
                 self

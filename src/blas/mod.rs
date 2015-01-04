@@ -10,7 +10,7 @@ mod ffi;
 
 #[repr(i8)]
 /// Transpose matrix before operation?
-#[deriving(Copy)]
+#[derive(Copy)]
 pub enum Transpose {
     /// Don't transpose
     No = 110, // 'n'
