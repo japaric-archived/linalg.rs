@@ -142,7 +142,10 @@ impl<T> ColVec<T> {
         D: IndependentSample<T>,
         R: Rng,
     {
-        ColVec(range(0, length).map(|_| distribution.ind_sample(rng)).collect::<Vec<T>>().into_boxed_slice())
+        ColVec(range(0, length)
+            .map(|_| distribution.ind_sample(rng))
+            .collect::<Vec<T>>()
+            .into_boxed_slice())
     }
 
     fn as_col(&self) -> Col<T> {
@@ -318,7 +321,10 @@ impl<T> Mat<T> {
         };
 
         Ok(Mat {
-            data: range(0, length).map(|_| distribution.ind_sample(rng)).collect::<Vec<T>>().into_boxed_slice(),
+            data: range(0, length)
+                .map(|_| distribution.ind_sample(rng))
+                .collect::<Vec<T>>()
+                .into_boxed_slice(),
             ncols: ncols,
             nrows: nrows,
         })
@@ -548,7 +554,10 @@ impl<T> RowVec<T> {
         D: IndependentSample<T>,
         R: Rng,
     {
-        RowVec(range(0, length).map(|_| distribution.ind_sample(rng)).collect::<Vec<T>>().into_boxed_slice())
+        RowVec(range(0, length)
+            .map(|_| distribution.ind_sample(rng))
+            .collect::<Vec<T>>()
+            .into_boxed_slice())
     }
 
     fn as_mut_row(&mut self) -> MutRow<T> {

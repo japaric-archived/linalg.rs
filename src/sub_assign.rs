@@ -149,13 +149,17 @@ impl<'a, 'b, T> SubAssign<&'a ColVec<T>> for MutCol<'b, T> where T: Axpy + Neg<O
     }
 }
 
-impl<'a, 'b, 'c, T> SubAssign<&'a MutCol<'b, T>> for MutCol<'c, T> where T: Axpy + Neg<Output=T> + One {
+impl<'a, 'b, 'c, T> SubAssign<&'a MutCol<'b, T>> for MutCol<'c, T> where
+    T: Axpy + Neg<Output=T> + One
+{
     fn sub_assign(&mut self, rhs: &MutCol<T>) {
         self.sub_assign(rhs.as_col())
     }
 }
 
-impl<'a, 'b, T> SubAssign<Scaled<T, Col<'a, T>>> for MutCol<'b, T> where T: Axpy + Neg<Output=T> + One {
+impl<'a, 'b, T> SubAssign<Scaled<T, Col<'a, T>>> for MutCol<'b, T> where
+    T: Axpy + Neg<Output=T> + One
+{
     fn sub_assign(&mut self, rhs: Scaled<T, Col<T>>) {
         vv((self.0).0, rhs.0, ((rhs.1).0).0)
     }
@@ -204,7 +208,9 @@ impl<'a, T> SubAssign<Scaled<T, Trans<View<'a, T>>>> for Mat<T> where
     }
 }
 
-impl<'a, T> SubAssign<Scaled<T, View<'a, T>>> for Mat<T> where T: Axpy + Clone + Neg<Output=T> + One {
+impl<'a, T> SubAssign<Scaled<T, View<'a, T>>> for Mat<T> where
+    T: Axpy + Clone + Neg<Output=T> + One
+{
     fn sub_assign(&mut self, rhs: Scaled<T, View<T>>) {
         self.as_mut_view().sub_assign(rhs)
     }
@@ -216,7 +222,9 @@ impl<'a, T> SubAssign<&'a Trans<Mat<T>>> for Mat<T> where T: Axpy + Neg<Output=T
     }
 }
 
-impl<'a, 'b, T> SubAssign<&'a Trans<MutView<'b, T>>> for Mat<T> where T: Axpy + Neg<Output=T> + One {
+impl<'a, 'b, T> SubAssign<&'a Trans<MutView<'b, T>>> for Mat<T> where
+    T: Axpy + Neg<Output=T> + One
+{
     fn sub_assign(&mut self, rhs: &Trans<MutView<T>>) {
         self.as_mut_view().sub_assign(Trans(rhs.0.as_view()))
     }
@@ -240,7 +248,9 @@ impl<'a, 'b, T> SubAssign<&'a Mat<T>> for MutView<'b, T> where T: Axpy + Neg<Out
     }
 }
 
-impl<'a, 'b, 'c, T> SubAssign<&'a MutView<'b, T>> for MutView<'c, T> where T: Axpy + Neg<Output=T> + One {
+impl<'a, 'b, 'c, T> SubAssign<&'a MutView<'b, T>> for MutView<'c, T> where
+    T: Axpy + Neg<Output=T> + One
+{
     fn sub_assign(&mut self, rhs: &MutView<T>) {
         self.sub_assign(rhs.as_view())
     }
@@ -258,7 +268,9 @@ impl<'a, 'b, T> SubAssign<Scaled<T, View<'a, T>>> for MutView<'b, T> where
     mm!(Scaled<T, View<T>>);
 }
 
-impl<'a, 'b, T> SubAssign<&'a Trans<Mat<T>>> for MutView<'b, T> where T: Axpy + Neg<Output=T> + One {
+impl<'a, 'b, T> SubAssign<&'a Trans<Mat<T>>> for MutView<'b, T> where
+    T: Axpy + Neg<Output=T> + One
+{
     fn sub_assign(&mut self, rhs: &Trans<Mat<T>>) {
         self.sub_assign(Trans(rhs.0.as_view()))
     }
@@ -272,7 +284,9 @@ impl<'a, 'b, 'c, T> SubAssign<&'a Trans<MutView<'b, T>>> for MutView<'c, T> wher
     }
 }
 
-impl<'a, 'b, T> SubAssign<Trans<View<'a, T>>> for MutView<'b, T> where T: Axpy + Neg<Output=T> + One {
+impl<'a, 'b, T> SubAssign<Trans<View<'a, T>>> for MutView<'b, T> where
+    T: Axpy + Neg<Output=T> + One
+{
     mm!(Trans<View<T>>);
 }
 
@@ -286,7 +300,9 @@ impl<'a, T> SubAssign<&'a Mat<T>> for Trans<Mat<T>> where T: Axpy + Neg<Output=T
     }
 }
 
-impl<'a, 'b, T> SubAssign<&'a MutView<'b, T>> for Trans<Mat<T>> where T: Axpy + Neg<Output=T> + One {
+impl<'a, 'b, T> SubAssign<&'a MutView<'b, T>> for Trans<Mat<T>> where
+    T: Axpy + Neg<Output=T> + One
+{
     fn sub_assign(&mut self, rhs: &MutView<T>) {
         Trans(self.0.as_mut_view()).sub_assign(rhs.as_view())
     }
@@ -334,7 +350,9 @@ impl<'a, T> SubAssign<View<'a, T>> for Trans<Mat<T>> where T: Axpy + Neg<Output=
     }
 }
 
-impl<'a, 'b, T> SubAssign<&'a Mat<T>> for Trans<MutView<'b, T>> where T: Axpy + Neg<Output=T> + One {
+impl<'a, 'b, T> SubAssign<&'a Mat<T>> for Trans<MutView<'b, T>>
+    where T: Axpy + Neg<Output=T> + One
+{
     fn sub_assign(&mut self, rhs: &Mat<T>) {
         self.sub_assign(rhs.as_view())
     }
@@ -386,12 +404,16 @@ impl<'a, 'b, T> SubAssign<Trans<View<'a, T>>> for Trans<MutView<'b, T>> where
     }
 }
 
-impl<'a, 'b, T> SubAssign<View<'a, T>> for Trans<MutView<'b, T>> where T: Axpy + Neg<Output=T> + One {
+impl<'a, 'b, T> SubAssign<View<'a, T>> for Trans<MutView<'b, T>> where
+    T: Axpy + Neg<Output=T> + One
+{
     mm!(View<T>);
 }
 
 // row
-impl<'a, 'b, 'c, T> SubAssign<&'a MutRow<'b, T>> for MutRow<'c, T> where T: Axpy + Neg<Output=T> + One {
+impl<'a, 'b, 'c, T> SubAssign<&'a MutRow<'b, T>> for MutRow<'c, T> where
+    T: Axpy + Neg<Output=T> + One
+{
     fn sub_assign(&mut self, rhs: &MutRow<T>) {
         self.sub_assign(rhs.as_row())
     }
@@ -409,7 +431,9 @@ impl<'a, 'b, T> SubAssign<&'a RowVec<T>> for MutRow<'b, T> where T: Axpy + Neg<O
     }
 }
 
-impl<'a, 'b, T> SubAssign<Scaled<T, Row<'a, T>>> for MutRow<'b, T> where T: Axpy + Neg<Output=T> + One {
+impl<'a, 'b, T> SubAssign<Scaled<T, Row<'a, T>>> for MutRow<'b, T> where
+    T: Axpy + Neg<Output=T> + One
+{
     fn sub_assign(&mut self, rhs: Scaled<T, Row<T>>) {
         vv((self.0).0, rhs.0, ((rhs.1).0).0)
     }
