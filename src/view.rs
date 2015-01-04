@@ -6,7 +6,8 @@ use traits::{
     MatrixMutCols, MatrixMutRows, MatrixRow, MatrixRowMut, MatrixRows,
 };
 
-impl<'a, T> Iterator<&'a T> for Items<'a, T> {
+impl<'a, T> Iterator for Items<'a, T> {
+    type Item = &'a T;
     fn next(&mut self) -> Option<&'a T> {
         self.0.next()
     }
@@ -16,7 +17,8 @@ impl<'a, T> Iterator<&'a T> for Items<'a, T> {
     }
 }
 
-impl<'a, T> Iterator<&'a mut T> for MutItems<'a, T> {
+impl<'a, T> Iterator for MutItems<'a, T> {
+    type Item = &'a mut T;
     fn next(&mut self) -> Option<&'a mut T> {
         unsafe { mem::transmute(self.0.next()) }
     }

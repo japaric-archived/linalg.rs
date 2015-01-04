@@ -9,7 +9,7 @@ pub struct Rows<'a, M: 'a> {
 
 impl<'a, M> Copy for Rows<'a, M> {}
 
-impl<'a, T, M> DoubleEndedIterator<Row<'a, T>> for Rows<'a, M> where M: MatrixRow<T> {
+impl<'a, T, M> DoubleEndedIterator for Rows<'a, M> where M: MatrixRow<T> {
     fn next_back(&mut self) -> Option<Row<'a, T>> {
         if self.state == self.stop {
             None
@@ -30,7 +30,8 @@ impl<'a, M> ::From<&'a M> for Rows<'a, M> where M: Matrix {
     }
 }
 
-impl<'a, T, M> Iterator<Row<'a, T>> for Rows<'a, M> where M: MatrixRow<T> {
+impl<'a, T, M> Iterator for Rows<'a, M> where M: MatrixRow<T> {
+    type Item = Row<'a, T>;
     fn next(&mut self) -> Option<Row<'a, T>> {
         if self.state == self.stop {
             None

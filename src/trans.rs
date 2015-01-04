@@ -19,7 +19,7 @@ impl<T, M> AtMut<(uint, uint), T> for Trans<M> where M: AtMut<(uint, uint), T> {
 }
 
 impl<'a, T, I, M> Iter<'a, T, I> for Trans<M> where
-    I: Iterator<T>,
+    I: Iterator,
     M: Iter<'a, T, I>,
 {
     fn iter(&'a self) -> I {
@@ -28,7 +28,7 @@ impl<'a, T, I, M> Iter<'a, T, I> for Trans<M> where
 }
 
 impl<'a, T, I, M> IterMut<'a, T, I> for Trans<M> where
-    I: Iterator<T>,
+    I: Iterator,
     M: IterMut<'a, T, I>,
 {
     fn iter_mut(&'a mut self) -> I {

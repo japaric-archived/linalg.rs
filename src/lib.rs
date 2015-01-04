@@ -40,7 +40,7 @@
 //!   guarantee of the iteration order
 
 #![deny(missing_docs, warnings)]
-#![feature(default_type_params, macro_rules)]
+#![feature(default_type_params, macro_rules, associated_types)]
 
 extern crate complex;
 extern crate libc;

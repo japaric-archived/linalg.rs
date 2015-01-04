@@ -15,7 +15,8 @@ pub struct Items<'a, T: 'a> {
 
 impl<'a, T> Copy for Items<'a, T> {}
 
-impl<'a, T> Iterator<&'a T> for Items<'a, T> {
+impl<'a, T> Iterator for Items<'a, T> {
+    type Item = &'a T;
     fn next(&mut self) -> Option<&'a T> {
         if self.state == self.stop {
             None
@@ -40,7 +41,7 @@ impl<'a, T> Iterator<&'a T> for Items<'a, T> {
     }
 }
 
-impl<'a, T> DoubleEndedIterator<&'a T> for Items<'a, T> {
+impl<'a, T> DoubleEndedIterator for Items<'a, T> {
     fn next_back(&mut self) -> Option<&'a T> {
         if self.state == self.stop {
             None

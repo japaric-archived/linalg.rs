@@ -36,14 +36,14 @@ pub trait AtMut<I, T> for Sized? {
 
 /// Immutable iteration over a collection
 // FIXME (AI) `'a`, `T`, `I` should be associated items
-pub trait Iter<'a, T, I: Iterator<T>> {
+pub trait Iter<'a, T, I: Iterator> {
     /// Returns an iterator that yields immutable references to the elements of the collection
     fn iter(&'a self) -> I;
 }
 
 /// Mutable iteration over a collection
 // FIXME (AI) `'a`, `T`, `I` should be associated items
-pub trait IterMut<'a, T, I: Iterator<T>> {
+pub trait IterMut<'a, T, I: Iterator> {
     /// Returns an iterator that yields mutable references to the elements of the collection
     fn iter_mut(&'a mut self) -> I;
 }
