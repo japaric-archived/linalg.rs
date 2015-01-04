@@ -27,10 +27,10 @@ script:
   - if [[ $BLAS == 'OpenBLAS' ]]; then
       export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/openblas-base;
     fi
+  - ./check-line-length.sh
   - cargo build --verbose
   - cargo test --verbose
   - cargo doc --verbose
-  - ./check-line-length.sh
 
 after_success:
   - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && bash upload-docs.sh'
