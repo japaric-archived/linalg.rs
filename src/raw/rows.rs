@@ -32,6 +32,7 @@ impl<'a, M> ::From<&'a M> for Rows<'a, M> where M: Matrix {
 
 impl<'a, T, M> Iterator for Rows<'a, M> where M: MatrixRow<T> {
     type Item = Row<'a, T>;
+
     fn next(&mut self) -> Option<Row<'a, T>> {
         if self.state == self.stop {
             None

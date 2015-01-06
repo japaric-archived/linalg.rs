@@ -9,6 +9,7 @@ macro_rules! sub0 {
     ($lhs:ty, $rhs:ty) => {
         impl<T> Sub<$rhs> for $lhs where T: Axpy + Neg<Output=T> + One {
             type Output = $lhs;
+
             fn sub(mut self, rhs: $rhs) -> $lhs {
                 self.sub_assign(rhs);
                 self
@@ -21,6 +22,7 @@ macro_rules! sub1 {
     ($lhs:ty, $rhs:ty) => {
         impl<'a, T> Sub<$rhs> for $lhs where T: Axpy + Neg<Output=T> + One {
             type Output = $lhs;
+
             fn sub(mut self, rhs: $rhs) -> $lhs {
                 self.sub_assign(rhs);
                 self
@@ -33,6 +35,7 @@ macro_rules! sub1c {
     ($lhs:ty, $rhs:ty) => {
         impl<'a, T> Sub<$rhs> for $lhs where T: Axpy + Neg<Output=T> + One + Clone {
             type Output = $lhs;
+
             fn sub(mut self, rhs: $rhs) -> $lhs {
                 self.sub_assign(rhs);
                 self
@@ -45,6 +48,7 @@ macro_rules! sub2 {
     ($lhs:ty, $rhs:ty) => {
         impl<'a, 'b, T> Sub<$rhs> for $lhs where T: Axpy + Neg<Output=T> + One {
             type Output = $lhs;
+
             fn sub(mut self, rhs: $rhs) -> $lhs {
                 self.sub_assign(rhs);
                 self
@@ -57,6 +61,7 @@ macro_rules! sub2c {
     ($lhs:ty, $rhs:ty) => {
         impl<'a, 'b, T> Sub<$rhs> for $lhs where T: Axpy + Clone + Neg<Output=T> + One {
             type Output = $lhs;
+
             fn sub(mut self, rhs: $rhs) -> $lhs {
                 self.sub_assign(rhs);
                 self
@@ -69,6 +74,7 @@ macro_rules! sub3 {
     ($lhs:ty, $rhs:ty) => {
         impl<'a, 'b, 'c, T> Sub<$rhs> for $lhs where T: Axpy + Neg<Output=T> + One {
             type Output = $lhs;
+
             fn sub(mut self, rhs: $rhs) -> $lhs {
                 self.sub_assign(rhs);
                 self
