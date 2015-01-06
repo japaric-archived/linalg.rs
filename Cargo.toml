@@ -4,10 +4,14 @@ name = "linalg"
 version = "0.0.0"
 authors = ["Jorge Aparicio <japaricious@gmail.com>"]
 
+[features]
+macros = ["linalg_macros"]
+
 [dependencies.complex]
 git = "https://github.com/japaric/complex.rs"
 
-[dev-dependencies.linalg_macros]
+[dependencies.linalg_macros]
+optional = true
 path = "macros"
 
 [dev-dependencies.quickcheck]
