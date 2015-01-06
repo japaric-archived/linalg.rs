@@ -7,7 +7,9 @@ use {
 };
 use traits::{Matrix, Slice, SliceMut};
 
-impl<'a, T> ::Slice<'a, uint, strided::Slice<'a, T>> for [T] {
+impl<'a, T> ::Slice<'a, uint> for [T] {
+    type Slice = strided::Slice<'a, T>;
+
     fn slice(&'a self, start: uint, end: uint) -> Result<strided::Slice<'a, T>> {
         let raw::Slice { data, len } = self.repr();
 
@@ -37,7 +39,9 @@ macro_rules! from_to {
     }
 }
 
-impl<'a, T> Slice<'a, uint, Col<'a, T>> for ColVec<T> {
+impl<'a, T> Slice<'a, uint> for ColVec<T> {
+    type Slice = Col<'a, T>;
+
     fn slice(&'a self, start: uint, end: uint) -> Result<Col<'a, T>> {
         ::Slice::slice(&*self.0, start, end).map(Col)
     }
@@ -45,7 +49,9 @@ impl<'a, T> Slice<'a, uint, Col<'a, T>> for ColVec<T> {
     from_to!(Col<'a, T>);
 }
 
-impl<'a, 'b, T> Slice<'a, uint, Col<'a, T>> for Col<'b, T> {
+impl<'a, 'b, T> Slice<'a, uint> for Col<'b, T> {
+    type Slice = Col<'a, T>;
+
     fn slice(&'a self, start: uint, end: uint) -> Result<Col<'a, T>> {
         self.0.slice(start, end).map(Col)
     }
@@ -53,7 +59,9 @@ impl<'a, 'b, T> Slice<'a, uint, Col<'a, T>> for Col<'b, T> {
     from_to!(Col<'a, T>);
 }
 
-impl<'a, 'b, T> Slice<'a, uint, Diag<'a, T>> for Diag<'b, T> {
+impl<'a, 'b, T> Slice<'a, uint> for Diag<'b, T> {
+    type Slice = Diag<'a, T>;
+
     fn slice(&'a self, start: uint, end: uint) -> Result<Diag<'a, T>> {
         self.0.slice(start, end).map(Diag)
     }
@@ -61,7 +69,9 @@ impl<'a, 'b, T> Slice<'a, uint, Diag<'a, T>> for Diag<'b, T> {
     from_to!(Diag<'a, T>);
 }
 
-impl<'a, T> Slice<'a, (uint, uint), View<'a, T>> for Mat<T> {
+impl<'a, T> Slice<'a, (uint, uint)> for Mat<T> {
+    type Slice = View<'a, T>;
+
     fn slice(
         &'a self,
         (start_row, start_col): (uint, uint),
@@ -97,7 +107,9 @@ impl<'a, T> Slice<'a, (uint, uint), View<'a, T>> for Mat<T> {
     }
 }
 
-impl<'a, 'b, T> Slice<'a, uint, Col<'a, T>> for MutCol<'b, T> {
+impl<'a, 'b, T> Slice<'a, uint> for MutCol<'b, T> {
+    type Slice = Col<'a, T>;
+
     fn slice(&'a self, start: uint, end: uint) -> Result<Col<'a, T>> {
         self.0.slice(start, end).map(Col)
     }
@@ -105,7 +117,9 @@ impl<'a, 'b, T> Slice<'a, uint, Col<'a, T>> for MutCol<'b, T> {
     from_to!(Col<'a, T>);
 }
 
-impl<'a, 'b, T> Slice<'a, uint, Diag<'a, T>> for MutDiag<'b, T> {
+impl<'a, 'b, T> Slice<'a, uint> for MutDiag<'b, T> {
+    type Slice = Diag<'a, T>;
+
     fn slice(&'a self, start: uint, end: uint) -> Result<Diag<'a, T>> {
         self.0.slice(start, end).map(Diag)
     }
@@ -113,7 +127,9 @@ impl<'a, 'b, T> Slice<'a, uint, Diag<'a, T>> for MutDiag<'b, T> {
     from_to!(Diag<'a, T>);
 }
 
-impl<'a, 'b, T> Slice<'a, uint, Row<'a, T>> for MutRow<'b, T> {
+impl<'a, 'b, T> Slice<'a, uint> for MutRow<'b, T> {
+    type Slice = Row<'a, T>;
+
     fn slice(&'a self, start: uint, end: uint) -> Result<Row<'a, T>> {
         self.0.slice(start, end).map(Row)
     }
@@ -121,7 +137,9 @@ impl<'a, 'b, T> Slice<'a, uint, Row<'a, T>> for MutRow<'b, T> {
     from_to!(Row<'a, T>);
 }
 
-impl<'a, T> Slice<'a, uint, Row<'a, T>> for RowVec<T> {
+impl<'a, T> Slice<'a, uint> for RowVec<T> {
+    type Slice = Row<'a, T>;
+
     fn slice(&'a self, start: uint, end: uint) -> Result<Row<'a, T>> {
         ::Slice::slice(&*self.0, start, end).map(Row)
     }
@@ -129,7 +147,9 @@ impl<'a, T> Slice<'a, uint, Row<'a, T>> for RowVec<T> {
     from_to!(Row<'a, T>);
 }
 
-impl<'a, 'b, T> Slice<'a, uint, Row<'a, T>> for Row<'b, T> {
+impl<'a, 'b, T> Slice<'a, uint> for Row<'b, T> {
+    type Slice = Row<'a, T>;
+
     fn slice(&'a self, start: uint, end: uint) -> Result<Row<'a, T>> {
         self.0.slice(start, end).map(Row)
     }
@@ -149,7 +169,9 @@ macro_rules! from_to2 {
     }
 }
 
-impl<'a, 'b, T> Slice<'a, (uint, uint), View<'a, T>> for MutView<'b, T> {
+impl<'a, 'b, T> Slice<'a, (uint, uint)> for MutView<'b, T> {
+    type Slice = View<'a, T>;
+
     fn slice(&'a self, start: (uint, uint), end: (uint, uint)) -> Result<View<'a, T>> {
         unsafe { mem::transmute(self.0.slice(start, end)) }
     }
@@ -157,7 +179,9 @@ impl<'a, 'b, T> Slice<'a, (uint, uint), View<'a, T>> for MutView<'b, T> {
     from_to2!(View<'a, T>);
 }
 
-impl<'a, 'b, T> Slice<'a, (uint, uint), View<'a, T>> for View<'b, T> {
+impl<'a, 'b, T> Slice<'a, (uint, uint)> for View<'b, T> {
+    type Slice = View<'a, T>;
+
     fn slice(&'a self, start: (uint, uint), end: (uint, uint)) -> Result<View<'a, T>> {
         unsafe { mem::transmute(self.0.slice(start, end)) }
     }
@@ -179,7 +203,9 @@ macro_rules! from_to_mut {
     }
 }
 
-impl<'a, T> SliceMut<'a, uint, MutCol<'a, T>> for ColVec<T> {
+impl<'a, T> SliceMut<'a, uint> for ColVec<T> {
+    type Slice = MutCol<'a, T>;
+
     fn slice_mut(&'a mut self, start: uint, end: uint) -> Result<MutCol<'a, T>> {
         unsafe { mem::transmute(::Slice::slice(&*self.0, start, end)) }
     }
@@ -187,7 +213,9 @@ impl<'a, T> SliceMut<'a, uint, MutCol<'a, T>> for ColVec<T> {
     from_to_mut!(MutCol<'a, T>);
 }
 
-impl<'a, T> SliceMut<'a, (uint, uint), MutView<'a, T>> for Mat<T> {
+impl<'a, T> SliceMut<'a, (uint, uint)> for Mat<T> {
+    type Slice = MutView<'a, T>;
+
     fn slice_mut(&'a mut self, start: (uint, uint), end: (uint, uint)) -> Result<MutView<'a, T>> {
         unsafe { mem::transmute(self.slice(start, end)) }
     }
@@ -203,7 +231,9 @@ impl<'a, T> SliceMut<'a, (uint, uint), MutView<'a, T>> for Mat<T> {
     }
 }
 
-impl<'a, 'b, T> SliceMut<'a, uint, MutCol<'a, T>> for MutCol<'b, T> {
+impl<'a, 'b, T> SliceMut<'a, uint> for MutCol<'b, T> {
+    type Slice = MutCol<'a, T>;
+
     fn slice_mut(&'a mut self, start: uint, end: uint) -> Result<MutCol<'a, T>> {
         self.0.slice_mut(start, end).map(MutCol)
     }
@@ -211,7 +241,9 @@ impl<'a, 'b, T> SliceMut<'a, uint, MutCol<'a, T>> for MutCol<'b, T> {
     from_to_mut!(MutCol<'a, T>);
 }
 
-impl<'a, 'b, T> SliceMut<'a, uint, MutDiag<'a, T>> for MutDiag<'b, T> {
+impl<'a, 'b, T> SliceMut<'a, uint> for MutDiag<'b, T> {
+    type Slice = MutDiag<'a, T>;
+
     fn slice_mut(&'a mut self, start: uint, end: uint) -> Result<MutDiag<'a, T>> {
         self.0.slice_mut(start, end).map(MutDiag)
     }
@@ -219,7 +251,9 @@ impl<'a, 'b, T> SliceMut<'a, uint, MutDiag<'a, T>> for MutDiag<'b, T> {
     from_to_mut!(MutDiag<'a, T>);
 }
 
-impl<'a, 'b, T> SliceMut<'a, uint, MutRow<'a, T>> for MutRow<'b, T> {
+impl<'a, 'b, T> SliceMut<'a, uint> for MutRow<'b, T> {
+    type Slice = MutRow<'a, T>;
+
     fn slice_mut(&'a mut self, start: uint, end: uint) -> Result<MutRow<'a, T>> {
         self.0.slice_mut(start, end).map(MutRow)
     }
@@ -227,7 +261,9 @@ impl<'a, 'b, T> SliceMut<'a, uint, MutRow<'a, T>> for MutRow<'b, T> {
     from_to_mut!(MutRow<'a, T>);
 }
 
-impl<'a, 'b, T> SliceMut<'a, (uint, uint), MutView<'a, T>> for MutView<'b, T> {
+impl<'a, 'b, T> SliceMut<'a, (uint, uint)> for MutView<'b, T> {
+    type Slice = MutView<'a, T>;
+
     fn slice_mut(&'a mut self, start: (uint, uint), end: (uint, uint)) -> Result<MutView<'a, T>> {
         unsafe { mem::transmute(self.0.slice(start, end)) }
     }
@@ -243,7 +279,9 @@ impl<'a, 'b, T> SliceMut<'a, (uint, uint), MutView<'a, T>> for MutView<'b, T> {
     }
 }
 
-impl<'a, T> SliceMut<'a, uint, MutRow<'a, T>> for RowVec<T> {
+impl<'a, T> SliceMut<'a, uint> for RowVec<T> {
+    type Slice = MutRow<'a, T>;
+
     fn slice_mut(&'a mut self, start: uint, end: uint) -> Result<MutRow<'a, T>> {
         unsafe { mem::transmute(::Slice::slice(&*self.0, start, end)) }
     }

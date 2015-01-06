@@ -665,15 +665,19 @@ pub enum Error {
 // Private versions of `traits::{At, Slice}` to not expose implementations on stdlib types
 // XXX Why do I have to document private traits?
 /// Private
-trait At<I, T> for Sized? {
+trait At<I> for Sized? {
+    type Output;
+
     /// private
-    fn at(&self, I) -> std::result::Result<&T, error::OutOfBounds>;
+    fn at(&self, I) -> std::result::Result<&Self::Output, error::OutOfBounds>;
 }
 
 /// Private
-trait Slice<'a, I, S> for Sized? {
+trait Slice<'a, I> for Sized? {
+    type Slice;
+
     /// Private
-    fn slice(&'a self, start: I, end: I) -> Result<S>;
+    fn slice(&'a self, start: I, end: I) -> Result<Self::Slice>;
 }
 
 // FIXME Use `cast.rs` instead of this trait

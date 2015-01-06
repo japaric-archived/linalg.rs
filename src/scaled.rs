@@ -5,7 +5,7 @@ use traits::{Matrix, MatrixCol, MatrixRow};
 
 impl<'a, T, M> Iterator for Scaled<T, Rows<'a, M>> where
     T: Clone,
-    M: MatrixRow<T>,
+    M: MatrixRow + Matrix<Elem=T>,
 {
     type Item = Scaled<T, Row<'a, T>>;
 
@@ -16,7 +16,7 @@ impl<'a, T, M> Iterator for Scaled<T, Rows<'a, M>> where
 
 impl<'a, T, M> Iterator for Scaled<T, Cols<'a, M>> where
     T: Clone,
-    M: MatrixCol<T>,
+    M: MatrixCol + Matrix<Elem=T>,
 {
     type Item = Scaled<T, Col<'a, T>>;
 
@@ -25,7 +25,9 @@ impl<'a, T, M> Iterator for Scaled<T, Cols<'a, M>> where
     }
 }
 
-impl<T, M> Matrix for Scaled<T, M> where M: Matrix {
+impl<T, M> Matrix for Scaled<T, M> where M: Matrix<Elem=T> {
+    type Elem = T;
+
     fn ncols(&self) -> uint {
         self.1.ncols()
     }

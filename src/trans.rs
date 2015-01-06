@@ -6,37 +6,47 @@ use traits::{
     SliceMut, Transpose,
 };
 
-impl<T, M> At<(uint, uint), T> for Trans<M> where M: At<(uint, uint), T> {
+impl<T, M> At<(uint, uint)> for Trans<M> where M: At<(uint, uint), Output=T> {
+    type Output = T;
+
     fn at(&self, (row, col): (uint, uint)) -> ::std::result::Result<&T, OutOfBounds> {
         self.0.at((col, row))
     }
 }
 
-impl<T, M> AtMut<(uint, uint), T> for Trans<M> where M: AtMut<(uint, uint), T> {
+impl<T, M> AtMut<(uint, uint)> for Trans<M> where M: AtMut<(uint, uint), Output=T> {
+    type Output = T;
+
     fn at_mut(&mut self, (row, col): (uint, uint)) -> ::std::result::Result<&mut T, OutOfBounds> {
         self.0.at_mut((col, row))
     }
 }
 
-impl<'a, T, I, M> Iter<'a, T, I> for Trans<M> where
+impl<'a, I, M> Iter<'a> for Trans<M> where
     I: Iterator,
-    M: Iter<'a, T, I>,
+    M: Iter<'a, Iter=I>,
 {
+    type Iter = I;
+
     fn iter(&'a self) -> I {
         self.0.iter()
     }
 }
 
-impl<'a, T, I, M> IterMut<'a, T, I> for Trans<M> where
+impl<'a, I, M> IterMut<'a> for Trans<M> where
     I: Iterator,
-    M: IterMut<'a, T, I>,
+    M: IterMut<'a, Iter=I>,
 {
+    type Iter = I;
+
     fn iter_mut(&'a mut self) -> I {
         self.0.iter_mut()
     }
 }
 
-impl<M> Matrix for Trans<M> where M: Matrix {
+impl<T, M> Matrix for Trans<M> where M: Matrix<Elem=T> {
+    type Elem = T;
+
     fn ncols(&self) -> uint {
         self.0.nrows()
     }
@@ -52,7 +62,7 @@ impl<M> Matrix for Trans<M> where M: Matrix {
     }
 }
 
-impl<T, M> MatrixCol<T> for Trans<M> where M: MatrixRow<T> {
+impl<T, M> MatrixCol for Trans<M> where M: MatrixRow<Elem=T> {
     fn col(&self, col: uint) -> Result<Col<T>> {
         self.0.row(col).map(|row| Col(row.0))
     }
@@ -62,7 +72,7 @@ impl<T, M> MatrixCol<T> for Trans<M> where M: MatrixRow<T> {
     }
 }
 
-impl<T, M> MatrixColMut<T> for Trans<M> where M: MatrixRowMut<T> {
+impl<T, M> MatrixColMut for Trans<M> where M: MatrixRowMut<Elem=T> {
     fn col_mut(&mut self, col: uint) -> Result<MutCol<T>> {
         self.0.row_mut(col).map(|row| MutCol(row.0))
     }
@@ -74,13 +84,13 @@ impl<T, M> MatrixColMut<T> for Trans<M> where M: MatrixRowMut<T> {
 
 impl<M> MatrixCols for Trans<M> where M: Matrix {}
 
-impl<T, M> MatrixDiag<T> for Trans<M> where M: MatrixDiag<T> {
+impl<T, M> MatrixDiag for Trans<M> where M: MatrixDiag<Elem=T> {
     fn diag(&self, diag: int) -> Result<Diag<T>> {
         self.0.diag(-diag)
     }
 }
 
-impl<T, M> MatrixDiagMut<T> for Trans<M> where M: MatrixDiagMut<T> {
+impl<T, M> MatrixDiagMut for Trans<M> where M: MatrixDiagMut<Elem=T> {
     fn diag_mut(&mut self, diag: int) -> Result<MutDiag<T>> {
         self.0.diag_mut(-diag)
     }
@@ -90,7 +100,7 @@ impl<M> MatrixMutCols for Trans<M> where M: Matrix {}
 
 impl<M> MatrixMutRows for Trans<M> where M: Matrix {}
 
-impl<T, M> MatrixRow<T> for Trans<M> where M: MatrixCol<T> {
+impl<T, M> MatrixRow for Trans<M> where M: MatrixCol<Elem=T> {
     fn row(&self, row: uint) -> Result<Row<T>> {
         self.0.col(row).map(|col| Row(col.0))
     }
@@ -100,7 +110,7 @@ impl<T, M> MatrixRow<T> for Trans<M> where M: MatrixCol<T> {
     }
 }
 
-impl<T, M> MatrixRowMut<T> for Trans<M> where M: MatrixColMut<T> {
+impl<T, M> MatrixRowMut for Trans<M> where M: MatrixColMut<Elem=T> {
     fn row_mut(&mut self, row: uint) -> Result<MutRow<T>> {
         self.0.col_mut(row).map(|col| MutRow(col.0))
     }
@@ -112,10 +122,11 @@ impl<T, M> MatrixRowMut<T> for Trans<M> where M: MatrixColMut<T> {
 
 impl<M> MatrixRows for Trans<M> where M: Matrix {}
 
-impl<'a, M, V> Slice<'a, (uint, uint), Trans<V>> for Trans<M> where
-    M: Matrix + Slice<'a, (uint, uint), V>,
-
+impl<'a, M, V> Slice<'a, (uint, uint)> for Trans<M> where
+    M: Matrix + Slice<'a, (uint, uint), Slice=V>,
 {
+    type Slice = Trans<V>;
+
     fn slice(&'a self, start: (uint, uint), end: (uint, uint)) -> ::Result<Trans<V>> {
         let (end_row, end_col) = end;
         let (start_row, start_col) = start;
@@ -134,10 +145,11 @@ impl<'a, M, V> Slice<'a, (uint, uint), Trans<V>> for Trans<M> where
     }
 }
 
-impl<'a, M, V> SliceMut<'a, (uint, uint), Trans<V>> for Trans<M> where
-    M: Matrix + SliceMut<'a, (uint, uint), V>,
-
+impl<'a, M, V> SliceMut<'a, (uint, uint)> for Trans<M> where
+    M: Matrix + SliceMut<'a, (uint, uint), Slice=V>,
 {
+    type Slice = Trans<V>;
+
     fn slice_mut(&'a mut self, start: (uint, uint), end: (uint, uint)) -> ::Result<Trans<V>> {
         let (end_row, end_col) = end;
         let (start_row, start_col) = start;
@@ -156,25 +168,33 @@ impl<'a, M, V> SliceMut<'a, (uint, uint), Trans<V>> for Trans<M> where
     }
 }
 
-impl<T> Transpose<Trans<Mat<T>>> for Mat<T> {
+impl<T> Transpose for Mat<T> {
+    type Output = Trans<Mat<T>>;
+
     fn t(self) -> Trans<Mat<T>> {
         Trans(self)
     }
 }
 
-impl<'a, T> Transpose<Trans<MutView<'a, T>>> for MutView<'a, T> {
+impl<'a, T> Transpose for MutView<'a, T> {
+    type Output = Trans<MutView<'a, T>>;
+
     fn t(self) -> Trans<MutView<'a, T>> {
         Trans(self)
     }
 }
 
-impl<'a, T> Transpose<Trans<View<'a, T>>> for View<'a, T> {
+impl<'a, T> Transpose for View<'a, T> {
+    type Output = Trans<View<'a, T>>;
+
     fn t(self) -> Trans<View<'a, T>> {
         Trans(self)
     }
 }
 
-impl<M> Transpose<M> for Trans<M> {
+impl<M> Transpose for Trans<M> {
+    type Output = M;
+
     fn t(self) -> M {
         self.0
     }
