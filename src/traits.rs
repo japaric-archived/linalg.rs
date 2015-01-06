@@ -13,43 +13,51 @@ pub trait AddAssign<R> {
 }
 
 /// Bounds-checked immutable indexing
-// FIXME (AI) `T` should be an associated type
-pub trait At<I, T> for Sized? {
+pub trait At<I> {
+    type Output;
+
     /// Returns an immutable reference to the element at the given index
     ///
     /// # Errors
     ///
     /// - `OutOfBounds` if the index is out of bounds
-    fn at(&self, index: I) -> ::std::result::Result<&T, OutOfBounds>;
+    fn at(&self, index: I) -> ::std::result::Result<&Self::Output, OutOfBounds>;
 }
 
 /// Bounds-checked mutable indexing
-// FIXME (AI) `T` should be an associated type
-pub trait AtMut<I, T> for Sized? {
+pub trait AtMut<I> {
+    type Output;
+
     /// Returns a mutable reference to the element at the given index
     ///
     /// # Errors
     ///
     /// - `OutOfBounds` if the index is out of bounds
-    fn at_mut(&mut self, index: I) -> ::std::result::Result<&mut T, OutOfBounds>;
+    fn at_mut(&mut self, index: I) -> ::std::result::Result<&mut Self::Output, OutOfBounds>;
 }
 
 /// Immutable iteration over a collection
-// FIXME (AI) `'a`, `T`, `I` should be associated items
-pub trait Iter<'a, T, I: Iterator> {
+// FIXME (AI) `'a` should be associated items
+pub trait Iter<'a> {
+    type Iter: Iterator;
+
     /// Returns an iterator that yields immutable references to the elements of the collection
-    fn iter(&'a self) -> I;
+    fn iter(&'a self) -> Self::Iter;
 }
 
 /// Mutable iteration over a collection
-// FIXME (AI) `'a`, `T`, `I` should be associated items
-pub trait IterMut<'a, T, I: Iterator> {
+// FIXME (AI) `'a`, should be associated items
+pub trait IterMut<'a> {
+    type Iter: Iterator;
+
     /// Returns an iterator that yields mutable references to the elements of the collection
-    fn iter_mut(&'a mut self) -> I;
+    fn iter_mut(&'a mut self) -> Self::Iter;
 }
 
 /// The basic idea of a matrix: A rectangular array arranged in rows and columns
 pub trait Matrix: Sized {
+    type Elem;
+
     /// Returns the number of columns the matrix has
     fn ncols(&self) -> uint {
         self.size().1
@@ -67,14 +75,13 @@ pub trait Matrix: Sized {
 }
 
 /// Immutable view on a column
-// FIXME (AI) `T` should be an associated type
-pub trait MatrixCol<T>: Matrix {
+pub trait MatrixCol: Matrix {
     /// Returns an immutable view into the column at the given index
     ///
     /// # Errors
     ///
     /// - `NoSuchColumn` if the index is out of bounds
-    fn col(&self, col: uint) -> Result<Col<T>> {
+    fn col(&self, col: uint) -> Result<Col<Self::Elem>> {
         if col < self.ncols() {
             Ok(unsafe { self.unsafe_col(col) })
         } else {
@@ -83,18 +90,17 @@ pub trait MatrixCol<T>: Matrix {
     }
 
     /// Returns a view into the column at the given index without performing bounds checking
-    unsafe fn unsafe_col(&self, col: uint) -> Col<T>;
+    unsafe fn unsafe_col(&self, col: uint) -> Col<Self::Elem>;
 }
 
 /// Mutable access to a column
-// FIXME (AI) `T` should be an associated type
-pub trait MatrixColMut<T>: MatrixCol<T> {
+pub trait MatrixColMut: MatrixCol {
     /// Returns a mutable view into the column at the given index
     ///
     /// # Errors
     ///
     /// - `NoSuchColumn` if the index is out of bounds
-    fn col_mut(&mut self, col: uint) -> Result<MutCol<T>> {
+    fn col_mut(&mut self, col: uint) -> Result<MutCol<Self::Elem>> {
         if col < self.ncols() {
             Ok(unsafe { self.unsafe_col_mut(col) })
         } else {
@@ -104,7 +110,7 @@ pub trait MatrixColMut<T>: MatrixCol<T> {
 
     /// Returns a mutable view into the column at the given index without performing bounds
     /// checking
-    unsafe fn unsafe_col_mut(&mut self, col: uint) -> MutCol<T>;
+    unsafe fn unsafe_col_mut(&mut self, col: uint) -> MutCol<Self::Elem>;
 }
 
 /// Immutable column-by-column iteration
@@ -116,25 +122,23 @@ pub trait MatrixCols: Matrix {
 }
 
 /// Immutable view on a diagonal
-// FIXME (AI) `T` should be an associated type
-pub trait MatrixDiag<T> {
+pub trait MatrixDiag: Matrix {
     /// Returns a view into the diagonal at the given index
     ///
     /// # Errors
     ///
     /// - `NoSuchDiagonal` if the index is out of bounds
-    fn diag(&self, diag: int) -> Result<Diag<T>>;
+    fn diag(&self, diag: int) -> Result<Diag<Self::Elem>>;
 }
 
 /// Mutable access to a diagonal
-// FIXME (AI) `T` should be an associated type
-pub trait MatrixDiagMut<T> {
+pub trait MatrixDiagMut: Matrix {
     /// Returns a mutable view into the diagonal at the given index
     ///
     /// # Errors
     ///
     /// - `NoSuchDiagonal` if the index is out of bounds
-    fn diag_mut(&mut self, diag: int) -> ::Result<MutDiag<T>>;
+    fn diag_mut(&mut self, diag: int) -> ::Result<MutDiag<Self::Elem>>;
 }
 
 /// Mutable column-by-column iteration
@@ -154,14 +158,13 @@ pub trait MatrixMutRows: Matrix {
 }
 
 /// Immutable view into a row
-// FIXME (AI) `T` should be an associated type
-pub trait MatrixRow<T>: Matrix {
+pub trait MatrixRow: Matrix {
     /// Returns an immutable view into the row at the given index
     ///
     /// # Errors
     ///
     /// - `NoSuchRow` if the index is out of bounds
-    fn row(&self, row: uint) -> Result<Row<T>> {
+    fn row(&self, row: uint) -> Result<Row<Self::Elem>> {
         if row < self.nrows() {
             Ok(unsafe { self.unsafe_row(row) })
         } else {
@@ -171,7 +174,7 @@ pub trait MatrixRow<T>: Matrix {
 
     /// Returns an immutable view into the row at the given index without performing bounds
     /// checking
-    unsafe fn unsafe_row(&self, row: uint) -> Row<T>;
+    unsafe fn unsafe_row(&self, row: uint) -> Row<Self::Elem>;
 }
 
 /// Immutable row-by-row iteration
@@ -183,14 +186,13 @@ pub trait MatrixRows: Matrix {
 }
 
 /// Mutable access to a row
-// FIXME (AI) `T` should be an associated type
-pub trait MatrixRowMut<T>: MatrixRow<T> {
+pub trait MatrixRowMut: MatrixRow {
     /// Returns a mutable view into the row at the given index
     ///
     /// # Errors
     ///
     /// - `NoSuchRow` if the index is out of bounds
-    fn row_mut(&mut self, row: uint) -> Result<MutRow<T>> {
+    fn row_mut(&mut self, row: uint) -> Result<MutRow<Self::Elem>> {
         if row < self.nrows() {
             Ok(unsafe { self.unsafe_row_mut(row) })
         } else {
@@ -199,7 +201,7 @@ pub trait MatrixRowMut<T>: MatrixRow<T> {
     }
 
     /// Returns a mutable view into the row at the given index without performing bounds checking
-    unsafe fn unsafe_row_mut(&mut self, row: uint) -> MutRow<T>;
+    unsafe fn unsafe_row_mut(&mut self, row: uint) -> MutRow<Self::Elem>;
 }
 
 /// The `*=` operator
@@ -215,25 +217,29 @@ pub trait MulAssign<R> {
 ///
 /// *Note* Sadly this doesn't have operator sugar. You won't be able to use the slicing operator
 /// `[]` with this library until Rust gets HKT.
-// FIXME (AI) `'a`, `R` should be associated items
-pub trait Slice<'a, I, S> {
+// FIXME (AI) `'a` should be associated items
+pub trait Slice<'a, I> {
+    type Slice;
+
     /// Returns an immutable view into a fraction of the collection that spans `start` : `end`
-    fn slice(&'a self, start: I, end: I) -> ::Result<S>;
+    fn slice(&'a self, start: I, end: I) -> ::Result<Self::Slice>;
     /// Convenience method for `slice(start, end_of_collection)`
-    fn slice_from(&'a self, start: I) -> ::Result<S>;
+    fn slice_from(&'a self, start: I) -> ::Result<Self::Slice>;
     /// Convenience method for `slice(start_of_collection, end)`
-    fn slice_to(&'a self, end: I) -> ::Result<S>;
+    fn slice_to(&'a self, end: I) -> ::Result<Self::Slice>;
 }
 
 /// Mutable version of the `Slice` trait
-// FIXME (AI) `'a`, `R` should be associated items
-pub trait SliceMut<'a, I, S> {
+// FIXME (AI) `'a`, should be associated items
+pub trait SliceMut<'a, I> {
+    type Slice;
+
     /// Returns a mutable view into a fraction of the collection that spans `start` : `end`
-    fn slice_mut(&'a mut self, start: I, end: I) -> ::Result<S>;
+    fn slice_mut(&'a mut self, start: I, end: I) -> ::Result<Self::Slice>;
     /// Convenience method for `slice_mut(start, end_of_collection)`
-    fn slice_from_mut(&'a mut self, start: I) -> ::Result<S>;
+    fn slice_from_mut(&'a mut self, start: I) -> ::Result<Self::Slice>;
     /// Convenience method for `slice_mut(start_of_collection, end)`
-    fn slice_to_mut(&'a mut self, end: I) -> ::Result<S>;
+    fn slice_to_mut(&'a mut self, end: I) -> ::Result<Self::Slice>;
 }
 
 /// The `-=` operator
@@ -253,8 +259,9 @@ pub trait ToOwned<T> {
 }
 
 /// The transpose operator
-// FIXME (AI) `T` should be an associated type
-pub trait Transpose<T> {
+pub trait Transpose {
+    type Output;
+
     /// Returns the transpose of the input
-    fn t(self) -> T;
+    fn t(self) -> Self::Output;
 }

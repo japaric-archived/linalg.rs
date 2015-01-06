@@ -9,6 +9,7 @@ macro_rules! add0 {
     ($lhs:ty, $rhs:ty) => {
         impl<T> Add<$rhs> for $lhs where T: Axpy + One {
             type Output = $lhs;
+
             fn add(mut self, rhs: $rhs) -> $lhs {
                 self.add_assign(rhs);
                 self
@@ -17,6 +18,7 @@ macro_rules! add0 {
 
         impl<T> Add<$lhs> for $rhs where T: Axpy + One {
             type Output = $lhs;
+
             fn add(self, rhs: $lhs) -> $lhs {
                 rhs + self
             }
@@ -28,6 +30,7 @@ macro_rules! add1 {
     ($lhs:ty, $rhs:ty) => {
         impl<'a, T> Add<$rhs> for $lhs where T: Axpy + One {
             type Output = $lhs;
+
             fn add(mut self, rhs: $rhs) -> $lhs {
                 self.add_assign(rhs);
                 self
@@ -36,6 +39,7 @@ macro_rules! add1 {
 
         impl<'a, T> Add<$lhs> for $rhs where T: Axpy + One {
             type Output = $lhs;
+
             fn add(self, rhs: $lhs) -> $lhs {
                 rhs + self
             }
@@ -47,6 +51,7 @@ macro_rules! add1c {
     ($lhs:ty, $rhs:ty) => {
         impl<'a, T> Add<$rhs> for $lhs where T: Axpy + One + Clone {
             type Output = $lhs;
+
             fn add(mut self, rhs: $rhs) -> $lhs {
                 self.add_assign(rhs);
                 self
@@ -55,6 +60,7 @@ macro_rules! add1c {
 
         impl<'a, T> Add<$lhs> for $rhs where T: Axpy + One + Clone {
             type Output = $lhs;
+
             fn add(self, rhs: $lhs) -> $lhs {
                 rhs + self
             }
@@ -66,6 +72,7 @@ macro_rules! add2 {
     ($lhs:ty, $rhs:ty) => {
         impl<'a, 'b, T> Add<$rhs> for $lhs where T: Axpy + One {
             type Output = $lhs;
+
             fn add(mut self, rhs: $rhs) -> $lhs {
                 self.add_assign(rhs);
                 self
@@ -74,6 +81,7 @@ macro_rules! add2 {
 
         impl<'a, 'b, T> Add<$lhs> for $rhs where T: Axpy + One {
             type Output = $lhs;
+
             fn add(self, rhs: $lhs) -> $lhs {
                 rhs + self
             }
@@ -85,6 +93,7 @@ macro_rules! add2c {
     ($lhs:ty, $rhs:ty) => {
         impl<'a, 'b, T> Add<$rhs> for $lhs where T: Axpy + Clone + One {
             type Output = $lhs;
+
             fn add(mut self, rhs: $rhs) -> $lhs {
                 self.add_assign(rhs);
                 self
@@ -93,6 +102,7 @@ macro_rules! add2c {
 
         impl<'a, 'b, T> Add<$lhs> for $rhs where T: Axpy + Clone + One {
             type Output = $lhs;
+
             fn add(self, rhs: $lhs) -> $lhs {
                 rhs + self
             }
@@ -104,6 +114,7 @@ macro_rules! add3 {
     ($lhs:ty, $rhs:ty) => {
         impl<'a, 'b, 'c, T> Add<$rhs> for $lhs where T: Axpy + One {
             type Output = $lhs;
+
             fn add(mut self, rhs: $rhs) -> $lhs {
                 self.add_assign(rhs);
                 self
@@ -112,6 +123,7 @@ macro_rules! add3 {
 
         impl<'a, 'b, 'c, T> Add<$lhs> for $rhs where T: Axpy + One {
             type Output = $lhs;
+
             fn add(self, rhs: $lhs) -> $lhs {
                 rhs + self
             }

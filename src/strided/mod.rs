@@ -109,6 +109,7 @@ impl<'a, T> DoubleEndedIterator for Items<'a, T> {
 
 impl<'a, T> Iterator for Items<'a, T> {
     type Item = &'a T;
+
     fn next(&mut self) -> Option<&'a T> {
         unsafe { mem::transmute(self.0.next()) }
     }
@@ -129,6 +130,7 @@ impl<'a, T> DoubleEndedIterator for MutItems<'a, T> {
 
 impl<'a, T> Iterator for MutItems<'a, T> {
     type Item = &'a mut T;
+
     fn next(&mut self) -> Option<&'a mut T> {
         unsafe { mem::transmute(self.0.next()) }
     }

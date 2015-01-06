@@ -9,7 +9,7 @@ pub struct Cols<'a, M: 'a> {
 
 impl<'a, M> Copy for Cols<'a, M> {}
 
-impl<'a, T, M> DoubleEndedIterator for Cols<'a, M> where M: MatrixCol<T> {
+impl<'a, T, M> DoubleEndedIterator for Cols<'a, M> where M: MatrixCol + Matrix<Elem=T> {
     fn next_back(&mut self) -> Option<Col<'a, T>> {
         if self.state == self.stop {
             None
@@ -30,8 +30,9 @@ impl<'a, M> ::From<&'a M> for Cols<'a, M> where M: Matrix {
     }
 }
 
-impl<'a, T, M> Iterator for Cols<'a, M> where M: MatrixCol<T> {
+impl<'a, T, M> Iterator for Cols<'a, M> where M: MatrixCol + Matrix<Elem=T> {
     type Item = Col<'a, T>;
+
     fn next(&mut self) -> Option<Col<'a, T>> {
         if self.state == self.stop {
             None

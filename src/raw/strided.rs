@@ -17,6 +17,7 @@ impl<'a, T> Copy for Items<'a, T> {}
 
 impl<'a, T> Iterator for Items<'a, T> {
     type Item = &'a T;
+
     fn next(&mut self) -> Option<&'a T> {
         if self.state == self.stop {
             None

@@ -47,7 +47,7 @@ macro_rules! enforce {
 
 macro_rules! test {
     ($e:expr) => {
-        (|| Ok::<_, ::linalg::Error>(TestResult::from_bool($e)))().unwrap()
+        (|&:| Ok::<_, ::linalg::Error>(TestResult::from_bool($e)))().unwrap()
     }
 }
 
