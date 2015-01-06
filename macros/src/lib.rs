@@ -24,8 +24,8 @@ use syntax::ptr::P;
 /// - Trailing semicolons are allowed
 /// - Commas `,` are used to separate columns
 /// - Trailing commas are *not* allowed
-/// - If the matrix contains a single row, the macro will return `Row<Box<[_]>>`
-/// - If the matrix contains a single column, the macro will return `Col<Box<[_]>>`
+/// - If the matrix contains a single row, the macro will return `RowVec`
+/// - If the matrix contains a single column, the macro will return `ColVec`
 /// - Otherwise, the macro will return `Mat`
 ///
 /// # Expansion
@@ -41,7 +41,7 @@ use syntax::ptr::P;
 /// expands into:
 ///
 /// ``` ignore
-/// Row::new(box [0, 1, 2])
+/// RowVec::new(box [0, 1, 2])
 /// ```
 ///
 /// - Column vector
@@ -58,7 +58,7 @@ use syntax::ptr::P;
 /// expands into:
 ///
 /// ``` ignore
-/// Col::new(box [0, 1, 2])
+/// ColVec::new(box [0, 1, 2])
 /// ```
 ///
 /// - Matrix
