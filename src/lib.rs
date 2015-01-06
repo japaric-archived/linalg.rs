@@ -40,16 +40,16 @@
 //!   guarantee of the iteration order
 
 #![deny(missing_docs, warnings)]
-#![feature(default_type_params, macro_rules, associated_types)]
+#![feature(associated_types, default_type_params, macro_rules, slicing_syntax)]
 
 extern crate complex;
 extern crate libc;
 extern crate onezero;
 
+use std::iter as iter_;
 use std::num::Int;
 use std::rand::distributions::IndependentSample;
 use std::rand::{Rand, Rng};
-use std::iter::{range, repeat};
 use std::raw::Repr;
 
 use traits::{MatrixCols, MatrixRows};
@@ -114,6 +114,26 @@ impl<T> ColVec<T> {
         ColVec(data)
     }
 
+    /// Constructs a column vector with copies of a value
+    ///
+    /// - Memory: `O(length)`
+    /// - Time: `O(length)`
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # #![feature(phase)]
+    /// # extern crate linalg;
+    /// # #[phase(plugin)] extern crate linalg_macros;
+    /// # fn main() {
+    /// # use linalg::ColVec;
+    /// assert_eq!(ColVec::from_elem(3, 2), mat![2i; 2; 2])
+    /// # }
+    /// ```
+    pub fn from_elem(length: uint, value: T) -> ColVec<T> where T: Clone {
+        ColVec(iter_::repeat(value).take(length).collect::<Vec<T>>().into_boxed_slice())
+    }
+
     /// Creates a column vector and initializes each element to `f(index)`
     ///
     /// - Memory: `O(length)`
@@ -131,7 +151,15 @@ impl<T> ColVec<T> {
     /// # }
     /// ```
     pub fn from_fn<F>(length: uint, f: F) -> ColVec<T> where F: FnMut(uint) -> T {
-        ColVec(range(0, length).map(f).collect::<Vec<T>>().into_boxed_slice())
+        ColVec((0..length).map(f).collect::<Vec<T>>().into_boxed_slice())
+    }
+
+    /// Constructs a randomly initialized column vector
+    ///
+    /// - Memory: `O(length)`
+    /// - Time: `O(length)`
+    pub fn rand<R>(length: uint, rng: &mut R) -> ColVec<T> where R: Rng, T: Rand {
+        ColVec::from_fn(length, |_| rng.gen())
     }
 
     /// Creates a column vector and fills it by sampling a random distribution
@@ -142,10 +170,7 @@ impl<T> ColVec<T> {
         D: IndependentSample<T>,
         R: Rng,
     {
-        ColVec(range(0, length)
-            .map(|_| distribution.ind_sample(rng))
-            .collect::<Vec<T>>()
-            .into_boxed_slice())
+        ColVec::from_fn(length, |_| distribution.ind_sample(rng))
     }
 
     fn as_col(&self) -> Col<T> {
@@ -171,38 +196,6 @@ impl<T> ColVec<T> {
     /// Returns the length of the column
     pub fn len(&self) -> uint {
         self.0.len()
-    }
-}
-
-impl<T> ColVec<T> where T: Clone {
-    /// Constructs a column vector with copies of a value
-    ///
-    /// - Memory: `O(length)`
-    /// - Time: `O(length)`
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # #![feature(phase)]
-    /// # extern crate linalg;
-    /// # #[phase(plugin)] extern crate linalg_macros;
-    /// # fn main() {
-    /// # use linalg::ColVec;
-    /// assert_eq!(ColVec::from_elem(3, 2), mat![2i; 2; 2])
-    /// # }
-    /// ```
-    pub fn from_elem(length: uint, value: T) -> ColVec<T> {
-        ColVec(repeat(value).take(length).collect::<Vec<T>>().into_boxed_slice())
-    }
-}
-
-impl<T> ColVec<T> where T: Rand {
-    /// Constructs a randomly initialized column vector
-    ///
-    /// - Memory: `O(length)`
-    /// - Time: `O(length)`
-    pub fn rand<R>(length: uint, rng: &mut R) -> ColVec<T> where R: Rng {
-        ColVec(range(0, length).map(|_| rng.gen()).collect::<Vec<T>>().into_boxed_slice())
     }
 }
 
@@ -257,6 +250,39 @@ impl<T> Mat<T> {
         }
     }
 
+    /// Constructs a matrix with copies of a value
+    ///
+    /// - Memory: `O(nrows * ncols)`
+    /// - Time: `O(nrows * ncols)`
+    ///
+    /// # Errors
+    ///
+    /// - `LengthOverflow` if the operation `nrows * ncols` overflows
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # #![feature(phase)]
+    /// # extern crate linalg;
+    /// # #[phase(plugin)] extern crate linalg_macros;
+    /// # fn main() {
+    /// # use linalg::Mat;
+    /// assert_eq!(Mat::from_elem((3, 2), 2).unwrap(), mat![2i, 2; 2, 2; 2, 2])
+    /// # }
+    /// ```
+    pub fn from_elem((nrows, ncols): (uint, uint), value: T) -> Result<Mat<T>> where T: Clone {
+        let length = match nrows.checked_mul(ncols) {
+            Some(length) => length,
+            None => return Err(Error::LengthOverflow),
+        };
+
+        Ok(Mat {
+            data: iter_::repeat(value).take(length).collect::<Vec<T>>().into_boxed_slice(),
+            ncols: ncols,
+            nrows: nrows,
+        })
+    }
+
     /// Creates a matrix and initializes each element to `f(index)`
     ///
     /// - Memory: `O(nrows * ncols)`
@@ -286,14 +312,38 @@ impl<T> Mat<T> {
         };
 
         let mut data = Vec::with_capacity(length);
-        for col in range(0, ncols) {
-            for row in range(0, nrows) {
+        for col in (0..ncols) {
+            for row in (0..nrows) {
                 data.push(f((row, col)))
             }
         }
 
         Ok(Mat {
             data: data.into_boxed_slice(),
+            ncols: ncols,
+            nrows: nrows,
+        })
+    }
+
+    /// Constructs a randomly initialized matrix
+    ///
+    /// - Memory: `O(nrows * ncols)`
+    /// - Time: `O(nrows * ncols)`
+    ///
+    /// # Errors
+    ///
+    /// - `LengthOverflow` if the operation `nrows * ncols` overflows
+    pub fn rand<R>((nrows, ncols): (uint, uint), rng: &mut R) -> Result<Mat<T>> where
+        R: Rng,
+        T: Rand,
+    {
+        let length = match nrows.checked_mul(ncols) {
+            Some(length) => length,
+            None => return Err(Error::LengthOverflow),
+        };
+
+        Ok(Mat {
+            data: (0..length).map(|_| rng.gen()).collect::<Vec<T>>().into_boxed_slice(),
             ncols: ncols,
             nrows: nrows,
         })
@@ -320,11 +370,14 @@ impl<T> Mat<T> {
             None => return Err(Error::LengthOverflow),
         };
 
+        let data =
+            (0..length).
+                map(|_| distribution.ind_sample(rng)).
+                collect::<Vec<T>>().
+                into_boxed_slice();
+
         Ok(Mat {
-            data: range(0, length)
-                .map(|_| distribution.ind_sample(rng))
-                .collect::<Vec<T>>()
-                .into_boxed_slice(),
+            data: data,
             ncols: ncols,
             nrows: nrows,
         })
@@ -362,64 +415,6 @@ impl<T> Mat<T> {
             self.nrows * self.ncols,
             1,
         ))})
-    }
-}
-
-impl<T> Mat<T> where T: Clone {
-    /// Constructs a matrix with copies of a value
-    ///
-    /// - Memory: `O(nrows * ncols)`
-    /// - Time: `O(nrows * ncols)`
-    ///
-    /// # Errors
-    ///
-    /// - `LengthOverflow` if the operation `nrows * ncols` overflows
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # #![feature(phase)]
-    /// # extern crate linalg;
-    /// # #[phase(plugin)] extern crate linalg_macros;
-    /// # fn main() {
-    /// # use linalg::Mat;
-    /// assert_eq!(Mat::from_elem((3, 2), 2).unwrap(), mat![2i, 2; 2, 2; 2, 2])
-    /// # }
-    /// ```
-    pub fn from_elem((nrows, ncols): (uint, uint), value: T) -> Result<Mat<T>> {
-        let length = match nrows.checked_mul(ncols) {
-            Some(length) => length,
-            None => return Err(Error::LengthOverflow),
-        };
-
-        Ok(Mat {
-            data: repeat(value).take(length).collect::<Vec<T>>().into_boxed_slice(),
-            ncols: ncols,
-            nrows: nrows,
-        })
-    }
-}
-
-impl<T> Mat<T> where T: Rand {
-    /// Constructs a randomly initialized matrix
-    ///
-    /// - Memory: `O(nrows * ncols)`
-    /// - Time: `O(nrows * ncols)`
-    ///
-    /// # Errors
-    ///
-    /// - `LengthOverflow` if the operation `nrows * ncols` overflows
-    pub fn rand<R>((nrows, ncols): (uint, uint), rng: &mut R) -> Result<Mat<T>> where R: Rng {
-        let length = match nrows.checked_mul(ncols) {
-            Some(length) => length,
-            None => return Err(Error::LengthOverflow),
-        };
-
-        Ok(Mat {
-            data: range(0, length).map(|_| rng.gen()).collect::<Vec<T>>().into_boxed_slice(),
-            ncols: ncols,
-            nrows: nrows,
-        })
     }
 }
 
@@ -526,6 +521,26 @@ impl<T> RowVec<T> {
         RowVec(data)
     }
 
+    /// Constructs a row vector with copies of a value
+    ///
+    /// - Memory: `O(length)`
+    /// - Time: `O(length)`
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # #![feature(phase)]
+    /// # extern crate linalg;
+    /// # #[phase(plugin)] extern crate linalg_macros;
+    /// # fn main() {
+    /// # use linalg::RowVec;
+    /// assert_eq!(RowVec::from_elem(3, 2), mat![2i, 2, 2])
+    /// # }
+    /// ```
+    pub fn from_elem(length: uint, value: T) -> RowVec<T> where T: Clone {
+        RowVec(iter_::repeat(value).take(length).collect::<Vec<T>>().into_boxed_slice())
+    }
+
     /// Creates a row vector and initializes each element to `f(index)`
     ///
     /// - Memory: `O(length)`
@@ -543,7 +558,15 @@ impl<T> RowVec<T> {
     /// # }
     /// ```
     pub fn from_fn<F>(length: uint, f: F) -> RowVec<T> where F: FnMut(uint) -> T {
-        RowVec(range(0, length).map(f).collect::<Vec<T>>().into_boxed_slice())
+        RowVec((0..length).map(f).collect::<Vec<T>>().into_boxed_slice())
+    }
+
+    /// Constructs a randomly initialized row vector
+    ///
+    /// - Memory: `O(length)`
+    /// - Time: `O(length)`
+    pub fn rand<R>(length: uint, rng: &mut R) -> RowVec<T> where R: Rng, T: Rand {
+        RowVec::from_fn(length, |_| rng.gen())
     }
 
     /// Creates a row vector and fills it by sampling a random distribution
@@ -554,10 +577,7 @@ impl<T> RowVec<T> {
         D: IndependentSample<T>,
         R: Rng,
     {
-        RowVec(range(0, length)
-            .map(|_| distribution.ind_sample(rng))
-            .collect::<Vec<T>>()
-            .into_boxed_slice())
+        RowVec::from_fn(length, |_| distribution.ind_sample(rng))
     }
 
     fn as_mut_row(&mut self) -> MutRow<T> {
@@ -586,38 +606,6 @@ impl<T> RowVec<T> {
     }
 }
 
-impl<T> RowVec<T> where T: Clone {
-    /// Constructs a row vector with copies of a value
-    ///
-    /// - Memory: `O(length)`
-    /// - Time: `O(length)`
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # #![feature(phase)]
-    /// # extern crate linalg;
-    /// # #[phase(plugin)] extern crate linalg_macros;
-    /// # fn main() {
-    /// # use linalg::RowVec;
-    /// assert_eq!(RowVec::from_elem(3, 2), mat![2i, 2, 2])
-    /// # }
-    /// ```
-    pub fn from_elem(length: uint, value: T) -> RowVec<T> {
-        RowVec(repeat(value).take(length).collect::<Vec<T>>().into_boxed_slice())
-    }
-}
-
-impl<T> RowVec<T> where T: Rand {
-    /// Constructs a randomly initialized row vector
-    ///
-    /// - Memory: `O(length)`
-    /// - Time: `O(length)`
-    pub fn rand<R>(length: uint, rng: &mut R) -> RowVec<T> where R: Rng {
-        RowVec(range(0, length).map(|_| rng.gen()).collect::<Vec<T>>().into_boxed_slice())
-    }
-}
-
 impl<T> Clone for RowVec<T> where T: Clone {
     fn clone(&self) -> RowVec<T> {
         RowVec(self.0.to_vec().into_boxed_slice())
@@ -633,16 +621,14 @@ impl<'a, M> Copy for Rows<'a, M> {}
 #[derive(Copy)]
 pub struct Scaled<T, M>(T, M);
 
-impl<T, M> Scaled<T, M> where M: MatrixCols, T: Clone {
+impl<T, M> Scaled<T, M> {
     /// Returns an iterator that yields immutable views into the columns of the matrix
-    pub fn cols(&self) -> Scaled<T, Cols<M>> {
+    pub fn cols(&self) -> Scaled<T, Cols<M>> where M: MatrixCols, T: Clone {
         Scaled(self.0.clone(), self.1.cols())
     }
-}
 
-impl<T, M> Scaled<T, M> where M: MatrixRows, T: Clone {
     /// Returns an iterator that yields immutable views into each row of the matrix
-    pub fn rows(&self) -> Scaled<T, Rows<M>> {
+    pub fn rows(&self) -> Scaled<T, Rows<M>> where M: MatrixRows, T: Clone {
         Scaled(self.0.clone(), self.1.rows())
     }
 }
