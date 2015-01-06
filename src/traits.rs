@@ -13,7 +13,7 @@ pub trait AddAssign<R> {
 }
 
 /// Bounds-checked immutable indexing
-pub trait At<I> for Sized? {
+pub trait At<I> {
     type Output;
 
     /// Returns an immutable reference to the element at the given index
@@ -25,7 +25,7 @@ pub trait At<I> for Sized? {
 }
 
 /// Bounds-checked mutable indexing
-pub trait AtMut<I> for Sized? {
+pub trait AtMut<I> {
     type Output;
 
     /// Returns a mutable reference to the element at the given index

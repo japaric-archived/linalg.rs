@@ -665,7 +665,7 @@ pub enum Error {
 // Private versions of `traits::{At, Slice}` to not expose implementations on stdlib types
 // XXX Why do I have to document private traits?
 /// Private
-trait At<I> for Sized? {
+trait At<I> {
     type Output;
 
     /// private
@@ -673,7 +673,7 @@ trait At<I> for Sized? {
 }
 
 /// Private
-trait Slice<'a, I> for Sized? {
+trait Slice<'a, I> {
     type Slice;
 
     /// Private
