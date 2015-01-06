@@ -27,9 +27,9 @@ script:
   - if [[ $BLAS == 'OpenBLAS' ]]; then
       export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/openblas-base;
     fi
-  - cargo build --verbose
-  - cargo test --verbose
-  - cargo doc --verbose
+  - cargo build --features macros --verbose
+  - cargo test --features macros --verbose
+  - cargo doc --features macros --verbose
   - ./check-line-length.sh
 
 after_success:
