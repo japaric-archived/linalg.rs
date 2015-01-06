@@ -8,9 +8,7 @@
 //!
 //! ``` ignore
 //! [dependencies.linalg]
-//! git = "https://github.com/japaric/linalg.rs"
-//!
-//! [dependencies.linalg_macros]
+//! features = ["macros"]  # Optional, enables the mat! macro
 //! git = "https://github.com/japaric/linalg.rs"
 //! ```
 //!
@@ -18,8 +16,8 @@
 //!
 //! ``` ignore
 //! extern crate linalg;
-//! #[phase(plugin)]
-//! extern crate linalg_macros;
+//! // Optionally link to linalg_macros to enable the `mat!` macro
+//! #[phase(plugin)] extern crate linalg_macros;
 //!
 //! use linalg::prelude::*;
 //! ```
