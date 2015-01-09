@@ -15,9 +15,7 @@ optional = true
 path = "macros"
 
 [dev-dependencies.quickcheck]
-git = "https://github.com/japaric/quickcheck"
-branch = "rustup"
+git = "https://github.com/burntsushi/quickcheck"
 
 [dev-dependencies.quickcheck_macros]
-git = "https://github.com/japaric/quickcheck"
-branch = "rustup"
+git = "https://github.com/burntsushi/quickcheck"
