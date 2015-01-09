@@ -17,7 +17,10 @@ impl<T, M> At<(usize, usize)> for Trans<M> where M: At<(usize, usize), Output=T>
 impl<T, M> AtMut<(usize, usize)> for Trans<M> where M: AtMut<(usize, usize), Output=T> {
     type Output = T;
 
-    fn at_mut(&mut self, (row, col): (usize, usize)) -> ::std::result::Result<&mut T, OutOfBounds> {
+    fn at_mut(
+        &mut self,
+        (row, col): (usize, usize),
+    ) -> ::std::result::Result<&mut T, OutOfBounds> {
         self.0.at_mut((col, row))
     }
 }

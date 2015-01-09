@@ -216,7 +216,11 @@ impl<'a, T> SliceMut<'a, usize> for ColVec<T> {
 impl<'a, T> SliceMut<'a, (usize, usize)> for Mat<T> {
     type Slice = MutView<'a, T>;
 
-    fn slice_mut(&'a mut self, start: (usize, usize), end: (usize, usize)) -> Result<MutView<'a, T>> {
+    fn slice_mut(
+        &'a mut self,
+        start: (usize, usize),
+        end: (usize, usize),
+    ) -> Result<MutView<'a, T>> {
         unsafe { mem::transmute(self.slice(start, end)) }
     }
 
@@ -264,7 +268,11 @@ impl<'a, 'b, T> SliceMut<'a, usize> for MutRow<'b, T> {
 impl<'a, 'b, T> SliceMut<'a, (usize, usize)> for MutView<'b, T> {
     type Slice = MutView<'a, T>;
 
-    fn slice_mut(&'a mut self, start: (usize, usize), end: (usize, usize)) -> Result<MutView<'a, T>> {
+    fn slice_mut(
+        &'a mut self,
+        start: (usize, usize),
+        end: (usize, usize),
+    ) -> Result<MutView<'a, T>> {
         unsafe { mem::transmute(self.0.slice(start, end)) }
     }
 

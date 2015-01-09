@@ -143,7 +143,10 @@ macro_rules! blas {
 
             // Test that `mul(&MutCol)` is correct for `Row`
             #[quickcheck]
-            fn slice_mut((m, k, n): (usize, usize, usize), (row, col): (usize, usize)) -> TestResult {
+            fn slice_mut(
+                (m, k, n): (usize, usize, usize),
+                (row, col): (usize, usize),
+            ) -> TestResult {
                 enforce! {
                     row < m,
                     col < n,
@@ -164,7 +167,10 @@ macro_rules! blas {
 
             // Test that `mul(strided::Col)` is correct for `Row`
             #[quickcheck]
-            fn strided((m, k, n): (usize, usize, usize), (row, col): (usize, usize)) -> TestResult {
+            fn strided(
+                (m, k, n): (usize, usize, usize),
+                (row, col): (usize, usize),
+            ) -> TestResult {
                 enforce! {
                     row < m,
                     col < n,
@@ -185,7 +191,10 @@ macro_rules! blas {
 
             // Test that `mul(&strided::MutCol)` is correct for `Row`
             #[quickcheck]
-            fn strided_mut((m, k, n): (usize, usize, usize), (row, col): (usize, usize)) -> TestResult {
+            fn strided_mut(
+                (m, k, n): (usize, usize, usize),
+                (row, col): (usize, usize),
+            ) -> TestResult {
                 enforce! {
                     row < m,
                     col < n,
@@ -253,7 +262,10 @@ macro_rules! blas {
 
             // Test that `mul(&MutCol)` is correct for `MutRow`
             #[quickcheck]
-            fn slice_mut((m, k, n): (usize, usize, usize), (row, col): (usize, usize)) -> TestResult {
+            fn slice_mut(
+                (m, k, n): (usize, usize, usize),
+                (row, col): (usize, usize),
+            ) -> TestResult {
                 enforce! {
                     row < m,
                     col < n,
@@ -274,7 +286,10 @@ macro_rules! blas {
 
             // Test that `mul(strided::Col)` is correct for `MutRow`
             #[quickcheck]
-            fn strided((m, k, n): (usize, usize, usize), (row, col): (usize, usize)) -> TestResult {
+            fn strided(
+                (m, k, n): (usize, usize, usize),
+                (row, col): (usize, usize),
+            ) -> TestResult {
                 enforce! {
                     row < m,
                     col < n,
@@ -295,7 +310,10 @@ macro_rules! blas {
 
             // Test that `mul(&strided::MutCol)` is correct for `MutRow`
             #[quickcheck]
-            fn strided_mut((m, k, n): (usize, usize, usize), (row, col): (usize, usize)) -> TestResult {
+            fn strided_mut(
+                (m, k, n): (usize, usize, usize),
+                (row, col): (usize, usize),
+            ) -> TestResult {
                 enforce! {
                     row < m,
                     col < n,
@@ -363,7 +381,10 @@ macro_rules! blas {
 
             // Test that `mul(&MutCol)` is correct for `strided::Row`
             #[quickcheck]
-            fn slice_mut((m, k, n): (usize, usize, usize), (row, col): (usize, usize)) -> TestResult {
+            fn slice_mut(
+                (m, k, n): (usize, usize, usize),
+                (row, col): (usize, usize),
+            ) -> TestResult {
                 enforce! {
                     row < m,
                     col < n,
@@ -384,7 +405,10 @@ macro_rules! blas {
 
             // Test that `mul(strided::Col)` is correct for `strided::Row`
             #[quickcheck]
-            fn strided((m, k, n): (usize, usize, usize), (row, col): (usize, usize)) -> TestResult {
+            fn strided(
+                (m, k, n): (usize, usize, usize),
+                (row, col): (usize, usize),
+            ) -> TestResult {
                 enforce! {
                     row < m,
                     col < n,
@@ -405,7 +429,10 @@ macro_rules! blas {
 
             // Test that `mul(&strided::MutCol)` is correct for `strided::Row`
             #[quickcheck]
-            fn strided_mut((m, k, n): (usize, usize, usize), (row, col): (usize, usize)) -> TestResult {
+            fn strided_mut(
+                (m, k, n): (usize, usize, usize),
+                (row, col): (usize, usize),
+            ) -> TestResult {
                 enforce! {
                     row < m,
                     col < n,
@@ -473,7 +500,10 @@ macro_rules! blas {
 
             // Test that `mul(&MutCol)` is correct for `strided::MutRow`
             #[quickcheck]
-            fn slice_mut((m, k, n): (usize, usize, usize), (row, col): (usize, usize)) -> TestResult {
+            fn slice_mut(
+                (m, k, n): (usize, usize, usize),
+                (row, col): (usize, usize),
+            ) -> TestResult {
                 enforce! {
                     row < m,
                     col < n,
@@ -494,7 +524,10 @@ macro_rules! blas {
 
             // Test that `mul(strided::Col)` is correct for `strided::MutRow`
             #[quickcheck]
-            fn strided((m, k, n): (usize, usize, usize), (row, col): (usize, usize)) -> TestResult {
+            fn strided(
+                (m, k, n): (usize, usize, usize),
+                (row, col): (usize, usize),
+            ) -> TestResult {
                 enforce! {
                     row < m,
                     col < n,
@@ -515,7 +548,10 @@ macro_rules! blas {
 
             // Test that `mul(&strided::MutCol)` is correct for `strided::MutRow`
             #[quickcheck]
-            fn strided_mut((m, k, n): (usize, usize, usize), (row, col): (usize, usize)) -> TestResult {
+            fn strided_mut(
+                (m, k, n): (usize, usize, usize),
+                (row, col): (usize, usize),
+            ) -> TestResult {
                 enforce! {
                     row < m,
                     col < n,
