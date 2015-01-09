@@ -9,14 +9,14 @@ use traits::{
 impl<T> Matrix for Mat<T> {
     type Elem = T;
 
-    fn ncols(&self) -> uint { self.ncols }
-    fn nrows(&self) -> uint { self.nrows }
+    fn ncols(&self) -> usize { self.ncols }
+    fn nrows(&self) -> usize { self.nrows }
 }
 
 impl<T> MatrixCol for Mat<T> {
-    unsafe fn unsafe_col(&self, col: uint) -> Col<T> {
+    unsafe fn unsafe_col(&self, col: usize) -> Col<T> {
         Col(::From::parts((
-            self.data.as_ptr().offset((col * self.nrows()) as int),
+            self.data.as_ptr().offset((col * self.nrows()) as isize),
             self.nrows(),
             1,
         )))
@@ -24,7 +24,7 @@ impl<T> MatrixCol for Mat<T> {
 }
 
 impl<T> MatrixColMut for Mat<T> {
-    unsafe fn unsafe_col_mut(&mut self, col: uint) -> MutCol<T> {
+    unsafe fn unsafe_col_mut(&mut self, col: usize) -> MutCol<T> {
         mem::transmute(self.unsafe_col(col))
     }
 }
@@ -32,15 +32,15 @@ impl<T> MatrixColMut for Mat<T> {
 impl<T> MatrixCols for Mat<T> {}
 
 impl<T> MatrixDiag for Mat<T> {
-    fn diag(&self, diag: int) -> Result<Diag<T>> {
+    fn diag(&self, diag: isize) -> Result<Diag<T>> {
         let (nrows, ncols) = (self.nrows, self.ncols);
         let stride = nrows;
 
         if diag > 0 {
-            let diag = diag as uint;
+            let diag = diag as usize;
 
             if diag < ncols {
-                let ptr = unsafe { self.data.as_ptr().offset((diag * stride) as int) };
+                let ptr = unsafe { self.data.as_ptr().offset((diag * stride) as isize) };
                 let len = cmp::min(nrows, ncols - diag);
 
                 Ok(Diag(unsafe { ::From::parts((ptr, len, stride + 1)) }))
@@ -48,10 +48,10 @@ impl<T> MatrixDiag for Mat<T> {
                 Err(Error::NoSuchDiagonal)
             }
         } else {
-            let diag = -diag as uint;
+            let diag = -diag as usize;
 
             if diag < nrows {
-                let ptr = unsafe { self.data.as_ptr().offset(diag as int) };
+                let ptr = unsafe { self.data.as_ptr().offset(diag as isize) };
                 let len = cmp::min(nrows - diag, ncols);
 
                 Ok(Diag(unsafe { ::From::parts((ptr, len, stride + 1)) }))
@@ -63,7 +63,7 @@ impl<T> MatrixDiag for Mat<T> {
 }
 
 impl<T> MatrixDiagMut for Mat<T> {
-    fn diag_mut(&mut self, diag: int) -> Result<MutDiag<T>> {
+    fn diag_mut(&mut self, diag: isize) -> Result<MutDiag<T>> {
         unsafe { mem::transmute(self.diag(diag)) }
     }
 }
@@ -73,11 +73,11 @@ impl<T> MatrixMutCols for Mat<T> {}
 impl<T> MatrixMutRows for Mat<T> {}
 
 impl<T> MatrixRow for Mat<T> {
-    unsafe fn unsafe_row(&self, row: uint) -> Row<T> {
+    unsafe fn unsafe_row(&self, row: usize) -> Row<T> {
         let (nrows, ncols) = self.size();
 
         Row(::From::parts((
-            self.data.as_ptr().offset(row as int),
+            self.data.as_ptr().offset(row as isize),
             ncols,
             nrows,
         )))
@@ -85,7 +85,7 @@ impl<T> MatrixRow for Mat<T> {
 }
 
 impl<T> MatrixRowMut for Mat<T> {
-    unsafe fn unsafe_row_mut(&mut self, row: uint) -> MutRow<T> {
+    unsafe fn unsafe_row_mut(&mut self, row: usize) -> MutRow<T> {
         mem::transmute(self.unsafe_row(row))
     }
 }

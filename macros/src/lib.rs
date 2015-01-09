@@ -1,5 +1,6 @@
+#![allow(unstable)]
 #![deny(warnings)]
-#![feature(macro_rules, plugin_registrar, slicing_syntax)]
+#![feature(plugin_registrar)]
 
 extern crate rustc;
 extern crate syntax;
@@ -7,8 +8,8 @@ extern crate syntax;
 use rustc::plugin::registry::Registry;
 use std::ptr;
 use syntax::ast::{
-    DUMMY_NODE_ID, Block, CompilerGenerated, ExprBox, Inherited, LitInt, Plus, TtToken, TokenTree,
-    UnsafeBlock, UnsuffixedIntLit,
+    DUMMY_NODE_ID, Block, CompilerGenerated, LitInt, Plus, TtToken, TokenTree, UnsafeBlock,
+    UnsuffixedIntLit,
 };
 use syntax::codemap::Span;
 use syntax::ext::base::{DummyResult, ExtCtxt, MacExpr, MacResult, NormalTT};
@@ -41,7 +42,7 @@ use syntax::ptr::P;
 /// expands into:
 ///
 /// ``` ignore
-/// RowVec::new(box [0, 1, 2])
+/// RowVec::new(Box::new([0, 1, 2]))
 /// ```
 ///
 /// - Column vector
@@ -58,7 +59,7 @@ use syntax::ptr::P;
 /// expands into:
 ///
 /// ``` ignore
-/// ColVec::new(box [0, 1, 2])
+/// ColVec::new(Box::new([0, 1, 2]))
 /// ```
 ///
 /// - Matrix
@@ -73,7 +74,7 @@ use syntax::ptr::P;
 /// expands into:
 ///
 /// ``` ignore
-/// unsafe { Mat::from_parts(box [0, 3, 1, 4, 3, 5], (2, 3)) }
+/// unsafe { Mat::from_parts(Box::new([0, 3, 1, 4, 3, 5]), (2, 3)) }
 /// ```
 ///
 /// Note that the order of the arguments have changed because matrices are stored in column-major
@@ -85,7 +86,7 @@ macro_rules! mat {
 #[plugin_registrar]
 #[doc(hidden)]
 pub fn plugin_registrar(r: &mut Registry) {
-    r.register_syntax_extension(token::intern("mat"), NormalTT(box expand_mat, None));
+    r.register_syntax_extension(token::intern("mat"), NormalTT(Box::new(expand_mat), None));
 }
 
 fn expand_mat<'cx>(
@@ -127,7 +128,7 @@ fn expand_mat<'cx>(
             // look for trailing commas
             if elems.last().map(|tts| tts.is_empty()) == Some(true) {
                 let err_msg = format!("row {}: trailing comma not allowed", r);
-                cx.span_err(sp, err_msg[]);
+                cx.span_err(sp, &*err_msg);
                 return DummyResult::expr(sp);
             }
             matrix.push(elems);
@@ -153,7 +154,7 @@ fn expand_mat<'cx>(
                     i + 1,
                     ncols,
                     cols_per_row);
-                cx.span_err(sp, err_msg[]);
+                cx.span_err(sp, &*err_msg);
                 return DummyResult::expr(sp);
             }
         }
@@ -164,7 +165,7 @@ fn expand_mat<'cx>(
     for (r, row) in matrix.iter().enumerate() {
         for (c, elem) in row.iter().enumerate() {
             if elem.is_empty() {
-                cx.span_err(sp, format!("no element found at ({}, {})", r, c)[]);
+                cx.span_err(sp, &*format!("no element found at ({}, {})", r, c));
                 return DummyResult::expr(sp);
             }
         }
@@ -183,23 +184,22 @@ fn expand_mat<'cx>(
     }
 
     let vec = {
-        let uses = vec![{
-            let segments = vec![
-                cx.ident_of("std"),
-                cx.ident_of("boxed"),
-                cx.ident_of("HEAP"),
-            ];
-
-            cx.view_use_simple(sp, Inherited, cx.path_global(sp, segments))
-        }];
-
+        let uses = vec![];
         let stmts = vec![];
 
         let expr = {
-            let heap = cx.expr_ident(sp, cx.ident_of("HEAP"));
+            let box_new_path = {
+                let strs = vec![
+                    cx.ident_of("Box"),
+                    cx.ident_of("new"),
+                ];
+
+                cx.path(sp, strs)
+            };
+
             let array = cx.expr_vec(sp, elems);
 
-            Some(cx.expr(sp, ExprBox(Some(heap), array)))
+            Some(cx.expr_call(sp, cx.expr_path(box_new_path), vec![array]))
         };
 
         cx.expr_block(cx.block_all(sp, uses, stmts, expr))

@@ -10,7 +10,7 @@ pub struct Slice<'a, T: 'a>(pub ::raw::strided::Slice<'a, T>);
 
 impl<'a, T> Slice<'a, T> {
     /// Unreachable
-    pub fn at(&self, index: uint) -> ::std::result::Result<&T, OutOfBounds> {
+    pub fn at(&self, index: usize) -> ::std::result::Result<&T, OutOfBounds> {
         self.0.at(index)
     }
 
@@ -20,20 +20,20 @@ impl<'a, T> Slice<'a, T> {
     }
 
     /// Unreachable
-    pub fn len(&self) -> uint {
+    pub fn len(&self) -> usize {
         self.0.len()
     }
 
     /// Unreachable
-    pub fn slice(&self, start: uint, end: uint) -> Result<Slice<T>> {
+    pub fn slice(&self, start: usize, end: usize) -> Result<Slice<T>> {
         self.0.slice(start, end).map(Slice)
     }
 }
 
 impl<'a, T> Copy for Slice<'a, T> {}
 
-impl<'a, T> ::From<(*const T, uint, uint)> for Slice<'a, T> {
-    unsafe fn parts((data, len, stride): (*const T, uint, uint)) -> Slice<'a, T> {
+impl<'a, T> ::From<(*const T, usize, usize)> for Slice<'a, T> {
+    unsafe fn parts((data, len, stride): (*const T, usize, usize)) -> Slice<'a, T> {
         Slice(::From::parts((data, len, stride)))
     }
 }
@@ -49,12 +49,12 @@ pub struct MutSlice<'a, T: 'a>(pub ::raw::strided::Slice<'a, T>);
 
 impl<'a, T> MutSlice<'a, T> {
     /// Unreachable
-    pub fn at(&self, index: uint) -> ::std::result::Result<&T, OutOfBounds> {
+    pub fn at(&self, index: usize) -> ::std::result::Result<&T, OutOfBounds> {
         self.0.at(index)
     }
 
     /// Unreachable
-    pub fn at_mut(&mut self, index: uint) -> ::std::result::Result<&mut T, OutOfBounds> {
+    pub fn at_mut(&mut self, index: usize) -> ::std::result::Result<&mut T, OutOfBounds> {
         unsafe { mem::transmute(self.0.at(index)) }
     }
 
@@ -69,23 +69,23 @@ impl<'a, T> MutSlice<'a, T> {
     }
 
     /// Unreachable
-    pub fn len(&self) -> uint {
+    pub fn len(&self) -> usize {
         self.0.len()
     }
 
     /// Unreachable
-    pub fn slice(&self, start: uint, end: uint) -> Result<Slice<T>> {
+    pub fn slice(&self, start: usize, end: usize) -> Result<Slice<T>> {
         self.0.slice(start, end).map(Slice)
     }
 
     /// Unreachable
-    pub fn slice_mut(&mut self, start: uint, end: uint) -> Result<MutSlice<T>> {
+    pub fn slice_mut(&mut self, start: usize, end: usize) -> Result<MutSlice<T>> {
         self.0.slice(start, end).map(MutSlice)
     }
 }
 
-impl<'a, T> ::From<(*const T, uint, uint)> for MutSlice<'a, T> {
-    unsafe fn parts((data, len, stride): (*const T, uint, uint)) -> MutSlice<'a, T> {
+impl<'a, T> ::From<(*const T, usize, usize)> for MutSlice<'a, T> {
+    unsafe fn parts((data, len, stride): (*const T, usize, usize)) -> MutSlice<'a, T> {
         MutSlice(::From::parts((data, len, stride)))
     }
 }
@@ -114,7 +114,7 @@ impl<'a, T> Iterator for Items<'a, T> {
         unsafe { mem::transmute(self.0.next()) }
     }
 
-    fn size_hint(&self) -> (uint, Option<uint>) {
+    fn size_hint(&self) -> (usize, Option<usize>) {
         self.0.size_hint()
     }
 }
@@ -135,7 +135,7 @@ impl<'a, T> Iterator for MutItems<'a, T> {
         unsafe { mem::transmute(self.0.next()) }
     }
 
-    fn size_hint(&self) -> (uint, Option<uint>) {
+    fn size_hint(&self) -> (usize, Option<usize>) {
         self.0.size_hint()
     }
 }

@@ -1,14 +1,16 @@
-#![feature(globs, macro_rules, phase)]
+#![allow(unstable)]
+#![feature(plugin)]
 
 extern crate linalg;
 extern crate quickcheck;
-#[phase(plugin)]
+#[plugin]
 extern crate quickcheck_macros;
 
 use linalg::prelude::*;
 use quickcheck::TestResult;
 use std::collections::BTreeSet;
 
+#[macro_use]
 mod setup;
 
 mod col {
@@ -19,13 +21,13 @@ mod col {
 
     // Test that `iter_mut()` is correct for `ColVec`
     #[quickcheck]
-    fn owned(size: uint) -> bool {
-        setup::col(size).iter_mut().enumerate().all(|(i, &e)| e == i)
+    fn owned(size: usize) -> bool {
+        setup::col(size).iter_mut().enumerate().all(|(i, &mut e)| e == i)
     }
 
     // Test that `iter_mut()` is correct for `MutCol`
     #[quickcheck]
-    fn slice_mut((nrows, ncols): (uint, uint), col: uint) -> TestResult {
+    fn slice_mut((nrows, ncols): (usize, usize), col: usize) -> TestResult {
         enforce! {
             col < ncols,
         }
@@ -34,13 +36,13 @@ mod col {
             let mut m = setup::mat((nrows, ncols));
             let mut c = try!(m.col_mut(col));
 
-            c.iter_mut().enumerate().all(|(i, &e)| e == (i, col))
+            c.iter_mut().enumerate().all(|(i, &mut e)| e == (i, col))
         })
     }
 
     // Test that `iter_mut()` is correct for `strided::MutCol`
     #[quickcheck]
-    fn strided_mut((nrows, ncols): (uint, uint), col: uint) -> TestResult {
+    fn strided_mut((nrows, ncols): (usize, usize), col: usize) -> TestResult {
         enforce! {
             col < ncols,
         }
@@ -49,7 +51,7 @@ mod col {
             let mut m = setup::mat((ncols, nrows)).t();
             let mut c = try!(m.col_mut(col));
 
-            c.iter_mut().enumerate().all(|(i, &e)| e == (col, i))
+            c.iter_mut().enumerate().all(|(i, &mut e)| e == (col, i))
         })
     }
 }
@@ -62,7 +64,7 @@ mod diag {
 
     // Test that `iter_mut()` is correct for `MutDiag`
     #[quickcheck]
-    fn strided_mut(size: (uint, uint), diag: int) -> TestResult {
+    fn strided_mut(size: (usize, usize), diag: isize) -> TestResult {
         validate_diag!(diag, size);
 
         test!({
@@ -70,9 +72,9 @@ mod diag {
             let mut d = try!(m.diag_mut(diag));
 
             if diag > 0 {
-                d.iter_mut().enumerate().all(|(i, &e)| e == (i, i + diag as uint))
+                d.iter_mut().enumerate().all(|(i, &mut e)| e == (i, i + diag as usize))
             } else {
-                d.iter_mut().enumerate().all(|(i, &e)| e == (i - diag as uint, i))
+                d.iter_mut().enumerate().all(|(i, &mut e)| e == (i - diag as usize, i))
             }
         })
     }
@@ -86,13 +88,13 @@ mod row {
 
     // Test that `iter_mut()` is correct for `RowVec`
     #[quickcheck]
-    fn owned(size: uint) -> bool {
-        setup::row(size).iter_mut().enumerate().all(|(i, &e)| e == i)
+    fn owned(size: usize) -> bool {
+        setup::row(size).iter_mut().enumerate().all(|(i, &mut e)| e == i)
     }
 
     // Test that `iter_mut()` is correct for `MutRow`
     #[quickcheck]
-    fn slice_mut((nrows, ncols): (uint, uint), row: uint) -> TestResult {
+    fn slice_mut((nrows, ncols): (usize, usize), row: usize) -> TestResult {
         enforce! {
             row < nrows,
         }
@@ -101,13 +103,13 @@ mod row {
             let mut m = setup::mat((ncols, nrows)).t();
             let mut r = try!(m.row_mut(row));
 
-            r.iter_mut().enumerate().all(|(i, &e)| e == (i, row))
+            r.iter_mut().enumerate().all(|(i, &mut e)| e == (i, row))
         })
     }
 
     // Test that `iter_mut()` is correct for `strided::MutRow`
     #[quickcheck]
-    fn strided_mut((nrows, ncols): (uint, uint), row: uint) -> TestResult {
+    fn strided_mut((nrows, ncols): (usize, usize), row: usize) -> TestResult {
         enforce! {
             row < nrows,
         }
@@ -116,7 +118,7 @@ mod row {
             let mut m = setup::mat((nrows, ncols));
             let mut r = try!(m.row_mut(row));
 
-            r.iter_mut().enumerate().all(|(i, &e)| e == (row, i))
+            r.iter_mut().enumerate().all(|(i, &mut e)| e == (row, i))
         })
     }
 }
@@ -130,7 +132,7 @@ mod trans {
 
     // Test that `iter_mut()` is correct for `Trans<Mat>`
     #[quickcheck]
-    fn mat((nrows, ncols): (uint, uint)) -> bool {
+    fn mat((nrows, ncols): (usize, usize)) -> bool {
         let mut elems = BTreeSet::new();
         for r in range(0, nrows) {
             for c in range(0, ncols) {
@@ -138,12 +140,12 @@ mod trans {
             }
         }
 
-        elems == setup::mat((nrows, ncols)).t().iter_mut().map(|&x| x).collect()
+        elems == setup::mat((nrows, ncols)).t().iter_mut().map(|&mut x| x).collect()
     }
 
     // Test that `iter_mut()` is correct for `Trans<MutView>`
     #[quickcheck]
-    fn view_mut(start: (uint, uint), (nrows, ncols): (uint, uint)) -> TestResult {
+    fn view_mut(start: (usize, usize), (nrows, ncols): (usize, usize)) -> TestResult {
         let size = (start.0 + ncols, start.1 + nrows);
 
         test!({
@@ -158,14 +160,14 @@ mod trans {
                 }
             }
 
-            t == v.iter_mut().map(|&x| x).collect()
+            t == v.iter_mut().map(|&mut x| x).collect()
         })
     }
 }
 
 // Test that `iter_mut()` is correct for `Mat`
 #[quickcheck]
-fn mat((nrows, ncols): (uint, uint)) -> bool {
+fn mat((nrows, ncols): (usize, usize)) -> bool {
     let mut elems = BTreeSet::new();
     for r in range(0, nrows) {
         for c in range(0, ncols) {
@@ -173,12 +175,12 @@ fn mat((nrows, ncols): (uint, uint)) -> bool {
         }
     }
 
-    elems == setup::mat((nrows, ncols)).iter_mut().map(|&x| x).collect()
+    elems == setup::mat((nrows, ncols)).iter_mut().map(|&mut x| x).collect()
 }
 
 // Test that `iter_mut()` is correct for `MutView`
 #[quickcheck]
-fn view_mut(start: (uint, uint), (nrows, ncols): (uint, uint)) -> TestResult {
+fn view_mut(start: (usize, usize), (nrows, ncols): (usize, usize)) -> TestResult {
     let size = (start.0 + nrows, start.1 + ncols);
 
     test!({
@@ -193,6 +195,6 @@ fn view_mut(start: (uint, uint), (nrows, ncols): (uint, uint)) -> TestResult {
             }
         }
 
-        t == v.iter_mut().map(|&x| x).collect()
+        t == v.iter_mut().map(|&mut x| x).collect()
     })
 }

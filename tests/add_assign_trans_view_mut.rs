@@ -1,10 +1,12 @@
-#![feature(globs, macro_rules, phase)]
+#![allow(unstable)]
+#![feature(plugin)]
 
 extern crate linalg;
 extern crate quickcheck;
-#[phase(plugin)]
+#[plugin]
 extern crate quickcheck_macros;
 
+#[macro_use]
 mod setup;
 
 mod trans {
@@ -18,9 +20,9 @@ mod trans {
             // Test that `add_assign(&Trans<Mat>)` is correct for `Trans<MutView>`
             #[quickcheck]
             fn mat(
-                start: (uint, uint),
-                (nrows, ncols): (uint, uint),
-                (row, col): (uint, uint),
+                start: (usize, usize),
+                (nrows, ncols): (usize, usize),
+                (row, col): (usize, usize),
             ) -> TestResult {
                 enforce! {
                     row < nrows,
@@ -47,9 +49,9 @@ mod trans {
             // Test that `add_assign(Trans<View>)` is correct for `Trans<MutView>`
             #[quickcheck]
             fn view(
-                (lhs_start, rhs_start): ((uint, uint), (uint, uint)),
-                (nrows, ncols): (uint, uint),
-                (row, col): (uint, uint),
+                (lhs_start, rhs_start): ((usize, usize), (usize, usize)),
+                (nrows, ncols): (usize, usize),
+                (row, col): (usize, usize),
             ) -> TestResult {
                 enforce! {
                     row < nrows,
@@ -78,9 +80,9 @@ mod trans {
             // Test that `add_assign(&Trans<MutView>)` is correct for `Trans<MutView>`
             #[quickcheck]
             fn view_mut(
-                (lhs_start, rhs_start): ((uint, uint), (uint, uint)),
-                (nrows, ncols): (uint, uint),
-                (row, col): (uint, uint),
+                (lhs_start, rhs_start): ((usize, usize), (usize, usize)),
+                (nrows, ncols): (usize, usize),
+                (row, col): (usize, usize),
             ) -> TestResult {
                 enforce! {
                     row < nrows,
@@ -121,9 +123,9 @@ macro_rules! blas {
         // Test that `add_assign(&Mat)` is correct for `Trans<MutView>`
         #[quickcheck]
         fn mat(
-            start: (uint, uint),
-            (nrows, ncols): (uint, uint),
-            (row, col): (uint, uint),
+            start: (usize, usize),
+            (nrows, ncols): (usize, usize),
+            (row, col): (usize, usize),
         ) -> TestResult {
             enforce! {
                 row < nrows,
@@ -150,9 +152,9 @@ macro_rules! blas {
         // Test that `add_assign(T)` is correct for `Trans<MutView>`
         #[quickcheck]
         fn scalar(
-            start: (uint, uint),
-            (nrows, ncols): (uint, uint),
-            (row, col): (uint, uint),
+            start: (usize, usize),
+            (nrows, ncols): (usize, usize),
+            (row, col): (usize, usize),
         ) -> TestResult {
             enforce! {
                 row < nrows,
@@ -177,9 +179,9 @@ macro_rules! blas {
         // Test that `add_assign(View)` is correct for `Trans<MutView>`
         #[quickcheck]
         fn view(
-            (lhs_start, rhs_start): ((uint, uint), (uint, uint)),
-            (nrows, ncols): (uint, uint),
-            (row, col): (uint, uint),
+            (lhs_start, rhs_start): ((usize, usize), (usize, usize)),
+            (nrows, ncols): (usize, usize),
+            (row, col): (usize, usize),
         ) -> TestResult {
             enforce! {
                 row < nrows,
@@ -208,9 +210,9 @@ macro_rules! blas {
         // Test that `add_assign(&MutView)` is correct for `Trans<MutView>`
         #[quickcheck]
         fn view_mut(
-            (lhs_start, rhs_start): ((uint, uint), (uint, uint)),
-            (nrows, ncols): (uint, uint),
-            (row, col): (uint, uint),
+            (lhs_start, rhs_start): ((usize, usize), (usize, usize)),
+            (nrows, ncols): (usize, usize),
+            (row, col): (usize, usize),
         ) -> TestResult {
             enforce! {
                 row < nrows,

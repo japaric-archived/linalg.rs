@@ -24,7 +24,7 @@ macro_rules! fmt {
                     } else {
                         try!(write!(f, ", "));
                     }
-                    try!(write!(f, "{}", e));
+                    try!(write!(f, "{:?}", e));
                 }
 
                 try!(write!(f, "]"))
@@ -52,22 +52,22 @@ mat_impls!(MutView<'a, T>, Trans<MutView<'a, T>>, Trans<View<'a, T>>, View<'a, T
 
 impl<'a, T> fmt::Show for ColVec<T> where T: fmt::Show {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Col({})", self.0)
+        write!(f, "Col({:?})", &*self.0)
     }
 }
 
 impl<'a, T> fmt::Show for RowVec<T> where T: fmt::Show {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Row({})", self.0)
+        write!(f, "Row({:?})", &*self.0)
     }
 }
 
 macro_rules! impls {
-    ($($ty:ty -> $str:expr),+,) => {
+    ($($ty:ty, $str:expr),+,) => {
         $(
             impl<'a, T> fmt::Show for $ty where T: fmt::Show {
                 fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                    write!(f, concat!($str, "({})"), self.0)
+                    write!(f, concat!($str, "({:?})"), self.0)
                 }
             }
         )+
@@ -75,10 +75,10 @@ macro_rules! impls {
 }
 
 impls! {
-    Col<'a, T> -> "Col",
-    Diag<'a, T> -> "Diag",
-    MutCol<'a, T> -> "Col",
-    MutDiag<'a, T> -> "Diag",
-    MutRow<'a, T> -> "Row",
-    Row<'a, T> -> "Row",
+    Col<'a, T>, "Col",
+    Diag<'a, T>, "Diag",
+    MutCol<'a, T>, "Col",
+    MutDiag<'a, T>, "Diag",
+    MutRow<'a, T>, "Row",
+    Row<'a, T>, "Row",
 }

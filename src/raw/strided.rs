@@ -1,5 +1,5 @@
 use std::iter::order;
-use std::kinds::marker;
+use std::marker;
 use std::{fmt, mem};
 
 use {Error, Result};
@@ -10,7 +10,7 @@ pub struct Items<'a, T: 'a> {
     _nosend: marker::NoSend,
     state: *mut T,
     stop: *mut T,
-    stride: uint,
+    stride: usize,
 }
 
 impl<'a, T> Copy for Items<'a, T> {}
@@ -22,19 +22,19 @@ impl<'a, T> Iterator for Items<'a, T> {
         if self.state == self.stop {
             None
         } else if mem::size_of::<T>() == 0 {
-            self.state = unsafe { mem::transmute(self.state as uint + self.stride) };
+            self.state = unsafe { mem::transmute(self.state as usize + self.stride) };
 
-            Some(unsafe { mem::transmute(1u) })
+            Some(unsafe { mem::transmute(1us) })
         } else {
             let old = self.state;
-            self.state = unsafe { self.state.offset(self.stride as int) };
+            self.state = unsafe { self.state.offset(self.stride as isize) };
 
             Some(unsafe { mem::transmute(old) })
         }
     }
 
-    fn size_hint(&self) -> (uint, Option<uint>) {
-        let diff = self.stop as uint - self.state as uint;
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let diff = self.stop as usize - self.state as usize;
         let size = mem::size_of::<T>();
         let exact = diff / (if size == 0 { 1 } else { size } * self.stride);
 
@@ -47,11 +47,11 @@ impl<'a, T> DoubleEndedIterator for Items<'a, T> {
         if self.state == self.stop {
             None
         } else if mem::size_of::<T>() == 0 {
-            self.stop = unsafe { mem::transmute(self.stop as uint - self.stride) };
+            self.stop = unsafe { mem::transmute(self.stop as usize - self.stride) };
 
-            Some(unsafe { mem::transmute(1u) })
+            Some(unsafe { mem::transmute(1us) })
         } else {
-            self.stop = unsafe { self.stop.offset(-(self.stride as int)) };
+            self.stop = unsafe { self.stop.offset(-(self.stride as isize)) };
 
             Some(unsafe { mem::transmute(self.stop) })
         }
@@ -62,14 +62,14 @@ pub struct Slice<'a, T: 'a> {
     _contravariant: marker::ContravariantLifetime<'a>,
     _nosend: marker::NoSend,
     pub data: *mut T,
-    pub len: uint,
-    pub stride: uint,
+    pub len: usize,
+    pub stride: usize,
 }
 
 impl<'a, T> Slice<'a, T> {
-    pub fn  at(&self, index: uint) -> ::std::result::Result<&T, OutOfBounds> {
+    pub fn  at(&self, index: usize) -> ::std::result::Result<&T, OutOfBounds> {
         if index < self.len {
-            Ok(unsafe { mem::transmute(self.data.offset((index * self.stride) as int)) })
+            Ok(unsafe { mem::transmute(self.data.offset((index * self.stride) as isize)) })
         } else {
             Err(OutOfBounds)
         }
@@ -80,16 +80,16 @@ impl<'a, T> Slice<'a, T> {
             _contravariant: marker::ContravariantLifetime,
             _nosend: marker::NoSend,
             state: self.data,
-            stop: unsafe { self.data.offset((self.len * self.stride) as int) },
+            stop: unsafe { self.data.offset((self.len * self.stride) as isize) },
             stride: self.stride,
         }
     }
 
-    pub fn len(&self) -> uint {
+    pub fn len(&self) -> usize {
         self.len
     }
 
-    pub fn slice(&self, start: uint, end: uint) -> Result<Slice<T>> {
+    pub fn slice(&self, start: usize, end: usize) -> Result<Slice<T>> {
         if start > end {
             Err(Error::InvalidSlice)
         } else if end > self.len {
@@ -98,7 +98,7 @@ impl<'a, T> Slice<'a, T> {
             let stride = self.stride;
 
             Ok(unsafe { ::From::parts((
-                self.data.offset((start * stride) as int) as *const T,
+                self.data.offset((start * stride) as isize) as *const T,
                 end - start,
                 stride,
             ))})
@@ -108,8 +108,8 @@ impl<'a, T> Slice<'a, T> {
 
 impl<'a, T> Copy for Slice<'a, T> {}
 
-impl<'a, T> ::From<(*const T, uint, uint)> for Slice<'a, T> {
-    unsafe fn parts((data, len, stride): (*const T, uint, uint)) -> Slice<'a, T> {
+impl<'a, T> ::From<(*const T, usize, usize)> for Slice<'a, T> {
+    unsafe fn parts((data, len, stride): (*const T, usize, usize)) -> Slice<'a, T> {
         Slice {
             _contravariant: marker::ContravariantLifetime,
             _nosend: marker::NoSend,
@@ -137,7 +137,7 @@ impl<'a, T> fmt::Show for Slice<'a, T> where T: fmt::Show {
             } else {
                 try!(write!(f, ", "));
             }
-            try!(write!(f, "{}", *x))
+            try!(write!(f, "{:?}", *x))
         }
 
         try!(write!(f, "]"));

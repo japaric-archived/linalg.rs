@@ -1,13 +1,15 @@
-#![feature(globs, macro_rules, phase)]
+#![allow(unstable)]
+#![feature(plugin)]
 
 extern crate linalg;
 extern crate quickcheck;
-#[phase(plugin)]
+#[plugin]
 extern crate quickcheck_macros;
 
 use linalg::prelude::*;
 use quickcheck::TestResult;
 
+#[macro_use]
 mod setup;
 
 mod trans {
@@ -18,7 +20,7 @@ mod trans {
 
     // Test that `mut_cols()` is correct for `Trans<Mat>`
     #[quickcheck]
-    fn mat((nrows, ncols): (uint, uint), row: uint) -> TestResult {
+    fn mat((nrows, ncols): (usize, usize), row: usize) -> TestResult {
         enforce! {
             row < nrows,
         }
@@ -32,9 +34,9 @@ mod trans {
     // Test that `mut_cols()` is correct for `Trans<MutView>`
     #[quickcheck]
     fn view_mut(
-        start: (uint, uint),
-        (nrows, ncols): (uint, uint),
-        row: uint,
+        start: (usize, usize),
+        (nrows, ncols): (usize, usize),
+        row: usize,
     ) -> TestResult {
         enforce! {
             row < nrows,
@@ -55,7 +57,7 @@ mod trans {
 
 // Test that `mut_cols()` is correct for `Mat`
 #[quickcheck]
-fn mat((nrows, ncols): (uint, uint), row: uint) -> TestResult {
+fn mat((nrows, ncols): (usize, usize), row: usize) -> TestResult {
     enforce! {
         row < nrows,
     }
@@ -70,9 +72,9 @@ fn mat((nrows, ncols): (uint, uint), row: uint) -> TestResult {
 // Test that `mut_cols()` is correct for `MutView`
 #[quickcheck]
 fn view_mut(
-    start: (uint, uint),
-    (nrows, ncols): (uint, uint),
-    row: uint,
+    start: (usize, usize),
+    (nrows, ncols): (usize, usize),
+    row: usize,
 ) -> TestResult {
     enforce! {
         row < nrows,

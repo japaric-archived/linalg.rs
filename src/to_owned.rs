@@ -7,7 +7,7 @@ use {ToBlasint, Col, ColVec, Mat, MutCol, MutRow, MutView, Row, RowVec, Trans, V
 fn to<'a, T>(s: ::raw::strided::Slice<'a, T>) -> Box<[T]> where T: Copy {
     let n = s.len();
 
-    if n == 0 { return box [] }
+    if n == 0 { return Box::new([]) }
 
     let copy = Copy::copy(None::<T>);
     let x = s.data;
@@ -91,7 +91,7 @@ impl<'a, T> ToOwned<Mat<T>> for Trans<View<'a, T>> where T: Copy {
         let n = nrows * ncols;
 
         let data = if n == 0 {
-            let b: Box<[_]> = box [];
+            let b: Box<[_]> = Box::new([]);
 
             b
         } else {
@@ -108,7 +108,7 @@ impl<'a, T> ToOwned<Mat<T>> for Trans<View<'a, T>> where T: Copy {
 
                     let x = slice.data;
                     let incx = slice.stride.to_blasint();
-                    let y = unsafe { data.as_mut_ptr().offset(i as int) };
+                    let y = unsafe { data.as_mut_ptr().offset(i as isize) };
 
                     unsafe { copy(&n, x, &incx, y, &incy) }
                 }
@@ -121,7 +121,7 @@ impl<'a, T> ToOwned<Mat<T>> for Trans<View<'a, T>> where T: Copy {
 
                     let x = slice.data;
                     let incx = slice.stride.to_blasint();
-                    let y = unsafe { data.as_mut_ptr().offset((i * self.nrows()) as int) };
+                    let y = unsafe { data.as_mut_ptr().offset((i * self.nrows()) as isize) };
 
                     unsafe { copy(&n, x, &incx, y, &incy) }
                 }
@@ -147,7 +147,7 @@ impl<'a, T> ToOwned<Mat<T>> for View<'a, T> where T: Copy {
         let n = nrows * ncols;
 
         let data = if n == 0 {
-            let b: Box<[_]> = box [];
+            let b: Box<[_]> = Box::new([]);
 
             b
         } else {
@@ -164,7 +164,7 @@ impl<'a, T> ToOwned<Mat<T>> for View<'a, T> where T: Copy {
 
                     let x = slice.data;
                     let incx = slice.stride.to_blasint();
-                    let y = unsafe { data.as_mut_ptr().offset(i as int) };
+                    let y = unsafe { data.as_mut_ptr().offset(i as isize) };
 
                     unsafe { copy(&n, x, &incx, y, &incy) }
                 }
@@ -177,7 +177,7 @@ impl<'a, T> ToOwned<Mat<T>> for View<'a, T> where T: Copy {
 
                     let x = slice.data;
                     let incx = slice.stride.to_blasint();
-                    let y = unsafe { data.as_mut_ptr().offset((i * self.nrows()) as int) };
+                    let y = unsafe { data.as_mut_ptr().offset((i * self.nrows()) as isize) };
 
                     unsafe { copy(&n, x, &incx, y, &incy) }
                 }

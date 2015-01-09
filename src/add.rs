@@ -132,20 +132,26 @@ macro_rules! add3 {
 }
 
 // col
+/* FIXME(rust-lang/rust#20749)
 add0!(ColVec<T>, T);
+*/
 add1!(ColVec<T>, Col<'a, T>);
 add1!(ColVec<T>, &'a ColVec<T>);
 add2!(ColVec<T>, &'a MutCol<'b, T>);
 add1!(ColVec<T>, Scaled<T, Col<'a, T>>);
 
+/* FIXME(rust-lang/rust#20749)
 add1!(MutCol<'a, T>, T);
+*/
 add2!(MutCol<'a, T>, Col<'a, T>);
 add2!(MutCol<'a, T>, &'a ColVec<T>);
 add3!(MutCol<'a, T>, &'a MutCol<'b, T>);
 add2!(MutCol<'a, T>, Scaled<T, Col<'a, T>>);
 
 // mat
+/* FIXME(rust-lang/rust#20749)
 add0!(Mat<T>, T);
+*/
 add1!(Mat<T>, &'a Mat<T>);
 add2!(Mat<T>, &'a MutView<'b, T>);
 add1c!(Mat<T>, Scaled<T, View<'a, T>>);
@@ -154,7 +160,9 @@ add2!(Mat<T>, &'a Trans<MutView<'b, T>>);
 add1!(Mat<T>, Trans<View<'a, T>>);
 add1!(Mat<T>, View<'a, T>);
 
+/* FIXME(rust-lang/rust#20749)
 add1c!(MutView<'a, T>, T);
+*/
 add2!(MutView<'a, T>, &'b Mat<T>);
 add3!(MutView<'a, T>, &'b MutView<'c, T>);
 add2c!(MutView<'a, T>, Scaled<T, View<'b, T>>);
@@ -163,7 +171,9 @@ add3!(MutView<'a, T>, &'b Trans<MutView<'b, T>>);
 add2!(MutView<'a, T>, Trans<View<'b, T>>);
 add2!(MutView<'a, T>, View<'b, T>);
 
+/* FIXME(rust-lang/rust#20749)
 add0!(Trans<Mat<T>>, T);
+*/
 add1!(Trans<Mat<T>>, &'a Mat<T>);
 add2!(Trans<Mat<T>>, &'a MutView<'b, T>);
 add1c!(Trans<Mat<T>>, Scaled<T, View<'a, T>>);
@@ -172,7 +182,9 @@ add2!(Trans<Mat<T>>, &'a Trans<MutView<'b, T>>);
 add1!(Trans<Mat<T>>, Trans<View<'a, T>>);
 add1!(Trans<Mat<T>>, View<'a, T>);
 
+/* FIXME(rust-lang/rust#20749)
 add1c!(Trans<MutView<'a, T>>, T);
+*/
 add2!(Trans<MutView<'a, T>>, &'b Mat<T>);
 add3!(Trans<MutView<'a, T>>, &'b MutView<'c, T>);
 add2c!(Trans<MutView<'a, T>>, Scaled<T, View<'b, T>>);
@@ -182,13 +194,17 @@ add2!(Trans<MutView<'a, T>>, Trans<View<'b, T>>);
 add2!(Trans<MutView<'a, T>>, View<'b, T>);
 
 // row
+/* FIXME(rust-lang/rust#20749)
 add0!(RowVec<T>, T);
+*/
 add2!(RowVec<T>, &'a MutRow<'b, T>);
 add1!(RowVec<T>, Row<'a, T>);
 add1!(RowVec<T>, &'a RowVec<T>);
 add1!(RowVec<T>, Scaled<T, Row<'a, T>>);
 
+/* FIXME(rust-lang/rust#20749)
 add1!(MutRow<'a, T>, T);
+*/
 add3!(MutRow<'a, T>, &'a MutRow<'b, T>);
 add2!(MutRow<'a, T>, Row<'a, T>);
 add2!(MutRow<'a, T>, &'a RowVec<T>);

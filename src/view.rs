@@ -13,7 +13,7 @@ impl<'a, T> Iterator for Items<'a, T> {
         self.0.next()
     }
 
-    fn size_hint(&self) -> (uint, Option<uint>) {
+    fn size_hint(&self) -> (usize, Option<usize>) {
         self.0.size_hint()
     }
 }
@@ -25,19 +25,19 @@ impl<'a, T> Iterator for MutItems<'a, T> {
         unsafe { mem::transmute(self.0.next()) }
     }
 
-    fn size_hint(&self) -> (uint, Option<uint>) {
+    fn size_hint(&self) -> (usize, Option<usize>) {
         self.0.size_hint()
     }
 }
 
-impl<'a, T> ::From<(*const T, uint, uint, uint)> for MutView<'a, T> {
-    unsafe fn parts(parts: (*const T, uint, uint, uint)) -> MutView<'a, T>{
+impl<'a, T> ::From<(*const T, usize, usize, usize)> for MutView<'a, T> {
+    unsafe fn parts(parts: (*const T, usize, usize, usize)) -> MutView<'a, T>{
         MutView(::From::parts(parts))
     }
 }
 
-impl<'a, T> ::From<(*const T, uint, uint, uint)> for View<'a, T> {
-    unsafe fn parts(parts: (*const T, uint, uint, uint)) -> View<'a, T>{
+impl<'a, T> ::From<(*const T, usize, usize, usize)> for View<'a, T> {
+    unsafe fn parts(parts: (*const T, usize, usize, usize)) -> View<'a, T>{
         View(::From::parts(parts))
     }
 }
@@ -51,13 +51,13 @@ impl<'a, 'b, T> IterMut<'b> for MutView<'a, T> {
 }
 
 impl<'a, T> MatrixColMut for MutView<'a, T> {
-    unsafe fn unsafe_col_mut(&mut self, col: uint) -> MutCol<T> {
+    unsafe fn unsafe_col_mut(&mut self, col: usize) -> MutCol<T> {
         mem::transmute(self.0.unsafe_col(col))
     }
 }
 
 impl<'a, T> MatrixDiagMut for MutView<'a, T> {
-    fn diag_mut(&mut self, diag: int) -> Result<MutDiag<T>> {
+    fn diag_mut(&mut self, diag: isize) -> Result<MutDiag<T>> {
         unsafe { mem::transmute(self.0.diag(diag)) }
     }
 }
@@ -67,7 +67,7 @@ impl<'a, T> MatrixMutCols for MutView<'a, T> {}
 impl<'a, T> MatrixMutRows for MutView<'a, T> {}
 
 impl<'a, T> MatrixRowMut for MutView<'a, T> {
-    unsafe fn unsafe_row_mut(&mut self, row: uint) -> MutRow<T> {
+    unsafe fn unsafe_row_mut(&mut self, row: usize) -> MutRow<T> {
         mem::transmute(self.0.unsafe_row(row))
     }
 }
@@ -86,17 +86,17 @@ macro_rules! impls {
             impl<'a, T> Matrix for $ty {
                 type Elem = T;
 
-                fn ncols(&self) -> uint {
+                fn ncols(&self) -> usize {
                     self.0.ncols()
                 }
 
-                fn nrows(&self) -> uint {
+                fn nrows(&self) -> usize {
                     self.0.nrows()
                 }
             }
 
             impl<'a, T> MatrixCol for $ty {
-                unsafe fn unsafe_col(&self, col: uint) -> Col<T> {
+                unsafe fn unsafe_col(&self, col: usize) -> Col<T> {
                     self.0.unsafe_col(col)
                 }
             }
@@ -104,13 +104,13 @@ macro_rules! impls {
             impl<'a, T> MatrixCols for $ty {}
 
             impl<'a, T> MatrixDiag for $ty {
-                fn diag(&self, diag: int) -> Result<Diag<T>> {
+                fn diag(&self, diag: isize) -> Result<Diag<T>> {
                     self.0.diag(diag)
                 }
             }
 
             impl<'a, T> MatrixRow for $ty {
-                unsafe fn unsafe_row(&self, row: uint) -> Row<T> {
+                unsafe fn unsafe_row(&self, row: usize) -> Row<T> {
                     self.0.unsafe_row(row)
                 }
             }

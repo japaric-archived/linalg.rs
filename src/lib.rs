@@ -17,7 +17,7 @@
 //! ``` ignore
 //! extern crate linalg;
 //! // Optionally link to linalg_macros to enable the `mat!` macro
-//! #[phase(plugin)] extern crate linalg_macros;
+//! #[plugin] extern crate linalg_macros;
 //!
 //! use linalg::prelude::*;
 //! ```
@@ -37,8 +37,8 @@
 //! - Element-wise iteration over [sub]matrices is done in the fastest way possible, there's no
 //!   guarantee of the iteration order
 
+#![allow(unstable)]
 #![deny(missing_docs, warnings)]
-#![feature(associated_types, default_type_params, macro_rules, slicing_syntax)]
 
 extern crate complex;
 extern crate libc;
@@ -84,7 +84,7 @@ pub struct Col<'a, T: 'a>(strided::Slice<'a, T>);
 
 impl<'a, T> Col<'a, T> {
     /// Returns the length of the column
-    pub fn len(&self) -> uint {
+    pub fn len(&self) -> usize {
         self.0.len()
     }
 }
@@ -100,12 +100,12 @@ impl<T> ColVec<T> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(phase)]
+    /// # #![feature(plugin)]
     /// # extern crate linalg;
-    /// # #[phase(plugin)] extern crate linalg_macros;
+    /// # #[plugin] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::ColVec;
-    /// assert_eq!(ColVec::new(box [0i, 1, 2]), mat![0i; 1; 2])
+    /// assert_eq!(ColVec::new(Box::new([0i, 1, 2])), mat![0i; 1; 2])
     /// # }
     /// ```
     pub fn new(data: Box<[T]>) -> ColVec<T> {
@@ -120,15 +120,15 @@ impl<T> ColVec<T> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(phase)]
+    /// # #![feature(plugin)]
     /// # extern crate linalg;
-    /// # #[phase(plugin)] extern crate linalg_macros;
+    /// # #[plugin] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::ColVec;
     /// assert_eq!(ColVec::from_elem(3, 2), mat![2i; 2; 2])
     /// # }
     /// ```
-    pub fn from_elem(length: uint, value: T) -> ColVec<T> where T: Clone {
+    pub fn from_elem(length: usize, value: T) -> ColVec<T> where T: Clone {
         ColVec(iter_::repeat(value).take(length).collect::<Vec<T>>().into_boxed_slice())
     }
 
@@ -140,15 +140,15 @@ impl<T> ColVec<T> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(phase)]
+    /// # #![feature(plugin)]
     /// # extern crate linalg;
-    /// # #[phase(plugin)] extern crate linalg_macros;
+    /// # #[plugin] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::ColVec;
     /// assert_eq!(ColVec::from_fn(3, |i| i), mat![0; 1; 2])
     /// # }
     /// ```
-    pub fn from_fn<F>(length: uint, f: F) -> ColVec<T> where F: FnMut(uint) -> T {
+    pub fn from_fn<F>(length: usize, f: F) -> ColVec<T> where F: FnMut(usize) -> T {
         ColVec((0..length).map(f).collect::<Vec<T>>().into_boxed_slice())
     }
 
@@ -156,7 +156,7 @@ impl<T> ColVec<T> {
     ///
     /// - Memory: `O(length)`
     /// - Time: `O(length)`
-    pub fn rand<R>(length: uint, rng: &mut R) -> ColVec<T> where R: Rng, T: Rand {
+    pub fn rand<R>(length: usize, rng: &mut R) -> ColVec<T> where R: Rng, T: Rand {
         ColVec::from_fn(length, |_| rng.gen())
     }
 
@@ -164,7 +164,7 @@ impl<T> ColVec<T> {
     ///
     /// - Memory: `O(length)`
     /// - Time: `O(length)`
-    pub fn sample<D, R>(length: uint, distribution: &D, rng: &mut R) -> ColVec<T> where
+    pub fn sample<D, R>(length: usize, distribution: &D, rng: &mut R) -> ColVec<T> where
         D: IndependentSample<T>,
         R: Rng,
     {
@@ -192,7 +192,7 @@ impl<T> ColVec<T> {
     }
 
     /// Returns the length of the column
-    pub fn len(&self) -> uint {
+    pub fn len(&self) -> usize {
         self.0.len()
     }
 }
@@ -213,7 +213,7 @@ pub struct Diag<'a, T: 'a>(strided::Slice<'a, T>);
 
 impl<'a, T> Diag<'a, T> {
     /// Returns the length of the diagonal
-    pub fn len(&self) -> uint {
+    pub fn len(&self) -> usize {
         self.0.len()
     }
 }
@@ -227,8 +227,8 @@ impl<'a, T> Copy for Items<'a, T> {}
 
 /// Owned matrix
 pub struct Mat<T> {
-    ncols: uint,
-    nrows: uint,
+    ncols: usize,
+    nrows: usize,
     data: Box<[T]>,
 }
 
@@ -240,7 +240,7 @@ impl<T> Mat<T> {
     /// # Safety requirements
     ///
     /// - `data.len() == nrows * ncols`
-    pub unsafe fn from_parts(data: Box<[T]>, (nrows, ncols): (uint, uint)) -> Mat<T> {
+    pub unsafe fn from_parts(data: Box<[T]>, (nrows, ncols): (usize, usize)) -> Mat<T> {
         Mat {
             data: data,
             ncols: ncols,
@@ -260,15 +260,15 @@ impl<T> Mat<T> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(phase)]
+    /// # #![feature(plugin)]
     /// # extern crate linalg;
-    /// # #[phase(plugin)] extern crate linalg_macros;
+    /// # #[plugin] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::Mat;
     /// assert_eq!(Mat::from_elem((3, 2), 2).unwrap(), mat![2i, 2; 2, 2; 2, 2])
     /// # }
     /// ```
-    pub fn from_elem((nrows, ncols): (uint, uint), value: T) -> Result<Mat<T>> where T: Clone {
+    pub fn from_elem((nrows, ncols): (usize, usize), value: T) -> Result<Mat<T>> where T: Clone {
         let length = match nrows.checked_mul(ncols) {
             Some(length) => length,
             None => return Err(Error::LengthOverflow),
@@ -293,16 +293,16 @@ impl<T> Mat<T> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(phase)]
+    /// # #![feature(plugin)]
     /// # extern crate linalg;
-    /// # #[phase(plugin)] extern crate linalg_macros;
+    /// # #[plugin] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::Mat;
     /// assert_eq!(Mat::from_fn((2, 2), |i| i).unwrap(), mat![(0, 0), (0, 1); (1, 0), (1, 1)])
     /// # }
     /// ```
-    pub fn from_fn<F>((nrows, ncols): (uint, uint), mut f: F) -> Result<Mat<T>> where
-        F: FnMut((uint, uint)) -> T,
+    pub fn from_fn<F>((nrows, ncols): (usize, usize), mut f: F) -> Result<Mat<T>> where
+        F: FnMut((usize, usize)) -> T,
     {
         let length = match nrows.checked_mul(ncols) {
             Some(length) => length,
@@ -331,7 +331,7 @@ impl<T> Mat<T> {
     /// # Errors
     ///
     /// - `LengthOverflow` if the operation `nrows * ncols` overflows
-    pub fn rand<R>((nrows, ncols): (uint, uint), rng: &mut R) -> Result<Mat<T>> where
+    pub fn rand<R>((nrows, ncols): (usize, usize), rng: &mut R) -> Result<Mat<T>> where
         R: Rng,
         T: Rand,
     {
@@ -356,7 +356,7 @@ impl<T> Mat<T> {
     ///
     /// - `LengthOverflow` if the operation `nrows * ncols` overflows
     pub fn sample<D, R>(
-        (nrows, ncols): (uint, uint),
+        (nrows, ncols): (usize, usize),
         distribution: &D,
         rng: &mut R,
     ) -> Result<Mat<T>> where
@@ -435,7 +435,7 @@ impl<'a, T> MutCol<'a, T> {
     }
 
     /// Returns the length of the column
-    pub fn len(&self) -> uint {
+    pub fn len(&self) -> usize {
         self.0.len()
     }
 }
@@ -452,7 +452,7 @@ impl<'a, T> MutDiag<'a, T> {
     }
 
     /// Returns the length of the diagonal
-    pub fn len(&self) -> uint {
+    pub fn len(&self) -> usize {
         self.0.len()
     }
 }
@@ -469,7 +469,7 @@ impl<'a, T> MutRow<'a, T> {
     }
 
     /// Returns the length of the row
-    pub fn len(&self) -> uint {
+    pub fn len(&self) -> usize {
         self.0.len()
     }
 }
@@ -491,7 +491,7 @@ pub struct Row<'a, T: 'a>(strided::Slice<'a, T>);
 
 impl<'a, T> Row<'a, T> {
     /// Returns the length of the row
-    pub fn len(&self) -> uint {
+    pub fn len(&self) -> usize {
         self.0.len()
     }
 }
@@ -507,12 +507,12 @@ impl<T> RowVec<T> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(phase)]
+    /// # #![feature(plugin)]
     /// # extern crate linalg;
-    /// # #[phase(plugin)] extern crate linalg_macros;
+    /// # #[plugin] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::RowVec;
-    /// assert_eq!(RowVec::new(box [0i, 1, 2]), mat![0i, 1, 2])
+    /// assert_eq!(RowVec::new(Box::new([0i, 1, 2])), mat![0i, 1, 2])
     /// # }
     /// ```
     pub fn new(data: Box<[T]>) -> RowVec<T> {
@@ -527,15 +527,15 @@ impl<T> RowVec<T> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(phase)]
+    /// # #![feature(plugin)]
     /// # extern crate linalg;
-    /// # #[phase(plugin)] extern crate linalg_macros;
+    /// # #[plugin] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::RowVec;
     /// assert_eq!(RowVec::from_elem(3, 2), mat![2i, 2, 2])
     /// # }
     /// ```
-    pub fn from_elem(length: uint, value: T) -> RowVec<T> where T: Clone {
+    pub fn from_elem(length: usize, value: T) -> RowVec<T> where T: Clone {
         RowVec(iter_::repeat(value).take(length).collect::<Vec<T>>().into_boxed_slice())
     }
 
@@ -547,15 +547,15 @@ impl<T> RowVec<T> {
     /// # Examples
     ///
     /// ```
-    /// # #![feature(phase)]
+    /// # #![feature(plugin)]
     /// # extern crate linalg;
-    /// # #[phase(plugin)] extern crate linalg_macros;
+    /// # #[plugin] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::RowVec;
     /// assert_eq!(RowVec::from_fn(3, |i| i), mat![0, 1, 2])
     /// # }
     /// ```
-    pub fn from_fn<F>(length: uint, f: F) -> RowVec<T> where F: FnMut(uint) -> T {
+    pub fn from_fn<F>(length: usize, f: F) -> RowVec<T> where F: FnMut(usize) -> T {
         RowVec((0..length).map(f).collect::<Vec<T>>().into_boxed_slice())
     }
 
@@ -563,7 +563,7 @@ impl<T> RowVec<T> {
     ///
     /// - Memory: `O(length)`
     /// - Time: `O(length)`
-    pub fn rand<R>(length: uint, rng: &mut R) -> RowVec<T> where R: Rng, T: Rand {
+    pub fn rand<R>(length: usize, rng: &mut R) -> RowVec<T> where R: Rng, T: Rand {
         RowVec::from_fn(length, |_| rng.gen())
     }
 
@@ -571,7 +571,7 @@ impl<T> RowVec<T> {
     ///
     /// - Memory: `O(length)`
     /// - Time: `O(length)`
-    pub fn sample<D, R>(length: uint, distribution: &D, rng: &mut R) -> RowVec<T> where
+    pub fn sample<D, R>(length: usize, distribution: &D, rng: &mut R) -> RowVec<T> where
         D: IndependentSample<T>,
         R: Rng,
     {
@@ -599,7 +599,7 @@ impl<T> RowVec<T> {
     }
 
     /// Returns the length of the row
-    pub fn len(&self) -> uint {
+    pub fn len(&self) -> usize {
         self.0.len()
     }
 }
@@ -648,7 +648,7 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 pub enum Error {
     /// Invalid slice range, usually: `start > end`
     InvalidSlice,
-    /// Attempted to allocate a matrix bigger that `uint::MAX`
+    /// Attempted to allocate a matrix bigger that `usize::MAX`
     LengthOverflow,
     /// Attempted to index a non-existent column, i.e. `col >= ncols`
     NoSuchColumn,
@@ -685,12 +685,12 @@ trait ToBlasint {
     fn to_blasint(self) -> blas::blasint;
 }
 
-impl ToBlasint for uint {
+impl ToBlasint for usize {
     fn to_blasint(self) -> blas::blasint {
         let max: blas::blasint = ::std::num::Int::max_value();
 
-        if self > max as uint {
-            panic!("Cast overflow (`uint` -> `blasint`)");
+        if self > max as usize {
+            panic!("Cast overflow (`usize` -> `blasint`)");
         } else {
             self as blas::blasint
         }

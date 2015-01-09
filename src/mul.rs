@@ -14,12 +14,12 @@ fn mc<T>(
     trans: Transpose,
     lhs: ::raw::View<T>,
     rhs: ::raw::strided::Slice<T>,
-    len: uint,
+    len: usize,
 ) -> Box<[T]> where
     T: Gemv + One + Zero,
 {
     if len == 0 {
-        box []
+        Box::new([])
     } else {
         let mut data = Vec::with_capacity(len);
 
@@ -224,12 +224,12 @@ fn mm<T>(
     lhs: ::raw::View<T>,
     transb: Transpose,
     rhs: ::raw::View<T>,
-    size: (uint, uint),
+    size: (usize, usize),
 ) -> Mat<T> where
     T: Gemm + One + Zero,
 {
     let data: Box<[_]> = if size.0 == 0 || size.1 == 0 {
-        box []
+        Box::new([])
     } else {
         let len = size.0.checked_mul(size.1).unwrap();
 

@@ -1,13 +1,15 @@
-#![feature(globs, macro_rules, phase)]
+#![allow(unstable)]
+#![feature(plugin)]
 
 extern crate linalg;
 extern crate quickcheck;
-#[phase(plugin)]
+#[plugin]
 extern crate quickcheck_macros;
 
 use linalg::prelude::*;
 use quickcheck::TestResult;
 
+#[macro_use]
 mod setup;
 
 mod trans {
@@ -18,7 +20,7 @@ mod trans {
 
     // Test that `diag(_)` is correct for `Trans<Mat>`
     #[quickcheck]
-    fn mat((nrows, ncols): (uint, uint), (diag, idx): (int, uint)) -> TestResult {
+    fn mat((nrows, ncols): (usize, usize), (diag, idx): (isize, usize)) -> TestResult {
         validate_diag_index!(diag, (nrows, ncols), idx);
 
         test!({
@@ -27,9 +29,9 @@ mod trans {
             let &e = try!(d.at(idx));
 
             e == if diag > 0 {
-                (idx + diag as uint, idx)
+                (idx + diag as usize, idx)
             } else {
-                (idx, idx - diag as uint)
+                (idx, idx - diag as usize)
             }
         })
     }
@@ -37,9 +39,9 @@ mod trans {
     // Test that `diag(_)` is correct for `Trans<View>`
     #[quickcheck]
     fn view(
-        start: (uint, uint),
-        (nrows, ncols): (uint, uint),
-        (diag, idx): (int, uint),
+        start: (usize, usize),
+        (nrows, ncols): (usize, usize),
+        (diag, idx): (isize, usize),
     ) -> TestResult {
         validate_diag_index!(diag, (nrows, ncols), idx);
 
@@ -53,9 +55,9 @@ mod trans {
             let diag = -diag;
 
             e == if diag > 0 {
-                (start_row + idx, start_col + idx + diag as uint)
+                (start_row + idx, start_col + idx + diag as usize)
             } else {
-                (start_row + idx - diag as uint, start_col + idx)
+                (start_row + idx - diag as usize, start_col + idx)
             }
         })
     }
@@ -63,9 +65,9 @@ mod trans {
     // Test that `diag(_)` is correct for `Trans<MutView>`
     #[quickcheck]
     fn view_mut(
-        start: (uint, uint),
-        (nrows, ncols): (uint, uint),
-        (diag, idx): (int, uint),
+        start: (usize, usize),
+        (nrows, ncols): (usize, usize),
+        (diag, idx): (isize, usize),
     ) -> TestResult {
         validate_diag_index!(diag, (nrows, ncols), idx);
 
@@ -79,9 +81,9 @@ mod trans {
             let diag = -diag;
 
             e == if diag > 0 {
-                (start_row + idx, start_col + idx + diag as uint)
+                (start_row + idx, start_col + idx + diag as usize)
             } else {
-                (start_row + idx - diag as uint, start_col + idx)
+                (start_row + idx - diag as usize, start_col + idx)
             }
         })
     }
@@ -89,7 +91,7 @@ mod trans {
 
 // Test that `diag(_)` is correct for `Mat`
 #[quickcheck]
-fn mat(size: (uint, uint), (diag, idx): (int, uint)) -> TestResult {
+fn mat(size: (usize, usize), (diag, idx): (isize, usize)) -> TestResult {
     validate_diag_index!(diag, size, idx);
 
     test!({
@@ -98,9 +100,9 @@ fn mat(size: (uint, uint), (diag, idx): (int, uint)) -> TestResult {
         let &e = try!(d.at(idx));
 
         e == if diag > 0 {
-            (idx, idx + diag as uint)
+            (idx, idx + diag as usize)
         } else {
-            (idx - diag as uint, idx)
+            (idx - diag as usize, idx)
         }
     })
 }
@@ -108,9 +110,9 @@ fn mat(size: (uint, uint), (diag, idx): (int, uint)) -> TestResult {
 // Test that `diag(_)` is correct for `View`
 #[quickcheck]
 fn view(
-    start: (uint, uint),
-    (nrows, ncols): (uint, uint),
-    (diag, idx): (int, uint),
+    start: (usize, usize),
+    (nrows, ncols): (usize, usize),
+    (diag, idx): (isize, usize),
 ) -> TestResult {
     validate_diag_index!(diag, (nrows, ncols), idx);
 
@@ -123,9 +125,9 @@ fn view(
         let (start_row, start_col) = start;
 
         e == if diag > 0 {
-            (start_row + idx, start_col + idx + diag as uint)
+            (start_row + idx, start_col + idx + diag as usize)
         } else {
-            (start_row + idx - diag as uint, start_col + idx)
+            (start_row + idx - diag as usize, start_col + idx)
         }
     })
 }
@@ -133,9 +135,9 @@ fn view(
 // Test that `diag(_)` is correct for `MutView`
 #[quickcheck]
 fn view_mut(
-    start: (uint, uint),
-    (nrows, ncols): (uint, uint),
-    (diag, idx): (int, uint),
+    start: (usize, usize),
+    (nrows, ncols): (usize, usize),
+    (diag, idx): (isize, usize),
 ) -> TestResult {
     validate_diag_index!(diag, (nrows, ncols), idx);
 
@@ -148,9 +150,9 @@ fn view_mut(
         let (start_row, start_col) = start;
 
         e == if diag > 0 {
-            (start_row + idx, start_col + idx + diag as uint)
+            (start_row + idx, start_col + idx + diag as usize)
         } else {
-            (start_row + idx - diag as uint, start_col + idx)
+            (start_row + idx - diag as usize, start_col + idx)
         }
     })
 }

@@ -1,12 +1,14 @@
-#![feature(globs, macro_rules, phase)]
+#![allow(unstable)]
+#![feature(plugin)]
 
 extern crate linalg;
 extern crate quickcheck;
-#[phase(plugin)]
+#[plugin]
 extern crate quickcheck_macros;
 
 use linalg::prelude::*;
 
+#[macro_use]
 mod setup;
 
 mod col {
@@ -18,7 +20,7 @@ mod col {
 
         // Test that `size_hint()` is correct for `Col::iter()` output
         #[quickcheck]
-        fn items((nrows, ncols): (uint, uint), col: uint, skip: uint) -> TestResult {
+        fn items((nrows, ncols): (usize, usize), col: usize, skip: usize) -> TestResult {
             enforce! {
                 col < ncols,
             }
@@ -40,7 +42,7 @@ mod col {
 
         // Test that `size_hint()` is correct for `MutCol::iter_mut()` output
         #[quickcheck]
-        fn items_mut((nrows, ncols): (uint, uint), col: uint, skip: uint) -> TestResult {
+        fn items_mut((nrows, ncols): (usize, usize), col: usize, skip: usize) -> TestResult {
             enforce! {
                 col < ncols,
             }
@@ -69,7 +71,7 @@ mod col {
 
         // Test that `size_hint()` is correct for `strided::Col::iter()` output
         #[quickcheck]
-        fn items((nrows, ncols): (uint, uint), col: uint, skip: uint) -> TestResult {
+        fn items((nrows, ncols): (usize, usize), col: usize, skip: usize) -> TestResult {
             enforce! {
                 col < ncols,
             }
@@ -91,7 +93,7 @@ mod col {
 
         // Test that `size_hint()` is correct for `strided::MutCol::iter_mut()` output
         #[quickcheck]
-        fn items_mut((nrows, ncols): (uint, uint), col: uint, skip: uint) -> TestResult {
+        fn items_mut((nrows, ncols): (usize, usize), col: usize, skip: usize) -> TestResult {
             enforce! {
                 col < ncols,
             }
@@ -121,7 +123,7 @@ mod diag {
 
     // Test that `size_hint()` is correct for `Diag:iter()` output
     #[quickcheck]
-    fn items(size: (uint, uint), diag: int, skip: uint) -> TestResult {
+    fn items(size: (usize, usize), diag: isize, skip: usize) -> TestResult {
         validate_diag!(diag, size);
 
         test!({
@@ -141,7 +143,7 @@ mod diag {
 
     // Test that `size_hint()` is correct for `MutDiag::iter_mut()` output
     #[quickcheck]
-    fn items_mut(size: (uint, uint), diag: int, skip: uint) -> TestResult {
+    fn items_mut(size: (usize, usize), diag: isize, skip: usize) -> TestResult {
         validate_diag!(diag, size);
 
         test!({
@@ -169,7 +171,7 @@ mod row {
 
         // Test that `size_hint()` is correct for `Row::iter()` output
         #[quickcheck]
-        fn items((nrows, ncols): (uint, uint), row: uint, skip: uint) -> TestResult {
+        fn items((nrows, ncols): (usize, usize), row: usize, skip: usize) -> TestResult {
             enforce! {
                 row < nrows,
             }
@@ -191,7 +193,7 @@ mod row {
 
         // Test that `size_hint()` is correct for `MutRow::iter_mut()` output
         #[quickcheck]
-        fn items_mut((nrows, ncols): (uint, uint), row: uint, skip: uint) -> TestResult {
+        fn items_mut((nrows, ncols): (usize, usize), row: usize, skip: usize) -> TestResult {
             enforce! {
                 row < nrows,
             }
@@ -220,7 +222,7 @@ mod row {
 
         // Test that `size_hint()` is correct for `strided::Row::iter()` output
         #[quickcheck]
-        fn items((nrows, ncols): (uint, uint), row: uint, skip: uint) -> TestResult {
+        fn items((nrows, ncols): (usize, usize), row: usize, skip: usize) -> TestResult {
             enforce! {
                 row < nrows,
             }
@@ -242,7 +244,7 @@ mod row {
 
         // Test that `size_hint()` is correct for `strided::MutRow::iter_mut()` output
         #[quickcheck]
-        fn items_mut((nrows, ncols): (uint, uint), row: uint, skip: uint) -> TestResult {
+        fn items_mut((nrows, ncols): (usize, usize), row: usize, skip: usize) -> TestResult {
             enforce! {
                 row < nrows,
             }
@@ -271,7 +273,7 @@ mod mat {
 
     // Test that `size_hint()` is correct for `Mat::iter()` output
     #[quickcheck]
-    fn items((nrows, ncols): (uint, uint), skip: uint) -> bool {
+    fn items((nrows, ncols): (usize, usize), skip: usize) -> bool {
         let m = setup::mat((nrows, ncols));
         let n = nrows * ncols;
 
@@ -286,7 +288,7 @@ mod mat {
 
     // Test that `size_hint()` is correct for `Mat::iter_mut()` output
     #[quickcheck]
-    fn items_mut((nrows, ncols): (uint, uint), skip: uint) -> bool {
+    fn items_mut((nrows, ncols): (usize, usize), skip: usize) -> bool {
         let mut m = setup::mat((nrows, ncols));
         let n = nrows * ncols;
 
@@ -309,9 +311,9 @@ mod view {
     // Test that `size_hint()` is correct for `Items`
     #[quickcheck]
     fn items(
-        start: (uint, uint),
-        (nrows, ncols): (uint, uint),
-        skip: uint,
+        start: (usize, usize),
+        (nrows, ncols): (usize, usize),
+        skip: usize,
     ) -> TestResult {
         let size = (start.0 + nrows, start.1 + ncols);
         test!({
@@ -332,9 +334,9 @@ mod view {
     // Test that `size_hint()` is correct for `MutItems`
     #[quickcheck]
     fn items_mut(
-        start: (uint, uint),
-        (nrows, ncols): (uint, uint),
-        skip: uint,
+        start: (usize, usize),
+        (nrows, ncols): (usize, usize),
+        skip: usize,
     ) -> TestResult {
         let size = (start.0 + nrows, start.1 + ncols);
         test!({
@@ -355,7 +357,7 @@ mod view {
 
 // Test that `size_hint()` is correct for `Cols`
 #[quickcheck]
-fn cols(size: (uint, uint), skip: uint) -> bool {
+fn cols(size: (usize, usize), skip: usize) -> bool {
     let m = setup::mat(size);
     let n = m.ncols();
 
@@ -370,7 +372,7 @@ fn cols(size: (uint, uint), skip: uint) -> bool {
 
 // Test that `size_hint()` is correct for `MutCols`
 #[quickcheck]
-fn mut_cols(size: (uint, uint), skip: uint) -> bool {
+fn mut_cols(size: (usize, usize), skip: usize) -> bool {
     let mut m = setup::mat(size);
     let n = m.ncols();
 
@@ -385,7 +387,7 @@ fn mut_cols(size: (uint, uint), skip: uint) -> bool {
 
 // Test that `size_hint()` is correct for `MutRows`
 #[quickcheck]
-fn mut_rows((nrows, ncols): (uint, uint), skip: uint) -> bool {
+fn mut_rows((nrows, ncols): (usize, usize), skip: usize) -> bool {
     let mut m = setup::mat((nrows, ncols));
     let n = m.nrows();
 
@@ -400,7 +402,7 @@ fn mut_rows((nrows, ncols): (uint, uint), skip: uint) -> bool {
 
 // Test that `size_hint()` is correct for `Rows`
 #[quickcheck]
-fn rows((nrows, ncols): (uint, uint), skip: uint) -> bool {
+fn rows((nrows, ncols): (usize, usize), skip: usize) -> bool {
     let m = setup::mat((nrows, ncols));
     let n = m.nrows();
     let left = n - skip;

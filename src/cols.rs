@@ -16,7 +16,7 @@ impl<'a, T, M> Iterator for Cols<'a, M> where M: MatrixCol<Elem=T> {
         self.0.next()
     }
 
-    fn size_hint(&self) -> (uint, Option<uint>) {
+    fn size_hint(&self) -> (usize, Option<usize>) {
         self.0.size_hint()
     }
 }
@@ -34,7 +34,7 @@ impl<'a, T, M> Iterator for MutCols<'a, M> where M: MatrixColMut<Elem=T> {
         unsafe { mem::transmute(self.0.next()) }
     }
 
-    fn size_hint(&self) -> (uint, Option<uint>) {
+    fn size_hint(&self) -> (usize, Option<usize>) {
         self.0.size_hint()
     }
 }

@@ -4,11 +4,11 @@ use {Col, MutCol, MutRow, Row};
 impl<'a, T> Matrix for MutCol<'a, T> {
     type Elem = T;
 
-    fn ncols(&self) -> uint {
+    fn ncols(&self) -> usize {
         1
     }
 
-    fn nrows(&self) -> uint {
+    fn nrows(&self) -> usize {
         self.len()
     }
 }
@@ -24,11 +24,11 @@ impl<'a, T> Transpose for MutCol<'a, T> {
 impl<'a, T> Matrix for Col<'a, T> {
     type Elem = T;
 
-    fn ncols(&self) -> uint {
+    fn ncols(&self) -> usize {
         1
     }
 
-    fn nrows(&self) -> uint {
+    fn nrows(&self) -> usize {
         self.len()
     }
 }

@@ -59,17 +59,17 @@ pub trait Matrix: Sized {
     type Elem;
 
     /// Returns the number of columns the matrix has
-    fn ncols(&self) -> uint {
+    fn ncols(&self) -> usize {
         self.size().1
     }
 
     /// Returns the number of rows the matrix has
-    fn nrows(&self) -> uint {
+    fn nrows(&self) -> usize {
         self.size().0
     }
 
     /// Returns the size of the matrix
-    fn size(&self) -> (uint, uint) {
+    fn size(&self) -> (usize, usize) {
         (self.nrows(), self.ncols())
     }
 }
@@ -81,7 +81,7 @@ pub trait MatrixCol: Matrix {
     /// # Errors
     ///
     /// - `NoSuchColumn` if the index is out of bounds
-    fn col(&self, col: uint) -> Result<Col<Self::Elem>> {
+    fn col(&self, col: usize) -> Result<Col<Self::Elem>> {
         if col < self.ncols() {
             Ok(unsafe { self.unsafe_col(col) })
         } else {
@@ -90,7 +90,7 @@ pub trait MatrixCol: Matrix {
     }
 
     /// Returns a view into the column at the given index without performing bounds checking
-    unsafe fn unsafe_col(&self, col: uint) -> Col<Self::Elem>;
+    unsafe fn unsafe_col(&self, col: usize) -> Col<Self::Elem>;
 }
 
 /// Mutable access to a column
@@ -100,7 +100,7 @@ pub trait MatrixColMut: MatrixCol {
     /// # Errors
     ///
     /// - `NoSuchColumn` if the index is out of bounds
-    fn col_mut(&mut self, col: uint) -> Result<MutCol<Self::Elem>> {
+    fn col_mut(&mut self, col: usize) -> Result<MutCol<Self::Elem>> {
         if col < self.ncols() {
             Ok(unsafe { self.unsafe_col_mut(col) })
         } else {
@@ -110,7 +110,7 @@ pub trait MatrixColMut: MatrixCol {
 
     /// Returns a mutable view into the column at the given index without performing bounds
     /// checking
-    unsafe fn unsafe_col_mut(&mut self, col: uint) -> MutCol<Self::Elem>;
+    unsafe fn unsafe_col_mut(&mut self, col: usize) -> MutCol<Self::Elem>;
 }
 
 /// Immutable column-by-column iteration
@@ -128,7 +128,7 @@ pub trait MatrixDiag: Matrix {
     /// # Errors
     ///
     /// - `NoSuchDiagonal` if the index is out of bounds
-    fn diag(&self, diag: int) -> Result<Diag<Self::Elem>>;
+    fn diag(&self, diag: isize) -> Result<Diag<Self::Elem>>;
 }
 
 /// Mutable access to a diagonal
@@ -138,7 +138,7 @@ pub trait MatrixDiagMut: Matrix {
     /// # Errors
     ///
     /// - `NoSuchDiagonal` if the index is out of bounds
-    fn diag_mut(&mut self, diag: int) -> ::Result<MutDiag<Self::Elem>>;
+    fn diag_mut(&mut self, diag: isize) -> ::Result<MutDiag<Self::Elem>>;
 }
 
 /// Mutable column-by-column iteration
@@ -164,7 +164,7 @@ pub trait MatrixRow: Matrix {
     /// # Errors
     ///
     /// - `NoSuchRow` if the index is out of bounds
-    fn row(&self, row: uint) -> Result<Row<Self::Elem>> {
+    fn row(&self, row: usize) -> Result<Row<Self::Elem>> {
         if row < self.nrows() {
             Ok(unsafe { self.unsafe_row(row) })
         } else {
@@ -174,7 +174,7 @@ pub trait MatrixRow: Matrix {
 
     /// Returns an immutable view into the row at the given index without performing bounds
     /// checking
-    unsafe fn unsafe_row(&self, row: uint) -> Row<Self::Elem>;
+    unsafe fn unsafe_row(&self, row: usize) -> Row<Self::Elem>;
 }
 
 /// Immutable row-by-row iteration
@@ -192,7 +192,7 @@ pub trait MatrixRowMut: MatrixRow {
     /// # Errors
     ///
     /// - `NoSuchRow` if the index is out of bounds
-    fn row_mut(&mut self, row: uint) -> Result<MutRow<Self::Elem>> {
+    fn row_mut(&mut self, row: usize) -> Result<MutRow<Self::Elem>> {
         if row < self.nrows() {
             Ok(unsafe { self.unsafe_row_mut(row) })
         } else {
@@ -201,7 +201,7 @@ pub trait MatrixRowMut: MatrixRow {
     }
 
     /// Returns a mutable view into the row at the given index without performing bounds checking
-    unsafe fn unsafe_row_mut(&mut self, row: uint) -> MutRow<Self::Elem>;
+    unsafe fn unsafe_row_mut(&mut self, row: usize) -> MutRow<Self::Elem>;
 }
 
 /// The `*=` operator

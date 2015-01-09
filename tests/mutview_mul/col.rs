@@ -9,9 +9,9 @@ macro_rules! blas {
         // Test that `mul(&ColVec)` is correct for `MutView`
         #[quickcheck]
         fn owned(
-            start: (uint, uint),
-            (m, k): (uint, uint),
-            idx: uint,
+            start: (usize, usize),
+            (m, k): (usize, usize),
+            idx: usize,
         ) -> TestResult {
             enforce! {
                 idx < m,
@@ -37,10 +37,10 @@ macro_rules! blas {
         // Test that `mul(Col)` is correct for `MutView`
         #[quickcheck]
         fn slice(
-            start: (uint, uint),
-            (m, k, n): (uint, uint, uint),
-            col: uint,
-            idx: uint,
+            start: (usize, usize),
+            (m, k, n): (usize, usize, usize),
+            col: usize,
+            idx: usize,
         ) -> TestResult {
             enforce! {
                 col < n,
@@ -68,10 +68,10 @@ macro_rules! blas {
         // Test that `mul(&MutCol)` is correct for `MutView`
         #[quickcheck]
         fn slice_mut(
-            start: (uint, uint),
-            (m, k, n): (uint, uint, uint),
-            col: uint,
-            idx: uint,
+            start: (usize, usize),
+            (m, k, n): (usize, usize, usize),
+            col: usize,
+            idx: usize,
         ) -> TestResult {
             enforce! {
                 col < n,
@@ -99,10 +99,10 @@ macro_rules! blas {
         // Test that `mul(strided::Col)` is correct for `MutView`
         #[quickcheck]
         fn strided(
-            start: (uint, uint),
-            (m, k, n): (uint, uint, uint),
-            col: uint,
-            idx: uint,
+            start: (usize, usize),
+            (m, k, n): (usize, usize, usize),
+            col: usize,
+            idx: usize,
         ) -> TestResult {
             enforce! {
                 col < n,
@@ -130,10 +130,10 @@ macro_rules! blas {
         // Test that `mul(&strided::MutCol)` is correct for `MutView`
         #[quickcheck]
         fn strided_mut(
-            start: (uint, uint),
-            (m, k, n): (uint, uint, uint),
-            col: uint,
-            idx: uint,
+            start: (usize, usize),
+            (m, k, n): (usize, usize, usize),
+            col: usize,
+            idx: usize,
         ) -> TestResult {
             enforce! {
                 col < n,

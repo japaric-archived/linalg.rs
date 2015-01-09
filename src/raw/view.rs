@@ -1,5 +1,5 @@
 use std::iter::order;
-use std::kinds::marker;
+use std::marker;
 use std::{cmp, mem};
 
 use {Col, Diag, Error, Result, Row};
@@ -9,34 +9,34 @@ pub struct View<'a, T: 'a> {
     _contravariant: marker::ContravariantLifetime<'a>,
     _nosend: marker::NoSend,
     pub data: *mut T,
-    pub ld: uint,  // Leading dimension
-    pub ncols: uint,
-    pub nrows: uint,
+    pub ld: usize,  // Leading dimension
+    pub ncols: usize,
+    pub nrows: usize,
 }
 
 impl<'a, T> View<'a, T> {
-    pub fn at(&self, (row, col): (uint, uint)) -> ::std::result::Result<&T, OutOfBounds> {
+    pub fn at(&self, (row, col): (usize, usize)) -> ::std::result::Result<&T, OutOfBounds> {
         let (nrows, ncols) = (self.nrows, self.ncols);
 
         if row < nrows && col < ncols {
             Ok(unsafe {
-                mem::transmute(self.data.offset((col * self.ld + row) as int))
+                mem::transmute(self.data.offset((col * self.ld + row) as isize))
             })
         } else {
             Err(OutOfBounds)
         }
     }
 
-    pub fn diag(&self, diag: int) -> Result<Diag<T>> {
+    pub fn diag(&self, diag: isize) -> Result<Diag<T>> {
         let (nrows, ncols) = (self.nrows, self.ncols);
         let stride = self.ld;
 
         if diag > 0 {
-            let diag = diag as uint;
+            let diag = diag as usize;
 
             if diag < ncols {
                 Ok(Diag(unsafe { ::From::parts((
-                    self.data.offset((diag * stride) as int) as *const _,
+                    self.data.offset((diag * stride) as isize) as *const _,
                     cmp::min(nrows, ncols - diag),
                     stride + 1,
                 )) }))
@@ -44,11 +44,11 @@ impl<'a, T> View<'a, T> {
                 Err(Error::NoSuchDiagonal)
             }
         } else {
-            let diag = -diag as uint;
+            let diag = -diag as usize;
 
             if diag < nrows {
                 Ok(Diag(unsafe { ::From::parts((
-                    self.data.offset(diag as int) as *const _,
+                    self.data.offset(diag as isize) as *const _,
                     cmp::min(nrows - diag, ncols),
                     stride + 1,
                 )) }))
@@ -71,19 +71,19 @@ impl<'a, T> View<'a, T> {
         }
     }
 
-    pub fn ncols(&self) -> uint {
+    pub fn ncols(&self) -> usize {
         self.ncols
     }
 
-    pub fn nrows(&self) -> uint {
+    pub fn nrows(&self) -> usize {
         self.nrows
     }
 
-    pub fn size(&self) -> (uint, uint) {
+    pub fn size(&self) -> (usize, usize) {
         (self.nrows, self.ncols)
     }
 
-    pub fn slice(&self, start: (uint, uint), end: (uint, uint)) -> Result<View<T>> {
+    pub fn slice(&self, start: (usize, usize), end: (usize, usize)) -> Result<View<T>> {
         let (end_row, end_col) = end;
         let (nrows, ncols) = (self.nrows, self.ncols);
         let (start_row, start_col) = start;
@@ -94,7 +94,7 @@ impl<'a, T> View<'a, T> {
             Err(Error::InvalidSlice)
         } else {
             Ok(unsafe { ::From::parts((
-                self.data.offset((start_col * self.ld + start_row) as int) as *const _,
+                self.data.offset((start_col * self.ld + start_row) as isize) as *const _,
                 end_row - start_row,
                 end_col - start_col,
                 self.ld,
@@ -102,17 +102,17 @@ impl<'a, T> View<'a, T> {
         }
     }
 
-    pub unsafe fn unsafe_col(&self, col: uint) -> Col<T> {
+    pub unsafe fn unsafe_col(&self, col: usize) -> Col<T> {
         Col(::From::parts((
-            self.data.offset((col * self.ld) as int) as *const T,
+            self.data.offset((col * self.ld) as isize) as *const T,
             self.nrows(),
             1,
         )))
     }
 
-    pub unsafe fn unsafe_row(&self, row: uint) -> Row<T> {
+    pub unsafe fn unsafe_row(&self, row: usize) -> Row<T> {
         Row(::From::parts((
-            self.data.offset(row as int) as *const _,
+            self.data.offset(row as isize) as *const _,
             self.ncols(),
             self.ld,
         )))
@@ -121,8 +121,8 @@ impl<'a, T> View<'a, T> {
 
 impl<'a, T> Copy for View<'a, T> {}
 
-impl<'a, T> ::From<(*const T, uint, uint, uint)> for View<'a, T> {
-    unsafe fn parts((data, nrows, ncols, ld): (*const T, uint, uint, uint)) -> View<'a, T> {
+impl<'a, T> ::From<(*const T, usize, usize, usize)> for View<'a, T> {
+    unsafe fn parts((data, nrows, ncols, ld): (*const T, usize, usize, usize)) -> View<'a, T> {
         View {
             _contravariant: marker::ContravariantLifetime,
             _nosend: marker::NoSend,
@@ -143,12 +143,12 @@ impl<'a, 'b, T, U> PartialEq<View<'a, T>> for View<'b, U> where U: PartialEq<T> 
 pub struct Items<'a, T: 'a> {
     _contravariant: marker::ContravariantLifetime<'a>,
     _nosend: marker::NoSend,
-    col: uint,
+    col: usize,
     data: *const T,
-    ld: uint,
-    ncols: uint,
-    nrows: uint,
-    row: uint,
+    ld: usize,
+    ncols: usize,
+    nrows: usize,
+    row: usize,
 }
 
 impl<'a, T> Copy for Items<'a, T> {}
@@ -170,12 +170,12 @@ impl<'a, T> Iterator for Items<'a, T> {
             }
 
             Some(unsafe {
-                mem::transmute(self.data.offset((col * self.ld + row) as int))
+                mem::transmute(self.data.offset((col * self.ld + row) as isize))
             })
         }
     }
 
-    fn size_hint(&self) -> (uint, Option<uint>) {
+    fn size_hint(&self) -> (usize, Option<usize>) {
         let total = self.nrows * self.ncols;
         let done = self.row * self.ncols + self.col;
         let left = total - done;

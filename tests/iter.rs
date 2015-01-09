@@ -1,14 +1,16 @@
-#![feature(globs, macro_rules, phase)]
+#![allow(unstable)]
+#![feature(plugin)]
 
 extern crate linalg;
 extern crate quickcheck;
-#[phase(plugin)]
+#[plugin]
 extern crate quickcheck_macros;
 
 use linalg::prelude::*;
 use quickcheck::TestResult;
 use std::collections::BTreeSet;
 
+#[macro_use]
 mod setup;
 
 mod col {
@@ -19,13 +21,13 @@ mod col {
 
     // Test that `iter()` is correct for `ColVec`
     #[quickcheck]
-    fn owned(size: uint) -> bool {
+    fn owned(size: usize) -> bool {
         setup::col(size).iter().enumerate().all(|(i, &e)| e == i)
     }
 
     // Test that `iter()` is correct for `Col`
     #[quickcheck]
-    fn slice((nrows, ncols): (uint, uint), col: uint) -> TestResult {
+    fn slice((nrows, ncols): (usize, usize), col: usize) -> TestResult {
         enforce! {
             col < ncols,
         }
@@ -40,7 +42,7 @@ mod col {
 
     // Test that `iter()` is correct for `MutCol`
     #[quickcheck]
-    fn slice_mut((nrows, ncols): (uint, uint), col: uint) -> TestResult {
+    fn slice_mut((nrows, ncols): (usize, usize), col: usize) -> TestResult {
         enforce! {
             col < ncols,
         }
@@ -55,7 +57,7 @@ mod col {
 
     // Test that `iter()` is correct for `strided::Col`
     #[quickcheck]
-    fn strided((nrows, ncols): (uint, uint), col: uint) -> TestResult {
+    fn strided((nrows, ncols): (usize, usize), col: usize) -> TestResult {
         enforce! {
             col < ncols,
         }
@@ -70,7 +72,7 @@ mod col {
 
     // Test that `iter()` is correct for `strided::MutCol`
     #[quickcheck]
-    fn strided_mut((nrows, ncols): (uint, uint), col: uint) -> TestResult {
+    fn strided_mut((nrows, ncols): (usize, usize), col: usize) -> TestResult {
         enforce! {
             col < ncols,
         }
@@ -92,7 +94,7 @@ mod diag {
 
     // Test that `iter()` is correct for `Diag`
     #[quickcheck]
-    fn strided(size: (uint, uint), diag: int) -> TestResult {
+    fn strided(size: (usize, usize), diag: isize) -> TestResult {
         validate_diag!(diag, size);
 
         test!({
@@ -100,16 +102,16 @@ mod diag {
             let d = try!(m.diag(diag));
 
             if diag > 0 {
-                d.iter().enumerate().all(|(i, &e)| e == (i, i + diag as uint))
+                d.iter().enumerate().all(|(i, &e)| e == (i, i + diag as usize))
             } else {
-                d.iter().enumerate().all(|(i, &e)| e == (i - diag as uint, i))
+                d.iter().enumerate().all(|(i, &e)| e == (i - diag as usize, i))
             }
         })
     }
 
     // Test that `iter()` is correct for `MutDiag`
     #[quickcheck]
-    fn strided_mut(size: (uint, uint), diag: int) -> TestResult {
+    fn strided_mut(size: (usize, usize), diag: isize) -> TestResult {
         validate_diag!(diag, size);
 
         test!({
@@ -117,9 +119,9 @@ mod diag {
             let d = try!(m.diag_mut(diag));
 
             if diag > 0 {
-                d.iter().enumerate().all(|(i, &e)| e == (i, i + diag as uint))
+                d.iter().enumerate().all(|(i, &e)| e == (i, i + diag as usize))
             } else {
-                d.iter().enumerate().all(|(i, &e)| e == (i - diag as uint, i))
+                d.iter().enumerate().all(|(i, &e)| e == (i - diag as usize, i))
             }
         })
     }
@@ -133,13 +135,13 @@ mod row {
 
     // Test that `iter()` is correct for `RowVec`
     #[quickcheck]
-    fn owned(size: uint) -> bool {
+    fn owned(size: usize) -> bool {
         setup::row(size).iter().enumerate().all(|(i, &e)| e == i)
     }
 
     // Test that `iter()` is correct for `Row`
     #[quickcheck]
-    fn slice((nrows, ncols): (uint, uint), row: uint) -> TestResult {
+    fn slice((nrows, ncols): (usize, usize), row: usize) -> TestResult {
         enforce! {
             row < nrows,
         }
@@ -154,7 +156,7 @@ mod row {
 
     // Test that `iter()` is correct for `MutRow`
     #[quickcheck]
-    fn slice_mut((nrows, ncols): (uint, uint), row: uint) -> TestResult {
+    fn slice_mut((nrows, ncols): (usize, usize), row: usize) -> TestResult {
         enforce! {
             row < nrows,
         }
@@ -169,7 +171,7 @@ mod row {
 
     // Test that `iter()` is correct for `strided::Row`
     #[quickcheck]
-    fn strided((nrows, ncols): (uint, uint), row: uint) -> TestResult {
+    fn strided((nrows, ncols): (usize, usize), row: usize) -> TestResult {
         enforce! {
             row < nrows,
         }
@@ -184,7 +186,7 @@ mod row {
 
     // Test that `iter()` is correct for `strided::MutRow`
     #[quickcheck]
-    fn strided_mut((nrows, ncols): (uint, uint), row: uint) -> TestResult {
+    fn strided_mut((nrows, ncols): (usize, usize), row: usize) -> TestResult {
         enforce! {
             row < nrows,
         }
@@ -207,7 +209,7 @@ mod trans {
 
     // Test that `iter()` is correct for `Trans<Mat>`
     #[quickcheck]
-    fn mat((nrows, ncols): (uint, uint)) -> bool {
+    fn mat((nrows, ncols): (usize, usize)) -> bool {
         let mut elems = BTreeSet::new();
         for r in range(0, nrows) {
             for c in range(0, ncols) {
@@ -220,7 +222,7 @@ mod trans {
 
     // Test that `iter()` is correct for `Trans<View>`
     #[quickcheck]
-    fn view(start: (uint, uint), (nrows, ncols): (uint, uint)) -> TestResult {
+    fn view(start: (usize, usize), (nrows, ncols): (usize, usize)) -> TestResult {
         let size = (start.0 + ncols, start.1 + nrows);
 
         test!({
@@ -241,7 +243,7 @@ mod trans {
 
     // Test that `iter()` is correct for `Trans<MutView>`
     #[quickcheck]
-    fn view_mut(start: (uint, uint), (nrows, ncols): (uint, uint)) -> TestResult {
+    fn view_mut(start: (usize, usize), (nrows, ncols): (usize, usize)) -> TestResult {
         let size = (start.0 + ncols, start.1 + nrows);
 
         test!({
@@ -263,7 +265,7 @@ mod trans {
 
 // Test that `iter()` is correct for `Mat`
 #[quickcheck]
-fn mat((nrows, ncols): (uint, uint)) -> bool {
+fn mat((nrows, ncols): (usize, usize)) -> bool {
     let mut elems = BTreeSet::new();
     for r in range(0, nrows) {
         for c in range(0, ncols) {
@@ -276,7 +278,7 @@ fn mat((nrows, ncols): (uint, uint)) -> bool {
 
 // Test that `iter()` is correct for `View`
 #[quickcheck]
-fn view(start: (uint, uint), (nrows, ncols): (uint, uint)) -> TestResult {
+fn view(start: (usize, usize), (nrows, ncols): (usize, usize)) -> TestResult {
     let size = (start.0 + nrows, start.1 + ncols);
 
     test!({
@@ -297,7 +299,7 @@ fn view(start: (uint, uint), (nrows, ncols): (uint, uint)) -> TestResult {
 
 // Test that `iter()` is correct for `MutView`
 #[quickcheck]
-fn view_mut(start: (uint, uint), (nrows, ncols): (uint, uint)) -> TestResult {
+fn view_mut(start: (usize, usize), (nrows, ncols): (usize, usize)) -> TestResult {
     let size = (start.0 + nrows, start.1 + ncols);
 
     test!({

@@ -9,7 +9,7 @@ mod trans {
 
             // Test that `mul(&Trans<Mat>)` is correct for `RowVec`
             #[quickcheck]
-            fn mat((k, n): (uint, uint), idx: uint) -> TestResult {
+            fn mat((k, n): (usize, usize), idx: usize) -> TestResult {
                 enforce! {
                     k != 0,
                     idx < n,
@@ -33,9 +33,9 @@ mod trans {
             // Test that `mul(Trans<View>)` is correct for `RowVec`
             #[quickcheck]
             fn view(
-                start: (uint, uint),
-                (k, n): (uint, uint),
-                idx: uint,
+                start: (usize, usize),
+                (k, n): (usize, usize),
+                idx: usize,
             ) -> TestResult {
                 enforce! {
                     k != 0,
@@ -61,9 +61,9 @@ mod trans {
             // Test that `mul(&Trans<MutView>)` is correct for `RowVec`
             #[quickcheck]
             fn view_mut(
-                start: (uint, uint),
-                (k, n): (uint, uint),
-                idx: uint,
+                start: (usize, usize),
+                (k, n): (usize, usize),
+                idx: usize,
             ) -> TestResult {
                 enforce! {
                     k != 0,
@@ -101,7 +101,7 @@ macro_rules! blas {
 
         // Test that `mul(&Mat)` is correct for `RowVec`
         #[quickcheck]
-        fn mat((k, n): (uint, uint), idx: uint) -> TestResult {
+        fn mat((k, n): (usize, usize), idx: usize) -> TestResult {
             enforce! {
                 k != 0,
                 idx < n,
@@ -125,9 +125,9 @@ macro_rules! blas {
         // Test that `mul(View)` is correct for `RowVec`
         #[quickcheck]
         fn view(
-            start: (uint, uint),
-            (k, n): (uint, uint),
-            idx: uint,
+            start: (usize, usize),
+            (k, n): (usize, usize),
+            idx: usize,
         ) -> TestResult {
             enforce! {
                 k != 0,
@@ -153,9 +153,9 @@ macro_rules! blas {
         // Test that `mul(&MutView)` is correct for `RowVec`
         #[quickcheck]
         fn view_mut(
-            start: (uint, uint),
-            (k, n): (uint, uint),
-            idx: uint,
+            start: (usize, usize),
+            (k, n): (usize, usize),
+            idx: usize,
         ) -> TestResult {
             enforce! {
                 k != 0,

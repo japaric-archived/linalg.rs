@@ -1,11 +1,11 @@
-#![feature(globs, macro_rules)]
+#![allow(unstable)]
 
 extern crate linalg;
 
 use linalg::prelude::*;
 
 macro_rules! eq {
-    ($lhs:expr, $rhs:expr,) => { assert_eq!($lhs.to_string(), $rhs.to_string()) }
+    ($lhs:expr, $rhs:expr,) => { assert_eq!(format!("{:?}", $lhs), $rhs) }
 }
 
 mod col {
@@ -16,7 +16,7 @@ mod col {
     fn owned() {
         eq! {
             ColVec::from_fn(3, |i| i),
-            "Col([0, 1, 2])",
+            "Col([0u, 1u, 2u])",
         }
     }
 
@@ -25,7 +25,7 @@ mod col {
     fn slice() {
         eq! {
             Mat::from_fn((3, 3), |i| i).unwrap().col(0).unwrap(),
-            "Col([(0, 0), (1, 0), (2, 0)])",
+            "Col([(0u, 0u), (1u, 0u), (2u, 0u)])",
         }
     }
 
@@ -34,7 +34,7 @@ mod col {
     fn slice_mut() {
         eq! {
             Mat::from_fn((3, 3), |i| i).unwrap().col_mut(0).unwrap(),
-            "Col([(0, 0), (1, 0), (2, 0)])",
+            "Col([(0u, 0u), (1u, 0u), (2u, 0u)])",
         }
     }
 
@@ -43,7 +43,7 @@ mod col {
     fn strided() {
         eq! {
             Mat::from_fn((3, 3), |i| i).unwrap().t().col(0).unwrap(),
-            "Col([(0, 0), (0, 1), (0, 2)])",
+            "Col([(0u, 0u), (0u, 1u), (0u, 2u)])",
         }
     }
 
@@ -52,7 +52,7 @@ mod col {
     fn strided_mut() {
         eq! {
             Mat::from_fn((3, 3), |i| i).unwrap().t().col_mut(0).unwrap(),
-            "Col([(0, 0), (0, 1), (0, 2)])",
+            "Col([(0u, 0u), (0u, 1u), (0u, 2u)])",
         }
     }
 }
@@ -65,7 +65,7 @@ mod diag {
     fn strided() {
         eq! {
             Mat::from_fn((3, 3), |i| i).unwrap().diag(0).unwrap(),
-            "Diag([(0, 0), (1, 1), (2, 2)])",
+            "Diag([(0u, 0u), (1u, 1u), (2u, 2u)])",
         }
     }
 
@@ -74,7 +74,7 @@ mod diag {
     fn strided_mut() {
         eq! {
             Mat::from_fn((3, 3), |i| i).unwrap().diag_mut(0).unwrap(),
-            "Diag([(0, 0), (1, 1), (2, 2)])",
+            "Diag([(0u, 0u), (1u, 1u), (2u, 2u)])",
         }
     }
 }
@@ -87,7 +87,7 @@ mod row {
     fn owned() {
         eq! {
             RowVec::from_fn(3, |i| i),
-            "Row([0, 1, 2])",
+            "Row([0u, 1u, 2u])",
         }
     }
 
@@ -96,7 +96,7 @@ mod row {
     fn slice() {
         eq! {
             Mat::from_fn((3, 3), |i| i).unwrap().t().row(0).unwrap(),
-            "Row([(0, 0), (1, 0), (2, 0)])",
+            "Row([(0u, 0u), (1u, 0u), (2u, 0u)])",
         }
     }
 
@@ -105,7 +105,7 @@ mod row {
     fn slice_mut() {
         eq! {
             Mat::from_fn((3, 3), |i| i).unwrap().t().row_mut(0).unwrap(),
-            "Row([(0, 0), (1, 0), (2, 0)])",
+            "Row([(0u, 0u), (1u, 0u), (2u, 0u)])",
         }
     }
 
@@ -114,7 +114,7 @@ mod row {
     fn strided() {
         eq! {
             Mat::from_fn((3, 3), |i| i).unwrap().row(0).unwrap(),
-            "Row([(0, 0), (0, 1), (0, 2)])",
+            "Row([(0u, 0u), (0u, 1u), (0u, 2u)])",
         }
     }
 
@@ -123,7 +123,7 @@ mod row {
     fn strided_mut() {
         eq! {
             Mat::from_fn((3, 3), |i| i).unwrap().row_mut(0).unwrap(),
-            "Row([(0, 0), (0, 1), (0, 2)])",
+            "Row([(0u, 0u), (0u, 1u), (0u, 2u)])",
         }
     }
 }
@@ -136,7 +136,7 @@ mod trans {
     fn mat() {
         eq! {
             Mat::from_fn((2, 2), |i| i).unwrap().t(),
-            "[(0, 0), (1, 0)]\n[(0, 1), (1, 1)]",
+            "[(0u, 0u), (1u, 0u)]\n[(0u, 1u), (1u, 1u)]",
         }
     }
 
@@ -145,7 +145,7 @@ mod trans {
     fn view() {
         eq! {
             Mat::from_fn((4, 4), |i| i).unwrap().slice((1, 2), (3, 4)).unwrap().t(),
-            "[(1, 2), (2, 2)]\n[(1, 3), (2, 3)]",
+            "[(1u, 2u), (2u, 2u)]\n[(1u, 3u), (2u, 3u)]",
         }
     }
 
@@ -154,7 +154,7 @@ mod trans {
     fn view_mut() {
         eq! {
             Mat::from_fn((4, 4), |i| i).unwrap().slice_mut((1, 2), (3, 4)).unwrap().t(),
-            "[(1, 2), (2, 2)]\n[(1, 3), (2, 3)]",
+            "[(1u, 2u), (2u, 2u)]\n[(1u, 3u), (2u, 3u)]",
         }
     }
 }
@@ -164,7 +164,7 @@ mod trans {
 fn mat() {
     eq! {
         Mat::from_fn((2, 2), |i| i).unwrap(),
-        "[(0, 0), (0, 1)]\n[(1, 0), (1, 1)]",
+        "[(0u, 0u), (0u, 1u)]\n[(1u, 0u), (1u, 1u)]",
     }
 }
 
@@ -174,7 +174,7 @@ fn mat() {
 fn view() {
     eq! {
         Mat::from_fn((4, 4), |i| i).unwrap().slice((1, 2), (3, 4)).unwrap(),
-        "[(1, 2), (1, 3)]\n[(2, 2), (2, 3)]",
+        "[(1u, 2u), (1u, 3u)]\n[(2u, 2u), (2u, 3u)]",
     }
 }
 
@@ -183,6 +183,6 @@ fn view() {
 fn view_mut() {
     eq! {
         Mat::from_fn((4, 4), |i| i).unwrap().slice_mut((1, 2), (3, 4)).unwrap(),
-        "[(1, 2), (1, 3)]\n[(2, 2), (2, 3)]",
+        "[(1u, 2u), (1u, 3u)]\n[(2u, 2u), (2u, 3u)]",
     }
 }

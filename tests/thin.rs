@@ -1,4 +1,4 @@
-#![feature(globs)]
+#![allow(unstable)]
 
 extern crate linalg;
 

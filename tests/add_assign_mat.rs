@@ -1,10 +1,12 @@
-#![feature(globs, macro_rules, phase)]
+#![allow(unstable)]
+#![feature(plugin)]
 
 extern crate linalg;
 extern crate quickcheck;
-#[phase(plugin)]
+#[plugin]
 extern crate quickcheck_macros;
 
+#[macro_use]
 mod setup;
 
 mod trans {
@@ -17,7 +19,7 @@ mod trans {
 
             // Test that `add_assign(&Trans<Mat>)` is correct for `Mat`
             #[quickcheck]
-            fn mat((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
+            fn mat((nrows, ncols): (usize, usize), (row, col): (usize, usize)) -> TestResult {
                 enforce! {
                     row < nrows,
                     col < ncols,
@@ -42,9 +44,9 @@ mod trans {
             // Test that `add_assign(Trans<View>)` is correct for `Mat`
             #[quickcheck]
             fn view(
-                start: (uint, uint),
-                (nrows, ncols): (uint, uint),
-                (row, col): (uint, uint),
+                start: (usize, usize),
+                (nrows, ncols): (usize, usize),
+                (row, col): (usize, usize),
             ) -> TestResult {
                 enforce! {
                     row < nrows,
@@ -72,9 +74,9 @@ mod trans {
             // Test that `add_assign(&Trans<MutView>)` is correct for `Mat`
             #[quickcheck]
             fn view_mut(
-                start: (uint, uint),
-                (nrows, ncols): (uint, uint),
-                (row, col): (uint, uint),
+                start: (usize, usize),
+                (nrows, ncols): (usize, usize),
+                (row, col): (usize, usize),
             ) -> TestResult {
                 enforce! {
                     row < nrows,
@@ -113,7 +115,7 @@ macro_rules! blas {
 
         // Test that `add_assign(&Mat)` is correct for `Mat`
         #[quickcheck]
-        fn mat((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
+        fn mat((nrows, ncols): (usize, usize), (row, col): (usize, usize)) -> TestResult {
             enforce! {
                 row < nrows,
                 col < ncols,
@@ -138,7 +140,7 @@ macro_rules! blas {
 
         // Test that `add_assign(T)` is correct for `Mat`
         #[quickcheck]
-        fn scalar((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
+        fn scalar((nrows, ncols): (usize, usize), (row, col): (usize, usize)) -> TestResult {
             enforce! {
                 row < nrows,
                 col < ncols,
@@ -162,9 +164,9 @@ macro_rules! blas {
         // Test that `add_assign(View)` is correct for `Mat`
         #[quickcheck]
         fn view(
-            start: (uint, uint),
-            (nrows, ncols): (uint, uint),
-            (row, col): (uint, uint),
+            start: (usize, usize),
+            (nrows, ncols): (usize, usize),
+            (row, col): (usize, usize),
         ) -> TestResult {
             enforce! {
                 row < nrows,
@@ -192,9 +194,9 @@ macro_rules! blas {
         // Test that `add_assign(&MutView)` is correct for `Mat`
         #[quickcheck]
         fn view_mut(
-            start: (uint, uint),
-            (nrows, ncols): (uint, uint),
-            (row, col): (uint, uint),
+            start: (usize, usize),
+            (nrows, ncols): (usize, usize),
+            (row, col): (usize, usize),
         ) -> TestResult {
             enforce! {
                 row < nrows,

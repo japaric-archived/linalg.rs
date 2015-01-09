@@ -11,7 +11,7 @@ mod trans {
 
             // Test that `mul(&Trans<Mat>)` is correct for `Mat`
             #[quickcheck]
-            fn mat((m, k, n): (uint, uint, uint), (row, col): (uint, uint)) -> TestResult {
+            fn mat((m, k, n): (usize, usize, usize), (row, col): (usize, usize)) -> TestResult {
                 enforce! {
                     k != 0,
                     row < m,
@@ -36,9 +36,9 @@ mod trans {
             // Test that `mul(Trans<View>)` is correct for `Mat`
             #[quickcheck]
             fn view(
-                start: (uint, uint),
-                (m, k, n): (uint, uint, uint),
-                (row, col): (uint, uint),
+                start: (usize, usize),
+                (m, k, n): (usize, usize, usize),
+                (row, col): (usize, usize),
             ) -> TestResult {
                 enforce! {
                     k != 0,
@@ -66,9 +66,9 @@ mod trans {
             // Test that `mul(&Trans<MutView>)` is correct for `Mat`
             #[quickcheck]
             fn view_mut(
-                start: (uint, uint),
-                (m, k, n): (uint, uint, uint),
-                (row, col): (uint, uint),
+                start: (usize, usize),
+                (m, k, n): (usize, usize, usize),
+                (row, col): (usize, usize),
             ) -> TestResult {
                 enforce! {
                     k != 0,
@@ -108,7 +108,7 @@ macro_rules! blas {
 
         // Test that `mul(&Mat)` is correct for `Mat`
         #[quickcheck]
-        fn mat((m, k, n): (uint, uint, uint), (row, col): (uint, uint)) -> TestResult {
+        fn mat((m, k, n): (usize, usize, usize), (row, col): (usize, usize)) -> TestResult {
             enforce! {
                 k != 0,
                 row < m,
@@ -133,9 +133,9 @@ macro_rules! blas {
         // Test that `mul(View)` is correct for `Mat`
         #[quickcheck]
         fn view(
-            start: (uint, uint),
-            (m, k, n): (uint, uint, uint),
-            (row, col): (uint, uint),
+            start: (usize, usize),
+            (m, k, n): (usize, usize, usize),
+            (row, col): (usize, usize),
         ) -> TestResult {
             enforce! {
                 k != 0,
@@ -163,9 +163,9 @@ macro_rules! blas {
         // Test that `mul(&MutView)` is correct for `Mat`
         #[quickcheck]
         fn view_mut(
-            start: (uint, uint),
-            (m, k, n): (uint, uint, uint),
-            (row, col): (uint, uint),
+            start: (usize, usize),
+            (m, k, n): (usize, usize, usize),
+            (row, col): (usize, usize),
         ) -> TestResult {
             enforce! {
                 k != 0,

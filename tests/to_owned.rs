@@ -1,10 +1,12 @@
-#![feature(globs, macro_rules, phase)]
+#![allow(unstable)]
+#![feature(plugin)]
 
 extern crate linalg;
 extern crate quickcheck;
-#[phase(plugin)]
+#[plugin]
 extern crate quickcheck_macros;
 
+#[macro_use]
 mod setup;
 
 mod col {
@@ -17,7 +19,7 @@ mod col {
 
             // Test that `to_owned()` is correct for `ColVec`
             #[quickcheck]
-            fn owned(size: uint, idx: uint) -> TestResult {
+            fn owned(size: usize, idx: usize) -> TestResult {
                 enforce! {
                     idx < size,
                 }
@@ -33,7 +35,7 @@ mod col {
 
             // Test that `to_owned()` is correct for `Col`
             #[quickcheck]
-            fn slice((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
+            fn slice((nrows, ncols): (usize, usize), col: usize, idx: usize) -> TestResult {
                 enforce! {
                     col < ncols,
                     idx < nrows,
@@ -51,7 +53,7 @@ mod col {
 
             // Test that `to_owned()` is correct for `MutCol`
             #[quickcheck]
-            fn slice_mut((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
+            fn slice_mut((nrows, ncols): (usize, usize), col: usize, idx: usize) -> TestResult {
                 enforce! {
                     col < ncols,
                     idx < nrows,
@@ -69,7 +71,7 @@ mod col {
 
             // Test that `to_owned()` is correct for `strided::Col`
             #[quickcheck]
-            fn strided((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
+            fn strided((nrows, ncols): (usize, usize), col: usize, idx: usize) -> TestResult {
                 enforce! {
                     col < ncols,
                     idx < nrows,
@@ -87,7 +89,7 @@ mod col {
 
             // Test that `to_owned()` is correct for `strided::MutCol`
             #[quickcheck]
-            fn strided_mut((nrows, ncols): (uint, uint), col: uint, idx: uint) -> TestResult {
+            fn strided_mut((nrows, ncols): (usize, usize), col: usize, idx: usize) -> TestResult {
                 enforce! {
                     col < ncols,
                     idx < nrows,
@@ -118,7 +120,7 @@ mod row {
 
             // Test that `to_owned()` is correct for `RowVec`
             #[quickcheck]
-            fn owned(size: uint, idx: uint) -> TestResult {
+            fn owned(size: usize, idx: usize) -> TestResult {
                 enforce! {
                     idx < size,
                 }
@@ -134,7 +136,7 @@ mod row {
 
             // Test that `to_owned()` is correct for `Row`
             #[quickcheck]
-            fn slice((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
+            fn slice((nrows, ncols): (usize, usize), row: usize, idx: usize) -> TestResult {
                 enforce! {
                     row < nrows,
                     idx < ncols,
@@ -152,7 +154,7 @@ mod row {
 
             // Test that `to_owned()` is correct for `MutRow`
             #[quickcheck]
-            fn slice_mut((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
+            fn slice_mut((nrows, ncols): (usize, usize), row: usize, idx: usize) -> TestResult {
                 enforce! {
                     row < nrows,
                     idx < ncols,
@@ -170,7 +172,7 @@ mod row {
 
             // Test that `to_owned()` is correct for `strided::Row`
             #[quickcheck]
-            fn strided((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
+            fn strided((nrows, ncols): (usize, usize), row: usize, idx: usize) -> TestResult {
                 enforce! {
                     row < nrows,
                     idx < ncols,
@@ -188,7 +190,7 @@ mod row {
 
             // Test that `to_owned()` is correct for `strided::MutRow`
             #[quickcheck]
-            fn strided_mut((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
+            fn strided_mut((nrows, ncols): (usize, usize), row: usize, idx: usize) -> TestResult {
                 enforce! {
                     row < nrows,
                     idx < ncols,
@@ -219,7 +221,7 @@ mod trans {
 
             // Test that `to_owned()` is correct for `Trans<Mat>`
             #[quickcheck]
-            fn mat((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
+            fn mat((nrows, ncols): (usize, usize), (row, col): (usize, usize)) -> TestResult {
                 enforce! {
                     row < nrows,
                     col < ncols,
@@ -236,9 +238,9 @@ mod trans {
             // Test that `to_owned()` is correct for `Trans<View>`
             #[quickcheck]
             fn view(
-                start: (uint, uint),
-                (nrows, ncols): (uint, uint),
-                (row, col): (uint, uint),
+                start: (usize, usize),
+                (nrows, ncols): (usize, usize),
+                (row, col): (usize, usize),
             ) -> TestResult {
                 enforce! {
                     row < nrows,
@@ -258,9 +260,9 @@ mod trans {
             // Test that `to_owned()` is correct for `Trans<MutView>`
             #[quickcheck]
             fn view_mut(
-                start: (uint, uint),
-                (nrows, ncols): (uint, uint),
-                (row, col): (uint, uint),
+                start: (usize, usize),
+                (nrows, ncols): (usize, usize),
+                (row, col): (usize, usize),
             ) -> TestResult {
                 enforce! {
                     row < nrows,
@@ -291,7 +293,7 @@ macro_rules! blas {
 
         // Test that `to_owned()` is correct for `Mat`
         #[quickcheck]
-        fn mat((nrows, ncols): (uint, uint), (row, col): (uint, uint)) -> TestResult {
+        fn mat((nrows, ncols): (usize, usize), (row, col): (usize, usize)) -> TestResult {
             enforce! {
                 row < nrows,
                 col < ncols,
@@ -308,9 +310,9 @@ macro_rules! blas {
         // Test that `to_owned()` is correct for `View`
         #[quickcheck]
         fn view(
-            start: (uint, uint),
-            (nrows, ncols): (uint, uint),
-            (row, col): (uint, uint),
+            start: (usize, usize),
+            (nrows, ncols): (usize, usize),
+            (row, col): (usize, usize),
         ) -> TestResult {
             enforce! {
                 row < nrows,
@@ -330,9 +332,9 @@ macro_rules! blas {
         // Test that `to_owned()` is correct for `MutView`
         #[quickcheck]
         fn view_mut(
-            start: (uint, uint),
-            (nrows, ncols): (uint, uint),
-            (row, col): (uint, uint),
+            start: (usize, usize),
+            (nrows, ncols): (usize, usize),
+            (row, col): (usize, usize),
         ) -> TestResult {
             enforce! {
                 row < nrows,

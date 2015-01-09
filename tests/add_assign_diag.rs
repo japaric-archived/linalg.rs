@@ -1,10 +1,12 @@
-#![feature(globs, macro_rules, phase)]
+#![allow(unstable)]
+#![feature(plugin)]
 
 extern crate linalg;
 extern crate quickcheck;
-#[phase(plugin)]
+#[plugin]
 extern crate quickcheck_macros;
 
+#[macro_use]
 mod setup;
 
 macro_rules! blas {
@@ -16,7 +18,7 @@ macro_rules! blas {
 
         // Test that `add_assign(T)` is correct for `MutDiag`
         #[quickcheck]
-        fn scalar(size: (uint, uint), diag: int, idx: uint) -> TestResult {
+        fn scalar(size: (usize, usize), diag: isize, idx: usize) -> TestResult {
             validate_diag_index!(diag, size, idx);
 
             test!({

@@ -8,7 +8,7 @@ macro_rules! blas {
 
         // Test that `mul(&ColVec)` is correct for `Mat`
         #[quickcheck]
-        fn owned((nrows, ncols): (uint, uint), idx: uint) -> TestResult {
+        fn owned((nrows, ncols): (usize, usize), idx: usize) -> TestResult {
             enforce! {
                 idx < nrows,
                 ncols != 0,
@@ -31,7 +31,7 @@ macro_rules! blas {
 
         // Test that `mul(Col)` is correct for `Mat`
         #[quickcheck]
-        fn slice((m, k, n): (uint, uint, uint), col: uint, idx: uint) -> TestResult {
+        fn slice((m, k, n): (usize, usize, usize), col: usize, idx: usize) -> TestResult {
             enforce! {
                 col < n,
                 idx < m,
@@ -56,7 +56,7 @@ macro_rules! blas {
 
         // Test that `mul(&MutCol)` is correct for `Mat`
         #[quickcheck]
-        fn slice_mut((m, k, n): (uint, uint, uint), col: uint, idx: uint) -> TestResult {
+        fn slice_mut((m, k, n): (usize, usize, usize), col: usize, idx: usize) -> TestResult {
             enforce! {
                 col < n,
                 idx < m,
@@ -81,7 +81,7 @@ macro_rules! blas {
 
         // Test that `mul(strided::Col)` is correct for `Mat`
         #[quickcheck]
-        fn strided((m, k, n): (uint, uint, uint), col: uint, idx: uint) -> TestResult {
+        fn strided((m, k, n): (usize, usize, usize), col: usize, idx: usize) -> TestResult {
             enforce! {
                 col < n,
                 idx < m,
@@ -106,7 +106,7 @@ macro_rules! blas {
 
         // Test that `mul(&strided::MutCol)` is correct for `Mat`
         #[quickcheck]
-        fn strided_mut((m, k, n): (uint, uint, uint), col: uint, idx: uint) -> TestResult {
+        fn strided_mut((m, k, n): (usize, usize, usize), col: usize, idx: usize) -> TestResult {
             enforce! {
                 col < n,
                 idx < m,

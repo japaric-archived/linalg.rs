@@ -1,10 +1,12 @@
-#![feature(globs, macro_rules, phase)]
+#![allow(unstable)]
+#![feature(plugin)]
 
 extern crate linalg;
 extern crate quickcheck;
-#[phase(plugin)]
+#[plugin]
 extern crate quickcheck_macros;
 
+#[macro_use]
 mod setup;
 
 mod col {
@@ -15,8 +17,8 @@ mod col {
 
     // Test that `iter_mut().rev()` is correct for `ColVec`
     #[quickcheck]
-    fn owned(size: uint) -> bool {
-        setup::col(size).iter_mut().rev().enumerate().all(|(i, &e)| {
+    fn owned(size: usize) -> bool {
+        setup::col(size).iter_mut().rev().enumerate().all(|(i, &mut e)| {
             let i = size - i - 1;
 
             e == i
@@ -25,7 +27,7 @@ mod col {
 
     // Test that `iter_mut().rev()` is correct for `MutCol`
     #[quickcheck]
-    fn slice_mut((nrows, ncols): (uint, uint), col: uint) -> TestResult {
+    fn slice_mut((nrows, ncols): (usize, usize), col: usize) -> TestResult {
         enforce! {
             col < ncols,
         }
@@ -35,7 +37,7 @@ mod col {
             let n = m.nrows();
             let mut c = try!(m.col_mut(col));
 
-            c.iter_mut().rev().enumerate().all(|(i, &e)| {
+            c.iter_mut().rev().enumerate().all(|(i, &mut e)| {
                 let i = n - i - 1;
 
                 e == (i, col)
@@ -45,7 +47,7 @@ mod col {
 
     // Test that `iter_mut().rev()` is correct for `strided::MutCol`
     #[quickcheck]
-    fn strided_mut((nrows, ncols): (uint, uint), col: uint) -> TestResult {
+    fn strided_mut((nrows, ncols): (usize, usize), col: usize) -> TestResult {
         enforce! {
             col < ncols,
         }
@@ -55,7 +57,7 @@ mod col {
             let n = m.nrows();
             let mut c = try!(m.col_mut(col));
 
-            c.iter_mut().rev().enumerate().all(|(i, &e)| {
+            c.iter_mut().rev().enumerate().all(|(i, &mut e)| {
                 let i = n - i - 1;
 
                 e == (col, i)
@@ -72,7 +74,7 @@ mod diag {
 
     // Test that `iter_mut().rev()` is correct for `MutDiag`
     #[quickcheck]
-    fn strided_mut(size: (uint, uint), diag: int) -> TestResult {
+    fn strided_mut(size: (usize, usize), diag: isize) -> TestResult {
         validate_diag!(diag, size);
 
         test!({
@@ -81,16 +83,16 @@ mod diag {
             let n = d.len();
 
             if diag > 0 {
-                d.iter_mut().rev().enumerate().all(|(i, &e)| {
+                d.iter_mut().rev().enumerate().all(|(i, &mut e)| {
                     let i = n - i - 1;
 
-                    e == (i, i + diag as uint)
+                    e == (i, i + diag as usize)
                 })
             } else {
-                d.iter_mut().rev().enumerate().all(|(i, &e)| {
+                d.iter_mut().rev().enumerate().all(|(i, &mut e)| {
                     let i = n - i - 1;
 
-                    e == (i - diag as uint, i)
+                    e == (i - diag as usize, i)
                 })
             }
         })
@@ -105,8 +107,8 @@ mod row {
 
     // Test that `iter_mut().rev()` is correct for `RowVec`
     #[quickcheck]
-    fn owned(size: uint) -> bool {
-        setup::row(size).iter_mut().rev().enumerate().all(|(i, &e)| {
+    fn owned(size: usize) -> bool {
+        setup::row(size).iter_mut().rev().enumerate().all(|(i, &mut e)| {
             let i = size - i - 1;
 
             e == i
@@ -115,7 +117,7 @@ mod row {
 
     // Test that `iter_mut().rev()` is correct for `MutRow`
     #[quickcheck]
-    fn slice_mut((nrows, ncols): (uint, uint), row: uint) -> TestResult {
+    fn slice_mut((nrows, ncols): (usize, usize), row: usize) -> TestResult {
         enforce! {
             row < nrows,
         }
@@ -125,7 +127,7 @@ mod row {
             let n = m.ncols();
             let mut r = try!(m.row_mut(row));
 
-            r.iter_mut().rev().enumerate().all(|(i, &e)| {
+            r.iter_mut().rev().enumerate().all(|(i, &mut e)| {
                 let i = n - i - 1;
 
                 e == (i, row)
@@ -135,7 +137,7 @@ mod row {
 
     // Test that `iter_mut().rev()` is correct for `strided::MutRow`
     #[quickcheck]
-    fn strided_mut((nrows, ncols): (uint, uint), row: uint) -> TestResult {
+    fn strided_mut((nrows, ncols): (usize, usize), row: usize) -> TestResult {
         enforce! {
             row < nrows,
         }
@@ -145,7 +147,7 @@ mod row {
             let n = m.ncols();
             let mut r = try!(m.row_mut(row));
 
-            r.iter_mut().rev().enumerate().all(|(i, &e)| {
+            r.iter_mut().rev().enumerate().all(|(i, &mut e)| {
                 let i = n - i - 1;
 
                 e == (row, i)

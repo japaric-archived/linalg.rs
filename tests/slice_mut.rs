@@ -1,8 +1,9 @@
-#![feature(globs, macro_rules, phase)]
+#![allow(unstable)]
+#![feature(plugin)]
 
 extern crate linalg;
 extern crate quickcheck;
-#[phase(plugin)]
+#[plugin]
 extern crate quickcheck_macros;
 
 use linalg::prelude::*;
@@ -10,6 +11,7 @@ use quickcheck::TestResult;
 
 use utils::IsWithin;
 
+#[macro_use]
 mod setup;
 mod utils;
 
@@ -21,7 +23,7 @@ mod col {
 
     // Test that `slice_mut(_, _)` is correct for `ColVec`
     #[quickcheck]
-    fn owned(size: uint, (start, end): (uint, uint), idx: uint) -> TestResult {
+    fn owned(size: usize, (start, end): (usize, usize), idx: usize) -> TestResult {
         enforce! {
             end <= size,
             start <= end,
@@ -40,10 +42,10 @@ mod col {
     // Test that `slice_mut(_, _)` is correct for `MutCol`
     #[quickcheck]
     fn slice_mut(
-        (nrows, ncols): (uint, uint),
-        col: uint,
-        (start, end): (uint, uint),
-        idx: uint,
+        (nrows, ncols): (usize, usize),
+        col: usize,
+        (start, end): (usize, usize),
+        idx: usize,
     ) -> TestResult {
         enforce! {
             col < ncols,
@@ -65,10 +67,10 @@ mod col {
     // Test that `slice_mut(_, _)` is correct for `strided::MutCol`
     #[quickcheck]
     fn strided_mut(
-        (nrows, ncols): (uint, uint),
-        col: uint,
-        (start, end): (uint, uint),
-        idx: uint,
+        (nrows, ncols): (usize, usize),
+        col: usize,
+        (start, end): (usize, usize),
+        idx: usize,
     ) -> TestResult {
         enforce! {
             col < ncols,
@@ -99,13 +101,13 @@ mod diag {
     // Test that `slice_mut(_, _)` is correct for `MutDiag`
     #[quickcheck]
     fn strided_mut(
-        (nrows, ncols): (uint, uint),
-        diag: int,
-        (start, end): (uint, uint),
-        idx: uint,
+        (nrows, ncols): (usize, usize),
+        diag: isize,
+        (start, end): (usize, usize),
+        idx: usize,
     ) -> TestResult {
         if diag > 0 {
-            let diag = diag as uint;
+            let diag = diag as usize;
 
             enforce! {
                 diag < ncols,
@@ -114,7 +116,7 @@ mod diag {
                 idx < end - start,
             }
         } else {
-            let diag = -diag as uint;
+            let diag = -diag as usize;
 
             enforce! {
                 diag < nrows,
@@ -132,9 +134,9 @@ mod diag {
             let idx = idx + start;
 
             e == if diag > 0 {
-                (idx, idx + diag as uint)
+                (idx, idx + diag as usize)
             } else {
-                (idx - diag as uint, idx)
+                (idx - diag as usize, idx)
             }
         })
     }
@@ -148,7 +150,7 @@ mod row {
 
     // Test that `slice_mut(_, _)` is correct for `RowVec`
     #[quickcheck]
-    fn owned(size: uint, (start, end): (uint, uint), idx: uint) -> TestResult {
+    fn owned(size: usize, (start, end): (usize, usize), idx: usize) -> TestResult {
         enforce! {
             end <= size,
             start <= end,
@@ -167,10 +169,10 @@ mod row {
     // Test that `slice_mut(_, _)` is correct for `MutRow`
     #[quickcheck]
     fn slice_mut(
-        (nrows, ncols): (uint, uint),
-        row: uint,
-        (start, end): (uint, uint),
-        idx: uint,
+        (nrows, ncols): (usize, usize),
+        row: usize,
+        (start, end): (usize, usize),
+        idx: usize,
     ) -> TestResult {
         enforce! {
             row < nrows,
@@ -192,10 +194,10 @@ mod row {
     // Test that `slice_mut(_, _)` is correct for `strided::MutRow`
     #[quickcheck]
     fn strided_mut(
-        (nrows, ncols): (uint, uint),
-        row: uint,
-        (start, end): (uint, uint),
-        idx: uint,
+        (nrows, ncols): (usize, usize),
+        row: usize,
+        (start, end): (usize, usize),
+        idx: usize,
     ) -> TestResult {
         enforce! {
             row < nrows,
@@ -226,9 +228,9 @@ mod trans {
     // Test that `slice_mut(_, _)` is correct for `Trans<Mat>`
     #[quickcheck]
     fn mat(
-        (nrows, ncols): (uint, uint),
-        (start, end): ((uint, uint), (uint, uint)),
-        (row, col): (uint, uint),
+        (nrows, ncols): (usize, usize),
+        (start, end): ((usize, usize), (usize, usize)),
+        (row, col): (usize, usize),
     ) -> TestResult {
         enforce! {
             end.is_within((nrows, ncols)),
@@ -251,10 +253,10 @@ mod trans {
     // Test that `slice_mut(_, _)` is correct for `Trans<MutView>`
     #[quickcheck]
     fn view_mut(
-        start: (uint, uint),
-        (nrows, ncols): (uint, uint),
-        (inner_start, inner_end): ((uint, uint), (uint, uint)),
-        (row, col): (uint, uint),
+        start: (usize, usize),
+        (nrows, ncols): (usize, usize),
+        (inner_start, inner_end): ((usize, usize), (usize, usize)),
+        (row, col): (usize, usize),
     ) -> TestResult {
         enforce! {
             inner_end.is_within((nrows, ncols)),
@@ -283,9 +285,9 @@ mod trans {
 // Test that `slice_mut(_, _)` is correct for `Mat`
 #[quickcheck]
 fn mat(
-    size: (uint, uint),
-    (start, end): ((uint, uint), (uint, uint)),
-    (row, col): (uint, uint),
+    size: (usize, usize),
+    (start, end): ((usize, usize), (usize, usize)),
+    (row, col): (usize, usize),
 ) -> TestResult {
     enforce! {
         end.is_within(size),
@@ -308,10 +310,10 @@ fn mat(
 // Test that `slice_mut(_, _)` is correct for `MutView`
 #[quickcheck]
 fn view_mut(
-    start: (uint, uint),
-    (nrows, ncols): (uint, uint),
-    (inner_start, inner_end): ((uint, uint), (uint, uint)),
-    (row, col): (uint, uint),
+    start: (usize, usize),
+    (nrows, ncols): (usize, usize),
+    (inner_start, inner_end): ((usize, usize), (usize, usize)),
+    (row, col): (usize, usize),
 ) -> TestResult {
     enforce! {
         inner_end.is_within((nrows, ncols)),

@@ -28,15 +28,15 @@ impl<'a, T, M> Iterator for Scaled<T, Cols<'a, M>> where
 impl<T, M> Matrix for Scaled<T, M> where M: Matrix<Elem=T> {
     type Elem = T;
 
-    fn ncols(&self) -> uint {
+    fn ncols(&self) -> usize {
         self.1.ncols()
     }
 
-    fn nrows(&self) -> uint {
+    fn nrows(&self) -> usize {
         self.1.nrows()
     }
 
-    fn size(&self) -> (uint, uint) {
+    fn size(&self) -> (usize, usize) {
         self.1.size()
     }
 }
@@ -50,6 +50,7 @@ impl<'a, T> Mul<T> for Col<'a, T> {
     }
 }
 
+/* FIXME(rust-lang/rust#20749)
 impl<'a, T> Mul<Col<'a, T>> for T {
     type Output = Scaled<T, Col<'a, T>>;
 
@@ -57,6 +58,7 @@ impl<'a, T> Mul<Col<'a, T>> for T {
         rhs * self
     }
 }
+*/
 
 impl<'a, T> Mul<T> for &'a ColVec<T> {
     type Output = Scaled<T, Col<'a, T>>;
@@ -66,6 +68,7 @@ impl<'a, T> Mul<T> for &'a ColVec<T> {
     }
 }
 
+/* FIXME(rust-lang/rust#20749)
 impl<'a, T> Mul<&'a ColVec<T>> for T {
     type Output = Scaled<T, Col<'a, T>>;
 
@@ -73,6 +76,7 @@ impl<'a, T> Mul<&'a ColVec<T>> for T {
         rhs * self
     }
 }
+*/
 
 impl<'a, 'b, T> Mul<T> for &'a MutCol<'b, T> {
     type Output = Scaled<T, Col<'a, T>>;
@@ -82,6 +86,7 @@ impl<'a, 'b, T> Mul<T> for &'a MutCol<'b, T> {
     }
 }
 
+/* FIXME(rust-lang/rust#20749)
 impl<'a, 'b, T> Mul<&'a MutCol<'b, T>> for T {
     type Output = Scaled<T, Col<'a, T>>;
 
@@ -89,6 +94,7 @@ impl<'a, 'b, T> Mul<&'a MutCol<'b, T>> for T {
         rhs * self
     }
 }
+*/
 
 // mat
 impl<'a, T> Mul<T> for &'a Mat<T> {
@@ -99,6 +105,7 @@ impl<'a, T> Mul<T> for &'a Mat<T> {
     }
 }
 
+/* FIXME(rust-lang/rust#20749)
 impl<'a, T> Mul<&'a Mat<T>> for T {
     type Output = Scaled<T, View<'a, T>>;
 
@@ -106,6 +113,7 @@ impl<'a, T> Mul<&'a Mat<T>> for T {
         rhs * self
     }
 }
+*/
 
 impl<'a, 'b, T> Mul<T> for &'a MutView<'b, T> {
     type Output = Scaled<T, View<'a, T>>;
@@ -115,6 +123,7 @@ impl<'a, 'b, T> Mul<T> for &'a MutView<'b, T> {
     }
 }
 
+/* FIXME(rust-lang/rust#20749)
 impl<'a, 'b, T> Mul<&'a MutView<'b, T>> for T {
     type Output = Scaled<T, View<'a, T>>;
 
@@ -122,6 +131,7 @@ impl<'a, 'b, T> Mul<&'a MutView<'b, T>> for T {
         rhs * self
     }
 }
+*/
 
 impl<'a, T> Mul<T> for &'a Trans<Mat<T>> {
     type Output = Scaled<T, Trans<View<'a, T>>>;
@@ -131,6 +141,7 @@ impl<'a, T> Mul<T> for &'a Trans<Mat<T>> {
     }
 }
 
+/* FIXME(rust-lang/rust#20749)
 impl<'a, T> Mul<&'a Trans<Mat<T>>> for T {
     type Output = Scaled<T, Trans<View<'a, T>>>;
 
@@ -138,6 +149,7 @@ impl<'a, T> Mul<&'a Trans<Mat<T>>> for T {
         rhs * self
     }
 }
+*/
 
 impl<'a, 'b, T> Mul<T> for &'a Trans<MutView<'b, T>> {
     type Output = Scaled<T, Trans<View<'a, T>>>;
@@ -147,6 +159,7 @@ impl<'a, 'b, T> Mul<T> for &'a Trans<MutView<'b, T>> {
     }
 }
 
+/* FIXME(rust-lang/rust#20749)
 impl<'a, 'b, T> Mul<&'a Trans<MutView<'b, T>>> for T {
     type Output = Scaled<T, Trans<View<'a, T>>>;
 
@@ -154,6 +167,7 @@ impl<'a, 'b, T> Mul<&'a Trans<MutView<'b, T>>> for T {
         rhs * self
     }
 }
+*/
 
 impl<'a, T> Mul<T> for Trans<View<'a, T>> {
     type Output = Scaled<T, Trans<View<'a, T>>>;
@@ -163,6 +177,7 @@ impl<'a, T> Mul<T> for Trans<View<'a, T>> {
     }
 }
 
+/* FIXME(rust-lang/rust#20749)
 impl<'a, T> Mul<Trans<View<'a, T>>> for T {
     type Output = Scaled<T, Trans<View<'a, T>>>;
 
@@ -170,6 +185,8 @@ impl<'a, T> Mul<Trans<View<'a, T>>> for T {
         rhs * self
     }
 }
+*/
+
 impl<'a, T> Mul<T> for View<'a, T> {
     type Output = Scaled<T, View<'a, T>>;
 
@@ -178,6 +195,7 @@ impl<'a, T> Mul<T> for View<'a, T> {
     }
 }
 
+/* FIXME(rust-lang/rust#20749)
 impl<'a, T> Mul<View<'a, T>> for T {
     type Output = Scaled<T, View<'a, T>>;
 
@@ -185,6 +203,7 @@ impl<'a, T> Mul<View<'a, T>> for T {
         rhs * self
     }
 }
+*/
 
 // row
 impl<'a, T> Mul<T> for Row<'a, T> {
@@ -195,6 +214,7 @@ impl<'a, T> Mul<T> for Row<'a, T> {
     }
 }
 
+/* FIXME(rust-lang/rust#20749)
 impl<'a, T> Mul<Row<'a, T>> for T {
     type Output = Scaled<T, Row<'a, T>>;
 
@@ -202,6 +222,7 @@ impl<'a, T> Mul<Row<'a, T>> for T {
         rhs * self
     }
 }
+*/
 
 impl<'a, T> Mul<T> for &'a RowVec<T> {
     type Output = Scaled<T, Row<'a, T>>;
@@ -211,6 +232,7 @@ impl<'a, T> Mul<T> for &'a RowVec<T> {
     }
 }
 
+/* FIXME(rust-lang/rust#20749)
 impl<'a, T> Mul<&'a RowVec<T>> for T {
     type Output = Scaled<T, Row<'a, T>>;
 
@@ -218,6 +240,7 @@ impl<'a, T> Mul<&'a RowVec<T>> for T {
         rhs * self
     }
 }
+*/
 
 impl<'a, 'b, T> Mul<T> for &'a MutRow<'b, T> {
     type Output = Scaled<T, Row<'a, T>>;
@@ -227,6 +250,7 @@ impl<'a, 'b, T> Mul<T> for &'a MutRow<'b, T> {
     }
 }
 
+/* FIXME(rust-lang/rust#20749)
 impl<'a, 'b, T> Mul<&'a MutRow<'b, T>> for T {
     type Output = Scaled<T, Row<'a, T>>;
 
@@ -234,6 +258,7 @@ impl<'a, 'b, T> Mul<&'a MutRow<'b, T>> for T {
         rhs * self
     }
 }
+*/
 
 // scaled
 impl<T, M> Mul<T> for Scaled<T, M> where T: Mul<Output=T> {
@@ -244,6 +269,7 @@ impl<T, M> Mul<T> for Scaled<T, M> where T: Mul<Output=T> {
     }
 }
 
+/* FIXME(rust-lang/rust#20749)
 impl<T, M> Mul<Scaled<T, M>> for T where T: Mul<Output=T> {
     type Output = Scaled<T, M>;
 
@@ -251,3 +277,4 @@ impl<T, M> Mul<Scaled<T, M>> for T where T: Mul<Output=T> {
         rhs * self
     }
 }
+*/

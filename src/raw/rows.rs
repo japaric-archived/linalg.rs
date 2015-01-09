@@ -3,8 +3,8 @@ use traits::{Matrix, MatrixRow};
 
 pub struct Rows<'a, M: 'a> {
     mat: &'a M,
-    state: uint,
-    stop: uint,
+    state: usize,
+    stop: usize,
 }
 
 impl<'a, M> Copy for Rows<'a, M> {}
@@ -43,7 +43,7 @@ impl<'a, T, M> Iterator for Rows<'a, M> where M: MatrixRow + Matrix<Elem=T> {
         }
     }
 
-    fn size_hint(&self) -> (uint, Option<uint>) {
+    fn size_hint(&self) -> (usize, Option<usize>) {
         let exact = self.stop - self.state;
         (exact, Some(exact))
     }

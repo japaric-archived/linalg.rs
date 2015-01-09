@@ -9,7 +9,7 @@ mod trans {
 
             // Test that `mul(&Trans<Mat>)` is correct for `strided::Row`
             #[quickcheck]
-            fn mat((m, k, n): (uint, uint, uint), row: uint, idx: uint) -> TestResult {
+            fn mat((m, k, n): (usize, usize, usize), row: usize, idx: usize) -> TestResult {
                 enforce! {
                     k != 0,
                     row < m,
@@ -35,10 +35,10 @@ mod trans {
             // Test that `mul(Trans<View>)` is correct for `strided::Row`
             #[quickcheck]
             fn view(
-                start: (uint, uint),
-                (m, k, n): (uint, uint, uint),
-                row: uint,
-                idx: uint,
+                start: (usize, usize),
+                (m, k, n): (usize, usize, usize),
+                row: usize,
+                idx: usize,
             ) -> TestResult {
                 enforce! {
                     k != 0,
@@ -66,10 +66,10 @@ mod trans {
             // Test that `mul(&Trans<MutView>)` is correct for `strided::Row`
             #[quickcheck]
             fn view_mut(
-                start: (uint, uint),
-                (m, k, n): (uint, uint, uint),
-                row: uint,
-                idx: uint,
+                start: (usize, usize),
+                (m, k, n): (usize, usize, usize),
+                row: usize,
+                idx: usize,
             ) -> TestResult {
                 enforce! {
                     k != 0,
@@ -109,7 +109,7 @@ macro_rules! blas {
 
         // Test that `mul(&Mat)` is correct for `strided::Row`
         #[quickcheck]
-        fn mat((m, k, n): (uint, uint, uint), row: uint, idx: uint) -> TestResult {
+        fn mat((m, k, n): (usize, usize, usize), row: usize, idx: usize) -> TestResult {
             enforce! {
                 k != 0,
                 row < m,
@@ -135,10 +135,10 @@ macro_rules! blas {
         // Test that `mul(View)` is correct for `strided::Row`
         #[quickcheck]
         fn view(
-            start: (uint, uint),
-            (m, k, n): (uint, uint, uint),
-            row: uint,
-            idx: uint,
+            start: (usize, usize),
+            (m, k, n): (usize, usize, usize),
+            row: usize,
+            idx: usize,
         ) -> TestResult {
             enforce! {
                 k != 0,
@@ -166,10 +166,10 @@ macro_rules! blas {
         // Test that `mul(&MutView)` is correct for `strided::Row`
         #[quickcheck]
         fn view_mut(
-            start: (uint, uint),
-            (m, k, n): (uint, uint, uint),
-            row: uint,
-            idx: uint,
+            start: (usize, usize),
+            (m, k, n): (usize, usize, usize),
+            row: usize,
+            idx: usize,
         ) -> TestResult {
             enforce! {
                 k != 0,

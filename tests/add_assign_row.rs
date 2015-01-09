@@ -1,10 +1,12 @@
-#![feature(globs, macro_rules, phase)]
+#![allow(unstable)]
+#![feature(plugin)]
 
 extern crate linalg;
 extern crate quickcheck;
-#[phase(plugin)]
+#[plugin]
 extern crate quickcheck_macros;
 
+#[macro_use]
 mod setup;
 
 macro_rules! blas {
@@ -17,7 +19,7 @@ macro_rules! blas {
 
             // Test that `add_assign(&RowVec)` is correct for `RowVec`
             #[quickcheck]
-            fn owned(size: uint, idx: uint) -> TestResult {
+            fn owned(size: usize, idx: usize) -> TestResult {
                 enforce! {
                     idx < size,
                 }
@@ -38,7 +40,7 @@ macro_rules! blas {
 
             // Test that `add_assign(T)` is correct for `RowVec`
             #[quickcheck]
-            fn scalar(size: uint, idx: uint) -> TestResult {
+            fn scalar(size: usize, idx: usize) -> TestResult {
                 enforce! {
                     idx < size,
                 }
@@ -57,7 +59,7 @@ macro_rules! blas {
 
             // Test that `add_assign(Row)` is correct for `RowVec`
             #[quickcheck]
-            fn slice((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
+            fn slice((nrows, ncols): (usize, usize), row: usize, idx: usize) -> TestResult {
                 enforce! {
                     row < nrows,
                     idx < ncols,
@@ -80,7 +82,7 @@ macro_rules! blas {
 
             // Test that `add_assign(&MutRow)` is correct for `RowVec`
             #[quickcheck]
-            fn slice_mut((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
+            fn slice_mut((nrows, ncols): (usize, usize), row: usize, idx: usize) -> TestResult {
                 enforce! {
                     row < nrows,
                     idx < ncols,
@@ -103,7 +105,7 @@ macro_rules! blas {
 
             // Test that `add_assign(strided::Row)` is correct for `RowVec`
             #[quickcheck]
-            fn strided((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
+            fn strided((nrows, ncols): (usize, usize), row: usize, idx: usize) -> TestResult {
                 enforce! {
                     row < nrows,
                     idx < ncols,
@@ -126,7 +128,7 @@ macro_rules! blas {
 
             // Test that `add_assign(&strided::MutRow)` is correct for `RowVec`
             #[quickcheck]
-            fn strided_mut((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
+            fn strided_mut((nrows, ncols): (usize, usize), row: usize, idx: usize) -> TestResult {
                 enforce! {
                     row < nrows,
                     idx < ncols,
@@ -156,7 +158,7 @@ macro_rules! blas {
 
             // Test that `add_assign(&RowVec)` is correct for `MutRow`
             #[quickcheck]
-            fn owned((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
+            fn owned((nrows, ncols): (usize, usize), row: usize, idx: usize) -> TestResult {
                 enforce! {
                     row < nrows,
                     idx < ncols,
@@ -179,7 +181,7 @@ macro_rules! blas {
 
             // Test that `add_assign(T)` is correct for `MutRow`
             #[quickcheck]
-            fn scalar((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
+            fn scalar((nrows, ncols): (usize, usize), row: usize, idx: usize) -> TestResult {
                 enforce! {
                     row < nrows,
                     idx < ncols,
@@ -200,7 +202,7 @@ macro_rules! blas {
 
             // Test that `add_assign(Row)` is correct for `MutRow`
             #[quickcheck]
-            fn slice((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
+            fn slice((nrows, ncols): (usize, usize), row: usize, idx: usize) -> TestResult {
                 enforce! {
                     row < nrows,
                     idx < ncols,
@@ -224,7 +226,7 @@ macro_rules! blas {
 
             // Test that `add_assign(&MutRow)` is correct for `MutRow`
             #[quickcheck]
-            fn slice_mut((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
+            fn slice_mut((nrows, ncols): (usize, usize), row: usize, idx: usize) -> TestResult {
                 enforce! {
                     row < nrows,
                     idx < ncols,
@@ -248,7 +250,7 @@ macro_rules! blas {
 
             // Test that `add_assign(strided::Row)` is correct for `MutRow`
             #[quickcheck]
-            fn strided((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
+            fn strided((nrows, ncols): (usize, usize), row: usize, idx: usize) -> TestResult {
                 enforce! {
                     row < nrows,
                     idx < ncols,
@@ -272,7 +274,7 @@ macro_rules! blas {
 
             // Test that `add_assign(&strided::MutRow)` is correct for `MutRow`
             #[quickcheck]
-            fn strided_mut((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
+            fn strided_mut((nrows, ncols): (usize, usize), row: usize, idx: usize) -> TestResult {
                 enforce! {
                     row < nrows,
                     idx < ncols,
@@ -303,7 +305,7 @@ macro_rules! blas {
 
             // Test that `add_assign(&RowVec)` is correct for `strided::MutRow`
             #[quickcheck]
-            fn owned((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
+            fn owned((nrows, ncols): (usize, usize), row: usize, idx: usize) -> TestResult {
                 enforce! {
                     row < nrows,
                     idx < ncols,
@@ -326,7 +328,7 @@ macro_rules! blas {
 
             // Test that `add_assign(T)` is correct for `strided::MutRow`
             #[quickcheck]
-            fn scalar((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
+            fn scalar((nrows, ncols): (usize, usize), row: usize, idx: usize) -> TestResult {
                 enforce! {
                     row < nrows,
                     idx < ncols,
@@ -347,7 +349,7 @@ macro_rules! blas {
 
             // Test that `add_assign(Row)` is correct for `strided::MutRow`
             #[quickcheck]
-            fn slice((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
+            fn slice((nrows, ncols): (usize, usize), row: usize, idx: usize) -> TestResult {
                 enforce! {
                     row < nrows,
                     idx < ncols,
@@ -371,7 +373,7 @@ macro_rules! blas {
 
             // Test that `add_assign(&MutRow)` is correct for `strided::MutRow`
             #[quickcheck]
-            fn slice_mut((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
+            fn slice_mut((nrows, ncols): (usize, usize), row: usize, idx: usize) -> TestResult {
                 enforce! {
                     row < nrows,
                     idx < ncols,
@@ -395,7 +397,7 @@ macro_rules! blas {
 
             // Test that `add_assign(strided::Row)` is correct for `strided::MutRow`
             #[quickcheck]
-            fn strided((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
+            fn strided((nrows, ncols): (usize, usize), row: usize, idx: usize) -> TestResult {
                 enforce! {
                     row < nrows,
                     idx < ncols,
@@ -419,7 +421,7 @@ macro_rules! blas {
 
             // Test that `add_assign(&strided::MutRow)` is correct for `strided::MutRow`
             #[quickcheck]
-            fn strided_mut((nrows, ncols): (uint, uint), row: uint, idx: uint) -> TestResult {
+            fn strided_mut((nrows, ncols): (usize, usize), row: usize, idx: usize) -> TestResult {
                 enforce! {
                     row < nrows,
                     idx < ncols,

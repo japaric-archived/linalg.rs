@@ -12,9 +12,9 @@ mod trans {
             // Test that `mul(&Trans<Mat>)` is correct for `Trans<Viwe>`
             #[quickcheck]
             fn mat(
-                start: (uint, uint),
-                (m, k, n): (uint, uint, uint),
-                (row, col): (uint, uint),
+                start: (usize, usize),
+                (m, k, n): (usize, usize, usize),
+                (row, col): (usize, usize),
             ) -> TestResult {
                 enforce! {
                     k != 0,
@@ -42,9 +42,9 @@ mod trans {
             // Test that `mul(Trans<View>)` is correct for `Trans<View>`
             #[quickcheck]
             fn view(
-                (lhs_start, rhs_start): ((uint, uint), (uint, uint)),
-                (m, k, n): (uint, uint, uint),
-                (row, col): (uint, uint),
+                (lhs_start, rhs_start): ((usize, usize), (usize, usize)),
+                (m, k, n): (usize, usize, usize),
+                (row, col): (usize, usize),
             ) -> TestResult {
                 enforce! {
                     k != 0,
@@ -74,9 +74,9 @@ mod trans {
             // Test that `mul(&Trans<MutView>)` is correct for `Trans<View>`
             #[quickcheck]
             fn view_mut(
-                (lhs_start, rhs_start): ((uint, uint), (uint, uint)),
-                (m, k, n): (uint, uint, uint),
-                (row, col): (uint, uint),
+                (lhs_start, rhs_start): ((usize, usize), (usize, usize)),
+                (m, k, n): (usize, usize, usize),
+                (row, col): (usize, usize),
             ) -> TestResult {
                 enforce! {
                     k != 0,
@@ -119,9 +119,9 @@ macro_rules! blas {
         // Test that `mul(&Mat)` is correct for `Trans<View>`
         #[quickcheck]
         fn mat(
-            start: (uint, uint),
-            (m, k, n): (uint, uint, uint),
-            (row, col): (uint, uint),
+            start: (usize, usize),
+            (m, k, n): (usize, usize, usize),
+            (row, col): (usize, usize),
         ) -> TestResult {
             enforce! {
                 k != 0,
@@ -149,9 +149,9 @@ macro_rules! blas {
         // Test that `mul(View)` is correct for `Trans<View>`
         #[quickcheck]
         fn view(
-            (lhs_start, rhs_start): ((uint, uint), (uint, uint)),
-            (m, k, n): (uint, uint, uint),
-            (row, col): (uint, uint),
+            (lhs_start, rhs_start): ((usize, usize), (usize, usize)),
+            (m, k, n): (usize, usize, usize),
+            (row, col): (usize, usize),
         ) -> TestResult {
             enforce! {
                 k != 0,
@@ -181,9 +181,9 @@ macro_rules! blas {
         // Test that `mul(&MutView)` is correct for `Trans<View>`
         #[quickcheck]
         fn view_mut(
-            (lhs_start, rhs_start): ((uint, uint), (uint, uint)),
-            (m, k, n): (uint, uint, uint),
-            (row, col): (uint, uint),
+            (lhs_start, rhs_start): ((usize, usize), (usize, usize)),
+            (m, k, n): (usize, usize, usize),
+            (row, col): (usize, usize),
         ) -> TestResult {
             enforce! {
                 k != 0,
