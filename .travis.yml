@@ -2,7 +2,7 @@ language: rust
 
 env:
   global:
-    - secure: Z5RWhf46arYopatBUgJRN4f7eSPfKe6glRTa8w6f0J4zfATDiUF/Bj9S6iFff310E/jt/gIO0y4zQp7N3DoB/d+GAB33QjKuQd0s8Qp0WeJx+afHv/7M7b0lV8v7MieNNAjxbP8Z4QMnlelPwvSGG39LUvGJTPBJT0SkTSnAHDw=
+    - secure: B/kcbcUvqUkSXNcbfjA8AQgC57IgWIGd8jgjysAuJUbv02e0PjyGK864NCIMn+UeUwhdni8F73EtEkJS6fiJ69BO7sVQzgN47ePG5nPnzgXieOcyLABtUsozZfB2Jy7HPbXCBN313wohmGvDwRPf0w4vszfmryfgCXe9haXGGFc=
   matrix:
     # FIXME (#12) Reenable OpenBLAS testing
     #- BLAS=OpenBLAS
