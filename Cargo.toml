@@ -10,6 +10,9 @@ macros = ["linalg_macros"]
 [dependencies.complex]
 git = "https://github.com/japaric/complex.rs"
 
+[dependencies.onezero]
+git = "https://github.com/japaric/onezero.rs"
+
 [dependencies.linalg_macros]
 optional = true
 path = "macros"

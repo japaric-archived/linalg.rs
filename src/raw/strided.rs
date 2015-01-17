@@ -7,7 +7,6 @@ use error::OutOfBounds;
 
 pub struct Items<'a, T: 'a> {
     _contravariant: marker::ContravariantLifetime<'a>,
-    _nosend: marker::NoSend,
     state: *mut T,
     stop: *mut T,
     stride: usize,
@@ -60,7 +59,6 @@ impl<'a, T> DoubleEndedIterator for Items<'a, T> {
 
 pub struct Slice<'a, T: 'a> {
     _contravariant: marker::ContravariantLifetime<'a>,
-    _nosend: marker::NoSend,
     pub data: *mut T,
     pub len: usize,
     pub stride: usize,
@@ -78,7 +76,6 @@ impl<'a, T> Slice<'a, T> {
     pub fn iter(&self) -> Items<T> {
         Items {
             _contravariant: marker::ContravariantLifetime,
-            _nosend: marker::NoSend,
             state: self.data,
             stop: unsafe { self.data.offset((self.len * self.stride) as isize) },
             stride: self.stride,
@@ -112,7 +109,6 @@ impl<'a, T> ::From<(*const T, usize, usize)> for Slice<'a, T> {
     unsafe fn parts((data, len, stride): (*const T, usize, usize)) -> Slice<'a, T> {
         Slice {
             _contravariant: marker::ContravariantLifetime,
-            _nosend: marker::NoSend,
             data: data as *mut _,
             len: len,
             stride: stride,

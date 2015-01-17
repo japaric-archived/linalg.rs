@@ -7,7 +7,6 @@ use error::OutOfBounds;
 
 pub struct View<'a, T: 'a> {
     _contravariant: marker::ContravariantLifetime<'a>,
-    _nosend: marker::NoSend,
     pub data: *mut T,
     pub ld: usize,  // Leading dimension
     pub ncols: usize,
@@ -61,7 +60,6 @@ impl<'a, T> View<'a, T> {
     pub fn iter(&self) -> Items<T> {
         Items {
             _contravariant: marker::ContravariantLifetime,
-            _nosend: marker::NoSend,
             col: 0,
             data: self.data,
             ld: self.ld,
@@ -125,7 +123,6 @@ impl<'a, T> ::From<(*const T, usize, usize, usize)> for View<'a, T> {
     unsafe fn parts((data, nrows, ncols, ld): (*const T, usize, usize, usize)) -> View<'a, T> {
         View {
             _contravariant: marker::ContravariantLifetime,
-            _nosend: marker::NoSend,
             data: data as *mut _,
             ld: ld,
             ncols: ncols,
@@ -142,7 +139,6 @@ impl<'a, 'b, T, U> PartialEq<View<'a, T>> for View<'b, U> where U: PartialEq<T> 
 
 pub struct Items<'a, T: 'a> {
     _contravariant: marker::ContravariantLifetime<'a>,
-    _nosend: marker::NoSend,
     col: usize,
     data: *const T,
     ld: usize,
