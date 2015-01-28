@@ -38,9 +38,9 @@ impl<'a, T> ::From<(*const T, usize, usize)> for Slice<'a, T> {
     }
 }
 
-impl<'a, T> fmt::Show for Slice<'a, T> where T: fmt::Show {
+impl<'a, T> fmt::Debug for Slice<'a, T> where T: fmt::Debug {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Show::fmt(&self.0, f)
+        fmt::Debug::fmt(&self.0, f)
     }
 }
 
@@ -90,9 +90,9 @@ impl<'a, T> ::From<(*const T, usize, usize)> for MutSlice<'a, T> {
     }
 }
 
-impl<'a, T> fmt::Show for MutSlice<'a, T> where T: fmt::Show {
+impl<'a, T> fmt::Debug for MutSlice<'a, T> where T: fmt::Debug {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Show::fmt(&self.0, f)
+        fmt::Debug::fmt(&self.0, f)
     }
 }
 

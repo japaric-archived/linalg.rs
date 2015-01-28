@@ -35,13 +35,13 @@ macro_rules! fmt {
     }
 }
 
-impl<T> fmt::Show for Mat<T> where T: fmt::Show { fmt!(); }
-impl<T> fmt::Show for Trans<Mat<T>> where T: fmt::Show { fmt!(); }
+impl<T> fmt::Debug for Mat<T> where T: fmt::Debug { fmt!(); }
+impl<T> fmt::Debug for Trans<Mat<T>> where T: fmt::Debug { fmt!(); }
 
 macro_rules! mat_impls {
     ($($ty:ty),+) => {
         $(
-            impl<'a, T> fmt::Show for $ty where T: fmt::Show {
+            impl<'a, T> fmt::Debug for $ty where T: fmt::Debug {
                 fmt!();
             }
         )+
@@ -50,13 +50,13 @@ macro_rules! mat_impls {
 
 mat_impls!(MutView<'a, T>, Trans<MutView<'a, T>>, Trans<View<'a, T>>, View<'a, T>);
 
-impl<'a, T> fmt::Show for ColVec<T> where T: fmt::Show {
+impl<'a, T> fmt::Debug for ColVec<T> where T: fmt::Debug {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Col({:?})", &*self.0)
     }
 }
 
-impl<'a, T> fmt::Show for RowVec<T> where T: fmt::Show {
+impl<'a, T> fmt::Debug for RowVec<T> where T: fmt::Debug {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Row({:?})", &*self.0)
     }
@@ -65,7 +65,7 @@ impl<'a, T> fmt::Show for RowVec<T> where T: fmt::Show {
 macro_rules! impls {
     ($($ty:ty, $str:expr),+,) => {
         $(
-            impl<'a, T> fmt::Show for $ty where T: fmt::Show {
+            impl<'a, T> fmt::Debug for $ty where T: fmt::Debug {
                 fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
                     write!(f, concat!($str, "({:?})"), self.0)
                 }

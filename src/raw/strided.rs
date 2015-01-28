@@ -122,7 +122,7 @@ impl<'a, 'b, T, U> PartialEq<Slice<'a, T>> for Slice<'b, U> where U: PartialEq<T
     }
 }
 
-impl<'a, T> fmt::Show for Slice<'a, T> where T: fmt::Show {
+impl<'a, T> fmt::Debug for Slice<'a, T> where T: fmt::Debug {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         try!(write!(f, "["));
 

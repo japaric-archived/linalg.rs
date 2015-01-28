@@ -184,7 +184,6 @@ fn expand_mat<'cx>(
     }
 
     let vec = {
-        let uses = vec![];
         let stmts = vec![];
 
         let expr = {
@@ -202,7 +201,7 @@ fn expand_mat<'cx>(
             Some(cx.expr_call(sp, cx.expr_path(box_new_path), vec![array]))
         };
 
-        cx.expr_block(cx.block_all(sp, uses, stmts, expr))
+        cx.expr_block(cx.block_all(sp, stmts, expr))
     };
 
     if nrows == 1 {
@@ -248,7 +247,6 @@ fn expand_mat<'cx>(
         let args = vec![vec, size];
 
         let unsafe_block = cx.expr_block(P(Block {
-            view_items: vec![],
             stmts: vec![],
             expr: Some(cx.expr_call(sp, fn_name, args)),
             id: DUMMY_NODE_ID,
