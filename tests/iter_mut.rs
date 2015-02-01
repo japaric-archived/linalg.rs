@@ -1,5 +1,5 @@
-#![allow(unstable)]
 #![feature(plugin)]
+#![feature(rand)]
 
 extern crate linalg;
 extern crate quickcheck;
@@ -134,8 +134,8 @@ mod trans {
     #[quickcheck]
     fn mat((nrows, ncols): (usize, usize)) -> bool {
         let mut elems = BTreeSet::new();
-        for r in range(0, nrows) {
-            for c in range(0, ncols) {
+        for r in 0..nrows {
+            for c in 0..ncols {
                 elems.insert((r, c));
             }
         }
@@ -154,8 +154,8 @@ mod trans {
             let (start_row, start_col) = start;
 
             let mut t = BTreeSet::new();
-            for r in range(0, nrows) {
-                for c in range(0, ncols) {
+            for r in 0..nrows {
+                for c in 0..ncols {
                     t.insert((start_row + c, start_col + r));
                 }
             }
@@ -169,8 +169,8 @@ mod trans {
 #[quickcheck]
 fn mat((nrows, ncols): (usize, usize)) -> bool {
     let mut elems = BTreeSet::new();
-    for r in range(0, nrows) {
-        for c in range(0, ncols) {
+    for r in 0..nrows {
+        for c in 0..ncols {
             elems.insert((r, c));
         }
     }
@@ -189,8 +189,8 @@ fn view_mut(start: (usize, usize), (nrows, ncols): (usize, usize)) -> TestResult
         let (start_row, start_col) = start;
 
         let mut t = BTreeSet::new();
-        for r in range(0, nrows) {
-            for c in range(0, ncols) {
+        for r in 0..nrows {
+            for c in 0..ncols {
                 t.insert((start_row + r, start_col + c));
             }
         }

@@ -37,8 +37,11 @@
 //! - Element-wise iteration over [sub]matrices is done in the fastest way possible, there's no
 //!   guarantee of the iteration order
 
-#![allow(unstable)]
 #![deny(missing_docs, warnings)]
+#![feature(collections)]
+#![feature(core)]
+#![feature(libc)]
+#![feature(rand)]
 
 extern crate complex;
 extern crate libc;
@@ -644,7 +647,7 @@ impl<'a, T> Copy for View<'a, T> {}
 pub type Result<T> = ::std::result::Result<T, Error>;
 
 /// Errors
-#[derive(Copy, PartialEq, Show)]
+#[derive(Copy, Debug, PartialEq)]
 pub enum Error {
     /// Invalid slice range, usually: `start > end`
     InvalidSlice,

@@ -1,5 +1,5 @@
-#![allow(unstable)]
 #![feature(plugin)]
+#![feature(rand)]
 
 extern crate linalg;
 extern crate quickcheck;

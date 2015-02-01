@@ -1,5 +1,3 @@
-#![allow(unstable)]
-
 extern crate linalg;
 
 use linalg::prelude::*;
