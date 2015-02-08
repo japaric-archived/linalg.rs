@@ -1,10 +1,11 @@
+#![feature(core)]
 #![feature(plugin)]
-#![feature(rand)]
 
 extern crate linalg;
 extern crate quickcheck;
 #[plugin]
 extern crate quickcheck_macros;
+extern crate rand;
 
 use linalg::prelude::*;
 use quickcheck::TestResult;

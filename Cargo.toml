@@ -7,6 +7,9 @@ authors = ["Jorge Aparicio <japaricious@gmail.com>"]
 [features]
 macros = ["linalg_macros"]
 
+[dependencies]
+rand = "*"
+
 [dependencies.complex]
 git = "https://github.com/japaric/complex.rs"
 

@@ -1,10 +1,10 @@
 #![feature(plugin)]
-#![feature(rand)]
 
 extern crate linalg;
 extern crate quickcheck;
 #[plugin]
 extern crate quickcheck_macros;
+extern crate rand;
 
 #[macro_use]
 mod setup;
@@ -151,7 +151,7 @@ macro_rules! blas {
                 let mut result = setup::rand::mat::<$ty>((ncols, nrows)).t();
                 let &lhs = try!(result.at(idx));
 
-                let rhs: $ty = ::std::rand::random();
+                let rhs: $ty = ::rand::random();
 
                 result.sub_assign(rhs);
 

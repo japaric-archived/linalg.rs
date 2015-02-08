@@ -15,7 +15,7 @@ pub fn row(length: usize) -> RowVec<usize> {
 }
 
 pub mod rand {
-    use std::rand::{Rand, Rng, XorShiftRng, self};
+    use rand::{Rand, Rng, XorShiftRng, self};
 
     use linalg::{ColVec, Mat, RowVec};
 
@@ -46,7 +46,7 @@ macro_rules! enforce {
 
 macro_rules! test {
     ($e:expr) => {
-        (|&:| Ok::<_, ::linalg::Error>(TestResult::from_bool($e)))().unwrap()
+        (|| Ok::<_, ::linalg::Error>(TestResult::from_bool($e)))().unwrap()
     }
 }
 

@@ -41,16 +41,16 @@
 #![feature(collections)]
 #![feature(core)]
 #![feature(libc)]
-#![feature(rand)]
 
 extern crate complex;
 extern crate libc;
 extern crate onezero;
+extern crate rand;
 
+use rand::distributions::IndependentSample;
+use rand::{Rand, Rng};
 use std::iter as iter_;
 use std::num::Int;
-use std::rand::distributions::IndependentSample;
-use std::rand::{Rand, Rng};
 use std::raw::Repr;
 
 use traits::{MatrixCols, MatrixRows};
