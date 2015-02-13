@@ -15,9 +15,11 @@
 //! - Crate file
 //!
 //! ``` ignore
-//! extern crate linalg;
 //! // Optionally link to linalg_macros to enable the `mat!` macro
-//! #[plugin] extern crate linalg_macros;
+//! #![feature(plugin)]
+//! #![plugin(linalg_macros)]
+//!
+//! extern crate linalg;
 //!
 //! use linalg::prelude::*;
 //! ```
@@ -104,8 +106,8 @@ impl<T> ColVec<T> {
     ///
     /// ```
     /// # #![feature(plugin)]
+    /// # #![plugin(linalg_macros)]
     /// # extern crate linalg;
-    /// # #[plugin] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::ColVec;
     /// assert_eq!(ColVec::new(Box::new([0i, 1, 2])), mat![0i; 1; 2])
@@ -124,8 +126,8 @@ impl<T> ColVec<T> {
     ///
     /// ```
     /// # #![feature(plugin)]
+    /// # #![plugin(linalg_macros)]
     /// # extern crate linalg;
-    /// # #[plugin] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::ColVec;
     /// assert_eq!(ColVec::from_elem(3, 2), mat![2i; 2; 2])
@@ -144,8 +146,8 @@ impl<T> ColVec<T> {
     ///
     /// ```
     /// # #![feature(plugin)]
+    /// # #![plugin(linalg_macros)]
     /// # extern crate linalg;
-    /// # #[plugin] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::ColVec;
     /// assert_eq!(ColVec::from_fn(3, |i| i), mat![0; 1; 2])
@@ -264,8 +266,8 @@ impl<T> Mat<T> {
     ///
     /// ```
     /// # #![feature(plugin)]
+    /// # #![plugin(linalg_macros)]
     /// # extern crate linalg;
-    /// # #[plugin] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::Mat;
     /// assert_eq!(Mat::from_elem((3, 2), 2).unwrap(), mat![2i, 2; 2, 2; 2, 2])
@@ -297,8 +299,8 @@ impl<T> Mat<T> {
     ///
     /// ```
     /// # #![feature(plugin)]
+    /// # #![plugin(linalg_macros)]
     /// # extern crate linalg;
-    /// # #[plugin] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::Mat;
     /// assert_eq!(Mat::from_fn((2, 2), |i| i).unwrap(), mat![(0, 0), (0, 1); (1, 0), (1, 1)])
@@ -511,8 +513,8 @@ impl<T> RowVec<T> {
     ///
     /// ```
     /// # #![feature(plugin)]
+    /// # #![plugin(linalg_macros)]
     /// # extern crate linalg;
-    /// # #[plugin] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::RowVec;
     /// assert_eq!(RowVec::new(Box::new([0i, 1, 2])), mat![0i, 1, 2])
@@ -531,8 +533,8 @@ impl<T> RowVec<T> {
     ///
     /// ```
     /// # #![feature(plugin)]
+    /// # #![plugin(linalg_macros)]
     /// # extern crate linalg;
-    /// # #[plugin] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::RowVec;
     /// assert_eq!(RowVec::from_elem(3, 2), mat![2i, 2, 2])
@@ -551,8 +553,8 @@ impl<T> RowVec<T> {
     ///
     /// ```
     /// # #![feature(plugin)]
+    /// # #![plugin(linalg_macros)]
     /// # extern crate linalg;
-    /// # #[plugin] extern crate linalg_macros;
     /// # fn main() {
     /// # use linalg::RowVec;
     /// assert_eq!(RowVec::from_fn(3, |i| i), mat![0, 1, 2])

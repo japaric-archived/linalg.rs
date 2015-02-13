@@ -1,5 +1,4 @@
 #![deny(warnings)]
-#![feature(core)]
 #![feature(plugin_registrar)]
 #![feature(rustc_private)]
 

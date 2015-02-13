@@ -1,10 +1,9 @@
 #![feature(plugin)]
+#![plugin(quickcheck_macros)]
 
 extern crate linalg;
 extern crate onezero;
 extern crate quickcheck;
-#[plugin]
-extern crate quickcheck_macros;
 extern crate rand;
 
 #[macro_use]
