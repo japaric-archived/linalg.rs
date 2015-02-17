@@ -1,13 +1,14 @@
+use cast::CastTo;
 use onezero::{One, Zero};
 use std::num::Int;
 use std::ops::Mul;
 
-use blas::Transpose;
+use blas::{blasint, Transpose};
 use blas::dot::Dot;
 use blas::gemm::Gemm;
 use blas::gemv::Gemv;
 use traits::Matrix;
-use {Col, ColVec, Mat, MutCol, MutRow, MutView, Row, RowVec, ToBlasint, Trans, View};
+use {Col, ColVec, Mat, MutCol, MutRow, MutView, Row, RowVec, Trans, View};
 
 // mat * col (gemv)
 fn mc<T>(
@@ -24,13 +25,13 @@ fn mc<T>(
         let mut data = Vec::with_capacity(len);
 
         let gemv = <T as Gemv>::gemv();
-        let m = lhs.nrows.to_blasint();
-        let n = lhs.ncols.to_blasint();
+        let m = lhs.nrows.to::<blasint>().unwrap();
+        let n = lhs.ncols.to::<blasint>().unwrap();
         let alpha = One::one();
         let a = lhs.data;
-        let lda = lhs.ld.to_blasint();
+        let lda = lhs.ld.to::<blasint>().unwrap();
         let x = rhs.data;
-        let incx = rhs.stride.to_blasint();
+        let incx = rhs.stride.to::<blasint>().unwrap();
         let beta = Zero::zero();
         let y = data.as_mut_ptr();
         let incy = One::one();
@@ -235,18 +236,22 @@ fn mm<T>(
 
         let gemm = <T as Gemm>::gemm();
         let (m, k) = match transa {
-            Transpose::No => (lhs.nrows.to_blasint(), lhs.ncols.to_blasint()),
-            Transpose::Yes => (lhs.ncols.to_blasint(), lhs.nrows.to_blasint()),
+            Transpose::No => {
+                (lhs.nrows.to::<blasint>().unwrap(), lhs.ncols.to::<blasint>().unwrap())
+            },
+            Transpose::Yes => {
+                (lhs.ncols.to::<blasint>().unwrap(), lhs.nrows.to::<blasint>().unwrap())
+            },
         };
         let n = match transb {
-            Transpose::No => rhs.ncols.to_blasint(),
-            Transpose::Yes => rhs.nrows.to_blasint(),
+            Transpose::No => rhs.ncols.to::<blasint>().unwrap(),
+            Transpose::Yes => rhs.nrows.to::<blasint>().unwrap(),
         };
         let alpha = One::one();
         let a = lhs.data;
-        let lda = lhs.ld.to_blasint();
+        let lda = lhs.ld.to::<blasint>().unwrap();
         let b = rhs.data;
-        let ldb = rhs.ld.to_blasint();
+        let ldb = rhs.ld.to::<blasint>().unwrap();
         let beta = Zero::zero();
         let mut data = Vec::with_capacity(len);
         let c = data.as_mut_ptr();
@@ -662,12 +667,12 @@ impl<'a, 'b, T> Mul<Col<'a, T>> for Row<'b, T> where T: Dot + Zero {
 
         let dot = <T as Dot>::dot();
         let x = lhs.data;
-        let incx = lhs.stride.to_blasint();
+        let incx = lhs.stride.to::<blasint>().unwrap();
         let y = rhs.data;
-        let incy = rhs.stride.to_blasint();
+        let incy = rhs.stride.to::<blasint>().unwrap();
 
         unsafe {
-            dot(&n.to_blasint(), x, &incx, y, &incy)
+            dot(&n.to::<blasint>().unwrap(), x, &incx, y, &incy)
         }
     }
 }

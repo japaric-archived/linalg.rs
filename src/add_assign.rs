@@ -1,10 +1,12 @@
+use cast::CastTo;
 use onezero::One;
 
 use {
-    Col, ColVec, Mat, MutCol, MutDiag, MutRow, MutView, Row, RowVec, Scaled, ToBlasint, Trans,
+    Col, ColVec, Mat, MutCol, MutDiag, MutRow, MutView, Row, RowVec, Scaled, Trans,
     View,
 };
 use blas::axpy::Axpy;
+use blas::blasint;
 use traits::{AddAssign, Matrix, MatrixCols, MatrixMutCols, MatrixMutRows, MatrixRows};
 
 // vector += scalar
@@ -18,9 +20,9 @@ fn vs<T>(lhs: ::raw::strided::Slice<T>, rhs: T) where T: Axpy + One {
     let x = &rhs;
     let incx = 0;
     let y = lhs.data;
-    let incy = lhs.stride.to_blasint();
+    let incy = lhs.stride.to::<blasint>().unwrap();
 
-    unsafe { axpy(&n.to_blasint(), &alpha, x, &incx, y, &incy) }
+    unsafe { axpy(&n.to::<blasint>().unwrap(), &alpha, x, &incx, y, &incy) }
 }
 
 // col
@@ -98,11 +100,11 @@ fn vv<T>(lhs: ::raw::strided::Slice<T>, alpha: T, rhs: ::raw::strided::Slice<T>)
     if n == 0 { return }
 
     let axpy = <T as Axpy>::axpy();
-    let n = n.to_blasint();
+    let n = n.to::<blasint>().unwrap();
     let x = rhs.data;
-    let incx = rhs.stride.to_blasint();
+    let incx = rhs.stride.to::<blasint>().unwrap();
     let y = lhs.data;
-    let incy = lhs.stride.to_blasint();
+    let incy = lhs.stride.to::<blasint>().unwrap();
 
     unsafe { axpy(&n, &alpha, x, &incx, y, &incy) }
 }

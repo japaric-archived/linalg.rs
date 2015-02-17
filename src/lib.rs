@@ -44,6 +44,7 @@
 #![feature(core)]
 #![feature(libc)]
 
+extern crate cast;
 extern crate complex;
 extern crate libc;
 extern crate onezero;
@@ -681,25 +682,6 @@ trait Slice<'a, I> {
 
     /// Private
     fn slice(&'a self, start: I, end: I) -> Result<Self::Slice>;
-}
-
-// FIXME Use `cast.rs` instead of this trait
-/// Private
-trait ToBlasint {
-    /// Private
-    fn to_blasint(self) -> blas::blasint;
-}
-
-impl ToBlasint for usize {
-    fn to_blasint(self) -> blas::blasint {
-        let max: blas::blasint = ::std::num::Int::max_value();
-
-        if self > max as usize {
-            panic!("Cast overflow (`usize` -> `blasint`)");
-        } else {
-            self as blas::blasint
-        }
-    }
 }
 
 // Hack because the intra-crate privacy rules are weird

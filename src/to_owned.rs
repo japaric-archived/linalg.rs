@@ -1,8 +1,10 @@
+use cast::CastTo;
 use std::mem;
 
+use blas::blasint;
 use blas::copy::Copy;
 use traits::{Matrix, MatrixCols, MatrixRows, ToOwned};
-use {ToBlasint, Col, ColVec, Mat, MutCol, MutRow, MutView, Row, RowVec, Trans, View};
+use {Col, ColVec, Mat, MutCol, MutRow, MutView, Row, RowVec, Trans, View};
 
 fn to<'a, T>(s: ::raw::strided::Slice<'a, T>) -> Box<[T]> where T: Copy {
     let n = s.len();
@@ -11,13 +13,13 @@ fn to<'a, T>(s: ::raw::strided::Slice<'a, T>) -> Box<[T]> where T: Copy {
 
     let copy = <T as Copy>::copy();
     let x = s.data;
-    let incx = s.stride.to_blasint();
+    let incx = s.stride.to::<blasint>().unwrap();
     let mut data = Vec::with_capacity(n);
     let y = data.as_mut_ptr();
     let incy = 1;
 
     unsafe {
-        copy(&n.to_blasint(), x, &incx, y, &incy);
+        copy(&n.to::<blasint>().unwrap(), x, &incx, y, &incy);
         data.set_len(n)
     }
 
@@ -100,27 +102,27 @@ impl<'a, T> ToOwned<Mat<T>> for Trans<View<'a, T>> where T: Copy {
             let copy = <T as Copy>::copy();
 
             if nrows < ncols {
-                let n = ncols.to_blasint();
-                let incy = nrows.to_blasint();
+                let n = ncols.to::<blasint>().unwrap();
+                let incy = nrows.to::<blasint>().unwrap();
 
                 for (i, row) in self.rows().enumerate() {
                     let slice = (row.0).0;
 
                     let x = slice.data;
-                    let incx = slice.stride.to_blasint();
+                    let incx = slice.stride.to::<blasint>().unwrap();
                     let y = unsafe { data.as_mut_ptr().offset(i as isize) };
 
                     unsafe { copy(&n, x, &incx, y, &incy) }
                 }
             } else {
-                let n = self.nrows().to_blasint();
+                let n = self.nrows().to::<blasint>().unwrap();
                 let incy = 1;
 
                 for (i, col) in self.cols().enumerate() {
                     let slice = (col.0).0;
 
                     let x = slice.data;
-                    let incx = slice.stride.to_blasint();
+                    let incx = slice.stride.to::<blasint>().unwrap();
                     let y = unsafe { data.as_mut_ptr().offset((i * self.nrows()) as isize) };
 
                     unsafe { copy(&n, x, &incx, y, &incy) }
@@ -156,27 +158,27 @@ impl<'a, T> ToOwned<Mat<T>> for View<'a, T> where T: Copy {
             let copy = <T as Copy>::copy();
 
             if nrows < ncols {
-                let n = ncols.to_blasint();
-                let incy = nrows.to_blasint();
+                let n = ncols.to::<blasint>().unwrap();
+                let incy = nrows.to::<blasint>().unwrap();
 
                 for (i, row) in self.rows().enumerate() {
                     let slice = (row.0).0;
 
                     let x = slice.data;
-                    let incx = slice.stride.to_blasint();
+                    let incx = slice.stride.to::<blasint>().unwrap();
                     let y = unsafe { data.as_mut_ptr().offset(i as isize) };
 
                     unsafe { copy(&n, x, &incx, y, &incy) }
                 }
             } else {
-                let n = self.nrows().to_blasint();
+                let n = self.nrows().to::<blasint>().unwrap();
                 let incy = 1;
 
                 for (i, col) in self.cols().enumerate() {
                     let slice = (col.0).0;
 
                     let x = slice.data;
-                    let incx = slice.stride.to_blasint();
+                    let incx = slice.stride.to::<blasint>().unwrap();
                     let y = unsafe { data.as_mut_ptr().offset((i * self.nrows()) as isize) };
 
                     unsafe { copy(&n, x, &incx, y, &incy) }
