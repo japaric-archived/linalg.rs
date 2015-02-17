@@ -9,7 +9,7 @@ fn to<'a, T>(s: ::raw::strided::Slice<'a, T>) -> Box<[T]> where T: Copy {
 
     if n == 0 { return Box::new([]) }
 
-    let copy = Copy::copy(None::<T>);
+    let copy = <T as Copy>::copy();
     let x = s.data;
     let incx = s.stride.to_blasint();
     let mut data = Vec::with_capacity(n);
@@ -97,7 +97,7 @@ impl<'a, T> ToOwned<Mat<T>> for Trans<View<'a, T>> where T: Copy {
         } else {
             let mut data = Vec::with_capacity(n);
 
-            let copy = Copy::copy(None::<T>);
+            let copy = <T as Copy>::copy();
 
             if nrows < ncols {
                 let n = ncols.to_blasint();
@@ -153,7 +153,7 @@ impl<'a, T> ToOwned<Mat<T>> for View<'a, T> where T: Copy {
         } else {
             let mut data = Vec::with_capacity(n);
 
-            let copy = Copy::copy(None::<T>);
+            let copy = <T as Copy>::copy();
 
             if nrows < ncols {
                 let n = ncols.to_blasint();

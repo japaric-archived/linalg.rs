@@ -14,7 +14,7 @@ fn vs<T>(lhs: ::raw::strided::Slice<T>, rhs: T) where T: Axpy + Neg<Output=T> + 
 
     if n == 0 { return }
 
-    let axpy = Axpy::axpy(None::<T>);
+    let axpy = <T as Axpy>::axpy();
     let alpha: T = One::one();
     let alpha = -alpha;
     let x = &rhs;
@@ -101,7 +101,7 @@ fn vv<T>(lhs: ::raw::strided::Slice<T>, alpha: T, rhs: ::raw::strided::Slice<T>)
 
     if n == 0 { return }
 
-    let axpy = Axpy::axpy(None::<T>);
+    let axpy = <T as Axpy>::axpy();
     let n = n.to_blasint();
     let alpha = -alpha;
     let x = rhs.data;

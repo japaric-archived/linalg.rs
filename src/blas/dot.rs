@@ -14,17 +14,17 @@ pub type Fn<T> = unsafe extern "C" fn (
 /// Types with `dot` acceleration
 pub trait Dot {
     /// Returns the foreign `dot` function
-    fn dot(Option<Self>) -> Fn<Self>;
+    fn dot() -> Fn<Self>;
 }
 
 impl Dot for f32 {
-    fn dot(_: Option<f32>) -> Fn<f32> {
+    fn dot() -> Fn<f32> {
         ffi::sdot_
     }
 }
 
 impl Dot for f64 {
-    fn dot(_: Option<f64>) -> Fn<f64> {
+    fn dot() -> Fn<f64> {
         ffi::ddot_
     }
 }

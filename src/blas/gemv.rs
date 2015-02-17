@@ -20,32 +20,31 @@ pub type Fn<T> = unsafe extern "C" fn (
 
 
 /// Types with `gemv` acceleration
-// FIXME (UFCS) Get rid of `Option<Self>`
 pub trait Gemv {
     /// Returns the foreign `gemv` function
-    fn gemv(Option<Self>) -> Fn<Self>;
+    fn gemv() -> Fn<Self>;
 }
 
 impl Gemv for Complex<f32> {
-    fn gemv(_: Option<Complex<f32>>) -> Fn<Complex<f32>> {
+    fn gemv() -> Fn<Complex<f32>> {
         ffi::cgemv_
     }
 }
 
 impl Gemv for Complex<f64> {
-    fn gemv(_: Option<Complex<f64>>) -> Fn<Complex<f64>> {
+    fn gemv() -> Fn<Complex<f64>> {
         ffi::zgemv_
     }
 }
 
 impl Gemv for f32 {
-    fn gemv(_: Option<f32>) -> Fn<f32> {
+    fn gemv() -> Fn<f32> {
         ffi::sgemv_
     }
 }
 
 impl Gemv for f64 {
-    fn gemv(_: Option<f64>) -> Fn<f64> {
+    fn gemv() -> Fn<f64> {
         ffi::dgemv_
     }
 }
