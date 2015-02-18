@@ -1,10 +1,11 @@
-use assign::AddAssign;
-use complex::Complex;
-use onezero::One;
 use std::ops::Add;
 
+use assign::AddAssign;
+use blas::Axpy;
+use complex::Complex;
+use onezero::One;
+
 use {Col, ColVec, Mat, MutCol, MutRow, MutView, Row, RowVec, Scaled, Trans, View};
-use blas::axpy::Axpy;
 
 macro_rules! add0 {
     ($lhs:ty, $rhs:ty) => {

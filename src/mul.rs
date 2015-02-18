@@ -1,12 +1,10 @@
-use cast::CastTo;
-use onezero::{One, Zero};
 use std::num::Int;
 use std::ops::Mul;
 
-use blas::{blasint, Transpose};
-use blas::dot::Dot;
-use blas::gemm::Gemm;
-use blas::gemv::Gemv;
+use blas::{Dot, Gemm, Gemv, Transpose, blasint};
+use cast::CastTo;
+use onezero::{One, Zero};
+
 use traits::Matrix;
 use {Col, ColVec, Mat, MutCol, MutRow, MutView, Row, RowVec, Trans, View};
 

@@ -1,8 +1,8 @@
-use cast::CastTo;
 use std::mem;
 
-use blas::blasint;
-use blas::copy::Copy;
+use blas::{Copy, blasint};
+use cast::CastTo;
+
 use traits::{Matrix, MatrixCols, MatrixRows, ToOwned};
 use {Col, ColVec, Mat, MutCol, MutRow, MutView, Row, RowVec, Trans, View};
 

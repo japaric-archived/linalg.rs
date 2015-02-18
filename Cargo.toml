@@ -13,6 +13,9 @@ rand = "*"
 [dependencies.assign]
 git = "https://github.com/japaric/assign.rs"
 
+[dependencies.blas]
+git = "https://github.com/japaric/blas.rs"
+
 [dependencies.cast]
 git = "https://github.com/japaric/cast.rs"
 

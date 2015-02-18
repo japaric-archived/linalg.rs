@@ -45,6 +45,7 @@
 #![feature(libc)]
 
 extern crate assign;
+extern crate blas;
 extern crate cast;
 extern crate complex;
 extern crate libc;
@@ -83,7 +84,6 @@ mod to_owned;
 mod trans;
 mod view;
 
-pub mod blas;
 pub mod prelude;
 pub mod strided;
 pub mod traits;

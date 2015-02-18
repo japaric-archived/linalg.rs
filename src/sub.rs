@@ -1,9 +1,10 @@
-use assign::SubAssign;
-use onezero::One;
 use std::ops::{Sub, Neg};
 
+use assign::SubAssign;
+use blas::Axpy;
+use onezero::One;
+
 use {Col, ColVec, Mat, MutCol, MutRow, MutView, Row, RowVec, Scaled, Trans, View};
-use blas::axpy::Axpy;
 
 macro_rules! sub0 {
     ($lhs:ty, $rhs:ty) => {

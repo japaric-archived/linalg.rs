@@ -1,6 +1,7 @@
 use std::ops::Neg;
 
 use assign::SubAssign;
+use blas::{Axpy, blasint};
 use cast::CastTo;
 use onezero::One;
 
@@ -8,8 +9,6 @@ use {
     Col, ColVec, Mat, MutCol, MutDiag, MutRow, MutView, Row, RowVec, Scaled, Trans,
     View,
 };
-use blas::axpy::Axpy;
-use blas::blasint;
 use traits::{Matrix, MatrixCols, MatrixMutCols, MatrixMutRows, MatrixRows};
 
 // vector -= scalar
