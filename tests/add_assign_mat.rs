@@ -40,7 +40,7 @@ mod trans {
                 })
             }
 
-            // Test that `add_assign(Trans<View>)` is correct for `Mat`
+            // Test that `add_assign(&Trans<View>)` is correct for `Mat`
             #[quickcheck]
             fn view(
                 start: (usize, usize),
@@ -62,7 +62,7 @@ mod trans {
                     let m = setup::rand::mat::<$ty>(size);
                     let rhs = try!(m.slice_from(start)).t();
 
-                    result.add_assign(rhs);
+                    result.add_assign(&rhs);
 
                     let &rhs = try!(rhs.at(idx));
 
@@ -137,7 +137,7 @@ macro_rules! blas {
             })
         }
 
-        // Test that `add_assign(T)` is correct for `Mat`
+        // Test that `add_assign(&T)` is correct for `Mat`
         #[quickcheck]
         fn scalar((nrows, ncols): (usize, usize), (row, col): (usize, usize)) -> TestResult {
             enforce! {
@@ -154,13 +154,13 @@ macro_rules! blas {
 
                 let rhs: $ty = ::rand::random();
 
-                result.add_assign(rhs);
+                result.add_assign(&rhs);
 
                 lhs + rhs == *try!(result.at(idx))
             })
         }
 
-        // Test that `add_assign(View)` is correct for `Mat`
+        // Test that `add_assign(&View)` is correct for `Mat`
         #[quickcheck]
         fn view(
             start: (usize, usize),
@@ -182,7 +182,7 @@ macro_rules! blas {
                 let m = setup::rand::mat::<$ty>(size);
                 let rhs = try!(m.slice_from(start));
 
-                result.add_assign(rhs);
+                result.add_assign(&rhs);
 
                 let &rhs = try!(rhs.at(idx));
 

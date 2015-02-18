@@ -106,7 +106,7 @@ impl<'a, 'b, T> Mul<T> for &'a MutCol<'b, T> {
     type Output = Scaled<T, Col<'a, T>>;
 
     fn mul(self, rhs: T) -> Scaled<T, Col<'a, T>> {
-        Scaled(rhs, self.as_col())
+        Scaled(rhs, *self.as_col())
     }
 }
 
@@ -133,7 +133,7 @@ impl<'a, 'b, T> Mul<T> for &'a MutView<'b, T> {
     type Output = Scaled<T, View<'a, T>>;
 
     fn mul(self, rhs: T) -> Scaled<T, View<'a, T>> {
-        Scaled(rhs, self.as_view())
+        Scaled(rhs, *self.as_view())
     }
 }
 
@@ -159,7 +159,7 @@ impl<'a, 'b, T> Mul<T> for &'a Trans<MutView<'b, T>> {
     type Output = Scaled<T, Trans<View<'a, T>>>;
 
     fn mul(self, rhs: T) -> Scaled<T, Trans<View<'a, T>>> {
-        Scaled(rhs, Trans(self.0.as_view()))
+        Scaled(rhs, Trans(*self.0.as_view()))
     }
 }
 
@@ -225,7 +225,7 @@ impl<'a, 'b, T> Mul<T> for &'a MutRow<'b, T> {
     type Output = Scaled<T, Row<'a, T>>;
 
     fn mul(self, rhs: T) -> Scaled<T, Row<'a, T>> {
-        Scaled(rhs, self.as_row())
+        Scaled(rhs, *self.as_row())
     }
 }
 

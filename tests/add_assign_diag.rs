@@ -15,7 +15,7 @@ macro_rules! blas {
 
         use setup;
 
-        // Test that `add_assign(T)` is correct for `MutDiag`
+        // Test that `add_assign(&T)` is correct for `MutDiag`
         #[quickcheck]
         fn scalar(size: (usize, usize), diag: isize, idx: usize) -> TestResult {
             validate_diag_index!(diag, size, idx);
@@ -27,7 +27,7 @@ macro_rules! blas {
 
                 let rhs: $ty = ::rand::random();
 
-                result.add_assign(rhs);
+                result.add_assign(&rhs);
 
                 lhs + rhs == *try!(result.at(idx))
             })

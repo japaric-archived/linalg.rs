@@ -67,7 +67,7 @@ impl<'a, 'b, 'c, T> Mul<&'a MutCol<'b, T>> for &'c Mat<T> where
     type Output = ColVec<T>;
 
     fn mul(self, rhs: &MutCol<T>) -> ColVec<T> {
-        self.as_view() * rhs.as_col()
+        self.as_view() * *rhs.as_col()
     }
 }
 
@@ -75,7 +75,7 @@ impl<'a, 'b, 'c, T> Mul<Col<'a, T>> for &'b MutView<'c, T> where T: Gemv + One +
     type Output = ColVec<T>;
 
     fn mul(self, rhs: Col<T>) -> ColVec<T> {
-        self.as_view() * rhs
+        *self.as_view() * rhs
     }
 }
 
@@ -85,7 +85,7 @@ impl<'a, 'b, 'c, T> Mul<&'a ColVec<T>> for &'b MutView<'c, T> where
     type Output = ColVec<T>;
 
     fn mul(self, rhs: &ColVec<T>) -> ColVec<T> {
-        self.as_view() * rhs.as_col()
+        *self.as_view() * rhs.as_col()
     }
 }
 
@@ -95,7 +95,7 @@ impl<'a, 'b, 'c, 'd, T> Mul<&'a MutCol<'b, T>> for &'c MutView<'d, T> where
     type Output = ColVec<T>;
 
     fn mul(self, rhs: &MutCol<T>) -> ColVec<T> {
-        self.as_view() * rhs.as_col()
+        *self.as_view() * *rhs.as_col()
     }
 }
 
@@ -105,7 +105,7 @@ impl<'a, 'b, T> Mul<Col<'a, T>> for &'b Trans<Mat<T>> where
     type Output = ColVec<T>;
 
     fn mul(self, rhs: Col<T>) -> ColVec<T> {
-        Trans(self.0.as_view()) * rhs
+        self.as_trans_view_() * rhs
     }
 }
 
@@ -115,7 +115,7 @@ impl<'a, 'b, T> Mul<&'a ColVec<T>> for &'b Trans<Mat<T>> where
     type Output = ColVec<T>;
 
     fn mul(self, rhs: &ColVec<T>) -> ColVec<T> {
-        Trans(self.0.as_view()) * rhs.as_col()
+        self.as_trans_view_() * rhs.as_col()
     }
 }
 
@@ -125,7 +125,7 @@ impl<'a, 'b, 'c, T> Mul<&'a MutCol<'b, T>> for &'c Trans<Mat<T>> where
     type Output = ColVec<T>;
 
     fn mul(self, rhs: &MutCol<T>) -> ColVec<T> {
-        Trans(self.0.as_view()) * rhs.as_col()
+        self.as_trans_view_() * *rhs.as_col()
     }
 }
 
@@ -135,7 +135,7 @@ impl<'a, 'b, 'c, T> Mul<Col<'a, T>> for &'b Trans<MutView<'c, T>> where
     type Output = ColVec<T>;
 
     fn mul(self, rhs: Col<T>) -> ColVec<T> {
-        Trans(self.0.as_view())* rhs
+        *self.as_trans_view() * rhs
     }
 }
 
@@ -145,7 +145,7 @@ impl<'a, 'b, 'c, T> Mul<&'a ColVec<T>> for &'b Trans<MutView<'c, T>> where
     type Output = ColVec<T>;
 
     fn mul(self, rhs: &ColVec<T>) -> ColVec<T> {
-        Trans(self.0.as_view())* rhs.as_col()
+        *self.as_trans_view() * rhs.as_col()
     }
 }
 
@@ -155,7 +155,7 @@ impl<'a, 'b, 'c, 'd, T> Mul<&'a MutCol<'b, T>> for &'c Trans<MutView<'d, T>> whe
     type Output = ColVec<T>;
 
     fn mul(self, rhs: &MutCol<T>) -> ColVec<T> {
-        Trans(self.0.as_view())* rhs.as_col()
+        *self.as_trans_view() * *rhs.as_col()
     }
 }
 
@@ -186,7 +186,7 @@ impl<'a, 'b, 'c, T> Mul<&'a MutCol<'b, T>> for Trans<View<'c, T>> where
     type Output = ColVec<T>;
 
     fn mul(self, rhs: &MutCol<T>) -> ColVec<T> {
-        self * rhs.as_col()
+        self * *rhs.as_col()
     }
 }
 
@@ -215,7 +215,7 @@ impl<'a, 'b, 'c, T> Mul<&'a MutCol<'b, T>> for View<'c, T> where T: Gemv + One +
     type Output = ColVec<T>;
 
     fn mul(self, rhs: &MutCol<T>) -> ColVec<T> {
-        self * rhs.as_col()
+        self * *rhs.as_col()
     }
 }
 
@@ -284,7 +284,7 @@ impl<'a, 'b, 'c, T> Mul<&'a MutView<'b, T>> for &'c Mat<T> where
     type Output = Mat<T>;
 
     fn mul(self, rhs: &MutView<T>) -> Mat<T> {
-        self.as_view() * rhs.as_view()
+        self.as_view() * *rhs.as_view()
     }
 }
 
@@ -294,7 +294,7 @@ impl<'a, 'b, T> Mul<&'a Trans<Mat<T>>> for &'b Mat<T> where
     type Output = Mat<T>;
 
     fn mul(self, rhs: &Trans<Mat<T>>) -> Mat<T> {
-        self.as_view() * Trans(rhs.0.as_view())
+        self.as_view() * rhs.as_trans_view_()
     }
 }
 
@@ -304,7 +304,7 @@ impl<'a, 'b, 'c, T> Mul<&'a Trans<MutView<'b, T>>> for &'c Mat<T> where
     type Output = Mat<T>;
 
     fn mul(self, rhs: &Trans<MutView<T>>) -> Mat<T> {
-        self.as_view() * Trans(rhs.0.as_view())
+        self.as_view() * *rhs.as_trans_view()
     }
 }
 
@@ -330,7 +330,7 @@ impl<'a, 'b, 'c, T> Mul<&'a Mat<T>> for &'b MutView<'c, T> where T: Gemm + One +
     type Output = Mat<T>;
 
     fn mul(self, rhs: &Mat<T>) -> Mat<T> {
-        self.as_view() * rhs.as_view()
+        *self.as_view() * rhs.as_view()
     }
 }
 
@@ -340,7 +340,7 @@ impl<'a, 'b, 'c, 'd, T> Mul<&'a MutView<'b, T>> for &'c MutView<'d, T> where
     type Output = Mat<T>;
 
     fn mul(self, rhs: &MutView<T>) -> Mat<T> {
-        self.as_view() * rhs.as_view()
+        *self.as_view() * *rhs.as_view()
     }
 }
 
@@ -350,7 +350,7 @@ impl<'a, 'b, 'c, T> Mul<&'a Trans<Mat<T>>> for &'b MutView<'c, T> where
     type Output = Mat<T>;
 
     fn mul(self, rhs: &Trans<Mat<T>>) -> Mat<T> {
-        self.as_view() * Trans(rhs.0.as_view())
+        *self.as_view() * rhs.as_trans_view_()
     }
 }
 
@@ -360,7 +360,7 @@ impl<'a, 'b, 'c, 'd, T> Mul<&'a Trans<MutView<'b, T>>> for &'c MutView<'d, T> wh
     type Output = Mat<T>;
 
     fn mul(self, rhs: &Trans<MutView<T>>) -> Mat<T> {
-        self.as_view() * Trans(rhs.0.as_view())
+        *self.as_view() * *rhs.as_trans_view()
     }
 }
 
@@ -370,7 +370,7 @@ impl<'a, 'b, 'c, T> Mul<Trans<View<'a, T>>> for &'b MutView<'c, T> where
     type Output = Mat<T>;
 
     fn mul(self, rhs: Trans<View<T>>) -> Mat<T> {
-        self.as_view() * rhs
+        *self.as_view() * rhs
     }
 }
 
@@ -378,7 +378,7 @@ impl<'a, 'b, 'c, T> Mul<View<'a, T>> for &'b MutView<'c, T> where T: Gemm + One 
     type Output = Mat<T>;
 
     fn mul(self, rhs: View<T>) -> Mat<T> {
-        self.as_view() * rhs
+        *self.as_view() * rhs
     }
 }
 
@@ -386,7 +386,7 @@ impl<'a, 'b, T> Mul<&'a Mat<T>> for &'b Trans<Mat<T>> where T: Gemm + One + Zero
     type Output = Mat<T>;
 
     fn mul(self, rhs: &Mat<T>) -> Mat<T> {
-        Trans(self.0.as_view()) * rhs.as_view()
+        self.as_trans_view_() * rhs.as_view()
     }
 }
 
@@ -396,7 +396,7 @@ impl<'a, 'b, 'c, T> Mul<&'a MutView<'b, T>> for &'c Trans<Mat<T>> where
     type Output = Mat<T>;
 
     fn mul(self, rhs: &MutView<T>) -> Mat<T> {
-        Trans(self.0.as_view()) * rhs.as_view()
+        self.as_trans_view_() * *rhs.as_view()
     }
 }
 
@@ -406,7 +406,7 @@ impl<'a, 'b, T> Mul<&'a Trans<Mat<T>>> for &'b Trans<Mat<T>> where
     type Output = Mat<T>;
 
     fn mul(self, rhs: &Trans<Mat<T>>) -> Mat<T> {
-        Trans(self.0.as_view()) * Trans(rhs.0.as_view())
+        self.as_trans_view_() * rhs.as_trans_view_()
     }
 }
 
@@ -416,7 +416,7 @@ impl<'a, 'b, 'c, T> Mul<&'a Trans<MutView<'b, T>>> for &'c Trans<Mat<T>> where
     type Output = Mat<T>;
 
     fn mul(self, rhs: &Trans<MutView<T>>) -> Mat<T> {
-        Trans(self.0.as_view()) * Trans(rhs.0.as_view())
+        self.as_trans_view_() * *rhs.as_trans_view()
     }
 }
 
@@ -426,7 +426,7 @@ impl<'a, 'b, T> Mul<Trans<View<'a, T>>> for &'b Trans<Mat<T>> where
     type Output = Mat<T>;
 
     fn mul(self, rhs: Trans<View<T>>) -> Mat<T> {
-        Trans(self.0.as_view()) * rhs
+        self.as_trans_view_() * rhs
     }
 }
 
@@ -434,7 +434,7 @@ impl<'a, 'b, T> Mul<View<'a, T>> for &'b Trans<Mat<T>> where T: Gemm + One + Zer
     type Output = Mat<T>;
 
     fn mul(self, rhs: View<T>) -> Mat<T> {
-        Trans(self.0.as_view()) * rhs
+        self.as_trans_view_() * rhs
     }
 }
 
@@ -444,7 +444,7 @@ impl<'a, 'b, 'c, T> Mul<&'a Mat<T>> for &'b Trans<MutView<'c, T>> where
     type Output = Mat<T>;
 
     fn mul(self, rhs: &Mat<T>) -> Mat<T> {
-        Trans(self.0.as_view()) * rhs.as_view()
+        *self.as_trans_view() * rhs.as_view()
     }
 }
 
@@ -454,7 +454,7 @@ impl<'a, 'b, 'c, 'd, T> Mul<&'a MutView<'b, T>> for &'c Trans<MutView<'d, T>> wh
     type Output = Mat<T>;
 
     fn mul(self, rhs: &MutView<T>) -> Mat<T> {
-        Trans(self.0.as_view()) * rhs.as_view()
+        *self.as_trans_view() * *rhs.as_view()
     }
 }
 
@@ -464,7 +464,7 @@ impl<'a, 'b, 'c, T> Mul<&'a Trans<Mat<T>>> for &'b Trans<MutView<'c, T>> where
     type Output = Mat<T>;
 
     fn mul(self, rhs: &Trans<Mat<T>>) -> Mat<T> {
-        Trans(self.0.as_view()) * Trans(rhs.0.as_view())
+        *self.as_trans_view() * rhs.as_trans_view_()
     }
 }
 
@@ -474,7 +474,7 @@ impl<'a, 'b, 'c, 'd, T> Mul<&'a Trans<MutView<'b, T>>> for &'c Trans<MutView<'d,
     type Output = Mat<T>;
 
     fn mul(self, rhs: &Trans<MutView<T>>) -> Mat<T> {
-        Trans(self.0.as_view()) * Trans(rhs.0.as_view())
+        *self.as_trans_view() * *rhs.as_trans_view()
     }
 }
 
@@ -484,7 +484,7 @@ impl<'a, 'b, 'c, T> Mul<Trans<View<'a, T>>> for &'b Trans<MutView<'c, T>> where
     type Output = Mat<T>;
 
     fn mul(self, rhs: Trans<View<T>>) -> Mat<T> {
-        Trans(self.0.as_view()) * rhs
+        *self.as_trans_view() * rhs
     }
 }
 
@@ -494,7 +494,7 @@ impl<'a, 'b, 'c, T> Mul<View<'a, T>> for &'b Trans<MutView<'c, T>> where
     type Output = Mat<T>;
 
     fn mul(self, rhs: View<T>) -> Mat<T> {
-        Trans(self.0.as_view()) * rhs
+        *self.as_trans_view() * rhs
     }
 }
 
@@ -512,7 +512,7 @@ impl<'a, 'b, 'c, T> Mul<&'a MutView<'b, T>> for Trans<View<'c, T>> where
     type Output = Mat<T>;
 
     fn mul(self, rhs: &MutView<T>) -> Mat<T> {
-        self * rhs.as_view()
+        self * *rhs.as_view()
     }
 }
 
@@ -522,7 +522,7 @@ impl<'a, 'b, T> Mul<&'a Trans<Mat<T>>> for Trans<View<'b, T>> where
     type Output = Mat<T>;
 
     fn mul(self, rhs: &Trans<Mat<T>>) -> Mat<T> {
-        self * Trans(rhs.0.as_view())
+        self * rhs.as_trans_view_()
     }
 }
 
@@ -532,7 +532,7 @@ impl<'a, 'b, 'c, T> Mul<&'a Trans<MutView<'b, T>>> for Trans<View<'c, T>> where
     type Output = Mat<T>;
 
     fn mul(self, rhs: &Trans<MutView<T>>) -> Mat<T> {
-        self * Trans(rhs.0.as_view())
+        self * *rhs.as_trans_view()
     }
 }
 
@@ -576,7 +576,7 @@ impl<'a, 'b, 'c, T> Mul<&'a MutView<'b, T>> for View<'c, T> where T: Gemm + One 
     type Output = Mat<T>;
 
     fn mul(self, rhs: &MutView<T>) -> Mat<T> {
-        self * rhs.as_view()
+        self * *rhs.as_view()
     }
 }
 
@@ -586,7 +586,7 @@ impl<'a, 'b, T> Mul<&'a Trans<Mat<T>>> for View<'b, T> where
     type Output = Mat<T>;
 
     fn mul(self, rhs: &Trans<Mat<T>>) -> Mat<T> {
-        self * Trans(rhs.0.as_view())
+        self * rhs.as_trans_view_()
     }
 }
 
@@ -596,7 +596,7 @@ impl<'a, 'b, 'c, T> Mul<&'a Trans<MutView<'b, T>>> for View<'c, T> where
     type Output = Mat<T>;
 
     fn mul(self, rhs: &Trans<MutView<T>>) -> Mat<T> {
-        self * Trans(rhs.0.as_view())
+        self * *rhs.as_trans_view()
     }
 }
 
@@ -649,7 +649,7 @@ impl<'a, 'b, 'c, T> Mul<&'a MutCol<'b, T>> for &'c RowVec<T> where T: Dot + Zero
     type Output = T;
 
     fn mul(self, rhs: &MutCol<T>) -> T {
-        self.as_row() * rhs.as_col()
+        self.as_row() * *rhs.as_col()
     }
 }
 
@@ -689,7 +689,7 @@ impl<'a, 'b, 'c, T> Mul<&'a MutCol<'b, T>> for Row<'c, T> where T: Dot + Zero {
     type Output = T;
 
     fn mul(self, rhs: &MutCol<T>) -> T {
-        self * rhs.as_col()
+        self * *rhs.as_col()
     }
 }
 
@@ -697,7 +697,7 @@ impl<'a, 'b, 'c, T> Mul<Col<'a, T>> for &'b MutRow<'c, T> where T: Dot + Zero {
     type Output = T;
 
     fn mul(self, rhs: Col<T>) -> T {
-        self.as_row() * rhs
+        *self.as_row() * rhs
     }
 }
 
@@ -705,7 +705,7 @@ impl<'a, 'b, 'c, T> Mul<&'a ColVec<T>> for &'b MutRow<'c, T> where T: Dot + Zero
     type Output = T;
 
     fn mul(self, rhs: &ColVec<T>) -> T {
-        self.as_row() * rhs.as_col()
+        *self.as_row() * rhs.as_col()
     }
 }
 
@@ -713,7 +713,7 @@ impl<'a, 'b, 'c, 'd, T> Mul<&'a MutCol<'b, T>> for &'c MutRow<'d, T> where T: Do
     type Output = T;
 
     fn mul(self, rhs: &MutCol<T>) -> T {
-        self.as_row() * rhs.as_col()
+        *self.as_row() * *rhs.as_col()
     }
 }
 
@@ -722,7 +722,7 @@ impl<'a, 'b, 'c, T> Mul<&'a Mat<T>> for &'b MutRow<'c, T> where T: Gemv + One + 
     type Output = RowVec<T>;
 
     fn mul(self, rhs: &Mat<T>) -> RowVec<T> {
-        self.as_row() * rhs.as_view()
+        *self.as_row() * rhs.as_view()
     }
 }
 
@@ -732,7 +732,7 @@ impl<'a, 'b, 'c, 'd, T> Mul<&'a MutView<'b, T>> for &'c MutRow<'d, T> where
     type Output = RowVec<T>;
 
     fn mul(self, rhs: &MutView<T>) -> RowVec<T> {
-        self.as_row() * rhs.as_view()
+        *self.as_row() * *rhs.as_view()
     }
 }
 
@@ -742,7 +742,7 @@ impl<'a, 'b, 'c, T> Mul<&'a Trans<Mat<T>>> for &'b MutRow<'c, T> where
     type Output = RowVec<T>;
 
     fn mul(self, rhs: &Trans<Mat<T>>) -> RowVec<T> {
-        self.as_row() * Trans(rhs.0.as_view())
+        *self.as_row() * rhs.as_trans_view_()
     }
 }
 
@@ -752,7 +752,7 @@ impl<'a, 'b, 'c, 'd, T> Mul<&'a Trans<MutView<'b, T>>> for &'c MutRow<'d, T> whe
     type Output = RowVec<T>;
 
     fn mul(self, rhs: &Trans<MutView<T>>) -> RowVec<T> {
-        self.as_row() * Trans(rhs.0.as_view())
+        *self.as_row() * *rhs.as_trans_view()
     }
 }
 
@@ -762,7 +762,7 @@ impl<'a, 'b, 'c, T> Mul<Trans<View<'a, T>>> for &'b MutRow<'c, T> where
     type Output = RowVec<T>;
 
     fn mul(self, rhs: Trans<View<T>>) -> RowVec<T> {
-        self.as_row() * rhs
+        *self.as_row() * rhs
     }
 }
 
@@ -770,7 +770,7 @@ impl<'a, 'b, 'c, T> Mul<View<'a, T>> for &'b MutRow<'c, T> where T: Gemv + One +
     type Output = RowVec<T>;
 
     fn mul(self, rhs: View<T>) -> RowVec<T> {
-        self.as_row() * rhs
+        *self.as_row() * rhs
     }
 }
 
@@ -786,7 +786,7 @@ impl<'a, 'b, 'c, T> Mul<&'a MutView<'b, T>> for Row<'c, T> where T: Gemv + One +
     type Output = RowVec<T>;
 
     fn mul(self, rhs: &MutView<T>) -> RowVec<T> {
-        self * rhs.as_view()
+        self * *rhs.as_view()
     }
 }
 
@@ -796,7 +796,7 @@ impl<'a, 'b, T> Mul<&'a Trans<Mat<T>>> for Row<'b, T> where
     type Output = RowVec<T>;
 
     fn mul(self, rhs: &Trans<Mat<T>>) -> RowVec<T> {
-        self * Trans(rhs.0.as_view())
+        self * rhs.as_trans_view_()
     }
 }
 
@@ -806,7 +806,7 @@ impl<'a, 'b, 'c, T> Mul<&'a Trans<MutView<'b, T>>> for Row<'c, T> where
     type Output = RowVec<T>;
 
     fn mul(self, rhs: &Trans<MutView<T>>) -> RowVec<T> {
-        self * Trans(rhs.0.as_view())
+        self * *rhs.as_trans_view()
     }
 }
 
@@ -852,7 +852,7 @@ impl<'a, 'b, 'c, T> Mul<&'a MutView<'b, T>> for &'c RowVec<T> where
     type Output = RowVec<T>;
 
     fn mul(self, rhs: &MutView<T>) -> RowVec<T> {
-        self.as_row() * rhs.as_view()
+        self.as_row() * *rhs.as_view()
     }
 }
 
@@ -862,7 +862,7 @@ impl<'a, 'b, T> Mul<&'a Trans<Mat<T>>> for &'b RowVec<T> where
     type Output = RowVec<T>;
 
     fn mul(self, rhs: &Trans<Mat<T>>) -> RowVec<T> {
-        self.as_row() * Trans(rhs.0.as_view())
+        self.as_row() * rhs.as_trans_view_()
     }
 }
 
@@ -872,7 +872,7 @@ impl<'a, 'b, 'c, T> Mul<&'a Trans<MutView<'b, T>>> for &'c RowVec<T> where
     type Output = RowVec<T>;
 
     fn mul(self, rhs: &Trans<MutView<T>>) -> RowVec<T> {
-        self.as_row() * Trans(rhs.0.as_view())
+        self.as_row() * *rhs.as_trans_view()
     }
 }
 

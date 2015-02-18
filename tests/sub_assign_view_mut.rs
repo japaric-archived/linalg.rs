@@ -45,7 +45,7 @@ mod trans {
                 })
             }
 
-            // Test that `sub_assign(Trans<View>)` is correct for `MutView`
+            // Test that `sub_assign(&Trans<View>)` is correct for `MutView`
             #[quickcheck]
             fn view(
                 (lhs_start, rhs_start): ((usize, usize), (usize, usize)),
@@ -68,7 +68,7 @@ mod trans {
                     let m = setup::rand::mat::<$ty>(rhs_size);
                     let rhs = try!(m.slice_from(rhs_start)).t();
 
-                    result.sub_assign(rhs);
+                    result.sub_assign(&rhs);
 
                     let &rhs = try!(rhs.at(idx));
 
@@ -148,7 +148,7 @@ macro_rules! blas {
             })
         }
 
-        // Test that `sub_assign(T)` is correct for `MutView`
+        // Test that `sub_assign(&T)` is correct for `MutView`
         #[quickcheck]
         fn scalar(
             start: (usize, usize),
@@ -169,13 +169,13 @@ macro_rules! blas {
 
                 let rhs: $ty = ::rand::random();
 
-                result.sub_assign(rhs);
+                result.sub_assign(&rhs);
 
                 lhs - rhs == *try!(result.at(idx))
             })
         }
 
-        // Test that `sub_assign(View)` is correct for `MutView`
+        // Test that `sub_assign(&View)` is correct for `MutView`
         #[quickcheck]
         fn view(
             (lhs_start, rhs_start): ((usize, usize), (usize, usize)),
@@ -198,7 +198,7 @@ macro_rules! blas {
                 let m = setup::rand::mat::<$ty>(rhs_size);
                 let rhs = try!(m.slice_from(rhs_start));
 
-                result.sub_assign(rhs);
+                result.sub_assign(&rhs);
 
                 let &rhs = try!(rhs.at(idx));
 

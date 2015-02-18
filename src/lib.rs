@@ -44,17 +44,20 @@
 #![feature(core)]
 #![feature(libc)]
 
+extern crate assign;
 extern crate cast;
 extern crate complex;
 extern crate libc;
 extern crate onezero;
 extern crate rand;
 
-use rand::distributions::IndependentSample;
-use rand::{Rand, Rng};
 use std::iter as iter_;
+use std::mem;
 use std::num::Int;
 use std::raw::Repr;
+
+use rand::distributions::IndependentSample;
+use rand::{Rand, Rng};
 
 use traits::{MatrixCols, MatrixRows};
 
@@ -436,8 +439,10 @@ impl<T> Clone for Mat<T> where T: Clone {
 pub struct MutCol<'a, T: 'a>(strided::MutSlice<'a, T>);
 
 impl<'a, T> MutCol<'a, T> {
-    fn as_col(&self) -> Col<T> {
-        Col(strided::Slice((self.0).0))
+    fn as_col(&self) -> &Col<T> {
+        unsafe {
+            mem::transmute(self)
+        }
     }
 
     /// Returns the length of the column
@@ -453,8 +458,10 @@ pub struct MutCols<'a, M: 'a>(raw::Cols<'a, M>);
 pub struct MutDiag<'a, T: 'a>(strided::MutSlice<'a, T>);
 
 impl<'a, T> MutDiag<'a, T> {
-    fn as_diag(&self) -> Diag<T> {
-        Diag(strided::Slice((self.0).0))
+    fn as_diag(&self) -> &Diag<T> {
+        unsafe {
+            mem::transmute(self)
+        }
     }
 
     /// Returns the length of the diagonal
@@ -470,8 +477,10 @@ pub struct MutItems<'a, T: 'a>(raw::view::Items<'a, T>);
 pub struct MutRow<'a, T: 'a>(strided::MutSlice<'a, T>);
 
 impl<'a, T> MutRow<'a, T> {
-    fn as_row(&self) -> Row<T> {
-        Row(strided::Slice((self.0).0))
+    fn as_row(&self) -> &Row<T> {
+        unsafe {
+            mem::transmute(self)
+        }
     }
 
     /// Returns the length of the row
@@ -487,8 +496,10 @@ pub struct MutRows<'a, M: 'a>(raw::Rows<'a, M>);
 pub struct MutView<'a, T: 'a>(raw::View<'a, T>);
 
 impl<'a, T> MutView<'a, T> {
-    fn as_view(&self) -> View<T> {
-        View(self.0)
+    fn as_view(&self) -> &View<T> {
+        unsafe {
+            mem::transmute(self)
+        }
     }
 }
 
@@ -640,6 +651,26 @@ impl<T, M> Scaled<T, M> {
 /// View into the transpose of a matrix
 #[derive(Copy)]
 pub struct Trans<M>(M);
+
+impl<T> Trans<Mat<T>> {
+    // FIXME(rust-lang/rust#19097 remove underscore from name
+    fn as_trans_view_(&self) -> Trans<View<T>> {
+        Trans(self.0.as_view())
+    }
+
+    // FIXME(rust-lang/rust#19097 remove underscore from name
+    fn as_trans_mut_view(&mut self) -> Trans<MutView<T>> {
+        Trans(self.0.as_mut_view())
+    }
+}
+
+impl<'a, T> Trans<MutView<'a, T>> {
+    fn as_trans_view(&self) -> &Trans<View<T>> {
+        unsafe {
+            mem::transmute(self)
+        }
+    }
+}
 
 /// Immutable sub-matrix view
 pub struct View<'a, T: 'a>(raw::View<'a, T>);

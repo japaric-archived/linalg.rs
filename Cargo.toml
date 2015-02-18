@@ -10,6 +10,9 @@ macros = ["linalg_macros"]
 [dependencies]
 rand = "*"
 
+[dependencies.assign]
+git = "https://github.com/japaric/assign.rs"
+
 [dependencies.cast]
 git = "https://github.com/japaric/cast.rs"
 

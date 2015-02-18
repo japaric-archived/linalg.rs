@@ -3,15 +3,6 @@
 use error::OutOfBounds;
 use {Col, Cols, Diag, Error, MutCol, MutCols, MutDiag, MutRow, MutRows, Result, Row, Rows};
 
-/// The `+=` operator
-// FIXME (rust-lang/rfcs#393) Use trait provided by the standard library
-pub trait AddAssign<R> {
-    /// Performs the operation `self += rhs`
-    ///
-    /// **Note** The operator sugar has yet to be implemented. See rust-lang/rfcs#393
-    fn add_assign(&mut self, rhs: R);
-}
-
 /// Bounds-checked immutable indexing
 pub trait At<I> {
     type Output;
@@ -204,15 +195,6 @@ pub trait MatrixRowMut: MatrixRow {
     unsafe fn unsafe_row_mut(&mut self, row: usize) -> MutRow<Self::Elem>;
 }
 
-/// The `*=` operator
-// FIXME (rust-lang/rfcs#393) Use trait provided by the standard library
-pub trait MulAssign<R> {
-    /// Performs the operation `self *= rhs`
-    ///
-    /// **Note** The operator sugar has yet to be implemented. See rust-lang/rfcs#393
-    fn mul_assign(&mut self, rhs: R);
-}
-
 /// A more flexible slicing trait
 ///
 /// *Note* Sadly this doesn't have operator sugar. You won't be able to use the slicing operator
@@ -240,15 +222,6 @@ pub trait SliceMut<'a, I> {
     fn slice_from_mut(&'a mut self, start: I) -> ::Result<Self::Slice>;
     /// Convenience method for `slice_mut(start_of_collection, end)`
     fn slice_to_mut(&'a mut self, end: I) -> ::Result<Self::Slice>;
-}
-
-/// The `-=` operator
-// FIXME (rust-lang/rfcs#393) Use trait provided by the standard library
-pub trait SubAssign<R> {
-    /// Performs the operation `self -= rhs`
-    ///
-    /// **Note** The operator sugar has yet to be implemented. See rust-lang/rfcs#393
-    fn sub_assign(&mut self, rhs: R);
 }
 
 /// Make an owned clone from a view
