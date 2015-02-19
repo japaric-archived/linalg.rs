@@ -9,30 +9,35 @@ extern crate rand;
 mod setup;
 
 macro_rules! blas {
-    ($($ty:ident),+) => {$(mod $ty {
-        use linalg::prelude::*;
-        use quickcheck::TestResult;
+    ($ty:ident) => {
+        mod $ty {
+            use linalg::prelude::*;
+            use quickcheck::TestResult;
 
-        use setup;
+            use setup;
 
-        // Test that `sub_assign(&T)` is correct for `MutDiag`
-        #[quickcheck]
-        fn scalar(size: (usize, usize), diag: isize, idx: usize) -> TestResult {
-            validate_diag_index!(diag, size, idx);
+            // Test that `sub_assign(&T)` is correct for `MutDiag`
+            #[quickcheck]
+            fn scalar(size: (usize, usize), diag: isize, idx: usize) -> TestResult {
+                validate_diag_index!(diag, size, idx);
 
-            test!({
-                let mut m = setup::rand::mat::<$ty>(size);
-                let mut result = try!(m.diag_mut(diag));
-                let &lhs = try!(result.at(idx));
+                test!({
+                    let mut m = setup::rand::mat::<$ty>(size);
+                    let mut result = try!(m.diag_mut(diag));
+                    let &lhs = try!(result.at(idx));
 
-                let rhs: $ty = ::rand::random();
+                    let rhs: $ty = ::rand::random();
 
-                result.sub_assign(&rhs);
+                    result.sub_assign(&rhs);
 
-                lhs - rhs == *try!(result.at(idx))
-            })
-        }})+
+                    lhs - rhs == *try!(result.at(idx))
+                })
+            }
+        }
     }
 }
 
-blas!(f32, f64, c64, c128);
+blas!(f32);
+blas!(f64);
+blas!(c64);
+blas!(c128);
