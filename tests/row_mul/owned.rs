@@ -27,7 +27,7 @@ mod trans {
                         let _0: $ty = Zero::zero();
                         let product = lhs.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                        product == *try!(result.at(idx))
+                        approx_eq!(product, *try!(result.at(idx)))
                     })
                 }
 
@@ -55,7 +55,7 @@ mod trans {
                         let result = &lhs * rhs;
                         let product = lhs.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                        product == *try!(result.at(idx))
+                        approx_eq!(product, *try!(result.at(idx)))
                     })
                 }
 
@@ -83,7 +83,7 @@ mod trans {
                         let result = &lhs * &rhs;
                         let product = lhs.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                        product == *try!(result.at(idx))
+                        approx_eq!(product, *try!(result.at(idx)))
                     })
                 }
             }
@@ -124,7 +124,7 @@ macro_rules! blas {
                     let _0: $ty = Zero::zero();
                     let product = lhs.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                    product == *try!(result.at(idx))
+                    approx_eq!(product, *try!(result.at(idx)))
                 })
             }
 
@@ -152,7 +152,7 @@ macro_rules! blas {
                     let result = &lhs * rhs;
                     let product = lhs.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                    product == *try!(result.at(idx))
+                    approx_eq!(product, *try!(result.at(idx)))
                 })
             }
 
@@ -180,7 +180,7 @@ macro_rules! blas {
                     let result = &lhs * &rhs;
                     let product = lhs.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                    product == *try!(result.at(idx))
+                    approx_eq!(product, *try!(result.at(idx)))
                 })
             }
         }

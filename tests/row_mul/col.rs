@@ -15,7 +15,9 @@ macro_rules! blas {
 
                 let result = &lhs * &rhs;
 
-                test!(result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                test!{
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                }
             }
 
             // Test that `mul(Col)` is correct for `RowVec`
@@ -33,7 +35,7 @@ macro_rules! blas {
 
                     let result = &lhs * rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
 
@@ -52,7 +54,7 @@ macro_rules! blas {
 
                     let result = &lhs * &rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
 
@@ -71,7 +73,7 @@ macro_rules! blas {
 
                     let result = &lhs * rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
 
@@ -90,7 +92,7 @@ macro_rules! blas {
 
                     let result = &lhs * &rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
         }
@@ -116,7 +118,7 @@ macro_rules! blas {
 
                     let result = lhs * &rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
 
@@ -137,7 +139,7 @@ macro_rules! blas {
 
                     let result = lhs * rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
 
@@ -161,7 +163,7 @@ macro_rules! blas {
 
                     let result = lhs * &rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
 
@@ -185,7 +187,7 @@ macro_rules! blas {
 
                     let result = lhs * rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
 
@@ -209,7 +211,7 @@ macro_rules! blas {
 
                     let result = lhs * &rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
         }
@@ -235,7 +237,7 @@ macro_rules! blas {
 
                     let result = &lhs * &rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
 
@@ -256,7 +258,7 @@ macro_rules! blas {
 
                     let result = &lhs * rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
 
@@ -280,7 +282,7 @@ macro_rules! blas {
 
                     let result = &lhs * &rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
 
@@ -304,7 +306,7 @@ macro_rules! blas {
 
                     let result = &lhs * rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
 
@@ -328,7 +330,7 @@ macro_rules! blas {
 
                     let result = &lhs * &rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
         }
@@ -354,7 +356,7 @@ macro_rules! blas {
 
                     let result = lhs * &rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
 
@@ -375,7 +377,7 @@ macro_rules! blas {
 
                     let result = lhs * rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
 
@@ -399,7 +401,7 @@ macro_rules! blas {
 
                     let result = lhs * &rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
 
@@ -423,7 +425,7 @@ macro_rules! blas {
 
                     let result = lhs * rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
 
@@ -447,7 +449,7 @@ macro_rules! blas {
 
                     let result = lhs * &rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
         }
@@ -473,7 +475,7 @@ macro_rules! blas {
 
                     let result = &lhs * &rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
 
@@ -494,7 +496,7 @@ macro_rules! blas {
 
                     let result = &lhs * rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
 
@@ -518,7 +520,7 @@ macro_rules! blas {
 
                     let result = &lhs * &rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
 
@@ -542,7 +544,7 @@ macro_rules! blas {
 
                     let result = &lhs * rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
 
@@ -566,7 +568,7 @@ macro_rules! blas {
 
                     let result = &lhs * &rhs;
 
-                    result == lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y)
+                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
                 })
             }
         }})+

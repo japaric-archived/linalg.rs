@@ -36,7 +36,7 @@ mod trans {
                         let _0: $ty = Zero::zero();
                         let product = r.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                        product == *try!(result.at((row, col)))
+                        approx_eq!(product, *try!(result.at((row, col))))
                     })
                 }
 
@@ -68,7 +68,7 @@ mod trans {
                         let _0: $ty = Zero::zero();
                         let product = r.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                        product == *try!(result.at((row, col)))
+                        approx_eq!(product, *try!(result.at((row, col))))
                     })
                 }
 
@@ -100,7 +100,7 @@ mod trans {
                         let _0: $ty = Zero::zero();
                         let product = r.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                        product == *try!(result.at((row, col)))
+                        approx_eq!(product, *try!(result.at((row, col))))
                     })
                 }
             }
@@ -143,7 +143,7 @@ macro_rules! blas {
                     let _0: $ty = Zero::zero();
                     let product = r.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                    product == *try!(result.at((row, col)))
+                    approx_eq!(product, *try!(result.at((row, col))))
                 })
             }
 
@@ -175,7 +175,7 @@ macro_rules! blas {
                     let result = lhs * rhs;
                     let product = r.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                    product == *try!(result.at((row, col)))
+                    approx_eq!(product, *try!(result.at((row, col))))
                 })
             }
 
@@ -207,7 +207,7 @@ macro_rules! blas {
                     let _0: $ty = Zero::zero();
                     let product = r.iter().zip(c.iter()).fold(_0, |s, (&x, &y)| x * y + s);
 
-                    product == *try!(result.at((row, col)))
+                    approx_eq!(product, *try!(result.at((row, col))))
                 })
             }
         }

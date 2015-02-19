@@ -1,6 +1,7 @@
 #![feature(plugin)]
 #![plugin(quickcheck_macros)]
 
+extern crate approx;
 extern crate linalg;
 extern crate quickcheck;
 extern crate rand;
@@ -29,7 +30,7 @@ mod col {
 
                         let rhs = lhs.to_owned();
 
-                        (try!(lhs.at(idx))) == try!(rhs.at(idx))
+                        approx_eq!(try!(lhs.at(idx)), try!(rhs.at(idx)))
                     })
                 }
 
@@ -47,7 +48,7 @@ mod col {
 
                         let rhs = lhs.to_owned();
 
-                        (try!(lhs.at(idx))) == try!(rhs.at(idx))
+                        approx_eq!(try!(lhs.at(idx)), try!(rhs.at(idx)))
                     })
                 }
 
@@ -69,7 +70,7 @@ mod col {
 
                         let rhs = lhs.to_owned();
 
-                        (try!(lhs.at(idx))) == try!(rhs.at(idx))
+                        approx_eq!(try!(lhs.at(idx)), try!(rhs.at(idx)))
                     })
                 }
 
@@ -87,7 +88,7 @@ mod col {
 
                         let rhs = lhs.to_owned();
 
-                        (try!(lhs.at(idx))) == try!(rhs.at(idx))
+                        approx_eq!(try!(lhs.at(idx)), try!(rhs.at(idx)))
                     })
                 }
 
@@ -109,7 +110,7 @@ mod col {
 
                         let rhs = lhs.to_owned();
 
-                        (try!(lhs.at(idx))) == try!(rhs.at(idx))
+                        approx_eq!(try!(lhs.at(idx)), try!(rhs.at(idx)))
                     })
                 }
             }
@@ -143,7 +144,7 @@ mod row {
 
                         let rhs = lhs.to_owned();
 
-                        (try!(lhs.at(idx))) == try!(rhs.at(idx))
+                        approx_eq!(try!(lhs.at(idx)), try!(rhs.at(idx)))
                     })
                 }
 
@@ -161,7 +162,7 @@ mod row {
 
                         let rhs = lhs.to_owned();
 
-                        (try!(lhs.at(idx))) == try!(rhs.at(idx))
+                        approx_eq!(try!(lhs.at(idx)), try!(rhs.at(idx)))
                     })
                 }
 
@@ -183,7 +184,7 @@ mod row {
 
                         let rhs = lhs.to_owned();
 
-                        (try!(lhs.at(idx))) == try!(rhs.at(idx))
+                        approx_eq!(try!(lhs.at(idx)), try!(rhs.at(idx)))
                     })
                 }
 
@@ -201,7 +202,7 @@ mod row {
 
                         let rhs = lhs.to_owned();
 
-                        (try!(lhs.at(idx))) == try!(rhs.at(idx))
+                        approx_eq!(try!(lhs.at(idx)), try!(rhs.at(idx)))
                     })
                 }
 
@@ -223,7 +224,7 @@ mod row {
 
                         let rhs = lhs.to_owned();
 
-                        (try!(lhs.at(idx))) == try!(rhs.at(idx))
+                        approx_eq!(try!(lhs.at(idx)), try!(rhs.at(idx)))
                     })
                 }
             }
@@ -257,7 +258,7 @@ mod trans {
                         let lhs = setup::rand::mat::<$ty>((ncols, nrows)).t();
                         let rhs = lhs.to_owned();
 
-                        (try!(lhs.at((row, col)))) == try!(rhs.at((row, col)))
+                        approx_eq!(try!(lhs.at((row, col))), try!(rhs.at((row, col))))
                     })
                 }
 
@@ -279,7 +280,7 @@ mod trans {
                         let lhs = try!(m.slice_from(start)).t();
                         let rhs = lhs.to_owned();
 
-                        (try!(lhs.at((row, col)))) == try!(rhs.at((row, col)))
+                        approx_eq!(try!(lhs.at((row, col))), try!(rhs.at((row, col))))
                     })
                 }
 
@@ -301,7 +302,7 @@ mod trans {
                         let lhs = try!(m.slice_from_mut(start)).t();
                         let rhs = lhs.to_owned();
 
-                        (try!(lhs.at((row, col)))) == try!(rhs.at((row, col)))
+                        approx_eq!(try!(lhs.at((row, col))), try!(rhs.at((row, col))))
                     })
                 }
             }
@@ -334,7 +335,7 @@ macro_rules! blas {
                     let lhs = setup::rand::mat::<$ty>((nrows, ncols));
                     let rhs = lhs.to_owned();
 
-                    (try!(lhs.at((row, col)))) == try!(rhs.at((row, col)))
+                    approx_eq!(try!(lhs.at((row, col))), try!(rhs.at((row, col))))
                 })
             }
 
@@ -356,7 +357,7 @@ macro_rules! blas {
                     let lhs = try!(m.slice_from(start));
                     let rhs = lhs.to_owned();
 
-                    (try!(lhs.at((row, col)))) == try!(rhs.at((row, col)))
+                    approx_eq!(try!(lhs.at((row, col))), try!(rhs.at((row, col))))
                 })
             }
 
@@ -378,7 +379,7 @@ macro_rules! blas {
                     let lhs = try!(m.slice_from_mut(start));
                     let rhs = lhs.to_owned();
 
-                    (try!(lhs.at((row, col)))) == try!(rhs.at((row, col)))
+                    approx_eq!(try!(lhs.at((row, col))), try!(rhs.at((row, col))))
                 })
             }
         }

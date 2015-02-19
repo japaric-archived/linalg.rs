@@ -29,8 +29,13 @@ git = "https://github.com/japaric/onezero.rs"
 optional = true
 path = "macros"
 
+[dev-dependencies.approx]
+git = "https://github.com/japaric/approx.rs"
+
 [dev-dependencies.quickcheck]
-git = "https://github.com/burntsushi/quickcheck"
+branch = "rustup"
+git = "https://github.com/japaric/quickcheck"
 
 [dev-dependencies.quickcheck_macros]
-git = "https://github.com/burntsushi/quickcheck"
+branch = "rustup"
+git = "https://github.com/japaric/quickcheck"

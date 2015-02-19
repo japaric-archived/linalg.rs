@@ -38,6 +38,16 @@ pub mod rand {
     }
 }
 
+macro_rules! approx_eq {
+    ($lhs:expr, $rhs:expr) => ({
+        let ref lhs = $lhs;
+        let ref rhs = $rhs;
+
+        ::approx::eq(lhs, rhs, ::approx::Abs::tol(1e-4)) ||
+        ::approx::eq(lhs, rhs, ::approx::Rel::tol(1e-4))
+    })
+}
+
 macro_rules! enforce {
     ($($e:expr),+,) => {
         if $(!$e)||+ { return TestResult::discard() }

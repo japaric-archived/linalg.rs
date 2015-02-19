@@ -1,6 +1,7 @@
 #![feature(plugin)]
 #![plugin(quickcheck_macros)]
 
+extern crate approx;
 extern crate linalg;
 extern crate quickcheck;
 extern crate rand;
@@ -30,7 +31,7 @@ macro_rules! blas {
 
                     result.sub_assign(&rhs);
 
-                    lhs - rhs == *try!(result.at(idx))
+                    approx_eq!(lhs - rhs, *try!(result.at(idx)))
                 })
             }
         }
