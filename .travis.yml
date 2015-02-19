@@ -4,8 +4,7 @@ env:
   global:
     - secure: B/kcbcUvqUkSXNcbfjA8AQgC57IgWIGd8jgjysAuJUbv02e0PjyGK864NCIMn+UeUwhdni8F73EtEkJS6fiJ69BO7sVQzgN47ePG5nPnzgXieOcyLABtUsozZfB2Jy7HPbXCBN313wohmGvDwRPf0w4vszfmryfgCXe9haXGGFc=
   matrix:
-    # FIXME (#12) Reenable OpenBLAS testing
-    #- BLAS=OpenBLAS
+    - BLAS=OpenBLAS
     - BLAS=reference
 
 before_install:
@@ -23,12 +22,15 @@ install:
     fi
 
 script:
-  # Not sure why travis needs this, without it linking to libopenblas.so.0 fails
   - if [[ $BLAS == 'OpenBLAS' ]]; then
       export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/openblas-base;
     fi
   - cargo build --features macros --verbose
-  - cargo test --features macros --verbose
+  - if [[ $BLAS == 'OpenBLAS' ]]; then
+      RUST_THREADS=1 cargo test --features macros --verbose;
+    else
+      cargo test --features macros --verbose;
+    fi
   - cargo doc --features macros --verbose
   - ./check-line-length.sh
 

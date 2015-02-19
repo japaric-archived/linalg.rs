@@ -233,4 +233,5 @@ macro_rules! blas {
 blas!(f32);
 blas!(f64);
 blas!(c64);
-blas!(c128);
+// FIXME(#46)
+//blas!(c128);
