@@ -14,10 +14,10 @@ macro_rules! blas {
                 let rhs = setup::rand::col::<$ty>(size);
 
                 let result = &lhs * &rhs;
+                let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                test!{
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
-                }
+                test!(approx_eq!(result, expected))
+
             }
 
             // Test that `mul(Col)` is correct for `RowVec`
@@ -34,8 +34,9 @@ macro_rules! blas {
                     let rhs = try!(m.col(col));
 
                     let result = &lhs * rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
 
@@ -53,8 +54,9 @@ macro_rules! blas {
                     let rhs = try!(m.col_mut(col));
 
                     let result = &lhs * &rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
 
@@ -72,8 +74,9 @@ macro_rules! blas {
                     let rhs = try!(m.col(col));
 
                     let result = &lhs * rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
 
@@ -91,8 +94,9 @@ macro_rules! blas {
                     let rhs = try!(m.col_mut(col));
 
                     let result = &lhs * &rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
         }
@@ -117,8 +121,9 @@ macro_rules! blas {
                     let rhs = setup::rand::col::<$ty>(ncols);
 
                     let result = lhs * &rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
 
@@ -138,8 +143,9 @@ macro_rules! blas {
                     let rhs = try!(m.col(col));
 
                     let result = lhs * rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
 
@@ -162,8 +168,9 @@ macro_rules! blas {
                     let rhs = try!(m.col_mut(col));
 
                     let result = lhs * &rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
 
@@ -186,8 +193,9 @@ macro_rules! blas {
                     let rhs = try!(m.col(col));
 
                     let result = lhs * rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
 
@@ -210,8 +218,9 @@ macro_rules! blas {
                     let rhs = try!(m.col_mut(col));
 
                     let result = lhs * &rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
         }
@@ -236,8 +245,9 @@ macro_rules! blas {
                     let rhs = setup::rand::col::<$ty>(ncols);
 
                     let result = &lhs * &rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
 
@@ -257,8 +267,9 @@ macro_rules! blas {
                     let rhs = try!(m.col(col));
 
                     let result = &lhs * rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
 
@@ -281,8 +292,9 @@ macro_rules! blas {
                     let rhs = try!(m.col_mut(col));
 
                     let result = &lhs * &rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
 
@@ -305,8 +317,9 @@ macro_rules! blas {
                     let rhs = try!(m.col(col));
 
                     let result = &lhs * rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
 
@@ -329,8 +342,9 @@ macro_rules! blas {
                     let rhs = try!(m.col_mut(col));
 
                     let result = &lhs * &rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
         }
@@ -355,8 +369,9 @@ macro_rules! blas {
                     let rhs = setup::rand::col::<$ty>(ncols);
 
                     let result = lhs * &rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
 
@@ -376,8 +391,9 @@ macro_rules! blas {
                     let rhs = try!(m.col(col));
 
                     let result = lhs * rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
 
@@ -400,8 +416,9 @@ macro_rules! blas {
                     let rhs = try!(m.col_mut(col));
 
                     let result = lhs * &rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
 
@@ -424,8 +441,9 @@ macro_rules! blas {
                     let rhs = try!(m.col(col));
 
                     let result = lhs * rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
 
@@ -448,8 +466,9 @@ macro_rules! blas {
                     let rhs = try!(m.col_mut(col));
 
                     let result = lhs * &rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
         }
@@ -474,8 +493,9 @@ macro_rules! blas {
                     let rhs = setup::rand::col::<$ty>(ncols);
 
                     let result = &lhs * &rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
 
@@ -495,8 +515,9 @@ macro_rules! blas {
                     let rhs = try!(m.col(col));
 
                     let result = &lhs * rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
 
@@ -519,8 +540,9 @@ macro_rules! blas {
                     let rhs = try!(m.col_mut(col));
 
                     let result = &lhs * &rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
 
@@ -543,8 +565,9 @@ macro_rules! blas {
                     let rhs = try!(m.col(col));
 
                     let result = &lhs * rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
 
@@ -567,8 +590,9 @@ macro_rules! blas {
                     let rhs = try!(m.col_mut(col));
 
                     let result = &lhs * &rhs;
+                    let expected = lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y);
 
-                    approx_eq!(result, lhs.iter().zip(rhs.iter()).fold(0., |s, (&x, &y)| s + x * y))
+                    approx_eq!(result, expected)
                 })
             }
         }})+
