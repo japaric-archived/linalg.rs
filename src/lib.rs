@@ -39,7 +39,8 @@
 //! - Element-wise iteration over [sub]matrices is done in the fastest way possible, there's no
 //!   guarantee of the iteration order
 
-#![deny(missing_docs, warnings)]
+#![deny(missing_docs)]
+//#![deny(warnings)]
 #![feature(collections)]
 #![feature(core)]
 #![feature(libc)]
@@ -708,11 +709,11 @@ trait At<I> {
 }
 
 /// Private
-trait Slice<'a, I> {
-    type Slice;
+trait Slice {
+    type Ty;
 
     /// Private
-    fn slice(&'a self, start: I, end: I) -> Result<Self::Slice>;
+    fn slice(&self, range: std::ops::Range<usize>) -> Result<strided::Slice<Self::Ty>>;
 }
 
 // Hack because the intra-crate privacy rules are weird

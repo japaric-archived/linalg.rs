@@ -26,7 +26,7 @@ mod trans {
                     let size = (start.0 + m, start.1 + k);
                     test!({
                         let m = setup::rand::mat::<$ty>(size);
-                        let lhs = try!(m.slice_from(start));
+                        let lhs = try!(m.slice(start..));
                         let r = try!(lhs.row(row));
 
                         let rhs = setup::rand::mat::<$ty>((n, k)).t();
@@ -57,11 +57,11 @@ mod trans {
                     let rhs_size = (rhs_start.0 + n, rhs_start.1 + k);
                     test!({
                         let m = setup::rand::mat::<$ty>(lhs_size);
-                        let lhs = try!(m.slice_from(lhs_start));
+                        let lhs = try!(m.slice(lhs_start..));
                         let r = try!(lhs.row(row));
 
                         let m = setup::rand::mat::<$ty>(rhs_size);
-                        let rhs = try!(m.slice_from(rhs_start)).t();
+                        let rhs = try!(m.slice(rhs_start..)).t();
                         let c = try!(rhs.col(col));
 
                         let result = lhs * rhs;
@@ -89,11 +89,11 @@ mod trans {
                     let rhs_size = (rhs_start.0 + n, rhs_start.1 + k);
                     test!({
                         let m = setup::rand::mat::<$ty>(lhs_size);
-                        let lhs = try!(m.slice_from(lhs_start));
+                        let lhs = try!(m.slice(lhs_start..));
                         let r = try!(lhs.row(row));
 
                         let mut m = setup::rand::mat::<$ty>(rhs_size);
-                        let rhs = try!(m.slice_from_mut(rhs_start)).t();
+                        let rhs = try!(m.slice_mut(rhs_start..)).t();
                         let c = try!(rhs.col(col));
 
                         let result = lhs * &rhs;
@@ -138,7 +138,7 @@ macro_rules! blas {
                 let size = (start.0 + m, start.1 + k);
                 test!({
                     let m = setup::rand::mat::<$ty>(size);
-                    let lhs = try!(m.slice_from(start));
+                    let lhs = try!(m.slice(start..));
                     let r = try!(lhs.row(row));
 
                     let rhs = setup::rand::mat::<$ty>((k, n));
@@ -169,11 +169,11 @@ macro_rules! blas {
                 let rhs_size = (rhs_start.0 + k, rhs_start.1 + n);
                 test!({
                     let m = setup::rand::mat::<$ty>(lhs_size);
-                    let lhs = try!(m.slice_from(lhs_start));
+                    let lhs = try!(m.slice(lhs_start..));
                     let r = try!(lhs.row(row));
 
                     let m = setup::rand::mat::<$ty>(rhs_size);
-                    let rhs = try!(m.slice_from(rhs_start));
+                    let rhs = try!(m.slice(rhs_start..));
                     let c = try!(rhs.col(col));
 
                     let result = lhs * rhs;
@@ -201,11 +201,11 @@ macro_rules! blas {
                 let rhs_size = (rhs_start.0 + k, rhs_start.1 + n);
                 test!({
                     let m = setup::rand::mat::<$ty>(lhs_size);
-                    let lhs = try!(m.slice_from(lhs_start));
+                    let lhs = try!(m.slice(lhs_start..));
                     let r = try!(lhs.row(row));
 
                     let mut m = setup::rand::mat::<$ty>(rhs_size);
-                    let rhs = try!(m.slice_from_mut(rhs_start));
+                    let rhs = try!(m.slice_mut(rhs_start..));
                     let c = try!(rhs.col(col));
 
                     let result = lhs * &rhs;

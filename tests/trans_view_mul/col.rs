@@ -22,7 +22,7 @@ macro_rules! blas {
                 let size = (start.0 + ncols, start.1 + nrows);
                 test!({
                     let m = setup::rand::mat::<$ty>(size);
-                    let lhs = try!(m.slice_from(start)).t();
+                    let lhs = try!(m.slice(start..)).t();
                     let r = try!(lhs.row(idx));
 
                     let rhs = setup::rand::col::<$ty>(ncols);
@@ -52,7 +52,7 @@ macro_rules! blas {
                 let size = (start.0 + k, start.1 + m);
                 test!({
                     let m = setup::rand::mat::<$ty>(size);
-                    let lhs = try!(m.slice_from(start)).t();
+                    let lhs = try!(m.slice(start..)).t();
                     let r = try!(lhs.row(idx));
 
                     let m = setup::rand::mat::<$ty>((k, n));
@@ -83,7 +83,7 @@ macro_rules! blas {
                 let size = (start.0 + k, start.1 + m);
                 test!({
                     let m = setup::rand::mat::<$ty>(size);
-                    let lhs = try!(m.slice_from(start)).t();
+                    let lhs = try!(m.slice(start..)).t();
                     let r = try!(lhs.row(idx));
 
                     let mut m = setup::rand::mat::<$ty>((k, n));
@@ -114,7 +114,7 @@ macro_rules! blas {
                 let size = (start.0 + k, start.1 + m);
                 test!({
                     let m = setup::rand::mat::<$ty>(size);
-                    let lhs = try!(m.slice_from(start)).t();
+                    let lhs = try!(m.slice(start..)).t();
                     let r = try!(lhs.row(idx));
 
                     let m = setup::rand::mat::<$ty>((n, k)).t();
@@ -145,7 +145,7 @@ macro_rules! blas {
                 let size = (start.0 + k, start.1 + m);
                 test!({
                     let m = setup::rand::mat::<$ty>(size);
-                    let lhs = try!(m.slice_from(start)).t();
+                    let lhs = try!(m.slice(start..)).t();
                     let r = try!(lhs.row(idx));
 
                     let mut m = setup::rand::mat::<$ty>((n, k)).t();

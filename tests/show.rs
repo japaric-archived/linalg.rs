@@ -142,7 +142,7 @@ mod trans {
     #[test]
     fn view() {
         eq! {
-            Mat::from_fn((4, 4), |i| i).unwrap().slice((1, 2), (3, 4)).unwrap().t(),
+            Mat::from_fn((4, 4), |i| i).unwrap().slice((1, 2)..(3, 4)).unwrap().t(),
             "[(1, 2), (2, 2)]\n[(1, 3), (2, 3)]",
         }
     }
@@ -151,7 +151,7 @@ mod trans {
     #[test]
     fn view_mut() {
         eq! {
-            Mat::from_fn((4, 4), |i| i).unwrap().slice_mut((1, 2), (3, 4)).unwrap().t(),
+            Mat::from_fn((4, 4), |i| i).unwrap().slice_mut((1, 2)..(3, 4)).unwrap().t(),
             "[(1, 2), (2, 2)]\n[(1, 3), (2, 3)]",
         }
     }
@@ -171,7 +171,7 @@ fn mat() {
 #[test]
 fn view() {
     eq! {
-        Mat::from_fn((4, 4), |i| i).unwrap().slice((1, 2), (3, 4)).unwrap(),
+        Mat::from_fn((4, 4), |i| i).unwrap().slice((1, 2)..(3, 4)).unwrap(),
         "[(1, 2), (1, 3)]\n[(2, 2), (2, 3)]",
     }
 }
@@ -180,7 +180,7 @@ fn view() {
 #[test]
 fn view_mut() {
     eq! {
-        Mat::from_fn((4, 4), |i| i).unwrap().slice_mut((1, 2), (3, 4)).unwrap(),
+        Mat::from_fn((4, 4), |i| i).unwrap().slice_mut((1, 2)..(3, 4)).unwrap(),
         "[(1, 2), (1, 3)]\n[(2, 2), (2, 3)]",
     }
 }

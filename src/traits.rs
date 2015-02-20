@@ -200,28 +200,20 @@ pub trait MatrixRowMut: MatrixRow {
 /// *Note* Sadly this doesn't have operator sugar. You won't be able to use the slicing operator
 /// `[]` with this library until Rust gets HKT.
 // FIXME (AI) `'a` should be associated items
-pub trait Slice<'a, I> {
+pub trait Slice<'a, R> {
     type Slice;
 
-    /// Returns an immutable view into a fraction of the collection that spans `start` : `end`
-    fn slice(&'a self, start: I, end: I) -> ::Result<Self::Slice>;
-    /// Convenience method for `slice(start, end_of_collection)`
-    fn slice_from(&'a self, start: I) -> ::Result<Self::Slice>;
-    /// Convenience method for `slice(start_of_collection, end)`
-    fn slice_to(&'a self, end: I) -> ::Result<Self::Slice>;
+    /// Returns an immutable view into a fraction of the collection that spans `range`
+    fn slice(&'a self, range: R) -> ::Result<Self::Slice>;
 }
 
 /// Mutable version of the `Slice` trait
 // FIXME (AI) `'a`, should be associated items
-pub trait SliceMut<'a, I> {
+pub trait SliceMut<'a, R> {
     type Slice;
 
-    /// Returns a mutable view into a fraction of the collection that spans `start` : `end`
-    fn slice_mut(&'a mut self, start: I, end: I) -> ::Result<Self::Slice>;
-    /// Convenience method for `slice_mut(start, end_of_collection)`
-    fn slice_from_mut(&'a mut self, start: I) -> ::Result<Self::Slice>;
-    /// Convenience method for `slice_mut(start_of_collection, end)`
-    fn slice_to_mut(&'a mut self, end: I) -> ::Result<Self::Slice>;
+    /// Returns a mutable view into a fraction of the collection that spans the `range`
+    fn slice_mut(&'a mut self, range: R) -> ::Result<Self::Slice>;
 }
 
 /// Make an owned clone from a view

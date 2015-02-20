@@ -277,7 +277,7 @@ mod trans {
                     let size = (start.0 + ncols, start.1 + nrows);
                     test!({
                         let m = setup::rand::mat::<$ty>(size);
-                        let lhs = try!(m.slice_from(start)).t();
+                        let lhs = try!(m.slice(start..)).t();
                         let rhs = lhs.to_owned();
 
                         approx_eq!(try!(lhs.at((row, col))), try!(rhs.at((row, col))))
@@ -299,7 +299,7 @@ mod trans {
                     let size = (start.0 + ncols, start.1 + nrows);
                     test!({
                         let mut m = setup::rand::mat::<$ty>(size);
-                        let lhs = try!(m.slice_from_mut(start)).t();
+                        let lhs = try!(m.slice_mut(start..)).t();
                         let rhs = lhs.to_owned();
 
                         approx_eq!(try!(lhs.at((row, col))), try!(rhs.at((row, col))))
@@ -354,7 +354,7 @@ macro_rules! blas {
                 let size = (start.0 + nrows, start.1 + ncols);
                 test!({
                     let m = setup::rand::mat::<$ty>(size);
-                    let lhs = try!(m.slice_from(start));
+                    let lhs = try!(m.slice(start..));
                     let rhs = lhs.to_owned();
 
                     approx_eq!(try!(lhs.at((row, col))), try!(rhs.at((row, col))))
@@ -376,7 +376,7 @@ macro_rules! blas {
                 let size = (start.0 + nrows, start.1 + ncols);
                 test!({
                     let mut m = setup::rand::mat::<$ty>(size);
-                    let lhs = try!(m.slice_from_mut(start));
+                    let lhs = try!(m.slice_mut(start..));
                     let rhs = lhs.to_owned();
 
                     approx_eq!(try!(lhs.at((row, col))), try!(rhs.at((row, col))))

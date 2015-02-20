@@ -1,6 +1,7 @@
 //! Strided slices
 
 use std::{fmt, mem};
+use std::ops::Range;
 
 use Result;
 use error::OutOfBounds;
@@ -25,8 +26,8 @@ impl<'a, T> Slice<'a, T> {
     }
 
     /// Unreachable
-    pub fn slice(&self, start: usize, end: usize) -> Result<Slice<T>> {
-        self.0.slice(start, end).map(Slice)
+    pub fn slice(&self, range: Range<usize>) -> Result<Slice<T>> {
+        self.0.slice(range).map(Slice)
     }
 }
 
@@ -74,13 +75,13 @@ impl<'a, T> MutSlice<'a, T> {
     }
 
     /// Unreachable
-    pub fn slice(&self, start: usize, end: usize) -> Result<Slice<T>> {
-        self.0.slice(start, end).map(Slice)
+    pub fn slice(&self, range: Range<usize>) -> Result<Slice<T>> {
+        self.0.slice(range).map(Slice)
     }
 
     /// Unreachable
-    pub fn slice_mut(&mut self, start: usize, end: usize) -> Result<MutSlice<T>> {
-        self.0.slice(start, end).map(MutSlice)
+    pub fn slice_mut(&mut self, range: Range<usize>) -> Result<MutSlice<T>> {
+        self.0.slice(range).map(MutSlice)
     }
 }
 

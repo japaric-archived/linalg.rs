@@ -1,5 +1,6 @@
 use std::iter::order;
 use std::marker;
+use std::ops::Range;
 use std::{cmp, mem};
 
 use {Col, Diag, Error, Result, Row};
@@ -81,7 +82,7 @@ impl<'a, T> View<'a, T> {
         (self.nrows, self.ncols)
     }
 
-    pub fn slice(&self, start: (usize, usize), end: (usize, usize)) -> Result<View<T>> {
+    pub fn slice(&self, Range { start, end }: Range<(usize, usize)>) -> Result<View<T>> {
         let (end_row, end_col) = end;
         let (nrows, ncols) = (self.nrows, self.ncols);
         let (start_row, start_col) = start;

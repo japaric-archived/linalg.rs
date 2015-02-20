@@ -1,3 +1,5 @@
+use std::ops::{Range, RangeFrom, RangeTo};
+
 use {Col, Diag, Mat, MutCol, MutDiag, MutRow, MutView, Result, Row, Trans, View};
 use error::OutOfBounds;
 use traits::{
@@ -125,49 +127,80 @@ impl<T, M> MatrixRowMut for Trans<M> where M: MatrixColMut<Elem=T> {
 
 impl<M> MatrixRows for Trans<M> where M: Matrix {}
 
-impl<'a, M, V> Slice<'a, (usize, usize)> for Trans<M> where
-    M: Matrix + Slice<'a, (usize, usize), Slice=V>,
-{
-    type Slice = Trans<V>;
+impl<'a, M: Slice<'a, Range<(usize, usize)>>> Slice<'a, Range<(usize, usize)>> for Trans<M> {
+    type Slice = Trans<M::Slice>;
 
-    fn slice(&'a self, start: (usize, usize), end: (usize, usize)) -> ::Result<Trans<V>> {
+    fn slice(&'a self, Range { start, end }: Range<(usize, usize)>) -> ::Result<Trans<M::Slice>> {
         let (end_row, end_col) = end;
         let (start_row, start_col) = start;
 
-        self.0.slice((start_col, start_row), (end_col, end_row)).map(Trans)
-    }
-
-    fn slice_from(&'a self, start: (usize, usize)) -> ::Result<Trans<V>> {
-        let end = self.size();
-
-        Slice::slice(self, start, end)
-    }
-
-    fn slice_to(&'a self, end: (usize, usize)) -> ::Result<Trans<V>> {
-        Slice::slice(self, (0, 0), end)
+        self.0.slice((start_col, start_row)..(end_col, end_row)).map(Trans)
     }
 }
 
-impl<'a, M, V> SliceMut<'a, (usize, usize)> for Trans<M> where
-    M: Matrix + SliceMut<'a, (usize, usize), Slice=V>,
+impl<
+    'a,
+    M: Slice<'a, Range<(usize, usize)>>,
+> Slice<'a, RangeFrom<(usize, usize)>> for Trans<M> where
+    M: Matrix,
 {
-    type Slice = Trans<V>;
+    type Slice = Trans<M::Slice>;
 
-    fn slice_mut(&'a mut self, start: (usize, usize), end: (usize, usize)) -> ::Result<Trans<V>> {
+    fn slice(&'a self, range: RangeFrom<(usize, usize)>) -> ::Result<Trans<M::Slice>> {
+        self.slice(range.start..self.size())
+    }
+}
+
+impl<
+    'a,
+    M: Slice<'a, Range<(usize, usize)>>,
+> Slice<'a, RangeTo<(usize, usize)>> for Trans<M> {
+    type Slice = Trans<M::Slice>;
+
+    fn slice(&'a self, range: RangeTo<(usize, usize)>) -> ::Result<Trans<M::Slice>> {
+        self.slice((0, 0)..range.end)
+    }
+}
+
+impl<
+    'a,
+    M: SliceMut<'a, Range<(usize, usize)>>,
+> SliceMut<'a, Range<(usize, usize)>> for Trans<M> {
+    type Slice = Trans<M::Slice>;
+
+    fn slice_mut(
+        &'a mut self,
+        Range { start, end }: Range<(usize, usize)>,
+    ) -> ::Result<Trans<M::Slice>> {
         let (end_row, end_col) = end;
         let (start_row, start_col) = start;
 
-        self.0.slice_mut((start_col, start_row), (end_col, end_row)).map(Trans)
+        self.0.slice_mut((start_col, start_row)..(end_col, end_row)).map(Trans)
     }
+}
 
-    fn slice_from_mut(&'a mut self, start: (usize, usize)) -> ::Result<Trans<V>> {
-        let end = self.size();
+impl<
+    'a,
+    M: SliceMut<'a, Range<(usize, usize)>>,
+> SliceMut<'a, RangeFrom<(usize, usize)>> for Trans<M> where
+    M: Matrix,
+{
+    type Slice = Trans<M::Slice>;
 
-        SliceMut::slice_mut(self, start, end)
+    fn slice_mut(&'a mut self, range: RangeFrom<(usize, usize)>) -> ::Result<Trans<M::Slice>> {
+        let sz = self.size();
+        self.slice_mut(range.start..sz)
     }
+}
 
-    fn slice_to_mut(&'a mut self, end: (usize, usize)) -> ::Result<Trans<V>> {
-        SliceMut::slice_mut(self, (0, 0), end)
+impl<
+    'a,
+    M: SliceMut<'a, Range<(usize, usize)>>,
+> SliceMut<'a, RangeTo<(usize, usize)>> for Trans<M> {
+    type Slice = Trans<M::Slice>;
+
+    fn slice_mut(&'a mut self, range: RangeTo<(usize, usize)>) -> ::Result<Trans<M::Slice>> {
+        self.slice_mut((0, 0)..range.end)
     }
 }
 

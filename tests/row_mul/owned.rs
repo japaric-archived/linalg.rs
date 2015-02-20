@@ -48,7 +48,7 @@ mod trans {
                         let lhs = setup::rand::row::<$ty>(k);
 
                         let m = setup::rand::mat::<$ty>(size);
-                        let rhs = try!(m.slice_from(start)).t();
+                        let rhs = try!(m.slice(start..)).t();
                         let c = try!(rhs.col(idx));
 
                         let _0: $ty = Zero::zero();
@@ -76,7 +76,7 @@ mod trans {
                         let lhs = setup::rand::row::<$ty>(k);
 
                         let mut m = setup::rand::mat::<$ty>(size);
-                        let rhs = try!(m.slice_from_mut(start)).t();
+                        let rhs = try!(m.slice_mut(start..)).t();
                         let c = try!(rhs.col(idx));
 
                         let _0: $ty = Zero::zero();
@@ -145,7 +145,7 @@ macro_rules! blas {
                     let lhs = setup::rand::row::<$ty>(k);
 
                     let m = setup::rand::mat::<$ty>(size);
-                    let rhs = try!(m.slice_from(start));
+                    let rhs = try!(m.slice(start..));
                     let c = try!(rhs.col(idx));
 
                     let _0: $ty = Zero::zero();
@@ -173,7 +173,7 @@ macro_rules! blas {
                     let lhs = setup::rand::row::<$ty>(k);
 
                     let mut m = setup::rand::mat::<$ty>(size);
-                    let rhs = try!(m.slice_from_mut(start));
+                    let rhs = try!(m.slice_mut(start..));
                     let c = try!(rhs.col(idx));
 
                     let _0: $ty = Zero::zero();

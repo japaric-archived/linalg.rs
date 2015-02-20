@@ -62,7 +62,7 @@ mod trans {
                         let &lhs = try!(result.at(idx));
 
                         let m = setup::rand::mat::<$ty>(size);
-                        let rhs = try!(m.slice_from(start)).t();
+                        let rhs = try!(m.slice(start..)).t();
 
                         result.add_assign(&rhs);
 
@@ -92,7 +92,7 @@ mod trans {
                         let &lhs = try!(result.at(idx));
 
                         let mut m = setup::rand::mat::<$ty>(size);
-                        let rhs = try!(m.slice_from_mut(start)).t();
+                        let rhs = try!(m.slice_mut(start..)).t();
 
                         result.add_assign(&rhs);
 
@@ -187,7 +187,7 @@ macro_rules! blas {
                     let &lhs = try!(result.at(idx));
 
                     let m = setup::rand::mat::<$ty>(size);
-                    let rhs = try!(m.slice_from(start));
+                    let rhs = try!(m.slice(start..));
 
                     result.add_assign(&rhs);
 
@@ -217,7 +217,7 @@ macro_rules! blas {
                     let &lhs = try!(result.at(idx));
 
                     let mut m = setup::rand::mat::<$ty>(size);
-                    let rhs = try!(m.slice_from_mut(start));
+                    let rhs = try!(m.slice_mut(start..));
 
                     result.add_assign(&rhs);
 

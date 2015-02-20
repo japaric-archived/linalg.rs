@@ -1,5 +1,6 @@
 use std::iter::order;
 use std::marker;
+use std::ops::Range;
 use std::{fmt, mem};
 
 use {Error, Result};
@@ -86,7 +87,7 @@ impl<'a, T> Slice<'a, T> {
         self.len
     }
 
-    pub fn slice(&self, start: usize, end: usize) -> Result<Slice<T>> {
+    pub fn slice(&self, Range { start, end }: Range<usize>) -> Result<Slice<T>> {
         if start > end {
             Err(Error::InvalidSlice)
         } else if end > self.len {

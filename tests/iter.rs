@@ -226,7 +226,7 @@ mod trans {
 
         test!({
             let m = setup::mat(size);
-            let v = try!(m.slice_from(start)).t();
+            let v = try!(m.slice(start..)).t();
             let (start_row, start_col) = start;
 
             let mut t = BTreeSet::new();
@@ -247,7 +247,7 @@ mod trans {
 
         test!({
             let mut m = setup::mat(size);
-            let v = try!(m.slice_from_mut(start)).t();
+            let v = try!(m.slice_mut(start..)).t();
             let (start_row, start_col) = start;
 
             let mut t = BTreeSet::new();
@@ -282,7 +282,7 @@ fn view(start: (usize, usize), (nrows, ncols): (usize, usize)) -> TestResult {
 
     test!({
         let m = setup::mat(size);
-        let v = try!(m.slice_from(start));
+        let v = try!(m.slice(start..));
         let (start_row, start_col) = start;
 
         let mut t = BTreeSet::new();
@@ -303,7 +303,7 @@ fn view_mut(start: (usize, usize), (nrows, ncols): (usize, usize)) -> TestResult
 
     test!({
         let mut m = setup::mat(size);
-        let v = try!(m.slice_from_mut(start));
+        let v = try!(m.slice_mut(start..));
         let (start_row, start_col) = start;
 
         let mut t = BTreeSet::new();

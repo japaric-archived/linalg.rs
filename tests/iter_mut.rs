@@ -149,7 +149,7 @@ mod trans {
 
         test!({
             let mut m = setup::mat(size);
-            let mut v = try!(m.slice_from_mut(start)).t();
+            let mut v = try!(m.slice_mut(start..)).t();
             let (start_row, start_col) = start;
 
             let mut t = BTreeSet::new();
@@ -184,7 +184,7 @@ fn view_mut(start: (usize, usize), (nrows, ncols): (usize, usize)) -> TestResult
 
     test!({
         let mut m = setup::mat(size);
-        let mut v = try!(m.slice_from_mut(start));
+        let mut v = try!(m.slice_mut(start..));
         let (start_row, start_col) = start;
 
         let mut t = BTreeSet::new();

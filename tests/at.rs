@@ -271,7 +271,7 @@ mod trans {
         let size = (start.0 + ncols, start.1 + nrows);
         test!({
             let m = setup::mat(size);
-            let v = try!(m.slice_from(start)).t();
+            let v = try!(m.slice(start..)).t();
             let &e = try!(v.at((row, col)));
             let (start_row, start_col) = start;
 
@@ -294,7 +294,7 @@ mod trans {
         let size = (start.0 + ncols, start.1 + nrows);
         test!({
             let mut m = setup::mat(size);
-            let v = try!(m.slice_from_mut(start)).t();
+            let v = try!(m.slice_mut(start..)).t();
             let &e = try!(v.at((row, col)));
             let (start_row, start_col) = start;
 
@@ -334,7 +334,7 @@ fn view(
     let size = (start.0 + nrows, start.1 + ncols);
     test!({
         let m = setup::mat(size);
-        let v = try!(m.slice_from(start));
+        let v = try!(m.slice(start..));
         let &e = try!(v.at((row, col)));
         let (start_row, start_col) = start;
 
@@ -357,7 +357,7 @@ fn view_mut(
     let size = (start.0 + nrows, start.1 + ncols);
     test!({
         let mut m = setup::mat(size);
-        let v = try!(m.slice_from_mut(start));
+        let v = try!(m.slice_mut(start..));
         let &e = try!(v.at((row, col)));
         let (start_row, start_col) = start;
 

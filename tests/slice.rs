@@ -31,7 +31,7 @@ mod col {
 
         test!({
             let c = setup::col(size);
-            let s = try!(c.slice(start, end));
+            let s = try!(c.slice(start..end));
             let &e = try!(s.at(idx));
 
             e == start + idx
@@ -56,7 +56,7 @@ mod col {
         test!({
             let m = setup::mat((nrows, ncols));
             let c = try!(m.col(col));
-            let s = try!(c.slice(start, end));
+            let s = try!(c.slice(start..end));
             let &e = try!(s.at(idx));
 
             e == (start + idx, col)
@@ -81,7 +81,7 @@ mod col {
         test!({
             let mut m = setup::mat((nrows, ncols));
             let c = try!(m.col_mut(col));
-            let s = try!(c.slice(start, end));
+            let s = try!(c.slice(start..end));
             let &e = try!(s.at(idx));
 
             e == (start + idx, col)
@@ -106,7 +106,7 @@ mod col {
         test!({
             let m = setup::mat((ncols, nrows)).t();
             let c = try!(m.col(col));
-            let s = try!(c.slice(start, end));
+            let s = try!(c.slice(start..end));
             let &e = try!(s.at(idx));
 
             e == (col, start + idx)
@@ -131,7 +131,7 @@ mod col {
         test!({
             let mut m = setup::mat((ncols, nrows)).t();
             let c = try!(m.col_mut(col));
-            let s = try!(c.slice(start, end));
+            let s = try!(c.slice(start..end));
             let &e = try!(s.at(idx));
 
             e == (col, start + idx)
@@ -178,7 +178,7 @@ mod diag {
         test!({
             let m = setup::mat((nrows, ncols));
             let c = try!(m.diag(diag));
-            let s = try!(c.slice(start, end));
+            let s = try!(c.slice(start..end));
             let &e = try!(s.at(idx));
             let idx = idx + start;
 
@@ -222,7 +222,7 @@ mod diag {
         test!({
             let mut m = setup::mat((nrows, ncols));
             let c = try!(m.diag_mut(diag));
-            let s = try!(c.slice(start, end));
+            let s = try!(c.slice(start..end));
             let &e = try!(s.at(idx));
             let idx = idx + start;
 
@@ -252,7 +252,7 @@ mod row {
 
         test!({
             let r = setup::row(size);
-            let s = try!(r.slice(start, end));
+            let s = try!(r.slice(start..end));
             let &e = try!(s.at(idx));
 
             e == start + idx
@@ -277,7 +277,7 @@ mod row {
         test!({
             let m = setup::mat((ncols, nrows)).t();
             let r = try!(m.row(row));
-            let s = try!(r.slice(start, end));
+            let s = try!(r.slice(start..end));
             let &e = try!(s.at(idx));
 
             e == (start + idx, row)
@@ -302,7 +302,7 @@ mod row {
         test!({
             let mut m = setup::mat((ncols, nrows)).t();
             let r = try!(m.row_mut(row));
-            let s = try!(r.slice(start, end));
+            let s = try!(r.slice(start..end));
             let &e = try!(s.at(idx));
 
             e == (start + idx, row)
@@ -327,7 +327,7 @@ mod row {
         test!({
             let m = setup::mat((nrows, ncols));
             let r = try!(m.row(row));
-            let s = try!(r.slice(start, end));
+            let s = try!(r.slice(start..end));
             let &e = try!(s.at(idx));
 
             e == (row, start + idx)
@@ -352,7 +352,7 @@ mod row {
         test!({
             let mut m = setup::mat((nrows, ncols));
             let r = try!(m.row_mut(row));
-            let s = try!(r.slice(start, end));
+            let s = try!(r.slice(start..end));
             let &e = try!(s.at(idx));
 
             e == (row, start + idx)
@@ -384,7 +384,7 @@ mod trans {
 
         test!({
             let m = setup::mat((ncols, nrows)).t();
-            let v = try!(m.slice(start, end));
+            let v = try!(m.slice(start..end));
             let &e = try!(v.at((row, col)));
             let (start_row, start_col) = start;
 
@@ -411,8 +411,8 @@ mod trans {
         let size = (start.0 + ncols, start.1 + nrows);
         test!({
             let m = setup::mat(size);
-            let v = try!(m.slice_from(start)).t();
-            let vv = try!(v.slice(inner_start, inner_end));
+            let v = try!(m.slice(start..)).t();
+            let vv = try!(v.slice(inner_start..inner_end));
             let &e = try!(vv.at((row, col)));
             let (outer_start_row, outer_start_col) = start;
             let (inner_start_row, inner_start_col) = inner_start;
@@ -442,8 +442,8 @@ mod trans {
         let size = (start.0 + ncols, start.1 + nrows);
         test!({
             let mut m = setup::mat(size);
-            let v = try!(m.slice_from_mut(start)).t();
-            let vv = try!(v.slice(inner_start, inner_end));
+            let v = try!(m.slice_mut(start..)).t();
+            let vv = try!(v.slice(inner_start..inner_end));
             let &e = try!(vv.at((row, col)));
             let (outer_start_row, outer_start_col) = start;
             let (inner_start_row, inner_start_col) = inner_start;
@@ -472,7 +472,7 @@ fn mat(
 
     test!({
         let m = setup::mat(size);
-        let v = try!(m.slice(start, end));
+        let v = try!(m.slice(start..end));
         let &e = try!(v.at((row, col)));
         let (start_row, start_col) = start;
 
@@ -499,8 +499,8 @@ fn view(
     let size = (start.0 + nrows, start.1 + ncols);
     test!({
         let m = setup::mat(size);
-        let v = try!(m.slice_from(start));
-        let vv = try!(v.slice(inner_start, inner_end));
+        let v = try!(m.slice(start..));
+        let vv = try!(v.slice(inner_start..inner_end));
         let &e = try!(vv.at((row, col)));
         let (outer_start_row, outer_start_col) = start;
         let (inner_start_row, inner_start_col) = inner_start;
@@ -530,8 +530,8 @@ fn view_mut(
     let size = (start.0 + nrows, start.1 + ncols);
     test!({
         let mut m = setup::mat(size);
-        let v = try!(m.slice_from_mut(start));
-        let vv = try!(v.slice(inner_start, inner_end));
+        let v = try!(m.slice_mut(start..));
+        let vv = try!(v.slice(inner_start..inner_end));
         let &e = try!(vv.at((row, col)));
         let (outer_start_row, outer_start_col) = start;
         let (inner_start_row, inner_start_col) = inner_start;

@@ -34,7 +34,7 @@ mod trans {
                     let size = (start.0 + ncols, start.1 + nrows);
                     test!({
                         let mut m = setup::rand::mat::<$ty>(size);
-                        let mut result = try!(m.slice_from_mut(start)).t();
+                        let mut result = try!(m.slice_mut(start..)).t();
                         let &lhs = try!(result.at(idx));
 
                         let rhs = setup::rand::mat::<$ty>((ncols, nrows)).t();
@@ -64,11 +64,11 @@ mod trans {
                     let rhs_size = (rhs_start.0 + ncols, rhs_start.1 + nrows);
                     test!({
                         let mut m = setup::rand::mat::<$ty>(lhs_size);
-                        let mut result = try!(m.slice_from_mut(lhs_start)).t();
+                        let mut result = try!(m.slice_mut(lhs_start..)).t();
                         let &lhs = try!(result.at(idx));
 
                         let m = setup::rand::mat::<$ty>(rhs_size);
-                        let rhs = try!(m.slice_from(rhs_start)).t();
+                        let rhs = try!(m.slice(rhs_start..)).t();
 
                         result.add_assign(&rhs);
 
@@ -95,11 +95,11 @@ mod trans {
                     let rhs_size = (rhs_start.0 + ncols, rhs_start.1 + nrows);
                     test!({
                         let mut m = setup::rand::mat::<$ty>(lhs_size);
-                        let mut result = try!(m.slice_from_mut(lhs_start)).t();
+                        let mut result = try!(m.slice_mut(lhs_start..)).t();
                         let &lhs = try!(result.at(idx));
 
                         let mut m = setup::rand::mat::<$ty>(rhs_size);
-                        let rhs = try!(m.slice_from_mut(rhs_start)).t();
+                        let rhs = try!(m.slice_mut(rhs_start..)).t();
 
                         result.add_assign(&rhs);
 
@@ -142,7 +142,7 @@ macro_rules! blas {
                 let size = (start.0 + ncols, start.1 + nrows);
                 test!({
                     let mut m = setup::rand::mat::<$ty>(size);
-                    let mut result = try!(m.slice_from_mut(start)).t();
+                    let mut result = try!(m.slice_mut(start..)).t();
                     let &lhs = try!(result.at(idx));
 
                     let rhs = setup::rand::mat::<$ty>((nrows, ncols));
@@ -171,7 +171,7 @@ macro_rules! blas {
                 let size = (start.0 + ncols, start.1 + nrows);
                 test!({
                     let mut m = setup::rand::mat::<$ty>(size);
-                    let mut result = try!(m.slice_from_mut(start)).t();
+                    let mut result = try!(m.slice_mut(start..)).t();
                     let &lhs = try!(result.at(idx));
 
                     let rhs: $ty = ::rand::random();
@@ -199,11 +199,11 @@ macro_rules! blas {
                 let rhs_size = (rhs_start.0 + nrows, rhs_start.1 + ncols);
                 test!({
                     let mut m = setup::rand::mat::<$ty>(lhs_size);
-                    let mut result = try!(m.slice_from_mut(lhs_start)).t();
+                    let mut result = try!(m.slice_mut(lhs_start..)).t();
                     let &lhs = try!(result.at(idx));
 
                     let m = setup::rand::mat::<$ty>(rhs_size);
-                    let rhs = try!(m.slice_from(rhs_start));
+                    let rhs = try!(m.slice(rhs_start..));
 
                     result.add_assign(&rhs);
 
@@ -230,11 +230,11 @@ macro_rules! blas {
                 let rhs_size = (rhs_start.0 + nrows, rhs_start.1 + ncols);
                 test!({
                     let mut m = setup::rand::mat::<$ty>(lhs_size);
-                    let mut result = try!(m.slice_from_mut(lhs_start)).t();
+                    let mut result = try!(m.slice_mut(lhs_start..)).t();
                     let &lhs = try!(result.at(idx));
 
                     let mut m = setup::rand::mat::<$ty>(rhs_size);
-                    let rhs = try!(m.slice_from_mut(rhs_start));
+                    let rhs = try!(m.slice_mut(rhs_start..));
 
                     result.add_assign(&rhs);
 
