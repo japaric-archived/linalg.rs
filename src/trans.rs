@@ -127,6 +127,12 @@ impl<T, M> MatrixRowMut for Trans<M> where M: MatrixColMut<Elem=T> {
 
 impl<M> MatrixRows for Trans<M> where M: Matrix {}
 
+impl<A, B> PartialEq<Trans<B>> for Trans<A> where A: PartialEq<B> {
+    fn eq(&self, rhs: &Trans<B>) -> bool {
+        self.0 == rhs.0
+    }
+}
+
 impl<'a, M: Slice<'a, Range<(usize, usize)>>> Slice<'a, Range<(usize, usize)>> for Trans<M> {
     type Slice = Trans<M::Slice>;
 

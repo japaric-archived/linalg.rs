@@ -167,24 +167,6 @@ impl<'a, T, U> PartialEq<MutView<'a, T>> for Trans<Mat<U>> where T: PartialEq<U>
     }
 }
 
-impl<T, U> PartialEq<Trans<Mat<T>>> for Trans<Mat<U>> where U: PartialEq<T> {
-    fn eq(&self, rhs: &Trans<Mat<T>>) -> bool {
-        self.0.as_view() == rhs.0.as_view()
-    }
-}
-
-impl<'a, T, U> PartialEq<Trans<MutView<'a, T>>> for Trans<Mat<U>> where U: PartialEq<T> {
-    fn eq(&self, rhs: &Trans<MutView<T>>) -> bool {
-        self.0.as_view() == *rhs.0.as_view()
-    }
-}
-
-impl<'a, T, U> PartialEq<Trans<View<'a, T>>> for Trans<Mat<U>> where U: PartialEq<T> {
-    fn eq(&self, rhs: &Trans<View<T>>) -> bool {
-        self.0.as_view() == rhs.0
-    }
-}
-
 impl<'a, T, U> PartialEq<View<'a, T>> for Trans<Mat<U>> where T: PartialEq<U> {
     fn eq(&self, rhs: &View<T>) -> bool {
         *rhs == self.as_trans_view_()
@@ -203,26 +185,6 @@ impl<'a, 'b, T, U> PartialEq<MutView<'a, T>> for Trans<MutView<'b, U>> where T: 
     }
 }
 
-impl<'a, T, U> PartialEq<Trans<Mat<T>>> for Trans<MutView<'a, U>> where U: PartialEq<T> {
-    fn eq(&self, rhs: &Trans<Mat<T>>) -> bool {
-        *self.0.as_view() == rhs.0.as_view()
-    }
-}
-
-impl<'a, 'b, T, U> PartialEq<Trans<MutView<'a, T>>> for Trans<MutView<'b, U>> where
-    U: PartialEq<T>,
-{
-    fn eq(&self, rhs: &Trans<MutView<T>>) -> bool {
-        *self.0.as_view() == *rhs.0.as_view()
-    }
-}
-
-impl<'a, 'b, T, U> PartialEq<Trans<View<'a, T>>> for Trans<MutView<'b, U>> where U: PartialEq<T> {
-    fn eq(&self, rhs: &Trans<View<T>>) -> bool {
-        *self.0.as_view() == rhs.0
-    }
-}
-
 impl<'a, 'b, T, U> PartialEq<View<'a, T>> for Trans<MutView<'b, U>> where T: PartialEq<U> {
     fn eq(&self, rhs: &View<T>) -> bool {
         *rhs == *self.as_trans_view()
@@ -238,24 +200,6 @@ impl<'a, T, U> PartialEq<Mat<T>> for Trans<View<'a, U>> where T: PartialEq<U> {
 impl<'a, 'b, T, U> PartialEq<MutView<'a, T>> for Trans<View<'b, U>> where T: PartialEq<U> {
     fn eq(&self, rhs: &MutView<T>) -> bool {
         *rhs.as_view() == *self
-    }
-}
-
-impl<'a, T, U> PartialEq<Trans<Mat<T>>> for Trans<View<'a, U>> where U: PartialEq<T> {
-    fn eq(&self, rhs: &Trans<Mat<T>>) -> bool {
-        self.0 == rhs.0.as_view()
-    }
-}
-
-impl<'a, 'b, T, U> PartialEq<Trans<MutView<'a, T>>> for Trans<View<'b, U>> where U: PartialEq<T> {
-    fn eq(&self, rhs: &Trans<MutView<T>>) -> bool {
-        self.0 == *rhs.0.as_view()
-    }
-}
-
-impl<'a, 'b, T, U> PartialEq<Trans<View<'a, T>>> for Trans<View<'b, U>> where U: PartialEq<T> {
-    fn eq(&self, rhs: &Trans<View<T>>) -> bool {
-        self.0 == rhs.0
     }
 }
 
