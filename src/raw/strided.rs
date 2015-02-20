@@ -7,7 +7,7 @@ use {Error, Result};
 use error::OutOfBounds;
 
 pub struct Items<'a, T: 'a> {
-    _contravariant: marker::ContravariantLifetime<'a>,
+    _marker: marker::PhantomData<&'a T>,
     state: *mut T,
     stop: *mut T,
     stride: usize,
@@ -24,7 +24,7 @@ impl<'a, T> Iterator for Items<'a, T> {
         } else if mem::size_of::<T>() == 0 {
             self.state = unsafe { mem::transmute(self.state as usize + self.stride) };
 
-            Some(unsafe { mem::transmute(1us) })
+            Some(unsafe { mem::transmute(1_usize) })
         } else {
             let old = self.state;
             self.state = unsafe { self.state.offset(self.stride as isize) };
@@ -49,7 +49,7 @@ impl<'a, T> DoubleEndedIterator for Items<'a, T> {
         } else if mem::size_of::<T>() == 0 {
             self.stop = unsafe { mem::transmute(self.stop as usize - self.stride) };
 
-            Some(unsafe { mem::transmute(1us) })
+            Some(unsafe { mem::transmute(1_usize) })
         } else {
             self.stop = unsafe { self.stop.offset(-(self.stride as isize)) };
 
@@ -59,7 +59,7 @@ impl<'a, T> DoubleEndedIterator for Items<'a, T> {
 }
 
 pub struct Slice<'a, T: 'a> {
-    _contravariant: marker::ContravariantLifetime<'a>,
+    _marker: marker::PhantomData<&'a T>,
     pub data: *mut T,
     pub len: usize,
     pub stride: usize,
@@ -76,7 +76,7 @@ impl<'a, T> Slice<'a, T> {
 
     pub fn iter(&self) -> Items<T> {
         Items {
-            _contravariant: marker::ContravariantLifetime,
+            _marker: marker::PhantomData,
             state: self.data,
             stop: unsafe { self.data.offset((self.len * self.stride) as isize) },
             stride: self.stride,
@@ -109,7 +109,7 @@ impl<'a, T> Copy for Slice<'a, T> {}
 impl<'a, T> ::From<(*const T, usize, usize)> for Slice<'a, T> {
     unsafe fn parts((data, len, stride): (*const T, usize, usize)) -> Slice<'a, T> {
         Slice {
-            _contravariant: marker::ContravariantLifetime,
+            _marker: marker::PhantomData,
             data: data as *mut _,
             len: len,
             stride: stride,
