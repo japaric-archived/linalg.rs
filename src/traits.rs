@@ -5,6 +5,7 @@ use {Col, Cols, Diag, Error, MutCol, MutCols, MutDiag, MutRow, MutRows, Result, 
 
 /// Bounds-checked immutable indexing
 pub trait At<I> {
+    /// An immutable view of the indexed element
     type Output;
 
     /// Returns an immutable reference to the element at the given index
@@ -17,6 +18,7 @@ pub trait At<I> {
 
 /// Bounds-checked mutable indexing
 pub trait AtMut<I> {
+    /// An mutable view of the indexed element
     type Output;
 
     /// Returns a mutable reference to the element at the given index
@@ -30,6 +32,7 @@ pub trait AtMut<I> {
 /// Immutable iteration over a collection
 // FIXME (AI) `'a` should be associated items
 pub trait Iter<'a> {
+    /// The immutable iterator
     type Iter: Iterator;
 
     /// Returns an iterator that yields immutable references to the elements of the collection
@@ -39,6 +42,7 @@ pub trait Iter<'a> {
 /// Mutable iteration over a collection
 // FIXME (AI) `'a`, should be associated items
 pub trait IterMut<'a> {
+    /// The mutable iterator
     type Iter: Iterator;
 
     /// Returns an iterator that yields mutable references to the elements of the collection
@@ -47,6 +51,7 @@ pub trait IterMut<'a> {
 
 /// The basic idea of a matrix: A rectangular array arranged in rows and columns
 pub trait Matrix: Sized {
+    /// The type of the elements contained by the matrix
     type Elem;
 
     /// Returns the number of columns the matrix has
@@ -201,6 +206,7 @@ pub trait MatrixRowMut: MatrixRow {
 /// `[]` with this library until Rust gets HKT.
 // FIXME (AI) `'a` should be associated items
 pub trait Slice<'a, R> {
+    /// The immutable slice
     type Slice;
 
     /// Returns an immutable view into a fraction of the collection that spans `range`
@@ -210,6 +216,7 @@ pub trait Slice<'a, R> {
 /// Mutable version of the `Slice` trait
 // FIXME (AI) `'a`, should be associated items
 pub trait SliceMut<'a, R> {
+    /// The mutable slice
     type Slice;
 
     /// Returns a mutable view into a fraction of the collection that spans the `range`
@@ -225,6 +232,7 @@ pub trait ToOwned<T> {
 
 /// The transpose operator
 pub trait Transpose {
+    /// A view into the transposed data
     type Output;
 
     /// Returns the transpose of the input

@@ -702,6 +702,7 @@ pub enum Error {
 // XXX Why do I have to document private traits?
 /// Private
 trait At<I> {
+    /// Private
     type Output;
 
     /// private
@@ -710,6 +711,7 @@ trait At<I> {
 
 /// Private
 trait Slice {
+    /// Private
     type Ty;
 
     /// Private
