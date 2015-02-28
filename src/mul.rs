@@ -22,7 +22,7 @@ fn mc<T>(
     } else {
         let mut data = Vec::with_capacity(len);
 
-        let gemv = <T as Gemv>::gemv();
+        let gemv = T::gemv();
         let m = lhs.nrows.to::<blasint>().unwrap();
         let n = lhs.ncols.to::<blasint>().unwrap();
         let alpha = One::one();
@@ -232,7 +232,7 @@ fn mm<T>(
     } else {
         let len = size.0.checked_mul(size.1).unwrap();
 
-        let gemm = <T as Gemm>::gemm();
+        let gemm = T::gemm();
         let (m, k) = match transa {
             Transpose::No => {
                 (lhs.nrows.to::<blasint>().unwrap(), lhs.ncols.to::<blasint>().unwrap())
@@ -663,7 +663,7 @@ impl<'a, 'b, T> Mul<Col<'a, T>> for Row<'b, T> where T: Dot + Zero {
 
         let (lhs, rhs) = ((self.0).0, (rhs.0).0);
 
-        let dot = <T as Dot>::dot();
+        let dot = T::dot();
         let x = lhs.data;
         let incx = lhs.stride.to::<blasint>().unwrap();
         let y = rhs.data;
