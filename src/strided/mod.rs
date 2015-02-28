@@ -7,7 +7,7 @@ use Result;
 use error::OutOfBounds;
 
 #[doc(hidden)]
-pub struct Slice<'a, T: 'a>(pub ::raw::strided::Slice<'a, T>);
+pub struct Slice<'a, T>(pub ::raw::strided::Slice<'a, T>) where T: 'a;
 
 impl<'a, T> Slice<'a, T> {
     /// Unreachable
@@ -46,7 +46,7 @@ impl<'a, T> fmt::Debug for Slice<'a, T> where T: fmt::Debug {
 }
 
 #[doc(hidden)]
-pub struct MutSlice<'a, T: 'a>(pub ::raw::strided::Slice<'a, T>);
+pub struct MutSlice<'a, T>(pub ::raw::strided::Slice<'a, T>) where T: 'a;
 
 impl<'a, T> MutSlice<'a, T> {
     /// Unreachable
@@ -98,7 +98,7 @@ impl<'a, T> fmt::Debug for MutSlice<'a, T> where T: fmt::Debug {
 }
 
 /// Iterator over an immutable strided slice
-pub struct Items<'a, T: 'a>(::raw::strided::Items<'a, T>);
+pub struct Items<'a, T>(::raw::strided::Items<'a, T>) where T: 'a;
 
 impl<'a, T> Copy for Items<'a, T> {}
 
@@ -121,7 +121,7 @@ impl<'a, T> Iterator for Items<'a, T> {
 }
 
 /// Iterator over an mutable strided slice
-pub struct MutItems<'a, T: 'a>(::raw::strided::Items<'a, T>);
+pub struct MutItems<'a, T>(::raw::strided::Items<'a, T>) where T: 'a;
 
 impl<'a, T> DoubleEndedIterator for MutItems<'a, T> {
     fn next_back(&mut self) -> Option<&'a mut T> {

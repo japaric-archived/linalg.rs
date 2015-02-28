@@ -6,7 +6,7 @@ use std::{cmp, mem};
 use {Col, Diag, Error, Result, Row};
 use error::OutOfBounds;
 
-pub struct View<'a, T: 'a> {
+pub struct View<'a, T> where T: 'a {
     _marker: marker::PhantomData<&'a T>,
     pub data: *mut T,
     pub ld: usize,  // Leading dimension
@@ -138,7 +138,7 @@ impl<'a, 'b, T, U> PartialEq<View<'a, T>> for View<'b, U> where U: PartialEq<T> 
     }
 }
 
-pub struct Items<'a, T: 'a> {
+pub struct Items<'a, T> where T: 'a {
     _marker: marker::PhantomData<&'a T>,
     col: usize,
     data: *const T,

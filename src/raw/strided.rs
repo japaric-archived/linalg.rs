@@ -6,7 +6,7 @@ use std::{fmt, mem};
 use {Error, Result};
 use error::OutOfBounds;
 
-pub struct Items<'a, T: 'a> {
+pub struct Items<'a, T> where T: 'a {
     _marker: marker::PhantomData<&'a T>,
     state: *mut T,
     stop: *mut T,
@@ -58,7 +58,7 @@ impl<'a, T> DoubleEndedIterator for Items<'a, T> {
     }
 }
 
-pub struct Slice<'a, T: 'a> {
+pub struct Slice<'a, T> where T: 'a {
     _marker: marker::PhantomData<&'a T>,
     pub data: *mut T,
     pub len: usize,

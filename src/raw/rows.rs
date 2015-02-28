@@ -1,7 +1,7 @@
 use Row;
 use traits::{Matrix, MatrixRow};
 
-pub struct Rows<'a, M: 'a> {
+pub struct Rows<'a, M> where M: 'a {
     mat: &'a M,
     state: usize,
     stop: usize,

@@ -1,7 +1,7 @@
 use Col;
 use traits::{Matrix, MatrixCol};
 
-pub struct Cols<'a, M: 'a> {
+pub struct Cols<'a, M> where M: 'a {
     mat: &'a M,
     state: usize,
     stop: usize,

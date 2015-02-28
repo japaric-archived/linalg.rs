@@ -133,7 +133,9 @@ impl<A, B> PartialEq<Trans<B>> for Trans<A> where A: PartialEq<B> {
     }
 }
 
-impl<'a, M: Slice<'a, Range<(usize, usize)>>> Slice<'a, Range<(usize, usize)>> for Trans<M> {
+impl<'a, M> Slice<'a, Range<(usize, usize)>> for Trans<M> where
+    M: Slice<'a, Range<(usize, usize)>>,
+{
     type Slice = Trans<M::Slice>;
 
     fn slice(&'a self, Range { start, end }: Range<(usize, usize)>) -> ::Result<Trans<M::Slice>> {
