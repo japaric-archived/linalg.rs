@@ -12,7 +12,7 @@ use syntax::ast::{
     UnsuffixedIntLit,
 };
 use syntax::codemap::Span;
-use syntax::ext::base::{DummyResult, ExtCtxt, MacExpr, MacResult, NormalTT};
+use syntax::ext::base::{DummyResult, ExtCtxt, MacEager, MacResult, NormalTT};
 use syntax::ext::build::AstBuilder;
 use syntax::parse::token::{self, Comma, Semi};
 use syntax::ptr::P;
@@ -216,7 +216,7 @@ fn expand_mat<'cx>(
         };
         let args = vec![vec];
 
-        MacExpr::new(cx.expr_call(sp, fn_name, args))
+        MacEager::expr(cx.expr_call(sp, fn_name, args))
     } else if ncols == 1 {
         let fn_name = {
             let segments = vec![
@@ -229,7 +229,7 @@ fn expand_mat<'cx>(
         };
         let args = vec![vec];
 
-        MacExpr::new(cx.expr_call(sp, fn_name, args))
+        MacEager::expr(cx.expr_call(sp, fn_name, args))
     } else {
         let fn_name = {
             let segments = vec![
@@ -254,6 +254,6 @@ fn expand_mat<'cx>(
             span: sp,
         }));
 
-        MacExpr::new(unsafe_block)
+        MacEager::expr(unsafe_block)
     }
 }
