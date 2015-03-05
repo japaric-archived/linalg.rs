@@ -131,7 +131,7 @@ mod diag {
                 d.iter().rev().enumerate().all(|(i, &e)| {
                     let i = n - i - 1;
 
-                    e == (i - diag as usize, i)
+                    e == (i + (-diag as usize), i)
                 })
             }
         })
@@ -157,7 +157,7 @@ mod diag {
                 d.iter().rev().enumerate().all(|(i, &e)| {
                     let i = n - i - 1;
 
-                    e == (i - diag as usize, i)
+                    e == (i + (-diag as usize), i)
                 })
             }
         })

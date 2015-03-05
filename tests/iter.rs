@@ -103,7 +103,7 @@ mod diag {
             if diag > 0 {
                 d.iter().enumerate().all(|(i, &e)| e == (i, i + diag as usize))
             } else {
-                d.iter().enumerate().all(|(i, &e)| e == (i - diag as usize, i))
+                d.iter().enumerate().all(|(i, &e)| e == (i + (-diag as usize), i))
             }
         })
     }
@@ -120,7 +120,7 @@ mod diag {
             if diag > 0 {
                 d.iter().enumerate().all(|(i, &e)| e == (i, i + diag as usize))
             } else {
-                d.iter().enumerate().all(|(i, &e)| e == (i - diag as usize, i))
+                d.iter().enumerate().all(|(i, &e)| e == (i + (-diag as usize), i))
             }
         })
     }

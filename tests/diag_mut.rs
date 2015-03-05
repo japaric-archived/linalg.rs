@@ -31,7 +31,7 @@ mod trans {
             e == if diag > 0 {
                 (idx + diag as usize, idx)
             } else {
-                (idx, idx - diag as usize)
+                (idx, idx + (-diag as usize))
             }
         })
     }
@@ -57,7 +57,7 @@ mod trans {
             e == if diag > 0 {
                 (start_row + idx, start_col + idx + diag as usize)
             } else {
-                (start_row + idx - diag as usize, start_col + idx)
+                (start_row + idx + (-diag as usize), start_col + idx)
             }
         })
     }
@@ -76,7 +76,7 @@ fn mat(size: (usize, usize), (diag, idx): (isize, usize)) -> TestResult {
         e == if diag > 0 {
             (idx, idx + diag as usize)
         } else {
-            (idx - diag as usize, idx)
+            (idx + (-diag as usize), idx)
         }
     })
 }
@@ -101,7 +101,7 @@ fn view_mut(
         e == if diag > 0 {
             (start_row + idx, start_col + idx + diag as usize)
         } else {
-            (start_row + idx - diag as usize, start_col + idx)
+            (start_row + idx + (-diag as usize), start_col + idx)
         }
     })
 }

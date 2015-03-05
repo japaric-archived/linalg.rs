@@ -404,11 +404,12 @@ fn mut_rows((nrows, ncols): (usize, usize), skip: usize) -> bool {
 fn rows((nrows, ncols): (usize, usize), skip: usize) -> bool {
     let m = setup::mat((nrows, ncols));
     let n = m.nrows();
-    let left = n - skip;
 
     m.rows().skip(skip).size_hint() == if skip > n {
         (0, Some(0))
     } else {
+        let left = n - skip;
+
         (left, Some(left))
     }
 }

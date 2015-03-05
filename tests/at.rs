@@ -120,7 +120,7 @@ mod diag {
             e == if diag > 0 {
                 (idx, idx + diag as usize)
             } else {
-                (idx - diag as usize, idx)
+                (idx + (-diag as usize), idx)
             }
         })
     }
@@ -138,7 +138,7 @@ mod diag {
             e == if diag > 0 {
                 (idx, idx + diag as usize)
             } else {
-                (idx - diag as usize, idx)
+                (idx + (-diag as usize), idx)
             }
         })
     }

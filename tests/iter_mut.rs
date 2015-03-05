@@ -73,7 +73,7 @@ mod diag {
             if diag > 0 {
                 d.iter_mut().enumerate().all(|(i, &mut e)| e == (i, i + diag as usize))
             } else {
-                d.iter_mut().enumerate().all(|(i, &mut e)| e == (i - diag as usize, i))
+                d.iter_mut().enumerate().all(|(i, &mut e)| e == (i + (-diag as usize), i))
             }
         })
     }

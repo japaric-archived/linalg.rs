@@ -91,7 +91,7 @@ mod diag {
                 d.iter_mut().rev().enumerate().all(|(i, &mut e)| {
                     let i = n - i - 1;
 
-                    e == (i - diag as usize, i)
+                    e == (i + (-diag as usize), i)
                 })
             }
         })
