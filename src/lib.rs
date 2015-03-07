@@ -40,7 +40,7 @@
 //!   guarantee of the iteration order
 
 #![deny(missing_docs)]
-#![deny(warnings)]
+#![allow(warnings)]
 #![feature(collections)]
 #![feature(core)]
 #![feature(libc)]

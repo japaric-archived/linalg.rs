@@ -38,7 +38,7 @@ macro_rules! mul2 {
 }
 
 impl<'a, T, M> Iterator for Scaled<T, Rows<'a, M>> where
-    T: Clone,
+    T: 'a + Clone,
     M: MatrixRow + Matrix<Elem=T>,
 {
     type Item = Scaled<T, Row<'a, T>>;
@@ -49,7 +49,7 @@ impl<'a, T, M> Iterator for Scaled<T, Rows<'a, M>> where
 }
 
 impl<'a, T, M> Iterator for Scaled<T, Cols<'a, M>> where
-    T: Clone,
+    T: 'a + Clone,
     M: MatrixCol + Matrix<Elem=T>,
 {
     type Item = Scaled<T, Col<'a, T>>;
