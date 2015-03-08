@@ -86,7 +86,7 @@ macro_rules! mat {
 #[plugin_registrar]
 #[doc(hidden)]
 pub fn plugin_registrar(r: &mut Registry) {
-    r.register_syntax_extension(token::intern("mat"), NormalTT(Box::new(expand_mat), None));
+    r.register_syntax_extension(token::intern("mat"), NormalTT(Box::new(expand_mat), None, false));
 }
 
 fn expand_mat<'cx>(
