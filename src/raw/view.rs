@@ -6,8 +6,8 @@ use std::{cmp, mem};
 use {Col, Diag, Error, Result, Row};
 use error::OutOfBounds;
 
-pub struct View<'a, T> where T: 'a {
-    _marker: marker::PhantomData<&'a T>,
+pub struct View<'a, T> {
+    _marker: marker::PhantomData<fn() -> &'a T>,
     pub data: *mut T,
     pub ld: usize,  // Leading dimension
     pub ncols: usize,
@@ -133,13 +133,13 @@ impl<'a, T> ::From<(*const T, usize, usize, usize)> for View<'a, T> {
 }
 
 impl<'a, 'b, T, U> PartialEq<View<'a, T>> for View<'b, U> where U: PartialEq<T> {
-    fn eq(&self, rhs: &View<'a, T>) -> bool {
+    fn eq(&self, rhs: &View<T>) -> bool {
         self.size() == rhs.size() && order::eq(self.iter(), rhs.iter())
     }
 }
 
-pub struct Items<'a, T> where T: 'a {
-    _marker: marker::PhantomData<&'a T>,
+pub struct Items<'a, T> {
+    _marker: marker::PhantomData<fn() -> &'a T>,
     col: usize,
     data: *const T,
     ld: usize,

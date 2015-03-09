@@ -47,7 +47,7 @@ macro_rules! sub1_ {
 
 macro_rules! sub1c {
     ($lhs:ty, $rhs:ty) => {
-        impl<'a, T> Sub<$rhs> for $lhs where T: 'a + Axpy + Neg<Output=T> + One + Clone {
+        impl<'a, T> Sub<$rhs> for $lhs where T: Axpy + Neg<Output=T> + One + Clone {
             type Output = $lhs;
 
             fn sub(mut self, rhs: $rhs) -> $lhs {
@@ -86,7 +86,7 @@ macro_rules! sub2_ {
 
 macro_rules! sub2c {
     ($lhs:ty, $rhs:ty) => {
-        impl<'a, 'b, T> Sub<$rhs> for $lhs where T: 'b + Axpy + Clone + Neg<Output=T> + One {
+        impl<'a, 'b, T> Sub<$rhs> for $lhs where T: Axpy + Clone + Neg<Output=T> + One {
             type Output = $lhs;
 
             fn sub(mut self, rhs: $rhs) -> $lhs {

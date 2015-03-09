@@ -6,8 +6,8 @@ use std::{fmt, mem};
 use {Error, Result};
 use error::OutOfBounds;
 
-pub struct Items<'a, T> where T: 'a {
-    _marker: marker::PhantomData<&'a T>,
+pub struct Items<'a, T> {
+    _marker: marker::PhantomData<fn() -> &'a T>,
     state: *mut T,
     stop: *mut T,
     stride: usize,
@@ -58,8 +58,8 @@ impl<'a, T> DoubleEndedIterator for Items<'a, T> {
     }
 }
 
-pub struct Slice<'a, T> where T: 'a {
-    _marker: marker::PhantomData<&'a T>,
+pub struct Slice<'a, T> {
+    _marker: marker::PhantomData<fn() -> &'a T>,
     pub data: *mut T,
     pub len: usize,
     pub stride: usize,
@@ -118,7 +118,7 @@ impl<'a, T> ::From<(*const T, usize, usize)> for Slice<'a, T> {
 }
 
 impl<'a, 'b, T, U> PartialEq<Slice<'a, T>> for Slice<'b, U> where U: PartialEq<T> {
-    fn eq(&self, rhs: &Slice<'a, T>) -> bool {
+    fn eq(&self, rhs: &Slice<T>) -> bool {
         self.len == rhs.len && order::eq(self.iter(), rhs.iter())
     }
 }

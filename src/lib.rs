@@ -90,7 +90,7 @@ pub mod strided;
 pub mod traits;
 
 /// Immutable view into the column of a matrix
-pub struct Col<'a, T>(strided::Slice<'a, T>) where T: 'a;
+pub struct Col<'a, T>(strided::Slice<'a, T>);
 
 impl<'a, T> Col<'a, T> {
     /// Returns the length of the column
@@ -219,7 +219,7 @@ pub struct Cols<'a, M>(raw::Cols<'a, M>) where M: 'a;
 impl<'a, M> Copy for Cols<'a, M> {}
 
 /// Immutable view into the diagonal of a matrix
-pub struct Diag<'a, T>(strided::Slice<'a, T>) where T: 'a;
+pub struct Diag<'a, T>(strided::Slice<'a, T>);
 
 impl<'a, T> Diag<'a, T> {
     /// Returns the length of the diagonal
@@ -231,7 +231,7 @@ impl<'a, T> Diag<'a, T> {
 impl<'a, T> Copy for Diag<'a, T> {}
 
 /// Immutable sub-matrix iterator
-pub struct Items<'a, T>(raw::view::Items<'a, T>) where T: 'a;
+pub struct Items<'a, T>(raw::view::Items<'a, T>);
 
 impl<'a, T> Copy for Items<'a, T> {}
 
@@ -437,7 +437,7 @@ impl<T> Clone for Mat<T> where T: Clone {
 }
 
 /// Mutable view into the column of a matrix
-pub struct MutCol<'a, T>(strided::MutSlice<'a, T>) where T: 'a;
+pub struct MutCol<'a, T>(strided::MutSlice<'a, T>);
 
 impl<'a, T> MutCol<'a, T> {
     fn as_col(&self) -> &Col<T> {
@@ -456,7 +456,7 @@ impl<'a, T> MutCol<'a, T> {
 pub struct MutCols<'a, M>(raw::Cols<'a, M>) where M: 'a;
 
 /// Immutable view into the diagonal of a matrix
-pub struct MutDiag<'a, T>(strided::MutSlice<'a, T>) where T: 'a;
+pub struct MutDiag<'a, T>(strided::MutSlice<'a, T>);
 
 impl<'a, T> MutDiag<'a, T> {
     fn as_diag(&self) -> &Diag<T> {
@@ -472,10 +472,10 @@ impl<'a, T> MutDiag<'a, T> {
 }
 
 /// Mutable sub-matrix iterator
-pub struct MutItems<'a, T>(raw::view::Items<'a, T>) where T: 'a;
+pub struct MutItems<'a, T>(raw::view::Items<'a, T>);
 
 /// Mutable view into the row of a matrix
-pub struct MutRow<'a, T>(strided::MutSlice<'a, T>) where T: 'a;
+pub struct MutRow<'a, T>(strided::MutSlice<'a, T>);
 
 impl<'a, T> MutRow<'a, T> {
     fn as_row(&self) -> &Row<T> {
@@ -494,7 +494,7 @@ impl<'a, T> MutRow<'a, T> {
 pub struct MutRows<'a, M>(raw::Rows<'a, M>) where M: 'a;
 
 /// Mutable sub-matrix view
-pub struct MutView<'a, T>(raw::View<'a, T>) where T: 'a;
+pub struct MutView<'a, T>(raw::View<'a, T>);
 
 impl<'a, T> MutView<'a, T> {
     fn as_view(&self) -> &View<T> {
@@ -505,7 +505,7 @@ impl<'a, T> MutView<'a, T> {
 }
 
 /// Immutable view into the row of a matrix
-pub struct Row<'a, T>(strided::Slice<'a, T>) where T: 'a;
+pub struct Row<'a, T>(strided::Slice<'a, T>);
 
 impl<'a, T> Row<'a, T> {
     /// Returns the length of the row
@@ -674,7 +674,7 @@ impl<'a, T> Trans<MutView<'a, T>> {
 }
 
 /// Immutable sub-matrix view
-pub struct View<'a, T>(raw::View<'a, T>) where T: 'a;
+pub struct View<'a, T>(raw::View<'a, T>);
 
 impl<'a, T> Copy for View<'a, T> {}
 

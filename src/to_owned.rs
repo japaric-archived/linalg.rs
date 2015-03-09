@@ -6,7 +6,7 @@ use cast::CastTo;
 use traits::{Matrix, MatrixCols, MatrixRows, ToOwned};
 use {Col, ColVec, Mat, MutCol, MutRow, MutView, Row, RowVec, Trans, View};
 
-fn to<'a, T>(s: ::raw::strided::Slice<'a, T>) -> Box<[T]> where T: Copy {
+fn to<T>(s: ::raw::strided::Slice<T>) -> Box<[T]> where T: Copy {
     let n = s.len();
 
     if n == 0 { return Box::new([]) }
