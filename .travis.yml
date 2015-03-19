@@ -20,6 +20,7 @@ install:
     else
       sudo apt-get install libblas-dev;
     fi
+  - git clone --depth 1 https://github.com/japaric/cfail.rs
 
 script:
   - if [[ $BLAS == 'OpenBLAS' ]]; then
@@ -32,6 +33,9 @@ script:
       cargo test --features macros --verbose;
     fi
   - cargo doc --features macros --verbose
+  - cd cfail.rs && cargo build --release && cd ..
+  - CFAIL_LIBRARY_PATH=target/debug:target/debug/deps cfail.rs/target/release/cfail tests/cfail/*.rs
+  - rm -rf cfail.rs
   - ./check-line-length.sh
 
 after_success:
