@@ -28,7 +28,7 @@ script:
     fi
   - cargo build --features macros --verbose
   - if [[ $BLAS == 'OpenBLAS' ]]; then
-      RUST_THREADS=1 cargo test --features macros --verbose;
+      RUST_TEST_THREADS=1 cargo test --features macros --verbose;
     else
       cargo test --features macros --verbose;
     fi
