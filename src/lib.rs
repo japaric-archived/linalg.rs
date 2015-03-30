@@ -115,7 +115,7 @@ impl<T> ColVec<T> {
     /// # extern crate linalg;
     /// # fn main() {
     /// # use linalg::ColVec;
-    /// assert_eq!(ColVec::new(Box::new([0i, 1, 2])), mat![0i; 1; 2])
+    /// assert_eq!(ColVec::new(Box::new([0, 1, 2])), mat![0; 1; 2])
     /// # }
     /// ```
     pub fn new(data: Box<[T]>) -> ColVec<T> {
@@ -135,7 +135,7 @@ impl<T> ColVec<T> {
     /// # extern crate linalg;
     /// # fn main() {
     /// # use linalg::ColVec;
-    /// assert_eq!(ColVec::from_elem(3, 2), mat![2i; 2; 2])
+    /// assert_eq!(ColVec::from_elem(3, 2), mat![2; 2; 2])
     /// # }
     /// ```
     pub fn from_elem(length: usize, value: T) -> ColVec<T> where T: Clone {
@@ -275,7 +275,7 @@ impl<T> Mat<T> {
     /// # extern crate linalg;
     /// # fn main() {
     /// # use linalg::Mat;
-    /// assert_eq!(Mat::from_elem((3, 2), 2).unwrap(), mat![2i, 2; 2, 2; 2, 2])
+    /// assert_eq!(Mat::from_elem((3, 2), 2).unwrap(), mat![2, 2; 2, 2; 2, 2])
     /// # }
     /// ```
     pub fn from_elem((nrows, ncols): (usize, usize), value: T) -> Result<Mat<T>> where T: Clone {
@@ -530,7 +530,7 @@ impl<T> RowVec<T> {
     /// # extern crate linalg;
     /// # fn main() {
     /// # use linalg::RowVec;
-    /// assert_eq!(RowVec::new(Box::new([0i, 1, 2])), mat![0i, 1, 2])
+    /// assert_eq!(RowVec::new(Box::new([0, 1, 2])), mat![0, 1, 2])
     /// # }
     /// ```
     pub fn new(data: Box<[T]>) -> RowVec<T> {
@@ -550,7 +550,7 @@ impl<T> RowVec<T> {
     /// # extern crate linalg;
     /// # fn main() {
     /// # use linalg::RowVec;
-    /// assert_eq!(RowVec::from_elem(3, 2), mat![2i, 2, 2])
+    /// assert_eq!(RowVec::from_elem(3, 2), mat![2, 2, 2])
     /// # }
     /// ```
     pub fn from_elem(length: usize, value: T) -> RowVec<T> where T: Clone {
