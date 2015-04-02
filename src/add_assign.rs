@@ -1,6 +1,6 @@
 use assign::AddAssign;
 use blas::{Axpy, blasint};
-use cast::CastTo;
+use cast::From;
 use onezero::One;
 
 use {
@@ -20,9 +20,9 @@ fn vs<T>(lhs: ::raw::strided::Slice<T>, rhs: &T) where T: Axpy + One {
     let x = rhs;
     let incx = 0;
     let y = lhs.data;
-    let incy = lhs.stride.to::<blasint>().unwrap();
+    let incy = blasint::from(lhs.stride).unwrap();
 
-    unsafe { axpy(&n.to::<blasint>().unwrap(), &alpha, x, &incx, y, &incy) }
+    unsafe { axpy(&blasint::from(n).unwrap(), &alpha, x, &incx, y, &incy) }
 }
 
 // col
@@ -100,11 +100,11 @@ fn vv<T>(lhs: ::raw::strided::Slice<T>, alpha: &T, rhs: ::raw::strided::Slice<T>
     if n == 0 { return }
 
     let axpy = T::axpy();
-    let n = n.to::<blasint>().unwrap();
+    let n = blasint::from(n).unwrap();
     let x = rhs.data;
-    let incx = rhs.stride.to::<blasint>().unwrap();
+    let incx = blasint::from(rhs.stride).unwrap();
     let y = lhs.data;
-    let incy = lhs.stride.to::<blasint>().unwrap();
+    let incy = blasint::from(lhs.stride).unwrap();
 
     unsafe { axpy(&n, alpha, x, &incx, y, &incy) }
 }
