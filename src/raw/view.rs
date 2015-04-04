@@ -120,6 +120,12 @@ impl<'a, T> View<'a, T> {
 
 impl<'a, T> Copy for View<'a, T> {}
 
+impl<'a, T> Clone for View<'a, T> {
+    fn clone(&self) -> View<'a, T> {
+        *self
+    }
+}
+
 impl<'a, T> ::From<(*const T, usize, usize, usize)> for View<'a, T> {
     unsafe fn parts((data, nrows, ncols, ld): (*const T, usize, usize, usize)) -> View<'a, T> {
         View {
@@ -149,6 +155,12 @@ pub struct Items<'a, T> {
 }
 
 impl<'a, T> Copy for Items<'a, T> {}
+
+impl<'a, T> Clone for Items<'a, T> {
+    fn clone(&self) -> Items<'a, T> {
+        *self
+    }
+}
 
 impl<'a, T> Iterator for Items<'a, T> {
     type Item = &'a T;

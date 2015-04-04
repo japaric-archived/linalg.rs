@@ -9,6 +9,12 @@ pub struct Cols<'a, M> where M: 'a {
 
 impl<'a, M> Copy for Cols<'a, M> {}
 
+impl<'a, M> Clone for Cols<'a, M> {
+    fn clone(&self) -> Cols<'a, M> {
+        *self
+    }
+}
+
 impl<'a, T, M> DoubleEndedIterator for Cols<'a, M> where M: MatrixCol + Matrix<Elem=T> {
     fn next_back(&mut self) -> Option<Col<'a, T>> {
         if self.state == self.stop {

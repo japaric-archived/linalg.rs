@@ -2,7 +2,7 @@
 
 use Error;
 
-#[derive(Copy, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct OutOfBounds;
 
 impl From<OutOfBounds> for Error {

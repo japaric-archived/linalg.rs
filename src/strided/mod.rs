@@ -33,6 +33,12 @@ impl<'a, T> Slice<'a, T> {
 
 impl<'a, T> Copy for Slice<'a, T> {}
 
+impl<'a, T> Clone for Slice<'a, T> {
+    fn clone(&self) -> Slice<'a, T> {
+        *self
+    }
+}
+
 impl<'a, T> ::From<(*const T, usize, usize)> for Slice<'a, T> {
     unsafe fn parts((data, len, stride): (*const T, usize, usize)) -> Slice<'a, T> {
         Slice(::From::parts((data, len, stride)))
@@ -101,6 +107,12 @@ impl<'a, T> fmt::Debug for MutSlice<'a, T> where T: fmt::Debug {
 pub struct Items<'a, T>(::raw::strided::Items<'a, T>);
 
 impl<'a, T> Copy for Items<'a, T> {}
+
+impl<'a, T> Clone for Items<'a, T> {
+    fn clone(&self) -> Items<'a, T> {
+        *self
+    }
+}
 
 impl<'a, T> DoubleEndedIterator for Items<'a, T> {
     fn next_back(&mut self) -> Option<&'a T> {

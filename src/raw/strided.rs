@@ -15,6 +15,12 @@ pub struct Items<'a, T> {
 
 impl<'a, T> Copy for Items<'a, T> {}
 
+impl<'a, T> Clone for Items<'a, T> {
+    fn clone(&self) -> Items<'a, T> {
+        *self
+    }
+}
+
 impl<'a, T> Iterator for Items<'a, T> {
     type Item = &'a T;
 
@@ -105,6 +111,12 @@ impl<'a, T> Slice<'a, T> {
 }
 
 impl<'a, T> Copy for Slice<'a, T> {}
+
+impl<'a, T> Clone for Slice<'a, T> {
+    fn clone(&self) -> Slice<'a, T> {
+        *self
+    }
+}
 
 impl<'a, T> ::From<(*const T, usize, usize)> for Slice<'a, T> {
     unsafe fn parts((data, len, stride): (*const T, usize, usize)) -> Slice<'a, T> {

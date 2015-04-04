@@ -101,6 +101,12 @@ impl<'a, T> Col<'a, T> {
 
 impl<'a, T> Copy for Col<'a, T> {}
 
+impl<'a, T> Clone for Col<'a, T> {
+    fn clone(&self) -> Col<'a, T> {
+        *self
+    }
+}
+
 /// An owned column vector
 pub struct ColVec<T>(Box<[T]>);
 
@@ -218,6 +224,12 @@ pub struct Cols<'a, M>(raw::Cols<'a, M>) where M: 'a;
 
 impl<'a, M> Copy for Cols<'a, M> {}
 
+impl<'a, M> Clone for Cols<'a, M> {
+    fn clone(&self) -> Cols<'a, M> {
+        *self
+    }
+}
+
 /// Immutable view into the diagonal of a matrix
 pub struct Diag<'a, T>(strided::Slice<'a, T>);
 
@@ -230,10 +242,22 @@ impl<'a, T> Diag<'a, T> {
 
 impl<'a, T> Copy for Diag<'a, T> {}
 
+impl<'a, T> Clone for Diag<'a, T> {
+    fn clone(&self) -> Diag<'a, T> {
+        *self
+    }
+}
+
 /// Immutable sub-matrix iterator
 pub struct Items<'a, T>(raw::view::Items<'a, T>);
 
 impl<'a, T> Copy for Items<'a, T> {}
+
+impl<'a, T> Clone for Items<'a, T> {
+    fn clone(&self) -> Items<'a, T> {
+        *self
+    }
+}
 
 /// Owned matrix
 pub struct Mat<T> {
@@ -516,6 +540,12 @@ impl<'a, T> Row<'a, T> {
 
 impl<'a, T> Copy for Row<'a, T> {}
 
+impl<'a, T> Clone for Row<'a, T> {
+    fn clone(&self) -> Row<'a, T> {
+        *self
+    }
+}
+
 /// An owned row vector
 pub struct RowVec<T>(Box<[T]>);
 
@@ -633,8 +663,14 @@ pub struct Rows<'a, M>(raw::Rows<'a, M>) where M: 'a;
 
 impl<'a, M> Copy for Rows<'a, M> {}
 
+impl<'a, M> Clone for Rows<'a, M> {
+    fn clone(&self) -> Rows<'a, M> {
+        *self
+    }
+}
+
 /// A lazily scaled matrix
-#[derive(Copy)]
+#[derive(Clone, Copy)]
 pub struct Scaled<T, M>(T, M);
 
 impl<T, M> Scaled<T, M> {
@@ -650,7 +686,7 @@ impl<T, M> Scaled<T, M> {
 }
 
 /// View into the transpose of a matrix
-#[derive(Copy)]
+#[derive(Clone, Copy)]
 pub struct Trans<M>(M);
 
 impl<T> Trans<Mat<T>> {
@@ -678,11 +714,17 @@ pub struct View<'a, T>(raw::View<'a, T>);
 
 impl<'a, T> Copy for View<'a, T> {}
 
+impl<'a, T> Clone for View<'a, T> {
+    fn clone(&self) -> View<'a, T> {
+        *self
+    }
+}
+
 /// The result of a matrix operation
 pub type Result<T> = ::std::result::Result<T, Error>;
 
 /// Errors
-#[derive(Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Error {
     /// Invalid slice range, usually: `start > end`
     InvalidSlice,
