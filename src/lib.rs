@@ -55,7 +55,6 @@ extern crate rand;
 
 use std::iter as iter_;
 use std::mem;
-use std::num::Int;
 use std::raw::Repr;
 
 use rand::distributions::IndependentSample;

@@ -1,4 +1,3 @@
-use std::num::Int;
 use std::ops::Mul;
 
 use blas::{Dot, Gemm, Gemv, Transpose, blasint};
