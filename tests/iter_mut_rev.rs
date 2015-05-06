@@ -1,157 +1,199 @@
+//! Test that reverse mutable iterators are ordered and complete
+
 #![feature(custom_attribute)]
 #![feature(plugin)]
 #![plugin(quickcheck_macros)]
 
+extern crate cast;
 extern crate linalg;
 extern crate quickcheck;
 extern crate rand;
+
+use cast::From;
+use linalg::prelude::*;
+use quickcheck::TestResult;
 
 #[macro_use]
 mod setup;
 
 mod col {
+    use cast::From;
     use linalg::prelude::*;
     use quickcheck::TestResult;
 
-    use setup;
-
-    // Test that `iter_mut().rev()` is correct for `ColVec`
     #[quickcheck]
-    fn owned(size: usize) -> bool {
-        setup::col(size).iter_mut().rev().enumerate().all(|(i, &mut e)| {
-            let i = size - i - 1;
+    fn owned(n: u32) -> TestResult {
+        let mut c = ::setup::col(n);
 
-            e == i
-        })
+        let mut i = n;
+        let mut iter = c.iter_mut().rev();
+
+        test_eq!(iter.size_hint(), (usize::from(i), Some(usize::from(i))));
+        while let Some(x) = iter.next() {
+            i -= 1;
+
+            test_eq!(iter.size_hint(), (usize::from(i), Some(usize::from(i))));
+            test_eq!(x, &mut i);
+        }
+
+        test_eq!(i, 0)
     }
 
-    // Test that `iter_mut().rev()` is correct for `MutCol`
     #[quickcheck]
-    fn slice_mut((nrows, ncols): (usize, usize), col: usize) -> TestResult {
+    fn contiguous((nrows, ncols): (u32, u32), col: u32) -> TestResult {
         enforce! {
             col < ncols,
         }
 
-        test!({
-            let mut m = setup::mat((nrows, ncols));
-            let n = m.nrows();
-            let mut c = try!(m.col_mut(col));
+        let mut m = ::setup::mat((nrows, ncols));
+        let mut c = m.col_mut(col);
 
-            c.iter_mut().rev().enumerate().all(|(i, &mut e)| {
-                let i = n - i - 1;
+        let mut i = nrows;
+        let mut iter = c.iter_mut().rev();
 
-                e == (i, col)
-            })
-        })
+        test_eq!(iter.size_hint(), (usize::from(i), Some(usize::from(i))));
+        while let Some(x) = iter.next() {
+            i -= 1;
+
+            test_eq!(iter.size_hint(), (usize::from(i), Some(usize::from(i))));
+            test_eq!(x, &mut (i, col));
+        }
+
+        test_eq!(i, 0)
     }
 
-    // Test that `iter_mut().rev()` is correct for `strided::MutCol`
     #[quickcheck]
-    fn strided_mut((nrows, ncols): (usize, usize), col: usize) -> TestResult {
+    fn strided((nrows, ncols): (u32, u32), col: u32) -> TestResult {
         enforce! {
             col < ncols,
         }
 
-        test!({
-            let mut m = setup::mat((ncols, nrows)).t();
-            let n = m.nrows();
-            let mut c = try!(m.col_mut(col));
+        let mut m = ::setup::mat((ncols, nrows)).t();
+        let mut c = m.col_mut(col);
 
-            c.iter_mut().rev().enumerate().all(|(i, &mut e)| {
-                let i = n - i - 1;
+        let mut i = nrows;
+        let mut iter = c.iter_mut().rev();
 
-                e == (col, i)
-            })
-        })
-    }
-}
+        test_eq!(iter.size_hint(), (usize::from(i), Some(usize::from(i))));
+        while let Some(x) = iter.next() {
+            i -= 1;
 
-mod diag {
-    use linalg::prelude::*;
-    use quickcheck::TestResult;
+            test_eq!(iter.size_hint(), (usize::from(i), Some(usize::from(i))));
+            test_eq!(x, &mut (col, i));
+        }
 
-    use setup;
-
-    // Test that `iter_mut().rev()` is correct for `MutDiag`
-    #[quickcheck]
-    fn strided_mut(size: (usize, usize), diag: isize) -> TestResult {
-        validate_diag!(diag, size);
-
-        test!({
-            let mut m = setup::mat(size);
-            let mut d = try!(m.diag_mut(diag));
-            let n = d.len();
-
-            if diag > 0 {
-                d.iter_mut().rev().enumerate().all(|(i, &mut e)| {
-                    let i = n - i - 1;
-
-                    e == (i, i + diag as usize)
-                })
-            } else {
-                d.iter_mut().rev().enumerate().all(|(i, &mut e)| {
-                    let i = n - i - 1;
-
-                    e == (i + (-diag as usize), i)
-                })
-            }
-        })
+        test_eq!(i, 0)
     }
 }
 
 mod row {
+    use cast::From;
     use linalg::prelude::*;
     use quickcheck::TestResult;
 
-    use setup;
-
-    // Test that `iter_mut().rev()` is correct for `RowVec`
     #[quickcheck]
-    fn owned(size: usize) -> bool {
-        setup::row(size).iter_mut().rev().enumerate().all(|(i, &mut e)| {
-            let i = size - i - 1;
+    fn owned(n: u32) -> TestResult {
+        let mut r = ::setup::row(n);
 
-            e == i
-        })
+        let mut i = n;
+        let mut iter = r.iter_mut().rev();
+
+        test_eq!(iter.size_hint(), (usize::from(i), Some(usize::from(i))));
+        while let Some(x) = iter.next() {
+            i -= 1;
+
+            test_eq!(iter.size_hint(), (usize::from(i), Some(usize::from(i))));
+            test_eq!(x, &mut i);
+        }
+
+        test_eq!(i, 0)
     }
 
-    // Test that `iter_mut().rev()` is correct for `MutRow`
     #[quickcheck]
-    fn slice_mut((nrows, ncols): (usize, usize), row: usize) -> TestResult {
+    fn contiguous((nrows, ncols): (u32, u32), row: u32) -> TestResult {
         enforce! {
             row < nrows,
         }
 
-        test!({
-            let mut m = setup::mat((ncols, nrows)).t();
-            let n = m.ncols();
-            let mut r = try!(m.row_mut(row));
+        let mut m = ::setup::mat((nrows, ncols));
+        let mut r = m.row_mut(row);
 
-            r.iter_mut().rev().enumerate().all(|(i, &mut e)| {
-                let i = n - i - 1;
+        let mut i = ncols;
+        let mut iter = r.iter_mut().rev();
 
-                e == (i, row)
-            })
-        })
+        test_eq!(iter.size_hint(), (usize::from(i), Some(usize::from(i))));
+        while let Some(x) = iter.next() {
+            i -= 1;
+
+            test_eq!(iter.size_hint(), (usize::from(i), Some(usize::from(i))));
+            test_eq!(x, &mut (row, i));
+        }
+
+        test_eq!(i, 0)
     }
 
-    // Test that `iter_mut().rev()` is correct for `strided::MutRow`
     #[quickcheck]
-    fn strided_mut((nrows, ncols): (usize, usize), row: usize) -> TestResult {
+    fn strided((nrows, ncols): (u32, u32), row: u32) -> TestResult {
         enforce! {
             row < nrows,
         }
 
-        test!({
-            let mut m = setup::mat((nrows, ncols));
-            let n = m.ncols();
-            let mut r = try!(m.row_mut(row));
+        let mut m = ::setup::mat((ncols, nrows)).t();
+        let mut r = m.row_mut(row);
 
-            r.iter_mut().rev().enumerate().all(|(i, &mut e)| {
-                let i = n - i - 1;
+        let mut i = ncols;
+        let mut iter = r.iter_mut().rev();
 
-                e == (row, i)
-            })
-        })
+        test_eq!(iter.size_hint(), (usize::from(i), Some(usize::from(i))));
+        while let Some(x) = iter.next() {
+            i -= 1;
+
+            test_eq!(iter.size_hint(), (usize::from(i), Some(usize::from(i))));
+            test_eq!(x, &mut (i, row));
+        }
+
+        test_eq!(i, 0)
     }
+}
+
+#[quickcheck]
+fn diag((nrows, ncols): (u32, u32), i: i32) -> TestResult {
+    let n = validate_diag_index!((nrows, ncols), i, 0);
+
+    let mut m = ::setup::mat((nrows, ncols));
+    let mut d = m.diag_mut(i);
+
+    let j = if i > 0 {
+        let i = u32::from(i).unwrap();
+
+        let mut j = n;
+        let mut iter = d.iter_mut().rev();
+
+        test_eq!(iter.size_hint(), (usize::from(j), Some(usize::from(j))));
+        while let Some(x) = iter.next() {
+            j -= 1;
+
+            test_eq!(iter.size_hint(), (usize::from(j), Some(usize::from(j))));
+            test_eq!(x, &mut (j, i + j));
+        }
+
+        j
+    } else {
+        let i = u32::from(-i).unwrap();
+
+        let mut j = n;
+        let mut iter = d.iter_mut().rev();
+
+        test_eq!(iter.size_hint(), (usize::from(j), Some(usize::from(j))));
+        while let Some(x) = iter.next() {
+            j -= 1;
+
+            test_eq!(iter.size_hint(), (usize::from(j), Some(usize::from(j))));
+            test_eq!(x, &mut (i + j, j));
+        }
+
+        j
+    };
+
+    test_eq!(j, 0)
 }

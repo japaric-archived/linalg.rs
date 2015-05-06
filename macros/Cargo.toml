@@ -2,7 +2,7 @@
 
 name = "linalg_macros"
 version = "0.0.0"
-authors = ["Jorge Aparicio <japaric@linux.com>"]
+authors = ["Jorge Aparicio <japaricious@gmail.com>"]
 
 [lib]
 name = "linalg_macros"

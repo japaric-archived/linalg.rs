@@ -1,767 +1,589 @@
-//! An *experimental* linear algebra library with BLAS (*) acceleration
+//! A linear algebra library with BLAS and LAPACK acceleration
 //!
-//! (*): This library is continuously tested against OpenBLAS and netlib/reference BLAS
+//! # Using linalg
 //!
-//! # Cargo
-//!
-//! - Cargo.toml
+//! Add these dependencies to your Cargo.toml
 //!
 //! ``` ignore
 //! [dependencies.linalg]
-//! features = ["macros"]  # Optional, enables the mat! macro
+//! features = ["macros"]  # Optional, enables the mat! syntax extension
 //! git = "https://github.com/japaric/linalg.rs"
 //! ```
 //!
-//! - Crate file
+//! All the functionality is available via the [prelude] module, glob import it:
+//!
+//! [prelude]: prelude/index.html
 //!
 //! ``` ignore
-//! // Optionally link to linalg_macros to enable the `mat!` macro
-//! #![feature(plugin)]
+//! // Optional, enables the mat! syntax extension
 //! #![plugin(linalg_macros)]
 //!
 //! extern crate linalg;
 //!
+//! // Imports extension traits and main `struct`s like `Mat`
 //! use linalg::prelude::*;
 //! ```
 //!
-//! # Design goals
+//! # Quick reference
 //!
-//! - Make memory allocations explicit
-//! - Minimize the creation of temporaries
-//! - Accelerate (BLAS/SIMD) everything
+//! For NumPy/Octave users
 //!
-//! # Conventions
+//! - Matrix initialization
 //!
-//! - All operations are [`O(1)`](http://en.wikipedia.org/wiki/Big_O_notation) in time and memory
-//!   unless otherwise noted
-//! - Matrices are laid in memory using
-//!   [column-major order](https://en.wikipedia.org/wiki/Row-major_order)
-//! - Element-wise iteration over [sub]matrices is done in the fastest way possible, there's no
-//!   guarantee of the iteration order
+//! ``` ignore
+//! // Octave
+//! A = [1, 2, 3; 4, 5, 6; 7, 8, 9];
+//!
+//! // Rust
+//! let A = mat![1, 2, 3; 4, 5, 6; 7, 8, 9];
+//! ```
+//!
+//! - Indexing
+//!
+//! ``` ignore
+//! // Python
+//! A[1, 2] = 5
+//! x = A[3, 4]
+//!
+//! // Rust
+//! A[(1, 2)] = 5;
+//! let x = A[(3, 4)];  // or `&A[(3, 4)]` or `&mut A[(3, 4)]`
+//! ```
+//!
+//! - Slicing
+//!
+//! ``` ignore
+//! // Python
+//! second_row = A[1, :]
+//! third_column = A[:, 2]
+//! submat = A[:3, 2:]  // or A[0:3, 2:4]
+//!
+//! // Rust
+//! let second_row = A.row(1);        // or A.slice((1, ..))
+//! let third_column = A.col(2);      // or A.slice((.., 2))
+//! let submat = A.slice((..3, 2..))  // or A.slice((0..3, 2..4))
+//!
+//! // NOTE All the operations have a mutable variant, just add a `_mut` suffix.
+//! // Example: `let second_row = A.row_mut(1)`;
+//! ```
+//!
+//! - Augmented assignment
+//!
+//! Increase all the elements of the second row by 1.
+//!
+//! ``` ignore
+//! // Python
+//! A[1, :] += 1;
+//!
+//! // Rust
+//! A.row_mut(1).add_assign(1)
+//! ```
+//!
+//! Subtract sub-matrices
+//!
+//! ``` ignore
+//! // Python
+//! A[1:3, 2:4] -= B[:2, 1:3]
+//!
+//! // Rust
+//! A.slice_mut((1..3, 2..4)).sub_assign(B.slice((..2, 1..3)));
+//! ```
+//!
+//! - Index assignment
+//!
+//! Set all the elements of the second column to 0
+//!
+//! ``` ignore
+//! // Python
+//! A[:, 1] = 0;
+//!
+//! // Rust
+//! A.col_mut(1).set(0);
+//! ```
+//!
+//! - Copy sub-matrices
+//!
+//! ``` ignore
+//! // Python
+//! A[1:3, 1:3] = B[2:4, 3:5]
+//!
+//! // Rust
+//! A.slice_mut((1..3, 1..3)).set(B.slice((2..4, 3..5)));
+//! ```
+//!
+//! - Matrix multiplication
+//!
+//! ``` ignore
+//! // Python
+//! D = A.dot(B).dot(C)
+//!
+//! // Rust
+//! let D = A * B * C;
+//! ```
+//!
+//! - Transpose
+//!
+//! ``` ignore
+//! // Python
+//! A = B.T
+//!
+//! // Rust
+//! let A = B.t();
+//! ```
+//!
+//! - Matrix inverse
+//!
+//! ``` ignore
+//! // Python
+//! B = numpy.linalg.inv(A)
+//!
+//! // Rust
+//! let B = A.inv();
+//! ```
+//!
+//! # Overview of the API
+//!
+//! - There are two types of structures provided by this crate: "owned structures", and "views".
+//! The former own the data, and are in charge of freeing memory when `drop`ed, the latter are
+//! borrows of the former, and provide limited access to the data.
+//! - The owned structures: `Mat`, `ColVec` and `RowVec` provide constructors via static methods.
+//! - Most of the functionality (other than overloaded operators) is provided as methods via
+//! extension traits. All the public extension traits are grouped in the [traits] module.
+//!
+//! [traits]: traits/index.html
+//!
+//! - There are several conversions between views and from views to owned structures available via
+//! the `From`/`Into` traits.
+//!
+//! # Notes about operators
+//!
+//! - Keep in mind that all operators (unary/binary) take their operands by value.
+//!
+//! - Both forms of multiplication: matrix multiplication and scaling are lazy. If you want eager
+//! evaluation, you can use the `eval()` method, but this allocates memory, and should be avoided
+//! whenever possible.
+//!
+//! ``` ignore
+//! // No op
+//! let C = A * B;
+//!
+//! // Performs the matrix multiplication
+//! let C = (A * B).eval();
+//! ```
+//!
+//! - When multiplying matrices, you never want to give up ownership. Always multiply views.
+//!
+//! ``` ignore
+//! // A and B are owned
+//! let C = A * B;  //~ error
+//!
+//! let C = &A * &B;  // OK
+//! ```
+//!
+//! - Addition and subtraction are eager, and one of the operands must provide a buffer to store
+//! the result, in most cases this means that one of the operators needs to be *moved into* the
+//! operation.
+//!
+//! ``` ignore
+//! // Both A and B own their data
+//!
+//! let C = A + &B;  // OK, result will be stored in A's buffer
+//!
+//! let C = A + B;
+//! //~^ error: the result could be stored in A's buffer, but B would be unnecessarily dropped
+//!
+//! let C = &A + &B;  //~ error: nowhere to store the result
+//! ```
+//!
+//! - When you only have views and need to perform an addition/subtraction, you'll have to allocate
+//! memory. For performance, avoid allocating in loops.
+//!
+//! ``` ignore
+//! // theta, X and y are views
+//!
+//! // Bad: allocation in a loop
+//! loop {
+//!     let y = ColVec::from(y);  // Deep copy
+//!     let e = y - theta * X;
+//!
+//!     ..
+//!
+//!     if condition(&e) { break }
+//! }
+//!
+//! // Instead allocate a buffer outside the loop, and re-use it in the loop
+//! let mut z = ColVec::zeros(y.nrows());
+//!
+//! loop {
+//!     // z = y
+//!     z.set(y);
+//!
+//!     // z = y - theta * X
+//!     z.sub_assign(theta * X);
+//!
+//!     ..
+//!
+//!     if condition(&z) { break }
+//! }
+//! ```
+//!
+//! - Transposing a matrix is "free", no allocations, copies or operations are performed . Do note
+//! that the `t()` method takes the caller by value.
+//!
+//! - The `inv()` method computes the inverse of an owned (square) matrix and takes ownership of
+//! the caller. The caller's buffer will be re-used to store the inverse.
 
 #![deny(missing_docs)]
-#![allow(warnings)]
+#![deny(warnings)]
+#![feature(advanced_slice_patterns)]
 #![feature(collections)]
 #![feature(core)]
-#![feature(libc)]
+#![feature(filling_drop)]
+#![feature(slice_patterns)]
+#![feature(unique)]
+#![feature(unsafe_no_drop_flag)]
 
 extern crate assign;
 extern crate blas;
 extern crate cast;
 extern crate complex;
-extern crate libc;
+extern crate core;
+extern crate extract;
+extern crate lapack;
 extern crate onezero;
-extern crate rand;
 
-use std::iter as iter_;
-use std::mem;
-use std::raw::Repr;
-
-use rand::distributions::IndependentSample;
-use rand::{Rand, Rng};
-
-use traits::{MatrixCols, MatrixRows};
-
-mod add;
-mod add_assign;
-mod at;
-mod col;
+mod chain;
 mod cols;
-mod eq;
-mod error;
-mod iter;
+mod debug;
+mod linear;
 mod mat;
-mod mul;
-mod raw;
-mod row;
+mod ops;
+mod product;
 mod rows;
 mod scaled;
-mod show;
-mod slice;
-mod sub;
-mod sub_assign;
-mod to_owned;
-mod trans;
-mod view;
+mod stripes;
+mod submat_mut;
+mod tor;
 
 pub mod prelude;
 pub mod strided;
+pub mod submat;
 pub mod traits;
+pub mod transposed;
+
+use core::nonzero::NonZero;
+use std::marker::PhantomData;
+use std::ops::{Range, RangeFull};
+use std::ptr::Unique;
+use std::{mem, slice};
+
+use blas::Transpose;
+use cast::From;
+use extract::Extract;
+
+use traits::Matrix;
+
+/// Lazy matrix chain multiplication
+pub struct Chain<'a, T> {
+    first: (Transpose, SubMat<'a, T>),
+    second: (Transpose, SubMat<'a, T>),
+    tail: Vec<(Transpose, SubMat<'a, T>)>,
+}
+
+impl<'a, T> Chain<'a, T> {
+    fn len(&self) -> usize {
+        self.tail.len() + 2
+    }
+}
 
 /// Immutable view into the column of a matrix
-pub struct Col<'a, T>(strided::Slice<'a, T>);
+pub struct Col<'a, T>(Slice<'a, T>);
 
-impl<'a, T> Col<'a, T> {
-    /// Returns the length of the column
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-}
+/// Mutable "view" into the column of a matrix
+pub struct ColMut<'a, T>(Col<'a, T>);
 
-impl<'a, T> Copy for Col<'a, T> {}
-
-impl<'a, T> Clone for Col<'a, T> {
-    fn clone(&self) -> Col<'a, T> {
-        *self
-    }
-}
-
-/// An owned column vector
-pub struct ColVec<T>(Box<[T]>);
-
-impl<T> ColVec<T> {
-    /// Creates a column vector from an existing vector
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # #![feature(plugin)]
-    /// # #![plugin(linalg_macros)]
-    /// # extern crate linalg;
-    /// # fn main() {
-    /// # use linalg::ColVec;
-    /// assert_eq!(ColVec::new(Box::new([0, 1, 2])), mat![0; 1; 2])
-    /// # }
-    /// ```
-    pub fn new(data: Box<[T]>) -> ColVec<T> {
-        ColVec(data)
-    }
-
-    /// Constructs a column vector with copies of a value
-    ///
-    /// - Memory: `O(length)`
-    /// - Time: `O(length)`
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # #![feature(plugin)]
-    /// # #![plugin(linalg_macros)]
-    /// # extern crate linalg;
-    /// # fn main() {
-    /// # use linalg::ColVec;
-    /// assert_eq!(ColVec::from_elem(3, 2), mat![2; 2; 2])
-    /// # }
-    /// ```
-    pub fn from_elem(length: usize, value: T) -> ColVec<T> where T: Clone {
-        ColVec(iter_::repeat(value).take(length).collect::<Vec<T>>().into_boxed_slice())
-    }
-
-    /// Creates a column vector and initializes each element to `f(index)`
-    ///
-    /// - Memory: `O(length)`
-    /// - Time: `O(length)`
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # #![feature(plugin)]
-    /// # #![plugin(linalg_macros)]
-    /// # extern crate linalg;
-    /// # fn main() {
-    /// # use linalg::ColVec;
-    /// assert_eq!(ColVec::from_fn(3, |i| i), mat![0; 1; 2])
-    /// # }
-    /// ```
-    pub fn from_fn<F>(length: usize, f: F) -> ColVec<T> where F: FnMut(usize) -> T {
-        ColVec((0..length).map(f).collect::<Vec<T>>().into_boxed_slice())
-    }
-
-    /// Constructs a randomly initialized column vector
-    ///
-    /// - Memory: `O(length)`
-    /// - Time: `O(length)`
-    pub fn rand<R>(length: usize, rng: &mut R) -> ColVec<T> where R: Rng, T: Rand {
-        ColVec::from_fn(length, |_| rng.gen())
-    }
-
-    /// Creates a column vector and fills it by sampling a random distribution
-    ///
-    /// - Memory: `O(length)`
-    /// - Time: `O(length)`
-    pub fn sample<D, R>(length: usize, distribution: &D, rng: &mut R) -> ColVec<T> where
-        D: IndependentSample<T>,
-        R: Rng,
-    {
-        ColVec::from_fn(length, |_| distribution.ind_sample(rng))
-    }
-
-    fn as_col(&self) -> Col<T> {
-        let std::raw::Slice { data, len } = self.0.repr();
-
-        Col(unsafe { From::parts((
-            data,
-            len,
-            1,
-        ))})
-    }
-
-    fn as_mut_col(&mut self) -> MutCol<T> {
-        let std::raw::Slice { data, len } = self.0.repr();
-
-        MutCol(unsafe { From::parts((
-            data,
-            len,
-            1,
-        ))})
-    }
-
-    /// Returns the length of the column
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-}
-
-impl<T> Clone for ColVec<T> where T: Clone {
-    fn clone(&self) -> ColVec<T> {
-        ColVec(self.0.to_vec().into_boxed_slice())
-    }
-}
+/// Owned column vector
+#[derive(Clone)]
+pub struct ColVec<T>(Tor<T>);
 
 /// Iterator over the columns of an immutable matrix
-pub struct Cols<'a, M>(raw::Cols<'a, M>) where M: 'a;
+pub struct Cols<'a, T>(SubMat<'a, T>);
 
-impl<'a, M> Copy for Cols<'a, M> {}
+/// Iterator over the columns of a mutable matrix
+pub struct ColsMut<'a, T>(Cols<'a, T>);
 
-impl<'a, M> Clone for Cols<'a, M> {
-    fn clone(&self) -> Cols<'a, M> {
-        *self
-    }
+/// An immutable view into the diagonal of a matrix
+pub struct Diag<'a, T>(Slice<'a, T>);
+
+/// A mutable "view" into the diagonal of a matrix
+pub struct DiagMut<'a, T>(Diag<'a, T>);
+
+/// An immutable iterator over a matrix in horizontal stripes
+pub struct HStripes<'a, T> {
+    mat: SubMat<'a, T>,
+    size: i32,
 }
 
-/// Immutable view into the diagonal of a matrix
-pub struct Diag<'a, T>(strided::Slice<'a, T>);
+/// A "mutable" iterator over a matrix in horizontal stripes
+pub struct HStripesMut<'a, T>(HStripes<'a, T>);
 
-impl<'a, T> Diag<'a, T> {
-    /// Returns the length of the diagonal
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-}
-
-impl<'a, T> Copy for Diag<'a, T> {}
-
-impl<'a, T> Clone for Diag<'a, T> {
-    fn clone(&self) -> Diag<'a, T> {
-        *self
-    }
-}
-
-/// Immutable sub-matrix iterator
-pub struct Items<'a, T>(raw::view::Items<'a, T>);
-
-impl<'a, T> Copy for Items<'a, T> {}
-
-impl<'a, T> Clone for Items<'a, T> {
-    fn clone(&self) -> Items<'a, T> {
-        *self
-    }
-}
-
-/// Owned matrix
+/// An owned matrix
+// NB `nrows` and `ncols` are guaranteed to be non-negative
+#[unsafe_no_drop_flag]
 pub struct Mat<T> {
-    ncols: usize,
-    nrows: usize,
-    data: Box<[T]>,
+    data: Unique<T>,
+    ncols: i32,
+    nrows: i32,
 }
 
 impl<T> Mat<T> {
-    /// Creates a matrix from a owned buffer and a specified size
-    ///
-    /// **Note**: `data` is considered to be arranged in column-major order
-    ///
-    /// # Safety requirements
-    ///
-    /// - `data.len() == nrows * ncols`
-    pub unsafe fn from_parts(data: Box<[T]>, (nrows, ncols): (usize, usize)) -> Mat<T> {
+    unsafe fn uninitialized((nrows, ncols): (i32, i32)) -> Mat<T> {
+        debug_assert!(ncols >= 0);
+        debug_assert!(nrows >= 0);
+
+        let nrows_ = usize::from(nrows).extract();
+        let ncols_ = usize::from(ncols).extract();
+
+        debug_assert!(nrows_.checked_mul(ncols_).is_some());
+
+        let n = nrows_ * ncols_;
+
+        let mut v = Vec::with_capacity(n);
+        let data = v.as_mut_ptr();
+        mem::forget(v);
+
         Mat {
-            data: data,
-            ncols: ncols,
+            data: Unique::new(data),
             nrows: nrows,
-        }
-    }
-
-    /// Constructs a matrix with copies of a value
-    ///
-    /// - Memory: `O(nrows * ncols)`
-    /// - Time: `O(nrows * ncols)`
-    ///
-    /// # Errors
-    ///
-    /// - `LengthOverflow` if the operation `nrows * ncols` overflows
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # #![feature(plugin)]
-    /// # #![plugin(linalg_macros)]
-    /// # extern crate linalg;
-    /// # fn main() {
-    /// # use linalg::Mat;
-    /// assert_eq!(Mat::from_elem((3, 2), 2).unwrap(), mat![2, 2; 2, 2; 2, 2])
-    /// # }
-    /// ```
-    pub fn from_elem((nrows, ncols): (usize, usize), value: T) -> Result<Mat<T>> where T: Clone {
-        let length = match nrows.checked_mul(ncols) {
-            Some(length) => length,
-            None => return Err(Error::LengthOverflow),
-        };
-
-        Ok(Mat {
-            data: iter_::repeat(value).take(length).collect::<Vec<T>>().into_boxed_slice(),
             ncols: ncols,
-            nrows: nrows,
-        })
-    }
-
-    /// Creates a matrix and initializes each element to `f(index)`
-    ///
-    /// - Memory: `O(nrows * ncols)`
-    /// - Time: `O(nrows * ncols)`
-    ///
-    /// # Errors
-    ///
-    /// - `LengthOverflow` if the operation `nrows * ncols` overflows
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # #![feature(plugin)]
-    /// # #![plugin(linalg_macros)]
-    /// # extern crate linalg;
-    /// # fn main() {
-    /// # use linalg::Mat;
-    /// assert_eq!(Mat::from_fn((2, 2), |i| i).unwrap(), mat![(0, 0), (0, 1); (1, 0), (1, 1)])
-    /// # }
-    /// ```
-    pub fn from_fn<F>((nrows, ncols): (usize, usize), mut f: F) -> Result<Mat<T>> where
-        F: FnMut((usize, usize)) -> T,
-    {
-        let length = match nrows.checked_mul(ncols) {
-            Some(length) => length,
-            None => return Err(Error::LengthOverflow),
-        };
-
-        let mut data = Vec::with_capacity(length);
-        for col in (0..ncols) {
-            for row in (0..nrows) {
-                data.push(f((row, col)))
-            }
-        }
-
-        Ok(Mat {
-            data: data.into_boxed_slice(),
-            ncols: ncols,
-            nrows: nrows,
-        })
-    }
-
-    /// Constructs a randomly initialized matrix
-    ///
-    /// - Memory: `O(nrows * ncols)`
-    /// - Time: `O(nrows * ncols)`
-    ///
-    /// # Errors
-    ///
-    /// - `LengthOverflow` if the operation `nrows * ncols` overflows
-    pub fn rand<R>((nrows, ncols): (usize, usize), rng: &mut R) -> Result<Mat<T>> where
-        R: Rng,
-        T: Rand,
-    {
-        let length = match nrows.checked_mul(ncols) {
-            Some(length) => length,
-            None => return Err(Error::LengthOverflow),
-        };
-
-        Ok(Mat {
-            data: (0..length).map(|_| rng.gen()).collect::<Vec<T>>().into_boxed_slice(),
-            ncols: ncols,
-            nrows: nrows,
-        })
-    }
-
-    /// Creates a matrix and fills it by sampling a random distribution
-    ///
-    /// - Memory: `O(nrows * ncols)`
-    /// - Time: `O(nrows * ncols)`
-    ///
-    /// # Errors
-    ///
-    /// - `LengthOverflow` if the operation `nrows * ncols` overflows
-    pub fn sample<D, R>(
-        (nrows, ncols): (usize, usize),
-        distribution: &D,
-        rng: &mut R,
-    ) -> Result<Mat<T>> where
-        D: IndependentSample<T>,
-        R: Rng,
-    {
-        let length = match nrows.checked_mul(ncols) {
-            Some(length) => length,
-            None => return Err(Error::LengthOverflow),
-        };
-
-        let data =
-            (0..length).
-                map(|_| distribution.ind_sample(rng)).
-                collect::<Vec<T>>().
-                into_boxed_slice();
-
-        Ok(Mat {
-            data: data,
-            ncols: ncols,
-            nrows: nrows,
-        })
-    }
-
-    fn as_mut_view(&mut self) -> MutView<T> {
-        MutView(unsafe { From::parts((
-            self.data.as_ptr(),
-            self.nrows,
-            self.ncols,
-            self.nrows,
-        ))})
-    }
-
-    fn as_view(&self) -> View<T> {
-        View(unsafe { From::parts((
-            self.data.as_ptr(),
-            self.nrows,
-            self.ncols,
-            self.nrows,
-        ))})
-    }
-
-    fn unroll(&self) -> Col<T> {
-        Col(unsafe { From::parts((
-            self.data.as_ptr(),
-            self.nrows * self.ncols,
-            1,
-        ))})
-    }
-
-    fn unroll_mut(&mut self) -> MutCol<T> {
-        MutCol(unsafe { From::parts((
-            self.data.as_ptr(),
-            self.nrows * self.ncols,
-            1,
-        ))})
-    }
-}
-
-impl<T> Clone for Mat<T> where T: Clone {
-    fn clone(&self) -> Mat<T> {
-        Mat {
-            data: self.data.to_vec().into_boxed_slice(),
-            ncols: self.ncols,
-            nrows: self.nrows,
         }
     }
 }
 
-/// Mutable view into the column of a matrix
-pub struct MutCol<'a, T>(strided::MutSlice<'a, T>);
-
-impl<'a, T> MutCol<'a, T> {
-    fn as_col(&self) -> &Col<T> {
-        unsafe {
-            mem::transmute(self)
-        }
-    }
-
-    /// Returns the length of the column
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-}
-
-/// Iterator over the columns of a mutable matrix
-pub struct MutCols<'a, M>(raw::Cols<'a, M>) where M: 'a;
-
-/// Immutable view into the diagonal of a matrix
-pub struct MutDiag<'a, T>(strided::MutSlice<'a, T>);
-
-impl<'a, T> MutDiag<'a, T> {
-    fn as_diag(&self) -> &Diag<T> {
-        unsafe {
-            mem::transmute(self)
-        }
-    }
-
-    /// Returns the length of the diagonal
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-}
-
-/// Mutable sub-matrix iterator
-pub struct MutItems<'a, T>(raw::view::Items<'a, T>);
-
-/// Mutable view into the row of a matrix
-pub struct MutRow<'a, T>(strided::MutSlice<'a, T>);
-
-impl<'a, T> MutRow<'a, T> {
-    fn as_row(&self) -> &Row<T> {
-        unsafe {
-            mem::transmute(self)
-        }
-    }
-
-    /// Returns the length of the row
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-}
-
-/// Iterator over the rows of a mutable matrix
-pub struct MutRows<'a, M>(raw::Rows<'a, M>) where M: 'a;
-
-/// Mutable sub-matrix view
-pub struct MutView<'a, T>(raw::View<'a, T>);
-
-impl<'a, T> MutView<'a, T> {
-    fn as_view(&self) -> &View<T> {
-        unsafe {
-            mem::transmute(self)
-        }
-    }
-}
+/// Lazy matrix product
+// NB Combinations:
+//
+// - Col-like: `Product<Chain, Col>`, `Product<Transposed<SubMat>, Col>`, `Product<SubMat, Col>`
+// - Row-like: `Product<Row, Chain>`, `Product<Row, Transposed<SubMat>>`, `Product<Row, SubMat>`
+//
+// -> 6 types
+pub struct Product<L, R>(L, R);
 
 /// Immutable view into the row of a matrix
-pub struct Row<'a, T>(strided::Slice<'a, T>);
+pub struct Row<'a, T>(Slice<'a, T>);
 
-impl<'a, T> Row<'a, T> {
-    /// Returns the length of the row
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-}
-
-impl<'a, T> Copy for Row<'a, T> {}
-
-impl<'a, T> Clone for Row<'a, T> {
-    fn clone(&self) -> Row<'a, T> {
-        *self
-    }
-}
+/// Mutable "view" into the row of a matrix
+pub struct RowMut<'a, T>(Row<'a, T>);
 
 /// An owned row vector
-pub struct RowVec<T>(Box<[T]>);
-
-impl<T> RowVec<T> {
-    /// Creates a row vector from an existing vector
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # #![feature(plugin)]
-    /// # #![plugin(linalg_macros)]
-    /// # extern crate linalg;
-    /// # fn main() {
-    /// # use linalg::RowVec;
-    /// assert_eq!(RowVec::new(Box::new([0, 1, 2])), mat![0, 1, 2])
-    /// # }
-    /// ```
-    pub fn new(data: Box<[T]>) -> RowVec<T> {
-        RowVec(data)
-    }
-
-    /// Constructs a row vector with copies of a value
-    ///
-    /// - Memory: `O(length)`
-    /// - Time: `O(length)`
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # #![feature(plugin)]
-    /// # #![plugin(linalg_macros)]
-    /// # extern crate linalg;
-    /// # fn main() {
-    /// # use linalg::RowVec;
-    /// assert_eq!(RowVec::from_elem(3, 2), mat![2, 2, 2])
-    /// # }
-    /// ```
-    pub fn from_elem(length: usize, value: T) -> RowVec<T> where T: Clone {
-        RowVec(iter_::repeat(value).take(length).collect::<Vec<T>>().into_boxed_slice())
-    }
-
-    /// Creates a row vector and initializes each element to `f(index)`
-    ///
-    /// - Memory: `O(length)`
-    /// - Time: `O(length)`
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # #![feature(plugin)]
-    /// # #![plugin(linalg_macros)]
-    /// # extern crate linalg;
-    /// # fn main() {
-    /// # use linalg::RowVec;
-    /// assert_eq!(RowVec::from_fn(3, |i| i), mat![0, 1, 2])
-    /// # }
-    /// ```
-    pub fn from_fn<F>(length: usize, f: F) -> RowVec<T> where F: FnMut(usize) -> T {
-        RowVec((0..length).map(f).collect::<Vec<T>>().into_boxed_slice())
-    }
-
-    /// Constructs a randomly initialized row vector
-    ///
-    /// - Memory: `O(length)`
-    /// - Time: `O(length)`
-    pub fn rand<R>(length: usize, rng: &mut R) -> RowVec<T> where R: Rng, T: Rand {
-        RowVec::from_fn(length, |_| rng.gen())
-    }
-
-    /// Creates a row vector and fills it by sampling a random distribution
-    ///
-    /// - Memory: `O(length)`
-    /// - Time: `O(length)`
-    pub fn sample<D, R>(length: usize, distribution: &D, rng: &mut R) -> RowVec<T> where
-        D: IndependentSample<T>,
-        R: Rng,
-    {
-        RowVec::from_fn(length, |_| distribution.ind_sample(rng))
-    }
-
-    fn as_mut_row(&mut self) -> MutRow<T> {
-        let std::raw::Slice { data, len } = self.0.repr();
-
-        MutRow(unsafe { From::parts((
-            data,
-            len,
-            1,
-        ))})
-    }
-
-    fn as_row(&self) -> Row<T> {
-        let std::raw::Slice { data, len } = self.0.repr();
-
-        Row(unsafe { From::parts((
-            data,
-            len,
-            1,
-        ))})
-    }
-
-    /// Returns the length of the row
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-}
-
-impl<T> Clone for RowVec<T> where T: Clone {
-    fn clone(&self) -> RowVec<T> {
-        RowVec(self.0.to_vec().into_boxed_slice())
-    }
-}
+#[derive(Clone)]
+pub struct RowVec<T>(Tor<T>);
 
 /// Iterator over the rows of an immutable matrix
-pub struct Rows<'a, M>(raw::Rows<'a, M>) where M: 'a;
+pub struct Rows<'a, T>(SubMat<'a, T>);
 
-impl<'a, M> Copy for Rows<'a, M> {}
-
-impl<'a, M> Clone for Rows<'a, M> {
-    fn clone(&self) -> Rows<'a, M> {
-        *self
-    }
-}
+/// Iterator over the rows of a mutable matrix
+pub struct RowsMut<'a, T>(Rows<'a, T>);
 
 /// A lazily scaled matrix
+// NB `M` can only be `Col`, `Product`, `Row`, `Transposed<SubMat>` or `SubMat`
+#[derive(Clone, Copy, Debug)]
+pub struct Scaled<M>(M::Elem, M) where M: Matrix;
+
+/// A lazily transposed matrix
+// NB `M` can only be `Mat`, `SubMat`, or `SubMatMut`
 #[derive(Clone, Copy)]
-pub struct Scaled<T, M>(T, M);
+pub struct Transposed<M>(M);
 
-impl<T, M> Scaled<T, M> {
-    /// Returns an iterator that yields immutable views into the columns of the matrix
-    pub fn cols(&self) -> Scaled<T, Cols<M>> where M: MatrixCols, T: Clone {
-        Scaled(self.0.clone(), self.1.cols())
-    }
-
-    /// Returns an iterator that yields immutable views into each row of the matrix
-    pub fn rows(&self) -> Scaled<T, Rows<M>> where M: MatrixRows, T: Clone {
-        Scaled(self.0.clone(), self.1.rows())
-    }
+/// An immutable iterator over a matrix in vertical stripes
+pub struct VStripes<'a, T> {
+    mat: SubMat<'a, T>,
+    size: i32,
 }
 
-/// View into the transpose of a matrix
-#[derive(Clone, Copy)]
-pub struct Trans<M>(M);
-
-impl<T> Trans<Mat<T>> {
-    // FIXME(rust-lang/rust#19097 remove underscore from name
-    fn as_trans_view_(&self) -> Trans<View<T>> {
-        Trans(self.0.as_view())
-    }
-
-    // FIXME(rust-lang/rust#19097 remove underscore from name
-    fn as_trans_mut_view(&mut self) -> Trans<MutView<T>> {
-        Trans(self.0.as_mut_view())
-    }
-}
-
-impl<'a, T> Trans<MutView<'a, T>> {
-    fn as_trans_view(&self) -> &Trans<View<T>> {
-        unsafe {
-            mem::transmute(self)
-        }
-    }
-}
+/// A "mutable" iterator over a matrix in vertical stripes
+pub struct VStripesMut<'a, T>(VStripes<'a, T>);
 
 /// Immutable sub-matrix view
-pub struct View<'a, T>(raw::View<'a, T>);
+// NB `ncols`, `nrows` and `stride` are guaranteed to be non-negative
+pub struct SubMat<'a, T> {
+    _marker: PhantomData<fn() -> &'a T>,
+    data: NonZero<*mut T>,
+    ncols: i32,
+    nrows: i32,
+    stride: i32,
+}
 
-impl<'a, T> Copy for View<'a, T> {}
+impl<'a, T> SubMat<'a, T> {
+    unsafe fn new(data: *mut T, (nrows, ncols): (i32, i32), stride: i32) -> SubMat<'a, T> {
+        debug_assert!(ncols >= 0);
+        debug_assert!(nrows >= 0);
+        debug_assert!(stride >= 0);
 
-impl<'a, T> Clone for View<'a, T> {
-    fn clone(&self) -> View<'a, T> {
-        *self
+        SubMat {
+            _marker: PhantomData,
+            data: NonZero::new(data),
+            ncols: ncols,
+            nrows: nrows,
+            stride: stride,
+        }
+    }
+
+    fn as_slice(&self) -> Option<&[T]> {
+        unsafe {
+            if self.nrows == self.stride {
+                let len = usize::from(self.nrows).extract() * usize::from(self.ncols).extract();
+
+                Some(slice::from_raw_parts(*self.data, len))
+            } else {
+                None
+            }
+        }
+    }
+
+    unsafe fn raw_index(&self, (row, col): (u32, u32)) -> *mut T {
+        assert!(row < self.nrows() && col < self.ncols());
+
+        self.unsafe_index((i32::from(row).extract(), i32::from(col).extract()))
+    }
+
+    unsafe fn unsafe_col(&self, i: i32) -> Col<'a, T> {
+        debug_assert!(i >= 0);
+        debug_assert!(i < self.ncols);
+
+        let data = self.data.offset(isize::from(i) * isize::from(self.stride));
+        let len = self.nrows;
+        let stride = 1;
+
+        Col(Slice::new(data, len, stride))
+    }
+
+    unsafe fn unsafe_index(&self, (row, col): (i32, i32)) -> *mut T {
+        debug_assert!(row < self.nrows);
+        debug_assert!(col < self.ncols);
+
+        self.data.offset(isize::from(col) * isize::from(self.stride) + isize::from(row))
+    }
+
+    unsafe fn unsafe_row(&self, i: i32) -> Row<'a, T> {
+        debug_assert!(i >= 0);
+        debug_assert!(i < self.nrows);
+
+        let data = self.data.offset(isize::from(i));
+        let len = self.ncols;
+        let stride = self.stride;
+
+        Row(Slice::new(data, len, stride))
+    }
+
+    unsafe fn unsafe_slice(
+        &self,
+        Range { start: (srow, scol), end: (erow, ecol) }: Range<(i32, i32)>,
+    ) -> SubMat<'a, T> {
+        debug_assert!(srow >= 0);
+        debug_assert!(srow <= erow);
+        debug_assert!(erow <= self.nrows);
+        debug_assert!(scol >= 0);
+        debug_assert!(scol <= ecol && ecol <= self.ncols);
+        debug_assert!(ecol <= self.ncols);
+
+        let stride = self.stride;
+        let data = self.data.offset(isize::from(scol) * isize::from(stride) + isize::from(srow));
+
+        SubMat::new(data, (erow - srow, ecol - scol), stride)
+    }
+
+    unsafe fn unsafe_hsplit_at(&self, i: i32) -> (SubMat<'a, T>, SubMat<'a, T>) {
+        debug_assert!(i >= 0);
+        debug_assert!(i <= self.nrows);
+
+        let ncols = self.ncols;
+        let nrows = self.nrows;
+
+        (self.unsafe_slice((0, 0)..(i, ncols)), self.unsafe_slice((i, 0)..(nrows, ncols)))
+    }
+
+    unsafe fn unsafe_vsplit_at(&self, i: i32) -> (SubMat<'a, T>, SubMat<'a, T>) {
+        debug_assert!(i >= 0);
+        debug_assert!(i <= self.ncols);
+
+        let ncols = self.ncols;
+        let nrows = self.nrows;
+
+        (self.unsafe_slice((0, 0)..(nrows, i)), self.unsafe_slice((0, i)..(nrows, ncols)))
     }
 }
 
-/// The result of a matrix operation
-pub type Result<T> = ::std::result::Result<T, Error>;
+/// Mutable sub-matrix "view"
+pub struct SubMatMut<'a, T>(SubMat<'a, T>);
 
-/// Errors
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum Error {
-    /// Invalid slice range, usually: `start > end`
-    InvalidSlice,
-    /// Attempted to allocate a matrix bigger that `usize::MAX`
-    LengthOverflow,
-    /// Attempted to index a non-existent column, i.e. `col >= ncols`
-    NoSuchColumn,
-    /// Attempted to index a non-existent diagonal
-    NoSuchDiagonal,
-    /// Attempted to index a non-existent row, i.e. `row >= nrows`
-    NoSuchRow,
-    /// Attempted to index an element outside of the bounds of the matrix
-    OutOfBounds,
+impl<'a, T> SubMatMut<'a, T> {
+    fn as_slice_mut(&mut self) -> Option<&mut [T]> {
+        self.0.as_slice().map(|s| unsafe {
+            slice::from_raw_parts_mut(s.as_ptr() as *mut _, s.len())
+        })
+    }
 }
 
-// Private versions of `traits::{At, Slice}` to not expose implementations on stdlib types
-// XXX Why do I have to document private traits?
-/// Private
-trait At<I> {
-    /// Private
-    type Output;
-
-    /// private
-    fn at(&self, I) -> std::result::Result<&Self::Output, error::OutOfBounds>;
+/// Strided slice
+// `len` is guaranteed to be non-negative, and `stride` is guaranteed to be positive
+struct Slice<'a, T> {
+    _marker: PhantomData<fn() -> &'a T>,
+    data: NonZero<*mut T>,
+    len: i32,
+    stride: NonZero<i32>,
 }
 
-/// Private
-trait Slice {
-    /// Private
-    type Ty;
-
-    /// Private
-    fn slice(&self, range: std::ops::Range<usize>) -> Result<strided::Slice<Self::Ty>>;
+/// Owned slice with `i32` length
+// NB `len` guaranteed to be non-negative
+#[unsafe_no_drop_flag]
+struct Tor<T> {
+    data: Unique<T>,
+    len: i32,
 }
 
-// Hack because the intra-crate privacy rules are weird
-/// Private
-trait From<T> {
-    /// Private
-    unsafe fn parts(T) -> Self;
+trait Forward: Sized {
+    fn slice(self, _: RangeFull) -> Self {
+        self
+    }
 }
+
+impl<'a, T> Forward for Chain<'a, T> {}
+impl<L, R> Forward for Product<L, R> {}
+impl<M> Forward for Scaled<M> where M: Matrix {}
+
+macro_rules! copy {
+    ($($ty:ident),+) => {
+        $(
+            impl<'a, T> Clone for $ty<'a, T> {
+                fn clone(&self) -> $ty<'a, T> {
+                    *self
+                }
+            }
+
+            impl<'a, T> Copy for $ty<'a, T> {}
+         )+
+    };
+}
+
+copy!(Col, Diag, Row, Slice, SubMat);
+
+macro_rules! send {
+    ($($ty:ident),+) => {
+        $(
+            unsafe impl<'a, T> Send for $ty<'a, T> where T: Sync {}
+         )+
+    };
+}
+
+send!(Col, Row, SubMat);
+
+macro_rules! send_mut {
+    ($($ty:ident),+) => {
+        $(
+            unsafe impl<'a, T> Send for $ty<'a, T> where T: Send {}
+         )+
+    };
+}
+
+send_mut!(ColMut, RowMut, SubMatMut);

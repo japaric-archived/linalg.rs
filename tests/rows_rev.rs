@@ -1,162 +1,120 @@
+//! Test that:
+//!
+//! - `mat.rows[_mut]().rev().count() == mat.nrows()`
+//! - `mat.rows[_mut]().rev().enumerate().all(|(r, row)| row[c] == mat[nr - r - 1, c])`
+//!
+//! for any valid `c`
+
 #![feature(custom_attribute)]
 #![feature(plugin)]
 #![plugin(quickcheck_macros)]
 
+extern crate cast;
 extern crate linalg;
 extern crate quickcheck;
 extern crate rand;
 
+use cast::From;
 use linalg::prelude::*;
 use quickcheck::TestResult;
 
 #[macro_use]
 mod setup;
 
-mod trans {
+mod transposed {
+    use cast::From;
     use linalg::prelude::*;
     use quickcheck::TestResult;
 
-    use setup;
-
-    // Test that `rows().rev()` is correct for `Trans<Mat>`
     #[quickcheck]
-    fn mat((nrows, ncols): (usize, usize), col: usize) -> TestResult {
+    fn submat((srow, scol): (u32, u32), (nrows, ncols): (u32, u32), col: u32) -> TestResult {
         enforce! {
             col < ncols,
         }
 
-        test!({
-            let m = setup::mat((ncols, nrows)).t();
-            let n = m.nrows();
+        let m = ::setup::mat((srow + ncols, scol + nrows));
+        let v = m.slice((srow.., scol..)).t();
 
-            m.rows().rev().enumerate().all(|(i, r)| {
-                let i = n - i - 1;
+        let mut row = nrows;
+        let mut rows = v.rows().rev();
 
-                r.at(col).unwrap() == &(col, i)
-            })
-        })
+        test_eq!(rows.size_hint(), (usize::from(row), Some(usize::from(row))));
+        while let Some(r) = rows.next() {
+            row -= 1;
+
+            test_eq!(rows.size_hint(), (usize::from(row), Some(usize::from(row))));
+            test_eq!(&r[col], &(srow + col, scol + row));
+        }
+
+        test_eq!(row, 0)
     }
 
-    // Test that `rows().rev()` is correct for `Trans<View>`
     #[quickcheck]
-    fn view(
-        start: (usize, usize),
-        (nrows, ncols): (usize, usize),
-        col: usize,
-    ) -> TestResult {
+    fn submat_mut((srow, scol): (u32, u32), (nrows, ncols): (u32, u32), col: u32) -> TestResult {
         enforce! {
             col < ncols,
         }
 
-        let size = (start.0 + ncols, start.1 + nrows);
-        test!({
-            let m = setup::mat(size);
-            let v = try!(m.slice(start..)).t();
-            let (start_row, start_col) = start;
-            let n = v.nrows();
+        let mut m = ::setup::mat((srow + ncols, scol + nrows));
+        let mut v = m.slice_mut((srow.., scol..)).t();
 
-            v.rows().rev().enumerate().all(|(i, r)| {
-                let i = n - i - 1;
+        let mut row = nrows;
+        let mut rows = v.rows_mut().rev();
 
-                r.at(col).unwrap() == &(start_row + col, start_col + i)
-            })
-        })
-    }
+        test_eq!(rows.size_hint(), (usize::from(row), Some(usize::from(row))));
+        while let Some(mut r) = rows.next() {
+            row -= 1;
 
-    // Test that `rows().rev()` is correct for `Trans<MutView>`
-    #[quickcheck]
-    fn view_mut(
-        start: (usize, usize),
-        (nrows, ncols): (usize, usize),
-        col: usize,
-    ) -> TestResult {
-        enforce! {
-            col < ncols,
+            test_eq!(rows.size_hint(), (usize::from(row), Some(usize::from(row))));
+            test_eq!(&mut r[col], &mut (srow + col, scol + row));
         }
 
-        let size = (start.0 + ncols, start.1 + nrows);
-        test!({
-            let mut m = setup::mat(size);
-            let v = try!(m.slice_mut(start..)).t();
-            let (start_row, start_col) = start;
-            let n = v.nrows();
-
-            v.rows().rev().enumerate().all(|(i, r)| {
-                let i = n - i - 1;
-
-                r.at(col).unwrap() == &(start_row + col, start_col + i)
-            })
-        })
+        test_eq!(row, 0)
     }
 }
 
-// Test that `rows().rev()` is correct for `Mat`
 #[quickcheck]
-fn mat((nrows, ncols): (usize, usize), col: usize) -> TestResult {
+fn submat((srow, scol): (u32, u32), (nrows, ncols): (u32, u32), col: u32) -> TestResult {
     enforce! {
         col < ncols,
     }
 
-    test!({
-        let m = setup::mat((nrows, ncols));
-        let n = m.nrows();
+    let m = setup::mat((srow + nrows, scol + ncols));
+    let v = m.slice((srow.., scol..));
 
-        m.rows().rev().enumerate().all(|(i, r)| {
-            let i = n - i - 1;
+    let mut row = nrows;
+    let mut rows = v.rows().rev();
 
-            r.at(col).unwrap() == &(i, col)
-        })
-    })
+    test_eq!(rows.size_hint(), (usize::from(row), Some(usize::from(row))));
+    while let Some(r) = rows.next() {
+        row -= 1;
+
+        test_eq!(rows.size_hint(), (usize::from(row), Some(usize::from(row))));
+        test_eq!(&r[col], &(srow + row, scol + col));
+    }
+
+    test_eq!(row, 0)
 }
 
-// Test that `rows().rev()` is correct for `View`
 #[quickcheck]
-fn view(
-    start: (usize, usize),
-    (nrows, ncols): (usize, usize),
-    col: usize,
-) -> TestResult {
+fn submat_mut((srow, scol): (u32, u32), (nrows, ncols): (u32, u32), col: u32) -> TestResult {
     enforce! {
         col < ncols,
     }
 
-    let size = (start.0 + nrows, start.1 + ncols);
-    test!({
-        let m = setup::mat(size);
-        let v = try!(m.slice(start..));
-        let (start_row, start_col) = start;
-        let n = v.nrows();
+    let mut m = setup::mat((srow + nrows, scol + ncols));
+    let mut v = m.slice_mut((srow.., scol..));
 
-        v.rows().rev().enumerate().all(|(i, r)| {
-            let i = n - i - 1;
+    let mut row = nrows;
+    let mut rows = v.rows_mut().rev();
 
-            r.at(col).unwrap() == &(start_row + i, start_col + col)
-        })
-    })
-}
+    test_eq!(rows.size_hint(), (usize::from(row), Some(usize::from(row))));
+    while let Some(mut r) = rows.next() {
+        row -= 1;
 
-// Test that `rows().rev()` is correct for `MutView`
-#[quickcheck]
-fn view_mut(
-    start: (usize, usize),
-    (nrows, ncols): (usize, usize),
-    col: usize,
-) -> TestResult {
-    enforce! {
-        col < ncols,
+        test_eq!(rows.size_hint(), (usize::from(row), Some(usize::from(row))));
+        test_eq!(&mut r[col], &mut (srow + row, scol + col));
     }
 
-    let size = (start.0 + nrows, start.1 + ncols);
-    test!({
-        let mut m = setup::mat(size);
-        let v = try!(m.slice_mut(start..));
-        let (start_row, start_col) = start;
-        let n = v.nrows();
-
-        v.rows().rev().enumerate().all(|(i, r)| {
-            let i = n - i - 1;
-
-            r.at(col).unwrap() == &(start_row + i, start_col + col)
-        })
-    })
+    test_eq!(row, 0)
 }

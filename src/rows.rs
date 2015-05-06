@@ -1,37 +1,66 @@
-use std::mem;
+use cast::From;
+use extract::Extract;
 
-use traits::{Matrix, MatrixRow, MatrixRowMut};
-use {Row, Rows, MutRow, MutRows};
+use {Row, RowMut, Rows, RowsMut};
 
-impl<'a, T, M> DoubleEndedIterator for Rows<'a, M> where M: MatrixRow + Matrix<Elem=T> {
-    fn next_back(&mut self) -> Option<Row<'a, T>> {
-        self.0.next_back()
+impl<'a, T> Clone for Rows<'a, T> {
+    fn clone(&self) -> Rows<'a, T> {
+        Rows {
+            ..*self
+        }
     }
 }
 
-impl<'a, T, M> Iterator for Rows<'a, M> where M: MatrixRow + Matrix<Elem=T> {
+impl<'a, T> DoubleEndedIterator for Rows<'a, T> {
+    fn next_back(&mut self) -> Option<Row<'a, T>> {
+        unsafe {
+            if self.0.nrows == 0 {
+                None
+            } else {
+                let row = self.0.unsafe_row(self.0.nrows - 1);
+                self.0 = self.0.unsafe_slice((0, 0)..(self.0.nrows - 1, self.0.ncols));
+                Some(row)
+            }
+        }
+    }
+}
+
+impl<'a, T> Iterator for Rows<'a, T> {
     type Item = Row<'a, T>;
 
     fn next(&mut self) -> Option<Row<'a, T>> {
-        self.0.next()
+        unsafe {
+            if self.0.nrows == 0 {
+                None
+            } else {
+                let row = self.0.unsafe_row(0);
+                self.0 = self.0.unsafe_slice((1, 0)..(self.0.nrows, self.0.ncols));
+                Some(row)
+            }
+        }
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        self.0.size_hint()
+        unsafe {
+            let exact = usize::from(self.0.nrows).extract();
+            (exact, Some(exact))
+        }
     }
 }
 
-impl<'a, T, M> DoubleEndedIterator for MutRows<'a, M> where M: MatrixRowMut + Matrix<Elem=T> {
-    fn next_back(&mut self) -> Option<MutRow<'a, T>> {
-        unsafe { mem::transmute(self.0.next_back()) }
+
+impl<'a, T> DoubleEndedIterator for RowsMut<'a, T> {
+    fn next_back(&mut self) -> Option<RowMut<'a, T>> {
+        self.0.next_back().map(RowMut)
     }
 }
 
-impl<'a, T, M> Iterator for MutRows<'a, M> where M: MatrixRowMut + Matrix<Elem=T> {
-    type Item = MutRow<'a, T>;
+impl<'a, T> Iterator for RowsMut<'a, T> {
+    type Item = RowMut<'a, T>;
 
-    fn next(&mut self) -> Option<MutRow<'a, T>> {
-        unsafe { mem::transmute(self.0.next()) }
+    fn next(&mut self) -> Option<RowMut<'a, T>> {
+        self.0.next().map(RowMut)
+
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
