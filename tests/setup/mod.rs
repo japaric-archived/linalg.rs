@@ -1,106 +1,96 @@
 #![allow(dead_code)]
 
-use linalg::{ColVec, Mat, RowVec};
+use linalg::prelude::*;
 
-pub fn col(length: usize) -> ColVec<usize> {
-    ColVec::from_fn(length, |i| i)
-}
-
-pub fn mat((nrows, ncols): (usize, usize)) -> Mat<(usize, usize)> {
-    Mat::from_fn((nrows, ncols), |i| i).unwrap()
-}
-
-pub fn row(length: usize) -> RowVec<usize> {
-    RowVec::from_fn(length, |i| i)
-}
-
-pub mod rand {
-    use rand::{Rand, Rng, XorShiftRng, self};
-
-    use linalg::{ColVec, Mat, RowVec};
-
-    pub fn col<T>(length: usize) -> ColVec<T> where T: Rand {
-        let ref mut rng: XorShiftRng = rand::thread_rng().gen();
-
-        ColVec::rand(length, rng)
-    }
-
-    pub fn mat<T>((nrows, ncols): (usize, usize)) -> Mat<T> where T: Rand {
-        let ref mut rng: XorShiftRng = rand::thread_rng().gen();
-
-        Mat::rand((nrows, ncols), rng).unwrap()
-    }
-
-    pub fn row<T>(length: usize) -> RowVec<T> where T: Rand {
-        let ref mut rng: XorShiftRng = rand::thread_rng().gen();
-
-        RowVec::rand(length, rng)
-    }
-}
-
-macro_rules! approx_eq {
-    ($lhs:expr, $rhs:expr) => ({
-        let ref lhs = $lhs;
-        let ref rhs = $rhs;
-
-        ::approx::eq(lhs, rhs, ::approx::Abs::tol(1e-4)) ||
-        ::approx::eq(lhs, rhs, ::approx::Rel::tol(1e-4))
-    })
-}
+pub mod rand;
 
 macro_rules! enforce {
     ($($e:expr),+,) => {
-        if $(!$e)||+ { return TestResult::discard() }
+        if !($($e &&)+ true) {
+            return TestResult::discard()
+        };
     }
 }
 
 macro_rules! test {
     ($e:expr) => {
-        (|| Ok::<_, ::linalg::Error>(TestResult::from_bool($e)))().unwrap()
-    }
+        if $e {
+            TestResult::passed()
+        } else {
+            return TestResult::failed()
+        }
+    };
 }
 
-macro_rules! validate_diag {
-    ($diag:expr, $size:expr) => {{
-        let (nrows, ncols) = $size;
-        let diag = $diag;
+macro_rules! test_approx_eq {
+    ($lhs:expr, $rhs:expr) => {{
+        let ref lhs = $lhs;
+        let ref rhs = $rhs;
 
-        if diag > 0 {
-            let diag = diag as usize;
-
-            enforce! {
-                diag < ncols,
-            }
-        } else {
-            let diag = -diag as usize;
-
-            enforce! {
-                diag < nrows,
-            }
+        test!{
+            ::approx::eq(lhs, rhs, ::approx::Abs::tol(1e-3)) ||
+            ::approx::eq(lhs, rhs, ::approx::Rel::tol(1e-3))
         }
-    }}
+    }};
+}
+
+macro_rules! test_eq {
+    ($lhs:expr, $rhs:expr) => {{
+        let lhs = $lhs;
+        let rhs = $rhs;
+
+        test!(lhs == rhs)
+    }};
 }
 
 macro_rules! validate_diag_index {
-    ($diag:expr, $size:expr, $idx:expr) => {{
-        let diag = $diag;
+    ($size:expr, $diag:expr, $i:expr) => {{
+        use cast::From;
+
         let (nrows, ncols) = $size;
-        let idx = $idx;
+        let diag = $diag;
+        let i = $i;
 
         if diag > 0 {
-            let diag = diag as usize;
+            let diag = u32::from(diag).unwrap();
 
             enforce! {
                 diag < ncols,
-                idx < ::std::cmp::min(ncols - diag, nrows),
             }
+
+            let n = ::std::cmp::min(ncols - diag, nrows);
+
+            enforce! {
+                i < n,
+            }
+
+            n
         } else {
-            let diag = -diag as usize;
+            let diag = u32::from(-diag).unwrap();
 
             enforce! {
                 diag < nrows,
-                idx < ::std::cmp::min(nrows - diag, ncols),
             }
+
+            let n = ::std::cmp::min(nrows - diag, ncols);
+
+            enforce! {
+                i < n,
+            }
+
+            n
         }
-    }}
+    }};
+}
+
+pub fn col(len: u32) -> ColVec<u32> {
+    (0..len).map(|i| i).collect()
+}
+
+pub fn mat(size: (u32, u32)) -> Mat<(u32, u32)> {
+    Mat::from_fn(size, |i| i)
+}
+
+pub fn row(len: u32) -> RowVec<u32> {
+    (0..len).map(|i| i).collect()
 }

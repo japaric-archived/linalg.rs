@@ -74,7 +74,7 @@ use syntax::ptr::P;
 /// expands into:
 ///
 /// ``` ignore
-/// unsafe { Mat::from_parts(Box::new([0, 3, 1, 4, 3, 5]), (2, 3)) }
+/// unsafe { Mat::from_raw_parts(Box::new([0, 3, 1, 4, 3, 5]), (2, 3)) }
 /// ```
 ///
 /// Note that the order of the arguments have changed because matrices are stored in column-major
@@ -142,7 +142,7 @@ fn expand_mat<'cx>(
         let ncols = match cols_per_row.next() {
             Some(ncols) => ncols,
             None => {
-                cx.span_err(sp, "Empty matrix");
+                cx.span_err(sp, "empty matrix");
                 return DummyResult::expr(sp);
             },
         };
@@ -235,7 +235,7 @@ fn expand_mat<'cx>(
             let segments = vec![
                 cx.ident_of("linalg"),
                 cx.ident_of("Mat"),
-                cx.ident_of("from_parts"),
+                cx.ident_of("from_raw_parts"),
             ];
 
             cx.expr_path(cx.path_global(sp, segments))

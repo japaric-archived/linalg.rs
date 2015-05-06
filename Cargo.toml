@@ -1,14 +1,10 @@
 [package]
-
+authors = ["Jorge Aparicio <japaricious@gmail.com>"]
 name = "linalg"
 version = "0.0.0"
-authors = ["Jorge Aparicio <japaricious@gmail.com>"]
 
 [features]
 macros = ["linalg_macros"]
-
-[dependencies]
-rand = "*"
 
 [dependencies.assign]
 git = "https://github.com/japaric/assign.rs"
@@ -22,21 +18,30 @@ git = "https://github.com/japaric/cast.rs"
 [dependencies.complex]
 git = "https://github.com/japaric/complex.rs"
 
-[dependencies.onezero]
-git = "https://github.com/japaric/onezero.rs"
+[dependencies.extract]
+git = "https://github.com/japaric/extract.rs"
+
+[dependencies.lapack]
+git = "https://github.com/japaric/lapack.rs"
 
 [dependencies.linalg_macros]
 optional = true
 path = "macros"
 
+[dependencies.onezero]
+git = "https://github.com/japaric/onezero.rs"
+
+[dev-dependencies]
+rand = "*"
+
 [dev-dependencies.approx]
 git = "https://github.com/japaric/approx.rs"
+
+[dev-dependencies.linalg_macros]
+path = "macros"
 
 [dev-dependencies.quickcheck]
 git = "https://github.com/burntsushi/quickcheck"
 
 [dev-dependencies.quickcheck_macros]
 git = "https://github.com/burntsushi/quickcheck"
-
-[profile.test]
-debug = false

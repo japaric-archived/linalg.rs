@@ -1,240 +1,230 @@
-//! Traits
+//! Extension traits
+//!
+//!  WARNING! At this point in time, these traits are *not* meant to be used for generic
+//!  programming, and will remain unstable. What's guaranteed to be (somewhat) stable is the
+//!  functionality, i.e. the methods, provided by them.
 
-use error::OutOfBounds;
-use {Col, Cols, Diag, Error, MutCol, MutCols, MutDiag, MutRow, MutRows, Result, Row, Rows};
+use {
+    Col, ColMut, Cols, ColsMut, Diag, DiagMut, HStripes, HStripesMut, Row, RowMut, Rows, RowsMut,
+    VStripes, VStripesMut, SubMat, SubMatMut,
+};
 
-/// Bounds-checked immutable indexing
-pub trait At<I> {
-    /// An immutable view of the indexed element
+/// Force evaluation of lazy operations
+pub trait Eval {
+    /// The output of the operation
     type Output;
 
-    /// Returns an immutable reference to the element at the given index
-    ///
-    /// # Errors
-    ///
-    /// - `OutOfBounds` if the index is out of bounds
-    fn at(&self, index: I) -> ::std::result::Result<&Self::Output, OutOfBounds>;
+    /// Evaluates the lazy operation
+    fn eval(self) -> Self::Output;
 }
 
-/// Bounds-checked mutable indexing
-pub trait AtMut<I> {
-    /// An mutable view of the indexed element
-    type Output;
-
-    /// Returns a mutable reference to the element at the given index
-    ///
-    /// # Errors
-    ///
-    /// - `OutOfBounds` if the index is out of bounds
-    fn at_mut(&mut self, index: I) -> ::std::result::Result<&mut Self::Output, OutOfBounds>;
+/// "Immutable" horizontal splitting
+pub trait HSplit: Matrix {
+    /// Splits a matrix horizontally at the `i`th row in two immutable pieces
+    fn hsplit_at(&self, i: u32) -> (SubMat<Self::Elem>, SubMat<Self::Elem>);
 }
 
-/// Immutable iteration over a collection
-// FIXME (AI) `'a` should be associated items
-pub trait Iter<'a> {
-    /// The immutable iterator
+/// "Mutable" horizontal splitting
+pub trait HSplitMut: HSplit {
+    /// Splits a matrix horizontally at the `i`th row in two mutable pieces
+    fn hsplit_at_mut(&mut self, u32) -> (SubMatMut<Self::Elem>, SubMatMut<Self::Elem>);
+}
+
+/// "Immutable iteration" over a matrix
+pub trait Iter<'a>: Matrix {
+    /// The iterator
     type Iter: Iterator;
 
-    /// Returns an iterator that yields immutable references to the elements of the collection
+    /// Returns an iterator that yields immutable references to the elements of the matrix
+    ///
+    /// NOTE For optimization reasons the iteration order is left unspecified, so don't rely on it
     fn iter(&'a self) -> Self::Iter;
 }
 
-/// Mutable iteration over a collection
-// FIXME (AI) `'a`, should be associated items
-pub trait IterMut<'a> {
-    /// The mutable iterator
-    type Iter: Iterator;
+/// "Mutable iteration" over a matrix
+pub trait IterMut<'a>: Iter<'a> {
+    /// The iterator
+    type IterMut: Iterator;
 
-    /// Returns an iterator that yields mutable references to the elements of the collection
-    fn iter_mut(&'a mut self) -> Self::Iter;
+    /// Returns an iterator that yields mutable references to the elements of the matrix
+    ///
+    /// NOTE For optimization reasons the iteration order is left unspecified, so don't rely on it
+    fn iter_mut(&'a mut self) -> Self::IterMut;
 }
 
 /// The basic idea of a matrix: A rectangular array arranged in rows and columns
 pub trait Matrix: Sized {
-    /// The type of the elements contained by the matrix
+    /// The type of the elements contained in the matrix
     type Elem;
 
     /// Returns the number of columns the matrix has
-    fn ncols(&self) -> usize {
+    fn ncols(&self) -> u32 {
         self.size().1
     }
 
     /// Returns the number of rows the matrix has
-    fn nrows(&self) -> usize {
+    fn nrows(&self) -> u32 {
         self.size().0
     }
 
     /// Returns the size of the matrix
-    fn size(&self) -> (usize, usize) {
+    fn size(&self) -> (u32, u32) {
         (self.nrows(), self.ncols())
     }
 }
 
-/// Immutable view on a column
+/// Immutable view into the column of a matrix
 pub trait MatrixCol: Matrix {
-    /// Returns an immutable view into the column at the given index
-    ///
-    /// # Errors
-    ///
-    /// - `NoSuchColumn` if the index is out of bounds
-    fn col(&self, col: usize) -> Result<Col<Self::Elem>> {
-        if col < self.ncols() {
-            Ok(unsafe { self.unsafe_col(col) })
-        } else {
-            Err(Error::NoSuchColumn)
-        }
-    }
-
-    /// Returns a view into the column at the given index without performing bounds checking
-    unsafe fn unsafe_col(&self, col: usize) -> Col<Self::Elem>;
+    /// Returns an immutable view into the `i`th column of the matrix
+    fn col(&self, u32) -> Col<Self::Elem>;
 }
 
-/// Mutable access to a column
+/// Mutable access to the column of a matrix
 pub trait MatrixColMut: MatrixCol {
-    /// Returns a mutable view into the column at the given index
-    ///
-    /// # Errors
-    ///
-    /// - `NoSuchColumn` if the index is out of bounds
-    fn col_mut(&mut self, col: usize) -> Result<MutCol<Self::Elem>> {
-        if col < self.ncols() {
-            Ok(unsafe { self.unsafe_col_mut(col) })
-        } else {
-            Err(Error::NoSuchColumn)
-        }
+    /// Returns a mutable "view" into the `i`th column of the matrix
+    fn col_mut(&mut self, i: u32) -> ColMut<Self::Elem> {
+        ColMut(self.col(i))
     }
-
-    /// Returns a mutable view into the column at the given index without performing bounds
-    /// checking
-    unsafe fn unsafe_col_mut(&mut self, col: usize) -> MutCol<Self::Elem>;
 }
 
 /// Immutable column-by-column iteration
 pub trait MatrixCols: Matrix {
-    /// Returns an iterator that yields immutable views into the columns of the matrix
-    fn cols(&self) -> Cols<Self> {
-        Cols(unsafe { ::From::parts(self) })
-    }
-}
-
-/// Immutable view on a diagonal
-pub trait MatrixDiag: Matrix {
-    /// Returns a view into the diagonal at the given index
-    ///
-    /// # Errors
-    ///
-    /// - `NoSuchDiagonal` if the index is out of bounds
-    fn diag(&self, diag: isize) -> Result<Diag<Self::Elem>>;
-}
-
-/// Mutable access to a diagonal
-pub trait MatrixDiagMut: Matrix {
-    /// Returns a mutable view into the diagonal at the given index
-    ///
-    /// # Errors
-    ///
-    /// - `NoSuchDiagonal` if the index is out of bounds
-    fn diag_mut(&mut self, diag: isize) -> ::Result<MutDiag<Self::Elem>>;
+    /// Returns an iterator that yields immutable view into the columns of the matrix
+    fn cols(&self) -> Cols<Self::Elem>;
 }
 
 /// Mutable column-by-column iteration
-pub trait MatrixMutCols: Matrix {
-    /// Returns an iterator that yields mutable views into the columns of the matrix
-    fn mut_cols(&mut self) -> MutCols<Self> {
-        MutCols(unsafe { ::From::parts(&*self) })
+pub trait MatrixColsMut: MatrixCols {
+    /// Returns an iterator that yields mutable "views" into the columns of the matrix
+    fn cols_mut(&mut self) -> ColsMut<Self::Elem> {
+        ColsMut(self.cols())
     }
 }
 
-/// Mutable row-by-row iteration
-pub trait MatrixMutRows: Matrix {
-    /// Returns an iterator that yields mutable views into the rows of the matrix
-    fn mut_rows(&mut self) -> MutRows<Self> {
-        MutRows(unsafe { ::From::parts(&*self) })
+/// Immutable view into the diagonal of a matrix
+pub trait MatrixDiag: Matrix {
+    /// Returns an immutable view into the `i`th diagonal of the matrix
+    fn diag(&self, i32) -> Diag<Self::Elem>;
+}
+
+/// Mutable access to the diagonal of a matrix
+pub trait MatrixDiagMut: MatrixDiag {
+    /// Returns a mutable "view" into the `i`th diagonal of the matrix
+    fn diag_mut(&mut self, i: i32) -> DiagMut<Self::Elem> {
+        DiagMut(self.diag(i))
     }
 }
 
-/// Immutable view into a row
+/// "Immutable iteration" over a matrix in horizontal stripes
+pub trait MatrixHStripes: Matrix {
+    /// Returns an immutable iterator that yields horizontal stripes of `size` rows
+    fn hstripes(&self, size: u32) -> HStripes<Self::Elem>;
+}
+
+/// "Mutable iteration" over a matrix in horizontal stripes
+pub trait MatrixHStripesMut: MatrixHStripes {
+    /// Returns a mutable iterator that yields horizontal stripes of `size` rows
+    fn hstripes_mut(&mut self, size: u32) -> HStripesMut<Self::Elem> {
+        HStripesMut(self.hstripes(size))
+    }
+}
+
+/// Matrix inverse
+pub trait MatrixInverse {
+    /// The inversed matrix
+    type Output;
+
+    /// Returns the inverse of the input matrix
+    fn inv(self) -> Self::Output;
+}
+
+/// Immutable view into the row of a matrix
 pub trait MatrixRow: Matrix {
-    /// Returns an immutable view into the row at the given index
-    ///
-    /// # Errors
-    ///
-    /// - `NoSuchRow` if the index is out of bounds
-    fn row(&self, row: usize) -> Result<Row<Self::Elem>> {
-        if row < self.nrows() {
-            Ok(unsafe { self.unsafe_row(row) })
-        } else {
-            Err(Error::NoSuchRow)
-        }
-    }
+    /// Returns an immutable "view" into the `i`th row of the matrix
+    fn row(&self, u32) -> Row<Self::Elem>;
+}
 
-    /// Returns an immutable view into the row at the given index without performing bounds
-    /// checking
-    unsafe fn unsafe_row(&self, row: usize) -> Row<Self::Elem>;
+/// Mutable access to the row of a matrix
+pub trait MatrixRowMut: MatrixRow {
+    /// Returns a mutable "view" into the `i`th row of the matrix
+    fn row_mut(&mut self, i: u32) -> RowMut<Self::Elem> {
+        RowMut(self.row(i))
+    }
 }
 
 /// Immutable row-by-row iteration
 pub trait MatrixRows: Matrix {
-    /// Returns an iterator that yields immutable views into each row of the matrix
-    fn rows(&self) -> Rows<Self> {
-        Rows(unsafe { ::From::parts(self) })
+    /// Returns an iterator that yields immutable views into the rows of a matrix
+    fn rows(&self) -> Rows<Self::Elem>;
+}
+
+/// Mutable row-by-row iteration
+pub trait MatrixRowsMut: MatrixRows {
+    /// Returns an iterator that yields mutable "views" into the rows a matrix
+    fn rows_mut(&mut self) -> RowsMut<Self::Elem> {
+        RowsMut(self.rows())
     }
 }
 
-/// Mutable access to a row
-pub trait MatrixRowMut: MatrixRow {
-    /// Returns a mutable view into the row at the given index
-    ///
-    /// # Errors
-    ///
-    /// - `NoSuchRow` if the index is out of bounds
-    fn row_mut(&mut self, row: usize) -> Result<MutRow<Self::Elem>> {
-        if row < self.nrows() {
-            Ok(unsafe { self.unsafe_row_mut(row) })
-        } else {
-            Err(Error::NoSuchRow)
-        }
-    }
-
-    /// Returns a mutable view into the row at the given index without performing bounds checking
-    unsafe fn unsafe_row_mut(&mut self, row: usize) -> MutRow<Self::Elem>;
-}
-
-/// A more flexible slicing trait
+/// Alternative to `IndexSet` (which doesn't exist)
 ///
-/// *Note* Sadly this doesn't have operator sugar. You won't be able to use the slicing operator
-/// `[]` with this library until Rust gets HKT.
-// FIXME (AI) `'a` should be associated items
-pub trait Slice<'a, R> {
-    /// The immutable slice
-    type Slice;
-
-    /// Returns an immutable view into a fraction of the collection that spans `range`
-    fn slice(&'a self, range: R) -> ::Result<Self::Slice>;
+/// Usage: `a.col_mut(1).set(b.col(0))`
+///
+/// Hopefully in the future this will be replaced with `a[(.., 1)] = &b[(.., 0)]`
+pub trait Set<T> {
+    /// Copies `RHS` into `self`
+    fn set(&mut self, rhs: T);
 }
 
-/// Mutable version of the `Slice` trait
-// FIXME (AI) `'a`, should be associated items
-pub trait SliceMut<'a, R> {
-    /// The mutable slice
-    type Slice;
+/// "Immutable slicing"
+pub trait Slice<'a, Range> {
+    /// A immutable "slice" of the collection
+    type Output;
 
-    /// Returns a mutable view into a fraction of the collection that spans the `range`
-    fn slice_mut(&'a mut self, range: R) -> ::Result<Self::Slice>;
+    /// Returns an immutable view into a "slice" of the collection that spans `Range`
+    fn slice(&'a self, Range) -> Self::Output;
 }
 
-/// Make an owned clone from a view
-// TODO (rust-lang/rust#18910) Use trait provided by the standard library
-pub trait ToOwned<T> {
-    /// Returns an owned clone from the view
-    fn to_owned(&self) -> T;
+/// "Mutable slicing"
+pub trait SliceMut<'a, Range> {
+    /// A mutable "slice" of the collection
+    type Output;
+
+    /// Returns a mutable "view" into a "slice" of the collection that spans `Range`
+    fn slice_mut(&'a mut self, Range) -> Self::Output;
 }
 
 /// The transpose operator
 pub trait Transpose {
-    /// A view into the transposed data
+    /// The transposed data
     type Output;
 
     /// Returns the transpose of the input
     fn t(self) -> Self::Output;
+}
+
+/// "Immutable" vertical splitting
+pub trait VSplit: Matrix {
+    /// Splits a matrix vertically at the `i`th column in two immutable pieces
+    fn vsplit_at(&self, u32) -> (SubMat<Self::Elem>, SubMat<Self::Elem>);
+}
+
+/// "Mutable" vertical splitting
+pub trait VSplitMut: VSplit {
+    /// Splits a matrix vertically at the `i`th column in two mutable pieces
+    fn vsplit_at_mut(&mut self, u32) -> (SubMatMut<Self::Elem>, SubMatMut<Self::Elem>);
+}
+
+/// "Immutable iteration" over a matrix in vertical stripes
+pub trait MatrixVStripes: Matrix {
+    /// Returns an immutable iterator that yields vertical stripes of `size` columns
+    fn vstripes(&self, size: u32) -> VStripes<Self::Elem>;
+}
+
+/// "Mutable iteration" over a matrix in vertical stripes
+pub trait MatrixVStripesMut: MatrixVStripes {
+    /// Returns a "mutable" iterator that yields horizontal stripes of `size` columns
+    fn vstripes_mut(&mut self, size: u32) -> VStripesMut<Self::Elem> {
+        VStripesMut(self.vstripes(size))
+    }
 }

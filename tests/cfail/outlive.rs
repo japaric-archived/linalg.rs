@@ -1,8 +1,9 @@
+//! Test that none of the reference-like structs can outlive their referenced data
+
 extern crate linalg;
 
 use linalg::prelude::*;
 
-// Test that none of the reference-like structs can outlive their referenced data
 
 fn col(c: ColVec<f32>) {
     let col = {
@@ -58,13 +59,13 @@ fn mat(m: Mat<f32>) {
     let view = {
         let m = m.clone();
 
-        m.slice((0, 0)..(2, 2))  //~ error: does not live long enough
+        m.slice((0..2, 0..2))  //~ error: does not live long enough
     };
 
     let view_mut = {
         let mut m = m.clone();
 
-        m.slice_mut((0, 0)..(2, 2))  //~ error: does not live long enough
+        m.slice_mut((0..2, 0..2))  //~ error: does not live long enough
     };
 }
 

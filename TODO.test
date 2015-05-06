@@ -1,0 +1,82 @@
+LEGEND:
+
+- `A`, `B`, `C` represent matrices
+- `x`, `y`, `z` represent column/row vectors
+- `alpha` and `beta` represent scalars
+- `A'` represents the transpose of `A`.
+
+NOTE: Focus on testing the "Core" implementations
+
+- Add
+    - Col
+        - x + alpha * y
+    - Row
+        - x + alpha * y
+        - alpha * x * A + y
+- AddAssign
+    - Col
+        - y += alpha
+        - y += alpha * A * x
+        - y += alpha * x
+    - Diag
+        - y += alpha
+    - Mat
+        - A += alpha
+        - A += alpha * B
+        - A += alpha * B * C
+    - Row
+        - y += alpha
+        - y += alpha * x
+        - y += alpha * x * A
+- DivAssign
+    - Col
+        - y /= alpha
+    - Mat
+        - A /= alpha
+    - Row
+        - y /= alpha
+- Eval
+    - Col * Mat
+    - Mat * Row
+- Set
+    - A <- B'
+- Set(Scalar)
+    - Diag
+- From
+    - ColVec::from(Col)
+    - Mat::from(SubMat)
+    - Mat::from(Tranposed<SubMat>)
+    - RowVec::from(Row)
+- MatrixDiag
+- MatrixDiagMut
+- Mul
+    - Mat * Col
+    - Row * Mat
+    - Row * Mat * Col
+- MulAssign
+    - Col
+        - y *= alpha
+    - Mat
+        - A *= alpha
+    - Row
+        - y *= alpha
+- Sub
+    - Col
+        - y - alpha * x
+    - Row
+        - y - alpha * x
+- SubAssign
+    - Col
+        - y -= alpha
+        - y -= alpha * x
+        - y -= alpha * A * x
+    - Diag
+        - y -= alpha
+    - Mat
+        - A -= alpha
+        - A -= alpha * B
+        - A -= alpha * B * C
+    - Row
+        - y -= alpha
+        - y -= alpha * x
+        - y -= alpha * x * A

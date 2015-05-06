@@ -16,9 +16,9 @@ before_install:
 
 install:
   - if [[ $BLAS == 'OpenBLAS' ]]; then
-      sudo apt-get install libopenblas-dev;
+      sudo apt-get install libopenblas-dev liblapack-dev;
     else
-      sudo apt-get install libblas-dev;
+      sudo apt-get install libblas-dev liblapack-dev;
     fi
   - git clone --depth 1 https://github.com/japaric/cfail.rs
 
@@ -28,9 +28,9 @@ script:
     fi
   - cargo build --features macros --verbose
   - if [[ $BLAS == 'OpenBLAS' ]]; then
-      RUST_TEST_THREADS=1 cargo test --features macros --verbose;
+      RUST_TEST_THREADS=1 cargo test --verbose;
     else
-      cargo test --features macros --verbose;
+      cargo test --verbose;
     fi
   - cargo doc --features macros --verbose
   - cd cfail.rs && cargo build --release && cd ..

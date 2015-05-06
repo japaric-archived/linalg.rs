@@ -1,319 +1,327 @@
+//! Test that immutable iterators are complete and, only for linear collections, ordered
+
 #![feature(custom_attribute)]
 #![feature(plugin)]
 #![plugin(quickcheck_macros)]
 
+extern crate cast;
 extern crate linalg;
 extern crate quickcheck;
 extern crate rand;
 
+use std::collections::HashSet;
+
+use cast::From;
 use linalg::prelude::*;
 use quickcheck::TestResult;
-use std::collections::BTreeSet;
 
 #[macro_use]
 mod setup;
 
 mod col {
+    use cast::From;
     use linalg::prelude::*;
     use quickcheck::TestResult;
 
-    use setup;
-
-    // Test that `iter()` is correct for `ColVec`
     #[quickcheck]
-    fn owned(size: usize) -> bool {
-        setup::col(size).iter().enumerate().all(|(i, &e)| e == i)
+    fn owned(n: u32) -> TestResult {
+        let c = ::setup::col(n);
+
+        let mut i = 0;
+        let mut iter = c.iter();
+
+        test_eq!(iter.size_hint(), (usize::from(n - i), Some(usize::from(n - i))));
+        while let Some(x) = iter.next() {
+            test_eq!(x, &i);
+
+            i += 1;
+
+            test_eq!(iter.size_hint(), (usize::from(n - i), Some(usize::from(n - i))));
+        }
+
+        test_eq!(i, n)
     }
 
-    // Test that `iter()` is correct for `Col`
     #[quickcheck]
-    fn slice((nrows, ncols): (usize, usize), col: usize) -> TestResult {
+    fn contiguous((nrows, ncols): (u32, u32), col: u32) -> TestResult {
         enforce! {
             col < ncols,
         }
 
-        test!({
-            let m = setup::mat((nrows, ncols));
-            let c = try!(m.col(col));
+        let m = ::setup::mat((nrows, ncols));
+        let c = m.col(col);
 
-            c.iter().enumerate().all(|(i, &e)| e == (i, col))
-        })
+        let mut i = 0;
+        let mut iter = c.iter();
+
+        test_eq!(iter.size_hint(), (usize::from(nrows - i), Some(usize::from(nrows - i))));
+        while let Some(x) = iter.next() {
+            test_eq!(x, &(i, col));
+
+            i += 1;
+
+            test_eq!(iter.size_hint(), (usize::from(nrows - i), Some(usize::from(nrows - i))));
+        }
+
+        test_eq!(i, nrows)
     }
 
-    // Test that `iter()` is correct for `MutCol`
     #[quickcheck]
-    fn slice_mut((nrows, ncols): (usize, usize), col: usize) -> TestResult {
+    fn strided((nrows, ncols): (u32, u32), col: u32) -> TestResult {
         enforce! {
             col < ncols,
         }
 
-        test!({
-            let mut m = setup::mat((nrows, ncols));
-            let c = try!(m.col_mut(col));
+        let m = ::setup::mat((ncols, nrows)).t();
+        let c = m.col(col);
 
-            c.iter().enumerate().all(|(i, &e)| e == (i, col))
-        })
-    }
+        let mut i = 0;
+        let mut iter = c.iter();
 
-    // Test that `iter()` is correct for `strided::Col`
-    #[quickcheck]
-    fn strided((nrows, ncols): (usize, usize), col: usize) -> TestResult {
-        enforce! {
-            col < ncols,
+        test_eq!(iter.size_hint(), (usize::from(nrows - i), Some(usize::from(nrows - i))));
+        while let Some(x) = iter.next() {
+            test_eq!(x, &(col, i));
+
+            i += 1;
+
+            test_eq!(iter.size_hint(), (usize::from(nrows - i), Some(usize::from(nrows - i))));
         }
 
-        test!({
-            let m = setup::mat((ncols, nrows)).t();
-            let c = try!(m.col(col));
-
-            c.iter().enumerate().all(|(i, &e)| e == (col, i))
-        })
-    }
-
-    // Test that `iter()` is correct for `strided::MutCol`
-    #[quickcheck]
-    fn strided_mut((nrows, ncols): (usize, usize), col: usize) -> TestResult {
-        enforce! {
-            col < ncols,
-        }
-
-        test!({
-            let mut m = setup::mat((ncols, nrows)).t();
-            let c = try!(m.col_mut(col));
-
-            c.iter().enumerate().all(|(i, &e)| e == (col, i))
-        })
-    }
-}
-
-mod diag {
-    use linalg::prelude::*;
-    use quickcheck::TestResult;
-
-    use setup;
-
-    // Test that `iter()` is correct for `Diag`
-    #[quickcheck]
-    fn strided(size: (usize, usize), diag: isize) -> TestResult {
-        validate_diag!(diag, size);
-
-        test!({
-            let m = setup::mat(size);
-            let d = try!(m.diag(diag));
-
-            if diag > 0 {
-                d.iter().enumerate().all(|(i, &e)| e == (i, i + diag as usize))
-            } else {
-                d.iter().enumerate().all(|(i, &e)| e == (i + (-diag as usize), i))
-            }
-        })
-    }
-
-    // Test that `iter()` is correct for `MutDiag`
-    #[quickcheck]
-    fn strided_mut(size: (usize, usize), diag: isize) -> TestResult {
-        validate_diag!(diag, size);
-
-        test!({
-            let mut m = setup::mat(size);
-            let d = try!(m.diag_mut(diag));
-
-            if diag > 0 {
-                d.iter().enumerate().all(|(i, &e)| e == (i, i + diag as usize))
-            } else {
-                d.iter().enumerate().all(|(i, &e)| e == (i + (-diag as usize), i))
-            }
-        })
+        test_eq!(i, nrows)
     }
 }
 
 mod row {
+    use cast::From;
     use linalg::prelude::*;
     use quickcheck::TestResult;
 
-    use setup;
-
-    // Test that `iter()` is correct for `RowVec`
     #[quickcheck]
-    fn owned(size: usize) -> bool {
-        setup::row(size).iter().enumerate().all(|(i, &e)| e == i)
+    fn owned(n: u32) -> TestResult {
+        let r = ::setup::row(n);
+
+        let mut i = 0;
+        let mut iter = r.iter();
+
+        test_eq!(iter.size_hint(), (usize::from(n - i), Some(usize::from(n - i))));
+        while let Some(x) = iter.next() {
+            test_eq!(x, &i);
+
+            i += 1;
+
+            test_eq!(iter.size_hint(), (usize::from(n - i), Some(usize::from(n - i))));
+        }
+
+        test_eq!(i, n)
     }
 
-    // Test that `iter()` is correct for `Row`
     #[quickcheck]
-    fn slice((nrows, ncols): (usize, usize), row: usize) -> TestResult {
+    fn contiguous((nrows, ncols): (u32, u32), row: u32) -> TestResult {
         enforce! {
             row < nrows,
         }
 
-        test!({
-            let m = setup::mat((ncols, nrows)).t();
-            let r = try!(m.row(row));
+        let m = ::setup::mat((nrows, ncols));
+        let r = m.row(row);
 
-            r.iter().enumerate().all(|(i, &e)| e == (i, row))
-        })
+        let mut i = 0;
+        let mut iter = r.iter();
+
+        test_eq!(iter.size_hint(), (usize::from(ncols - i), Some(usize::from(ncols - i))));
+        while let Some(x) = iter.next() {
+            test_eq!(x, &(row, i));
+
+            i += 1;
+
+            test_eq!(iter.size_hint(), (usize::from(ncols - i), Some(usize::from(ncols - i))));
+        }
+
+        test_eq!(i, ncols)
     }
 
-    // Test that `iter()` is correct for `MutRow`
     #[quickcheck]
-    fn slice_mut((nrows, ncols): (usize, usize), row: usize) -> TestResult {
+    fn strided((nrows, ncols): (u32, u32), row: u32) -> TestResult {
         enforce! {
             row < nrows,
         }
 
-        test!({
-            let mut m = setup::mat((ncols, nrows)).t();
-            let r = try!(m.row_mut(row));
+        let m = ::setup::mat((ncols, nrows)).t();
+        let r = m.row(row);
 
-            r.iter().enumerate().all(|(i, &e)| e == (i, row))
-        })
-    }
+        let mut i = 0;
+        let mut iter = r.iter();
 
-    // Test that `iter()` is correct for `strided::Row`
-    #[quickcheck]
-    fn strided((nrows, ncols): (usize, usize), row: usize) -> TestResult {
-        enforce! {
-            row < nrows,
+        test_eq!(iter.size_hint(), (usize::from(ncols - i), Some(usize::from(ncols - i))));
+        while let Some(x) = iter.next() {
+            test_eq!(x, &(i, row));
+
+            i += 1;
+
+            test_eq!(iter.size_hint(), (usize::from(ncols - i), Some(usize::from(ncols - i))));
         }
 
-        test!({
-            let m = setup::mat((nrows, ncols));
-            let r = try!(m.row(row));
-
-            r.iter().enumerate().all(|(i, &e)| e == (row, i))
-        })
-    }
-
-    // Test that `iter()` is correct for `strided::MutRow`
-    #[quickcheck]
-    fn strided_mut((nrows, ncols): (usize, usize), row: usize) -> TestResult {
-        enforce! {
-            row < nrows,
-        }
-
-        test!({
-            let mut m = setup::mat((nrows, ncols));
-            let r = try!(m.row_mut(row));
-
-            r.iter().enumerate().all(|(i, &e)| e == (row, i))
-        })
+        test_eq!(i, ncols)
     }
 }
 
-mod trans {
+mod transposed {
+    use std::collections::HashSet;
+
+    use cast::From;
     use linalg::prelude::*;
     use quickcheck::TestResult;
-    use std::collections::BTreeSet;
 
-    use setup;
-
-    // Test that `iter()` is correct for `Trans<Mat>`
     #[quickcheck]
-    fn mat((nrows, ncols): (usize, usize)) -> bool {
-        let mut elems = BTreeSet::new();
+    fn mat((nrows, ncols): (u32, u32)) -> TestResult {
+        let m = ::setup::mat((nrows, ncols)).t();
+
+        let mut elems = HashSet::new();
+
         for r in 0..nrows {
             for c in 0..ncols {
                 elems.insert((r, c));
             }
         }
 
-        elems == setup::mat((nrows, ncols)).t().iter().map(|&x| x).collect()
+        let mut count = usize::from(nrows) * usize::from(ncols);
+        let mut iter = m.iter();
+
+        test_eq!(iter.size_hint(), (count, Some(count)));
+        while let Some(x) = iter.next() {
+            test!(elems.remove(x));
+
+            count -= 1;
+
+            test_eq!(iter.size_hint(), (count, Some(count)));
+        }
+
+        test!(count == 0 && elems.is_empty())
     }
 
-    // Test that `iter()` is correct for `Trans<View>`
     #[quickcheck]
-    fn view(start: (usize, usize), (nrows, ncols): (usize, usize)) -> TestResult {
-        let size = (start.0 + ncols, start.1 + nrows);
+    fn submat((srow, scol): (u32, u32), (nrows, ncols): (u32, u32)) -> TestResult {
+        let m = ::setup::mat((srow + nrows, scol + ncols));
+        let v = m.slice((srow.., scol..)).t();
 
-        test!({
-            let m = setup::mat(size);
-            let v = try!(m.slice(start..)).t();
-            let (start_row, start_col) = start;
+        let mut elems = HashSet::new();
 
-            let mut t = BTreeSet::new();
-            for r in 0..nrows {
-                for c in 0..ncols {
-                    t.insert((start_row + c, start_col + r));
-                }
+        for r in 0..nrows {
+            for c in 0..ncols {
+                elems.insert((srow + r, scol + c));
             }
+        }
 
-            t == v.iter().map(|&x| x).collect()
-        })
-    }
+        let mut count = usize::from(nrows) * usize::from(ncols);
+        let mut iter = v.iter();
 
-    // Test that `iter()` is correct for `Trans<MutView>`
-    #[quickcheck]
-    fn view_mut(start: (usize, usize), (nrows, ncols): (usize, usize)) -> TestResult {
-        let size = (start.0 + ncols, start.1 + nrows);
+        test_eq!(iter.size_hint(), (count, Some(count)));
+        while let Some(x) = iter.next() {
+            test!(elems.remove(x));
 
-        test!({
-            let mut m = setup::mat(size);
-            let v = try!(m.slice_mut(start..)).t();
-            let (start_row, start_col) = start;
+            count -= 1;
 
-            let mut t = BTreeSet::new();
-            for r in 0..nrows {
-                for c in 0..ncols {
-                    t.insert((start_row + c, start_col + r));
-                }
-            }
+            test_eq!(iter.size_hint(), (count, Some(count)));
+        }
 
-            t == v.iter().map(|&x| x).collect()
-        })
+        test!(count == 0 && elems.is_empty())
     }
 }
 
-// Test that `iter()` is correct for `Mat`
 #[quickcheck]
-fn mat((nrows, ncols): (usize, usize)) -> bool {
-    let mut elems = BTreeSet::new();
+fn diag((nrows, ncols): (u32, u32), i: i32) -> TestResult {
+    let n = validate_diag_index!((nrows, ncols), i, 0);
+
+    let m = ::setup::mat((nrows, ncols));
+    let d = m.diag(i);
+
+    let j = if i > 0 {
+        let i = u32::from(i).unwrap();
+
+        let mut j = 0;
+        let mut iter = d.iter();
+
+        test_eq!(iter.size_hint(), (usize::from(n - j), Some(usize::from(n - j ))));
+        while let Some(x) = iter.next() {
+            test_eq!(x, &(j, i + j));
+
+            j += 1;
+
+            test_eq!(iter.size_hint(), (usize::from(n - j), Some(usize::from(n - j ))));
+        }
+
+        j
+    } else {
+        let i = u32::from(-i).unwrap();
+
+        let mut j = 0;
+        let mut iter = d.iter();
+
+        test_eq!(iter.size_hint(), (usize::from(n - j), Some(usize::from(n - j ))));
+        while let Some(x) = iter.next() {
+            test_eq!(x, &(i + j, j));
+
+            j += 1;
+
+            test_eq!(iter.size_hint(), (usize::from(n - j), Some(usize::from(n - j ))));
+        }
+
+        j
+    };
+
+    test_eq!(j, n)
+}
+
+#[quickcheck]
+fn mat((nrows, ncols): (u32, u32)) -> TestResult {
+    let m = ::setup::mat((nrows, ncols));
+
+    let mut elems = HashSet::new();
+
     for r in 0..nrows {
         for c in 0..ncols {
             elems.insert((r, c));
         }
     }
 
-    elems == setup::mat((nrows, ncols)).iter().map(|&x| x).collect()
+    let mut count = usize::from(nrows) * usize::from(ncols);
+    let mut iter = m.iter();
+
+    test_eq!(iter.size_hint(), (count, Some(count)));
+    while let Some(x) = iter.next() {
+        test!(elems.remove(x));
+
+        count -= 1;
+
+        test_eq!(iter.size_hint(), (count, Some(count)));
+    }
+
+    test!(count == 0 && elems.is_empty())
 }
 
-// Test that `iter()` is correct for `View`
 #[quickcheck]
-fn view(start: (usize, usize), (nrows, ncols): (usize, usize)) -> TestResult {
-    let size = (start.0 + nrows, start.1 + ncols);
+fn submat((srow, scol): (u32, u32), (nrows, ncols): (u32, u32)) -> TestResult {
+    let m = ::setup::mat((srow + nrows, scol + ncols));
+    let v = m.slice((srow.., scol..));
 
-    test!({
-        let m = setup::mat(size);
-        let v = try!(m.slice(start..));
-        let (start_row, start_col) = start;
+    let mut elems = HashSet::new();
 
-        let mut t = BTreeSet::new();
-        for r in 0..nrows {
-            for c in 0..ncols {
-                t.insert((start_row + r, start_col + c));
-            }
+    for r in 0..nrows {
+        for c in 0..ncols {
+            elems.insert((srow + r, scol + c));
         }
+    }
 
-        t == v.iter().map(|&x| x).collect()
-    })
-}
+    let mut count = usize::from(nrows) * usize::from(ncols);
+    let mut iter = v.iter();
 
-// Test that `iter()` is correct for `MutView`
-#[quickcheck]
-fn view_mut(start: (usize, usize), (nrows, ncols): (usize, usize)) -> TestResult {
-    let size = (start.0 + nrows, start.1 + ncols);
+    test_eq!(iter.size_hint(), (count, Some(count)));
+    while let Some(x) = iter.next() {
+        test!(elems.remove(x));
 
-    test!({
-        let mut m = setup::mat(size);
-        let v = try!(m.slice_mut(start..));
-        let (start_row, start_col) = start;
+        count -= 1;
 
-        let mut t = BTreeSet::new();
-        for r in 0..nrows {
-            for c in 0..ncols {
-                t.insert((start_row + r, start_col + c));
-            }
-        }
+        test_eq!(iter.size_hint(), (count, Some(count)));
+    }
 
-        t == v.iter().map(|&x| x).collect()
-    })
+    test!(count == 0 && elems.is_empty())
 }
