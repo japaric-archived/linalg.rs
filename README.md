@@ -59,9 +59,11 @@ let x = &A[i, j];  // === Index::index(&A, (i, j));
 let y = B[i, j];  // === *Index::index(&B, (i, j));
 ```
 
-- User defined unsized types. This is big change, I've a WIP RFC [here]. This change improves
+- User defined unsized types. This is big change, I've a WIP RFC [here][0]. This change improves
 several things (check the RFC), but the syntatic improvement is that we'll be able to closely
 match Python's slicing syntax:
+
+[0]: https://github.com/japaric/rfcs/blob/unsized/text/0000-unsized.md
 
 ``` rust
 // &Row, &mut Col, &SubMat are fat pointers like &[T]
@@ -73,17 +75,15 @@ let col: &mut Col = &mut A[.., j];  // === IndexMut::index_mut(&mut A, (.., j));
 let submat: &SubMat = &A[a..b, c..d];  // === Index::index(&A, (a..b, c..d));
 ```
 
-[here]: https://github.com/japaric/rfcs/blob/unsized/text/0000-unsized.md
+- `[Op]Assign` traits. The RFC's [here][1]. This would let use augmented assignment sugar:
 
-- `[Op]Assign` traits. The RFC's [here]. This would let use augmented assignment sugar:
+[1]: https://github.com/rust-lang/rfcs/pull/953
 
 ``` rust
 A[i, ..] += &B[j, ..];  // === AddAssign::add_assign(&mut A[i, ..], &B[j, ..]);
 
 A[a..b, c..d] *= 2;  // === MulAssign::mul_assign(&mut A[a..b, c..d], 2);
 ```
-
-[here]: https://github.com/rust-lang/rfcs/pull/953
 
 - `IndexSet`. There's a [postponed issue] for this. This would enable sugar for setting/copying
 sub-matrices:
@@ -123,9 +123,9 @@ feature request in the issue tracker.
 ### Unit tests
 
 Ideally all the core functionality should be tested, but the current test suite is not that
-extensive. There's a list of missing unit tests [here], help would be appreciated.
+extensive. There's a list of missing unit tests [here][2], help would be appreciated.
 
-[here]: /TODO.test
+[2]: /TODO.test
 
 ### Examples
 
