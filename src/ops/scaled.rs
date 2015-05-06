@@ -3,6 +3,7 @@
 use std::ops::{Div, Mul, Neg};
 
 use complex::Complex;
+use onezero::One;
 
 use {
     Chain, Col, ColMut, ColVec, Mat, Product, Row, RowMut, RowVec, Scaled, Transposed, SubMat,
@@ -10,6 +11,7 @@ use {
 };
 use traits::{Matrix, Slice};
 
+// NOTE Core
 impl<T, M> Div<T> for Scaled<M> where M: Matrix<Elem=T>, T: Div<Output=T> {
     type Output = Scaled<M>;
 
@@ -18,6 +20,20 @@ impl<T, M> Div<T> for Scaled<M> where M: Matrix<Elem=T>, T: Div<Output=T> {
     }
 }
 
+// NOTE Core
+impl<T, L, R> Div<T> for Product<L, R> where
+    L: Matrix<Elem=T>,
+    R: Matrix<Elem=T>,
+    T: Div<Output=T> + One,
+{
+    type Output = Scaled<Product<L, R>>;
+
+    fn div(self, rhs: T) -> Scaled<Product<L, R>> {
+        Scaled(T::one() / rhs, self)
+    }
+}
+
+// NOTE Core
 impl<T, M> Neg for Scaled<M> where M: Matrix<Elem=T>, T: Neg<Output=T> {
     type Output = Scaled<M>;
 
@@ -26,6 +42,7 @@ impl<T, M> Neg for Scaled<M> where M: Matrix<Elem=T>, T: Neg<Output=T> {
     }
 }
 
+// NOTE Core
 impl<'a, T> Mul<T> for Chain<'a, T> {
     type Output = Scaled<Chain<'a, T>>;
 
@@ -37,6 +54,7 @@ impl<'a, T> Mul<T> for Chain<'a, T> {
 macro_rules! chain {
     ($($t:ty),+) => {
         $(
+            // NOTE Secondary
             impl<'a> Mul<Chain<'a, $t>> for $t {
                 type Output = Scaled<Chain<'a, $t>>;
 
