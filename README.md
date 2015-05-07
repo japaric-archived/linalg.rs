@@ -1,3 +1,7 @@
+[![Build Status][status]](https://travis-ci.org/japaric/linalg.rs)
+
+[status]: https://travis-ci.org/japaric/linalg.rs.svg?branch=master
+
 # `linalg.rs`
 
 Linear algebra library with BLAS and LAPACK acceleration.
