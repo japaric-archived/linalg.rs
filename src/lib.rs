@@ -358,6 +358,15 @@ impl<T> Mat<T> {
             ncols: ncols,
         }
     }
+
+    fn as_slice(&self) -> &[T] {
+        unsafe {
+            let len = usize::from(self.nrows).extract() * usize::from(self.ncols).extract();
+
+            slice::from_raw_parts(*self.data, len)
+        }
+    }
+
 }
 
 /// Lazy matrix product

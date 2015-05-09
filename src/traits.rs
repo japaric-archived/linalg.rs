@@ -166,6 +166,15 @@ pub trait MatrixRowsMut: MatrixRows {
     }
 }
 
+/// Frobenius norm
+pub trait Norm {
+    /// The return value
+    type Output;
+
+    /// Returns the Frobenius norm of the vector/matrix
+    fn norm(&self) -> Self::Output;
+}
+
 /// Alternative to `IndexSet` (which doesn't exist)
 ///
 /// Usage: `a.col_mut(1).set(b.col(0))`

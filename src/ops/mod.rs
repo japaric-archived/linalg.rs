@@ -29,6 +29,7 @@ mod inv;
 mod mcop;
 mod mul;
 mod mul_assign;
+mod norm;
 mod product;
 mod reduce;
 mod scaled;
