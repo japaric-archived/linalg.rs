@@ -438,6 +438,28 @@ impl<'a, T> SubMat<'a, T> {
         }
     }
 
+    /// Reshapes a slice as an immutable (sub)matrix
+    ///
+    /// # Panics
+    ///
+    /// If:
+    ///
+    /// - `nrows * ncols != slice.len() ||`
+    /// - `nrows > 2^31 ||`
+    /// - `ncols > 2^31 ||`
+    pub fn reshape(slice: &[T], (nrows, ncols): (u32, u32)) -> SubMat<T> {
+        unsafe {
+            assert_eq!(slice.len(), usize::from(nrows) * usize::from(ncols));
+
+            let nrows = i32::from(nrows).unwrap();
+            let ncols = i32::from(ncols).unwrap();
+            let data = slice.as_ptr() as *mut T;
+            let stride = nrows;
+
+            SubMat::new(data, (nrows, ncols), stride)
+        }
+    }
+
     fn as_slice(&self) -> Option<&[T]> {
         unsafe {
             if self.nrows == self.stride {
@@ -527,6 +549,28 @@ impl<'a, T> SubMat<'a, T> {
 pub struct SubMatMut<'a, T>(SubMat<'a, T>);
 
 impl<'a, T> SubMatMut<'a, T> {
+    /// Reshapes a slice as a mutable (sub)matrix
+    ///
+    /// # Panics
+    ///
+    /// If:
+    ///
+    /// - `nrows * ncols != slice.len() ||`
+    /// - `nrows > 2^31 ||`
+    /// - `ncols > 2^31 ||`
+    pub fn reshape(slice: &mut [T], (nrows, ncols): (u32, u32)) -> SubMatMut<T> {
+        unsafe {
+            assert_eq!(slice.len(), usize::from(nrows) * usize::from(ncols));
+
+            let nrows = i32::from(nrows).unwrap();
+            let ncols = i32::from(ncols).unwrap();
+            let data = slice.as_mut_ptr();
+            let stride = nrows;
+
+            SubMatMut(SubMat::new(data, (nrows, ncols), stride))
+        }
+    }
+
     fn as_slice_mut(&mut self) -> Option<&mut [T]> {
         self.0.as_slice().map(|s| unsafe {
             slice::from_raw_parts_mut(s.as_ptr() as *mut _, s.len())
