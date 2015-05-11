@@ -586,7 +586,8 @@ impl<'a, T> SubMat<'a, T> {
         debug_assert!(ecol <= self.ncols);
 
         let stride = self.stride;
-        let data = self.data.offset(isize::from_(scol) * isize::from_(stride) + isize::from_(srow));
+        let data =
+            self.data.offset(isize::from_(scol) * isize::from_(stride) + isize::from_(srow));
 
         SubMat::new(data, (erow - srow, ecol - scol), stride)
     }
