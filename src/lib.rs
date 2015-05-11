@@ -278,10 +278,30 @@ use std::ptr::Unique;
 use std::{mem, slice};
 
 use blas::Transpose;
-use cast::From;
+use cast::From as _0;
 use extract::Extract;
 
 use traits::Matrix;
+
+/// A reserved chunk of memory
+pub struct Buffer<T>(Vec<T>);
+
+impl<T> Buffer<T> {
+    /// Creates a buffer with size `n`
+    pub fn new(n: usize) -> Buffer<T> where T: Copy {
+        unsafe {
+            let mut v = Vec::with_capacity(n);
+            v.set_len(n);
+
+            Buffer(v)
+        }
+    }
+
+    /// Exposes this buffer as a pool of matrices
+    pub fn as_pool(&mut self) -> Pool<T> {
+        Pool(Some(&mut self.0[..]))
+    }
+}
 
 /// Lazy matrix chain multiplication
 pub struct Chain<'a, T> {
@@ -341,8 +361,8 @@ impl<T> Mat<T> {
         debug_assert!(ncols >= 0);
         debug_assert!(nrows >= 0);
 
-        let nrows_ = usize::from(nrows).extract();
-        let ncols_ = usize::from(ncols).extract();
+        let nrows_ = usize::from_(nrows).extract();
+        let ncols_ = usize::from_(ncols).extract();
 
         debug_assert!(nrows_.checked_mul(ncols_).is_some());
 
@@ -361,12 +381,59 @@ impl<T> Mat<T> {
 
     fn as_slice(&self) -> &[T] {
         unsafe {
-            let len = usize::from(self.nrows).extract() * usize::from(self.ncols).extract();
+            let len = usize::from_(self.nrows).extract() * usize::from_(self.ncols).extract();
 
             slice::from_raw_parts(*self.data, len)
         }
     }
 
+}
+
+/// A pool of uninitialized matrices
+pub struct Pool<'a, T>(Option<&'a mut [T]>) where T: 'a;
+
+impl<'a, T> Pool<'a, T> {
+    /// Returns an uninitialized column vector of size `n`
+    pub fn col(&mut self, n: u32) -> ColMut<'a, T> {
+        unsafe {
+            let slice = self.0.take().extract();
+
+            let at = usize::from_(n);
+            let (left, right) = slice.split_at_mut(at);
+
+            self.0 = Some(right);
+
+            ColMut::from(left)
+        }
+    }
+
+    /// Returns an uninitialized matrix of size `(nrows, ncols)`
+    pub fn mat(&mut self, (nrows, ncols): (u32, u32)) -> SubMatMut<'a, T> {
+        unsafe {
+            let slice = self.0.take().extract();
+
+            let at = usize::from_(nrows) * usize::from_(ncols);
+            let (left, right) = slice.split_at_mut(at);
+
+            self.0 = Some(right);
+
+            SubMatMut::reshape(left, (nrows, ncols))
+        }
+    }
+
+    /// Returns an uninitialized row vector of size `n`
+    pub fn row(&mut self, n: u32) -> RowMut<'a, T> {
+        unsafe {
+            let slice = self.0.take().extract();
+
+            let at = usize::from_(n);
+            let (left, right) = slice.split_at_mut(at);
+
+            self.0 = Some(right);
+
+            RowMut::from(left)
+        }
+    }
 }
 
 /// Lazy matrix product
@@ -449,10 +516,10 @@ impl<'a, T> SubMat<'a, T> {
     /// - `ncols > 2^31 ||`
     pub fn reshape(slice: &[T], (nrows, ncols): (u32, u32)) -> SubMat<T> {
         unsafe {
-            assert_eq!(slice.len(), usize::from(nrows) * usize::from(ncols));
+            assert_eq!(slice.len(), usize::from_(nrows) * usize::from_(ncols));
 
-            let nrows = i32::from(nrows).unwrap();
-            let ncols = i32::from(ncols).unwrap();
+            let nrows = i32::from_(nrows).unwrap();
+            let ncols = i32::from_(ncols).unwrap();
             let data = slice.as_ptr() as *mut T;
             let stride = nrows;
 
@@ -463,7 +530,7 @@ impl<'a, T> SubMat<'a, T> {
     fn as_slice(&self) -> Option<&[T]> {
         unsafe {
             if self.nrows == self.stride {
-                let len = usize::from(self.nrows).extract() * usize::from(self.ncols).extract();
+                let len = usize::from_(self.nrows).extract() * usize::from_(self.ncols).extract();
 
                 Some(slice::from_raw_parts(*self.data, len))
             } else {
@@ -475,14 +542,14 @@ impl<'a, T> SubMat<'a, T> {
     unsafe fn raw_index(&self, (row, col): (u32, u32)) -> *mut T {
         assert!(row < self.nrows() && col < self.ncols());
 
-        self.unsafe_index((i32::from(row).extract(), i32::from(col).extract()))
+        self.unsafe_index((i32::from_(row).extract(), i32::from_(col).extract()))
     }
 
     unsafe fn unsafe_col(&self, i: i32) -> Col<'a, T> {
         debug_assert!(i >= 0);
         debug_assert!(i < self.ncols);
 
-        let data = self.data.offset(isize::from(i) * isize::from(self.stride));
+        let data = self.data.offset(isize::from_(i) * isize::from_(self.stride));
         let len = self.nrows;
         let stride = 1;
 
@@ -493,14 +560,14 @@ impl<'a, T> SubMat<'a, T> {
         debug_assert!(row < self.nrows);
         debug_assert!(col < self.ncols);
 
-        self.data.offset(isize::from(col) * isize::from(self.stride) + isize::from(row))
+        self.data.offset(isize::from_(col) * isize::from_(self.stride) + isize::from_(row))
     }
 
     unsafe fn unsafe_row(&self, i: i32) -> Row<'a, T> {
         debug_assert!(i >= 0);
         debug_assert!(i < self.nrows);
 
-        let data = self.data.offset(isize::from(i));
+        let data = self.data.offset(isize::from_(i));
         let len = self.ncols;
         let stride = self.stride;
 
@@ -519,7 +586,7 @@ impl<'a, T> SubMat<'a, T> {
         debug_assert!(ecol <= self.ncols);
 
         let stride = self.stride;
-        let data = self.data.offset(isize::from(scol) * isize::from(stride) + isize::from(srow));
+        let data = self.data.offset(isize::from_(scol) * isize::from_(stride) + isize::from_(srow));
 
         SubMat::new(data, (erow - srow, ecol - scol), stride)
     }
@@ -560,10 +627,10 @@ impl<'a, T> SubMatMut<'a, T> {
     /// - `ncols > 2^31 ||`
     pub fn reshape(slice: &mut [T], (nrows, ncols): (u32, u32)) -> SubMatMut<T> {
         unsafe {
-            assert_eq!(slice.len(), usize::from(nrows) * usize::from(ncols));
+            assert_eq!(slice.len(), usize::from_(nrows) * usize::from_(ncols));
 
-            let nrows = i32::from(nrows).unwrap();
-            let ncols = i32::from(ncols).unwrap();
+            let nrows = i32::from_(nrows).unwrap();
+            let ncols = i32::from_(ncols).unwrap();
             let data = slice.as_mut_ptr();
             let stride = nrows;
 
