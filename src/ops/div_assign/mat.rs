@@ -1,4 +1,5 @@
-use assign::{DivAssign, MulAssign};
+use std::ops::DivAssign;
+
 use complex::Complex;
 use onezero::One;
 
@@ -13,28 +14,28 @@ macro_rules! scale {
                 fn div_assign(&mut self, alpha: $rhs) {
                     let _1: $rhs = One::one();
 
-                    self.mul_assign(_1 / alpha)
+                    *self *= _1 / alpha
                 }
             }
 
             // NOTE Secondary
             impl<'a> DivAssign<$rhs> for Transposed<SubMatMut<'a, $lhs>> {
                 fn div_assign(&mut self, alpha: $rhs) {
-                    self.0.div_assign(alpha)
+                    self.0 /= alpha
                 }
             }
 
             // NOTE Forward
             impl DivAssign<$rhs> for Transposed<Mat<$lhs>> {
                 fn div_assign(&mut self, alpha: $rhs) {
-                    self.slice_mut(..).div_assign(alpha)
+                    self.slice_mut(..) /= alpha
                 }
             }
 
             // NOTE Forward
             impl DivAssign<$rhs> for Mat<$lhs> {
                 fn div_assign(&mut self, alpha: $rhs) {
-                    self.slice_mut(..).div_assign(alpha)
+                    self.slice_mut(..) /= alpha
                 }
             }
          )+

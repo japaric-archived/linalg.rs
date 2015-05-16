@@ -1,6 +1,5 @@
-use std::ops::Mul;
+use std::ops::{Mul, MulAssign};
 
-use assign::MulAssign;
 use complex::Complex;
 
 use Forward;
@@ -44,7 +43,7 @@ impl<'a, 'b, A, B> MulAssign<Transposed<SubMat<'a, A>>> for Transposed<SubMatMut
     B: Copy + Mul<A, Output=B>,
 {
     fn mul_assign(&mut self, rhs: Transposed<SubMat<'a, A>>) {
-        self.0.mul_assign(rhs.0)
+        self.0 *= rhs.0
     }
 }
 
@@ -54,7 +53,7 @@ impl<'a, 'b, A, B> MulAssign<SubMat<'a, A>> for Transposed<SubMatMut<'b, B>> whe
     B: Copy + Mul<A, Output=B>,
 {
     fn mul_assign(&mut self, rhs: SubMat<'a, A>) {
-        self.0.mul_assign(rhs.t())
+        self.0 *= rhs.t()
     }
 }
 
@@ -65,7 +64,7 @@ macro_rules! forward {
                 A: Copy + Mul<B, Output=A>, B: Copy,
             {
                 fn mul_assign(&mut self, rhs: $rhs) {
-                    self.slice_mut(..).mul_assign(rhs.slice(..))
+                    self.slice_mut(..) *= rhs.slice(..)
                 }
             }
          )+
@@ -125,21 +124,21 @@ macro_rules! scale {
             // NOTE Secondary
             impl<'a> MulAssign<$rhs> for Transposed<SubMatMut<'a, $lhs>> {
                 fn mul_assign(&mut self, alpha: $rhs) {
-                    self.0.mul_assign(alpha)
+                    self.0 *= alpha
                 }
             }
 
             // NOTE Forward
             impl MulAssign<$rhs> for Transposed<Mat<$lhs>> {
                 fn mul_assign(&mut self, alpha: $rhs) {
-                    self.slice_mut(..).mul_assign(alpha)
+                    self.slice_mut(..) *= alpha
                 }
             }
 
             // NOTE Forward
             impl MulAssign<$rhs> for Mat<$lhs> {
                 fn mul_assign(&mut self, alpha: $rhs) {
-                    self.slice_mut(..).mul_assign(alpha)
+                    self.slice_mut(..) *= alpha
                 }
             }
          )+

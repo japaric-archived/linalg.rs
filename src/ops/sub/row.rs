@@ -1,6 +1,5 @@
 use std::ops::{Neg, Sub};
 
-use assign::SubAssign;
 use blas::{Axpy, Gemm, Gemv};
 use onezero::{One, Zero};
 

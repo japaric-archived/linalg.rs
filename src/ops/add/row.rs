@@ -1,6 +1,5 @@
 use std::ops::Add;
 
-use assign::AddAssign;
 use blas::{Axpy, Gemm, Gemv};
 use complex::Complex;
 use onezero::{One, Zero};
@@ -93,7 +92,7 @@ macro_rules! scalar {
                 type Output = RowVec<$t>;
 
                 fn add(self, mut rhs: RowVec<$t>) -> RowVec<$t> {
-                    rhs.add_assign(self);
+                    rhs += self;
                     rhs
                 }
             }
@@ -102,7 +101,7 @@ macro_rules! scalar {
                 type Output = RowVec<$t>;
 
                 fn add(self, mut rhs: RowVec<$t>) -> RowVec<$t> {
-                    rhs.add_assign(self);
+                    rhs += self;
                     rhs
                 }
             }

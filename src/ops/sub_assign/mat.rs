@@ -1,6 +1,5 @@
-use std::ops::Neg;
+use std::ops::{Neg, SubAssign};
 
-use assign::SubAssign;
 use blas::{Axpy, Gemm, Transpose};
 use onezero::{One, Zero};
 
@@ -135,7 +134,7 @@ impl<'a, 'b, T> SubAssign<&'a T> for Transposed<SubMatMut<'b, T>> where
     T: Axpy + Neg<Output=T> + One,
 {
     fn sub_assign(&mut self, rhs: &T) {
-        self.0.sub_assign(rhs)
+        self.0 -= rhs
     }
 }
 
@@ -143,7 +142,7 @@ impl<'a, 'b, T> SubAssign<Chain<'a, T>> for Transposed<SubMatMut<'b, T>> where
     T: Gemm + Neg<Output=T> + One + Zero,
 {
     fn sub_assign(&mut self, rhs: Chain<T>) {
-        self.sub_assign(Scaled(T::one(), rhs))
+        *self -= Scaled(T::one(), rhs)
     }
 }
 
@@ -151,7 +150,7 @@ impl<'a, 'b, T> SubAssign<Scaled<Chain<'a, T>>> for Transposed<SubMatMut<'b, T>>
     T: Gemm + Neg<Output=T> + One + Zero,
 {
     fn sub_assign(&mut self, rhs: Scaled<Chain<T>>) {
-        self.0.sub_assign(rhs.t())
+        self.0 -= rhs.t()
     }
 }
 
@@ -159,7 +158,7 @@ impl<'a, 'b, T> SubAssign<Scaled<Transposed<SubMat<'a, T>>>> for Transposed<SubM
     T: Axpy + Neg<Output=T>,
 {
     fn sub_assign(&mut self, rhs: Scaled<Transposed<SubMat<'a, T>>>) {
-        self.0.sub_assign(Scaled(rhs.0, (rhs.1).0))
+        self.0 -= Scaled(rhs.0, (rhs.1).0)
     }
 }
 
@@ -167,7 +166,7 @@ impl<'a, 'b, T> SubAssign<Scaled<SubMat<'a, T>>> for Transposed<SubMatMut<'b, T>
     T: Axpy + Neg<Output=T>,
 {
     fn sub_assign(&mut self, rhs: Scaled<SubMat<'a, T>>) {
-        self.0.sub_assign(rhs.t())
+        self.0 -= rhs.t()
     }
 }
 
@@ -175,7 +174,7 @@ impl<'a, 'b, T> SubAssign<Transposed<SubMat<'a, T>>> for Transposed<SubMatMut<'b
     T: Axpy + Neg<Output=T> + One,
 {
     fn sub_assign(&mut self, rhs: Transposed<SubMat<'a, T>>) {
-        self.sub_assign(Scaled(T::one(), rhs))
+        *self -= Scaled(T::one(), rhs)
     }
 }
 
@@ -183,7 +182,7 @@ impl<'a, 'b, T> SubAssign<SubMat<'a, T>> for Transposed<SubMatMut<'b, T>> where
     T: Axpy + Neg<Output=T> + One,
 {
     fn sub_assign(&mut self, rhs: SubMat<'a, T>) {
-        self.sub_assign(Scaled(T::one(), rhs))
+        *self -= Scaled(T::one(), rhs)
     }
 }
 
@@ -191,7 +190,7 @@ impl<'a, 'b, T> SubAssign<Chain<'a, T>> for SubMatMut<'b, T> where T:
     Gemm + Neg<Output=T> + One + Zero,
 {
     fn sub_assign(&mut self, rhs: Chain<T>) {
-        self.sub_assign(Scaled(T::one(), rhs))
+        *self -= Scaled(T::one(), rhs)
     }
 }
 
@@ -199,13 +198,13 @@ impl<'a, 'b, T> SubAssign<Transposed<SubMat<'a, T>>> for SubMatMut<'b, T> where
     T: Axpy + Neg<Output=T> + One,
 {
     fn sub_assign(&mut self, rhs: Transposed<SubMat<T>>) {
-        self.sub_assign(Scaled(T::one(), rhs))
+        *self -= Scaled(T::one(), rhs)
     }
 }
 
 impl<'a, 'b, T> SubAssign<SubMat<'a, T>> for SubMatMut<'b, T> where T: Axpy + Neg<Output=T> + One {
     fn sub_assign(&mut self, rhs: SubMat<T>) {
-        self.sub_assign(Scaled(T::one(), rhs))
+        *self -= Scaled(T::one(), rhs)
     }
 }
 
@@ -214,7 +213,7 @@ macro_rules! forward {
         $(
             impl<'a, 'b, 'c, T> SubAssign<$rhs> for $lhs where T: Neg<Output=T>, $(T: $bound),+ {
                 fn sub_assign(&mut self, rhs: $rhs) {
-                    self.slice_mut(..).sub_assign(rhs.slice(..))
+                    self.slice_mut(..) -= rhs.slice(..)
                 }
             }
          )+
@@ -237,13 +236,13 @@ forward!(Mat<T> {
 
 impl<'a, T> SubAssign<&'a T> for Mat<T> where T: Axpy + Neg<Output=T> + One {
     fn sub_assign(&mut self, rhs: &T) {
-        self.slice_mut(..).sub_assign(rhs)
+        self.slice_mut(..) -= rhs
     }
 }
 
 impl<T> SubAssign<T> for Mat<T> where T: Axpy + Neg<Output=T> + One {
     fn sub_assign(&mut self, rhs: T) {
-        self.slice_mut(..).sub_assign(&rhs)
+        self.slice_mut(..) -= &rhs
     }
 }
 
@@ -263,13 +262,13 @@ forward!(Transposed<Mat<T>> {
 
 impl<'a, T> SubAssign<&'a T> for Transposed<Mat<T>> where T: Axpy + Neg<Output=T> + One {
     fn sub_assign(&mut self, rhs: &T) {
-        self.slice_mut(..).sub_assign(rhs)
+        self.slice_mut(..) -= rhs
     }
 }
 
 impl<T> SubAssign<T> for Transposed<Mat<T>> where T: Axpy + Neg<Output=T> + One {
     fn sub_assign(&mut self, rhs: T) {
-        self.slice_mut(..).sub_assign(&rhs)
+        self.slice_mut(..) -= &rhs
     }
 }
 
@@ -283,7 +282,7 @@ forward!(Transposed<SubMatMut<'a, T>> {
 
 impl<'a, T> SubAssign<T> for Transposed<SubMatMut<'a, T>> where T: Axpy + Neg<Output=T> + One {
     fn sub_assign(&mut self, rhs: T) {
-        self.0.sub_assign(&rhs)
+        self.0 -= &rhs
     }
 }
 
@@ -297,6 +296,6 @@ forward!(SubMatMut<'a, T> {
 
 impl<'a, T> SubAssign<T> for SubMatMut<'a, T> where T: Axpy + Neg<Output=T> + One {
     fn sub_assign(&mut self, rhs: T) {
-        self.sub_assign(&rhs)
+        *self -= &rhs
     }
 }

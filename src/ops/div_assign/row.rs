@@ -1,6 +1,5 @@
-use std::ops::Div;
+use std::ops::{Div, DivAssign};
 
-use assign::{DivAssign, MulAssign};
 use blas::Scal;
 use onezero::One;
 
@@ -13,7 +12,7 @@ impl<'a, T, A> DivAssign<A> for RowMut<'a, T> where
     T: Scal<A>,
 {
     fn div_assign(&mut self, alpha: A) {
-        self.mul_assign(A::one() / alpha)
+        *self *= A::one() / alpha
     }
 }
 
@@ -23,6 +22,6 @@ impl<T, A> DivAssign<A> for RowVec<T> where
     T: Scal<A>,
 {
     fn div_assign(&mut self, alpha: A) {
-        self.slice_mut(..).div_assign(alpha)
+        self.slice_mut(..) /= alpha
     }
 }

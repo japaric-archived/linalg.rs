@@ -8,6 +8,7 @@
 //!
 //! for any valid `i`, `j`
 
+#![feature(augmented_assignments)]
 #![feature(custom_attribute)]
 #![feature(plugin)]
 #![plugin(quickcheck_macros)]
@@ -47,7 +48,7 @@ mod nn {
                     let b = ::setup::rand::mat::<$ty>((srow + nrows, scol + ncols));
                     let b = b.slice((srow.., scol..));
 
-                    a.mul_assign(b);
+                    a *= b;
 
                     test_approx_eq! {
                         a[(row, col)],
@@ -87,7 +88,7 @@ mod nt {
                     let b = ::setup::rand::mat::<$ty>((srow + ncols, scol + nrows));
                     let b = b.slice((srow.., scol..)).t();
 
-                    a.mul_assign(b);
+                    a *= b;
 
                     test_approx_eq! {
                         a[(row, col)],
@@ -127,7 +128,7 @@ mod tn {
                     let b = ::setup::rand::mat::<$ty>((srow + nrows, scol + ncols));
                     let b = b.slice((srow.., scol..));
 
-                    a.mul_assign(b);
+                    a *= b;
 
                     test_approx_eq! {
                         a[(row, col)],
@@ -167,7 +168,7 @@ mod tt {
                     let b = ::setup::rand::mat::<$ty>((srow + ncols, scol + nrows));
                     let b = b.slice((srow.., scol..)).t();
 
-                    a.mul_assign(b);
+                    a *= b;
 
                     test_approx_eq! {
                         a[(row, col)],

@@ -1,6 +1,5 @@
-use std::ops::Neg;
+use std::ops::{Neg, SubAssign};
 
-use assign::SubAssign;
 use blas::{Axpy, Gemm, Gemv};
 use onezero::{One, Zero};
 
@@ -27,7 +26,7 @@ use {Chain, Product, Row, RowMut, RowVec, Scaled, Transposed, SubMat};
 //      `row <- row + row * mat === row^t <- row^t + mat^t * row^t`
 impl<'a, 'b, T> SubAssign<&'a T> for RowMut<'b, T> where T: Axpy + Neg<Output=T> + One {
     fn sub_assign(&mut self, rhs: &T) {
-        self.slice_mut(..).t().sub_assign(rhs)
+        self.slice_mut(..).t() -= rhs
     }
 }
 
@@ -35,7 +34,7 @@ impl<'a, 'b, T> SubAssign<Scaled<Row<'a, T>>> for RowMut<'b, T> where
     T: Axpy + Neg<Output=T>,
 {
     fn sub_assign(&mut self, rhs: Scaled<Row<T>>) {
-        self.slice_mut(..).t().sub_assign(rhs.t())
+        self.slice_mut(..).t() -= rhs.t()
     }
 }
 
@@ -43,7 +42,7 @@ impl<'a, 'b, 'c, T> SubAssign<Scaled<Product<Row<'a, T>, Chain<'b, T>>>> for Row
     T: Gemm + Gemv + Neg<Output=T> + One + Zero,
 {
     fn sub_assign(&mut self, rhs: Scaled<Product<Row<T>, Chain<T>>>) {
-        self.slice_mut(..).t().sub_assign(rhs.t())
+        self.slice_mut(..).t() -= rhs.t()
     }
 }
 
@@ -52,7 +51,7 @@ SubAssign<Scaled<Product<Row<'a, T>, Transposed<SubMat<'b, T>>>>> for RowMut<'c,
     T: Gemv + Neg<Output=T> + One,
 {
     fn sub_assign(&mut self, rhs: Scaled<Product<Row<T>, Transposed<SubMat<T>>>>) {
-        self.slice_mut(..).t().sub_assign(rhs.t())
+        self.slice_mut(..).t() -= rhs.t()
     }
 }
 
@@ -60,7 +59,7 @@ impl<'a, 'b, 'c, T> SubAssign<Scaled<Product<Row<'a, T>, SubMat<'b, T>>>> for Ro
     T: Gemv + Neg<Output=T> + One,
 {
     fn sub_assign(&mut self, rhs: Scaled<Product<Row<T>, SubMat<T>>>) {
-        self.slice_mut(..).t().sub_assign(rhs.t())
+        self.slice_mut(..).t() -= rhs.t()
     }
 }
 
@@ -68,7 +67,7 @@ impl<'a, 'b, T> SubAssign<Row<'a, T>> for RowMut<'b, T> where
     T: Axpy + Neg<Output=T> + One,
 {
     fn sub_assign(&mut self, rhs: Row<T>) {
-        self.sub_assign(Scaled(T::one(), rhs))
+        *self -= Scaled(T::one(), rhs)
     }
 }
 
@@ -76,7 +75,7 @@ impl<'a, 'b, 'c, T> SubAssign<Product<Row<'a, T>, Chain<'b, T>>> for RowMut<'c, 
     T: Gemm + Gemv + Neg<Output=T> + One + Zero,
 {
     fn sub_assign(&mut self, rhs: Product<Row<T>, Chain<T>>) {
-        self.sub_assign(Scaled(T::one(), rhs))
+        *self -= Scaled(T::one(), rhs)
     }
 }
 
@@ -85,7 +84,7 @@ SubAssign<Product<Row<'a, T>, Transposed<SubMat<'b, T>>>> for RowMut<'c, T> wher
     T: Gemv + Neg<Output=T> + One,
 {
     fn sub_assign(&mut self, rhs: Product<Row<T>, Transposed<SubMat<T>>>) {
-        self.sub_assign(Scaled(T::one(), rhs))
+        *self -= Scaled(T::one(), rhs)
     }
 }
 
@@ -93,7 +92,7 @@ impl<'a, 'b, 'c, T> SubAssign<Product<Row<'a, T>, SubMat<'b, T>>> for RowMut<'c,
     T: Gemv + Neg<Output=T> + One,
 {
     fn sub_assign(&mut self, rhs: Product<Row<T>, SubMat<T>>) {
-        self.sub_assign(Scaled(T::one(), rhs))
+        *self -= Scaled(T::one(), rhs)
     }
 }
 
@@ -102,7 +101,7 @@ macro_rules! forward {
         $(
             impl<'a, 'b, 'c, T> SubAssign<$rhs> for $lhs where T: Neg<Output=T>, $(T: $bound),+ {
                 fn sub_assign(&mut self, rhs: $rhs) {
-                    self.slice_mut(..).sub_assign(rhs.slice(..))
+                    self.slice_mut(..) -= rhs.slice(..)
                 }
             }
          )+
@@ -117,7 +116,7 @@ forward!(RowMut<'a, T> {
 
 impl<'a, T> SubAssign<T> for RowMut<'a, T> where T: Axpy + Neg<Output=T> + One {
     fn sub_assign(&mut self, rhs: T) {
-        self.sub_assign(&rhs)
+        *self -= &rhs
     }
 }
 
@@ -137,12 +136,12 @@ forward!(RowVec<T> {
 
 impl<'a, T> SubAssign<&'a T> for RowVec<T> where T: Axpy + Neg<Output=T> + One {
     fn sub_assign(&mut self, rhs: &T) {
-        self.slice_mut(..).sub_assign(rhs)
+        self.slice_mut(..) -= rhs
     }
 }
 
 impl<T> SubAssign<T> for RowVec<T> where T: Axpy + Neg<Output=T> + One {
     fn sub_assign(&mut self, rhs: T) {
-        self.slice_mut(..).sub_assign(&rhs)
+        self.slice_mut(..) -= &rhs
     }
 }

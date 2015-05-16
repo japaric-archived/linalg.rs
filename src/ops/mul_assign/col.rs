@@ -1,4 +1,5 @@
-use assign::MulAssign;
+use std::ops::MulAssign;
+
 use blas::Scal;
 
 use ops;
@@ -18,6 +19,6 @@ impl<'a, T, A> MulAssign<A> for ColMut<'a, T> where T: Scal<A> {
 
 impl<T, A> MulAssign<A> for ColVec<T> where T: Scal<A> {
     fn mul_assign(&mut self, alpha: A) {
-        self.slice_mut(..).mul_assign(alpha)
+        self.slice_mut(..) *= alpha
     }
 }
