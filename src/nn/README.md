@@ -1,5 +1,20 @@
 # Neural Network
 
+**NOTE** You can compare this implementation to the [one] that used the old version of linalg that
+works in the nightly channel. The differences are:
+
+[one]: https://github.com/japaric/linalg_examples/tree/master/nn
+
+- This version has operator sugar, so you can write `a_2[.., 1..] = a_1 * theta_1.t()` instead of
+  `a_2.slice_mut((.., 1..)).set(a_1 * theta_1.t())`.
+
+- This version is 2x faster than the other one. About 25% of the speedup comes from changing the
+  memory layout of some matrices to row major order (in the old version everything was in column
+  major order); the rest of the speed up comes from parallelizing the `g` (sigmoid) and `dgdz`
+  (derivative of the sigmoid) functions.
+
+---
+
 Training and validating a neural network (NN) for identification of hand written digits.
 
 This is a classification problem, the input is a 28x28 grayscale image (that depicts a single

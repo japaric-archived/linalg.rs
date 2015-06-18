@@ -41,7 +41,9 @@ crate, because the latter doesn't (yet?) provide a method to convert from `Box<U
 
 [here]: https://github.com/japaric/et.rs
 
-## API documentation
+## [API docs]
+
+[API docs]: http://japaric.github.io/linalg.rs/linalg/
 
 **NOTE** Unsized types like `Mat<T, O>` are (wrongly) rendered as empty enums `enum Mat<T, O> {}` by
 rustdoc because I haven't got around to add proper rendering support.
@@ -65,3 +67,5 @@ Closes #66 can't send mutable block of a matrix to scoped threads
 Closes #68 use the One/Zero traits provided by the std crate
 
 Closes #73 implement `&mut Mat + &Mat -> &mut Mat`
+
+Closes #75 replace the `Set` trait with `IndexAssign`
