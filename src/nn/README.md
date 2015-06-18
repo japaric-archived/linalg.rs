@@ -18,9 +18,10 @@ To run this example, use the following commands:
 (Be sure to have libblas installed)
 
 ```
+# At the root of the cargo project
 # Heads up! This downloads ~10 MB of compressed data, which then gets uncompressed to ~50 MB
-$ ./fetch_data.sh
-$ cd ../.. && cargo run --release
+$ src/nn/fetch_data.sh
+$ cargo run --release
 ```
 
 Feel free to experiment by changing the "constants" at the top of the `src/main.rs` file.
