@@ -1,3 +1,7 @@
+[![Build Status][status]](https://travis-ci.org/japaric/linalg.rs)
+
+[status]: https://travis-ci.org/japaric/linalg.rs.svg?branch=ng
+
 **WARNING** Right now this crate only works in the (unofficial) [edge] channel, which contains
 features that are still in the RFC phase.
 
@@ -47,6 +51,13 @@ crate, because the latter doesn't (yet?) provide a method to convert from `Box<U
 
 **NOTE** Unsized types like `Mat<T, O>` are (wrongly) rendered as empty enums `enum Mat<T, O> {}` by
 rustdoc because I haven't got around to add proper rendering support.
+
+## Examples
+
+- Training and validation of a neural network (MLP) for classification of hand written numbers. See
+  [src/nn].
+
+[src/nn]: https://github.com/japaric/linalg.rs/blob/ng/src/nn/README.md
 
 ---
 
