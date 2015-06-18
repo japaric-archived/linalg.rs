@@ -18,7 +18,9 @@ A linear algebra library for numerical/scientific computing.
 - Zero cost transpose
 
 [1] Right now I intend to cover all the arithmetic operations that directly map to BLAS calls
+
 [2] I'm particularly fond of [this code] that arranges several images in a [matrix].
+
 [3] `linalg` supports the `Rc` pointer defined in the [rc] crate, and not the one in the `std`
 crate, because the latter doesn't (yet?) provide a method to convert from `Box<Unsized>` to
 `Rc<Unsized>`.
@@ -46,11 +48,20 @@ rustdoc because I haven't got around to add proper rendering support.
 
 ---
 
+## Fixed issues
+
 Closes #22 support row major order
+
 Closes #56 internally use U31 newtype instead of i32
+
 Closes #62 support conversions from &Col/&Row to &Mat
+
 Closes #63 replace Transposed newtype with phantom type that stores the "order" (column/row)
+
 Closes #64 distinguish strided from contiguous row/column vectors
+
 Closes #66 can't send mutable block of a matrix to scoped threads
+
 Closes #68 use the One/Zero traits provided by the std crate
+
 Closes #73 implement `&mut Mat + &Mat -> &mut Mat`
