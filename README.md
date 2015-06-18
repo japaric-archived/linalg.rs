@@ -1,6 +1,4 @@
-[![Build Status][status]](https://travis-ci.org/japaric/linalg.rs)
-
-[status]: https://travis-ci.org/japaric/linalg.rs.svg?branch=master
+**PSA** Development is now happening on the `ng` branch.
 
 # `linalg.rs`
 
@@ -24,7 +22,7 @@ Linear algebra library with BLAS and LAPACK acceleration.
 
 ## [API documentation]
 
-[API documentation]: http://japaric.github.io/linalg.rs/linalg/
+[API documentation]: http://japaric.github.io/old-linalg-docs/linalg/
 
 ## [Examples]
 
