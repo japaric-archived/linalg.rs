@@ -1,0 +1,26 @@
+[package]
+authors = ["Jorge Aparicio <japaricious@gmail.com>"]
+name = "linalg"
+version = "0.0.0"
+
+[dependencies.blas]
+git = "https://github.com/japaric/blas.rs"
+
+[dependencies.cast]
+git = "https://github.com/japaric/cast.rs"
+
+[dependencies.extract]
+git = "https://github.com/japaric/extract.rs"
+
+[dependencies]
+log = "*"
+# For NN example
+byteorder = "*"
+env_logger = "*"
+image = "*"
+rand = "*"
+time = "*"
+
+# debug information is broken with unsized types
+[profile.dev]
+debug = false
