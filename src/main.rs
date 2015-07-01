@@ -201,6 +201,7 @@ impl<T> Buffer<T> {
 }
 
 /// A column vector
+#[derive(Debug)]
 pub struct Col<T>(Vector<T>);
 
 /// Column-by-column iterator
@@ -266,6 +267,7 @@ impl<'a, T> Pool<'a, T> {
 }
 
 /// A row vector
+#[derive(Debug)]
 pub struct Row<T>(Vector<T>);
 
 /// Row-by-row iterator

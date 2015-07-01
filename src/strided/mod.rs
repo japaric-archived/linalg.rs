@@ -9,9 +9,11 @@ pub mod mat;
 pub mod vector;
 
 /// Strided column vector
+#[derive(Debug)]
 pub struct Col<T>(Vector<T>);
 
 /// Matrix diagonal
+#[derive(Debug)]
 pub struct Diag<T>(Vector<T>);
 
 /// Iterator over a matrix in horizontal (non-overlapping) stripes
@@ -30,6 +32,7 @@ pub struct HStripesMut<'a, T: 'a, O: 'a> {
 pub unsized type Mat<T, O>;
 
 /// Strided row vector
+#[derive(Debug)]
 pub struct Row<T>(Vector<T>);
 
 /// Either a diagonal, a row vector or a column vector

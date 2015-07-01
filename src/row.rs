@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use std::num::{One, Zero};
 use std::ops::{Deref, DerefMut, Index, IndexAssign, IndexMut, Range, RangeFrom, RangeTo};
 use std::raw::FatPtr;
-use std::{fat_ptr, fmt, iter, mem, slice};
+use std::{fat_ptr, iter, mem, slice};
 
 use cast::From;
 
@@ -108,12 +108,6 @@ impl<'a, T> AsRef<::Mat<T, ::order::Row>> for ::Row<T> {
         unsafe {
             &*self.as_mat()
         }
-    }
-}
-
-impl<T> fmt::Debug for ::Row<T> where T: fmt::Debug {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Row({:?})", self.0.as_ref())
     }
 }
 

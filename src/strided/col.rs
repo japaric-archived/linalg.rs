@@ -1,13 +1,7 @@
+use std::mem;
 use std::ops::{Deref, DerefMut, Index, IndexAssign, IndexMut, Range, RangeFrom, RangeTo};
-use std::{fmt, mem};
 
 use traits::{Matrix, Transpose};
-
-impl<T> fmt::Debug for ::strided::Col<T> where T: fmt::Debug {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Col({:?})", self.deref())
-    }
-}
 
 impl<T> Deref for ::strided::Col<T> {
     type Target = ::strided::Vector<T>;

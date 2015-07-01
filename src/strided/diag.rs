@@ -1,11 +1,5 @@
-use std::{fmt, mem};
+use std::mem;
 use std::ops::{Deref, DerefMut, Index, IndexAssign, IndexMut, Range, RangeFrom, RangeTo};
-
-impl<T> fmt::Debug for ::strided::Diag<T> where T: fmt::Debug {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Diag({:?})", self.deref())
-    }
-}
 
 impl<T> Deref for ::strided::Diag<T> {
     type Target = ::strided::Vector<T>;

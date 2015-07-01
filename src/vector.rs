@@ -3,7 +3,7 @@ use std::marker::Unsized;
 use std::num::One;
 use std::ops::Range;
 use std::raw::FatPtr;
-use std::{fat_ptr, mem, ptr, slice};
+use std::{fat_ptr, fmt, mem, ptr, slice};
 
 use cast::From;
 use extract::Extract;
@@ -69,6 +69,12 @@ impl<T> AsRef<[T]> for ::Vector<T> {
         unsafe {
             &*self.as_slice()
         }
+    }
+}
+
+impl<T> fmt::Debug for ::Vector<T> where T: fmt::Debug {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.as_ref().fmt(f)
     }
 }
 
