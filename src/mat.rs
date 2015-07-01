@@ -1,12 +1,11 @@
 use std::borrow::{Cow, IntoCow};
-use std::marker::PhantomData;
+use std::marker::{PhantomData, Unsized};
 use std::num::{One, Zero};
 use std::ops::{
     Deref, DerefMut, Index, IndexAssign, IndexMut, Range, RangeFrom, RangeFull, RangeTo,
 };
-use std::{fmt, iter, mem, slice};
-
-use core::nonzero::NonZero;
+use std::raw::FatPtr;
+use std::{fat_ptr, fmt, iter, mem, ptr, slice};
 
 use cast::From;
 use extract::Extract;
@@ -14,6 +13,20 @@ use extract::Extract;
 use order::Order;
 use traits::{Matrix, Transpose};
 use u31::U31;
+
+pub struct Info<O> {
+    pub ncols: U31,
+    pub nrows: U31,
+    pub _marker: PhantomData<O>,
+}
+
+impl<O> Clone for Info<O> {
+    fn clone(&self) -> Info<O> {
+        *self
+    }
+}
+
+impl<O> Copy for Info<O> {}
 
 impl<T, O> ::Mat<T, O> {
     /// Returns an iterator over the elements of this matrix
@@ -27,18 +40,16 @@ impl<T, O> ::Mat<T, O> {
     }
 
     /// Returns the raw representation of this matrix
-    pub fn repr(&self) -> ::raw::Mat<T, O> {
-        unsafe {
-            mem::transmute(self)
-        }
+    pub fn repr(&self) -> FatPtr<T, Info<O>> {
+        fat_ptr::repr(self)
     }
 
     // NOTE Core
     fn as_slice_raw(&self) -> *mut [T] {
-        unsafe {
-            let ::raw::Mat { data, nrows, ncols, .. } = self.repr();
+        let FatPtr { data, info } = self.repr();
 
-            slice::from_raw_parts_mut(*data, nrows.usize() * ncols.usize())
+        unsafe {
+            slice::from_raw_parts_mut(data, info.nrows.usize() * info.ncols.usize())
         }
     }
 }
@@ -46,41 +57,49 @@ impl<T, O> ::Mat<T, O> {
 impl<T, O> ::Mat<T, O> where O: Order {
     /// Creates a matrix where each element is initialized to `elem`
     pub fn from_elem((nrows, ncols): (u32, u32), elem: T) -> Box<::Mat<T, O>> where T: Clone {
+        let (nrows, ncols) = (U31::from(nrows).unwrap(), U31::from(ncols).unwrap());
+        let n = nrows.usize().checked_mul(ncols.usize()).unwrap();
+
+        let mut v: Vec<_> = iter::repeat(elem).take(n).collect();
+        let data = v.as_mut_ptr();
+        mem::forget(v);
+
         unsafe {
-            let n = usize::from(nrows).checked_mul(usize::from(ncols)).unwrap();
-            let (nrows, ncols) = (U31::from(nrows).unwrap(), U31::from(ncols).unwrap());
-
-            let elems = iter::repeat(elem).take(n).collect::<Vec<_>>().into_boxed_slice();
-
-            ::Mat::from_raw_parts(elems, (nrows, ncols))
+            ::Mat::from_raw_parts(data, (nrows, ncols))
         }
     }
 
     /// Creates a matrix where each element is initialized using the function `f`
-    pub fn from_fn<F>((nrows, ncols): (u32, u32), mut f: F) -> Box<::Mat<T, O>> where F: FnMut((u32, u32)) -> T {
+    pub fn from_fn<F>((nrows, ncols): (u32, u32), mut f: F) -> Box<::Mat<T, O>> where
+        F: FnMut((u32, u32)) -> T,
+    {
+        let (nrows, ncols) = (U31::from(nrows).unwrap(), U31::from(ncols).unwrap());
+        let n = nrows.usize().checked_mul(ncols.usize()).unwrap();
+
+        let mut v = Vec::with_capacity(n);
+
+        match O::order() {
+            ::Order::Col => {
+                for col in 0..ncols.u32() {
+                    for row in 0..nrows.u32() {
+                        v.push(f((row, col)));
+                    }
+                }
+            },
+            ::Order::Row => {
+                for row in 0..nrows.u32() {
+                    for col in 0..ncols.u32() {
+                        v.push(f((row, col)));
+                    }
+                }
+            },
+        }
+
+        let data = v.as_mut_ptr();
+        mem::forget(v);
+
         unsafe {
-            let n = usize::from(nrows).checked_mul(usize::from(ncols)).unwrap();
-            let (nrows_, ncols_) = (U31::from(nrows).unwrap(), U31::from(ncols).unwrap());
-
-            let mut v = Vec::with_capacity(n);
-
-            match O::order() {
-                ::Order::Col => {
-                    for col in 0..ncols {
-                        for row in 0..nrows {
-                            v.push(f((row, col)));
-                        }
-                    }
-                },
-                ::Order::Row => {
-                    for row in 0..nrows {
-                        for col in 0..ncols {
-                            v.push(f((row, col)));
-                        }
-                    }
-                },
-            }
-            ::Mat::from_raw_parts(v.into_boxed_slice(), (nrows_, ncols_))
+            ::Mat::from_raw_parts(data, (nrows, ncols))
         }
     }
 
@@ -99,12 +118,16 @@ impl<T, O> ::Mat<T, O> where O: Order {
     }
 
     /// Creates a matrix from an owned slice
-    pub fn reshape_owned(elems: Box<[T]>, (nrows, ncols): (u32, u32)) -> Box<::Mat<T, O>> {
+    pub fn reshape_owned(mut elems: Box<[T]>, (nrows, ncols): (u32, u32)) -> Box<::Mat<T, O>> {
+        let (nrows, ncols) = (U31::from(nrows).unwrap(), U31::from(ncols).unwrap());
+
+        assert_eq!(Some(elems.len()), nrows.usize().checked_mul(ncols.usize()));
+
+        let data = elems.as_mut_ptr();
+        mem::forget(elems);
+
         unsafe {
-            assert_eq!(elems.len(), usize::from(nrows) * usize::from(ncols));
-            let nrows = U31::from(nrows).unwrap();
-            let ncols = U31::from(ncols).unwrap();
-            ::Mat::from_raw_parts(elems, (nrows, ncols))
+            ::Mat::from_raw_parts(data, (nrows, ncols))
         }
     }
 
@@ -118,76 +141,63 @@ impl<T, O> ::Mat<T, O> where O: Order {
         ::Mat::from_elem((nrows, ncols), T::zero())
     }
 
-    // NOTE Core
-    fn deref_raw(&self) -> *mut ::strided::Mat<T, O> {
-        unsafe {
-            let ::raw::Mat { data, nrows, ncols, marker } = self.repr();
-
-            match O::order() {
-                ::Order::Col => {
-                    mem::transmute(::strided::raw::Mat {
-                        data: data,
-                        marker: marker,
-                        ncols: ncols,
-                        nrows: nrows,
-                        stride: nrows,
-                    })
-                },
-                ::Order::Row => {
-                    mem::transmute(::strided::raw::Mat {
-                        data: data,
-                        marker: marker,
-                        ncols: ncols,
-                        nrows: nrows,
-                        stride: ncols,
-                    })
-                },
+    unsafe fn from_raw_parts(data: *mut T, (nrows, ncols): (U31, U31)) -> Box<::Mat<T, O>> {
+        Box::from_raw(fat_ptr::new(FatPtr {
+            data: data,
+            info: Info {
+                _marker: PhantomData,
+                ncols: ncols,
+                nrows: nrows,
             }
-        }
+        }))
     }
 
-    unsafe fn from_raw_parts(mut elems: Box<[T]>, (nrows, ncols): (U31, U31)) -> Box<::Mat<T, O>> {
-        let data = NonZero::new(elems.as_mut_ptr());
-        mem::forget(elems);
+    // NOTE Core
+    fn deref_raw(&self) -> *mut ::strided::Mat<T, O> {
+        let FatPtr { data, info } = self.repr();
 
-        mem::transmute(::raw::Mat {
+        fat_ptr::new(FatPtr {
             data: data,
-            nrows: nrows,
-            ncols: ncols,
-            marker: PhantomData::<O>,
+            info: ::strided::mat::Info {
+                _marker: info._marker,
+                ncols: info.ncols,
+                nrows: info.nrows,
+                stride: match O::order() {
+                    ::Order::Col => info.nrows,
+                    ::Order::Row => info.ncols,
+                }
+            }
         })
     }
 
     // NOTE Core
     fn reshape_raw(slice: &[T], (nrows, ncols): (u32, u32)) -> *mut ::Mat<T, O> {
-        unsafe {
-            assert_eq!(slice.len(), usize::from(nrows).checked_mul(usize::from(ncols)).unwrap());
+        let (nrows, ncols) = (U31::from(nrows).unwrap(), U31::from(ncols).unwrap());
 
-            let ncols_ = U31::from(ncols).unwrap();
-            let nrows_ = U31::from(nrows).unwrap();
-            let data = slice.as_ptr() as *mut T;
+        assert_eq!(Some(slice.len()), nrows.usize().checked_mul(ncols.usize()));
 
-            mem::transmute(::raw::Mat {
-                data: NonZero::new(data),
-                marker: PhantomData::<O>,
-                ncols: ncols_,
-                nrows: nrows_,
-            })
-        }
+        fat_ptr::new(FatPtr {
+            data: slice.as_ptr() as *mut T,
+            info: Info {
+                nrows: nrows,
+                ncols: ncols,
+                _marker: PhantomData,
+            }
+        })
     }
 
     // NOTE Core
     fn t_raw(&self) -> *mut ::Mat<T, O::Transposed> {
-        unsafe {
-            let ::raw::Mat { data, nrows, ncols, .. } = self.repr();
+        let FatPtr { data, info } = self.repr();
 
-            mem::transmute(::raw::Mat {
-                data: data,
-                marker: PhantomData::<O::Transposed>,
-                ncols: nrows,
-                nrows: ncols,
-            })
-        }
+        fat_ptr::new(FatPtr {
+            data: data,
+            info: Info {
+                nrows: info.ncols,
+                ncols: info.nrows,
+                _marker: PhantomData,
+            }
+        })
     }
 }
 
@@ -229,46 +239,49 @@ impl<T> ::Mat<T, ::order::Col> {
     }
 
     // NOTE Core
-    fn col_slice_raw(&self, r: Range<u32>) -> *mut ::Mat<T, ::order::Col> {
-        unsafe {
-            let ::raw::Mat { data, nrows, ncols, marker } = self.repr();
+    unsafe fn col_slice_raw(&self, Range { start, end }: Range<u32>) -> *mut ::Mat<T, ::order::Col> {
+        let FatPtr { data, info } = self.repr();
 
-            assert!(r.start <= r.end);
-            assert!(r.end <= ncols.u32());
+        assert!(start <= end);
+        assert!(end <= info.ncols.u32());
 
-            mem::transmute(::raw::Mat {
-                data: NonZero::new(data.offset(r.start as isize * nrows.isize())),
-                marker: marker,
-                ncols: U31::from(r.end - r.start).extract(),
-                nrows: nrows,
-            })
-        }
+        fat_ptr::new(FatPtr {
+            data: data.offset(start as isize * info.nrows.isize()),
+            info: Info {
+                _marker: info._marker,
+                ncols: U31::from(end - start).extract(),
+                nrows: info.nrows,
+            }
+        })
     }
 
     // NOTE Core
-    fn vsplit_at_raw(&self, i: u32) -> (*mut ::Mat<T, ::order::Col>, *mut ::Mat<T, ::order::Col>) {
-        unsafe {
-            assert!(i <= self.ncols());
+    unsafe fn vsplit_at_raw(&self, i: u32) -> (*mut ::Mat<T, ::order::Col>, *mut ::Mat<T, ::order::Col>) {
+        let FatPtr { data, info } = self.repr();
 
-            let ::raw::Mat { data, nrows, ncols, marker } = self.repr();
-            let i = U31::from(i).extract();
-            let j = ncols.checked_sub(i.i32()).extract();
+        assert!(i <= info.ncols.u32());
 
-            let left = mem::transmute(::raw::Mat {
-                data: data,
-                nrows: nrows,
+        let i = U31::from(i).extract();
+        let j = info.ncols.checked_sub(i.i32()).extract();
+
+        let left = fat_ptr::new(FatPtr {
+            data: data,
+            info: Info {
+                _marker: info._marker,
                 ncols: i,
-                marker: marker,
-            });
-            let right = mem::transmute(::raw::Mat {
-                data: NonZero::new(data.offset(i.isize() * nrows.isize())),
-                nrows: nrows,
+                nrows: info.nrows,
+            }
+        });
+        let right = fat_ptr::new(FatPtr {
+            data: data.offset(i.isize() * info.nrows.isize()),
+            info: Info {
+                nrows: info.nrows,
                 ncols: j,
-                marker: marker,
-            });
+                _marker: info._marker,
+            }
+        });
 
-            (left, right)
-        }
+        (left, right)
     }
 }
 
@@ -310,46 +323,49 @@ impl<T> ::Mat<T, ::order::Row> {
     }
 
     // NOTE Core
-    fn hsplit_at_raw(&self, i: u32) -> (*mut ::Mat<T, ::order::Row>, *mut ::Mat<T, ::order::Row>) {
-        unsafe {
-            assert!(i <= self.nrows());
+    unsafe fn hsplit_at_raw(&self, i: u32) -> (*mut ::Mat<T, ::order::Row>, *mut ::Mat<T, ::order::Row>) {
+        let FatPtr { data, info } = self.repr();
 
-            let ::raw::Mat { data, nrows, ncols, marker } = self.repr();
-            let i = U31::from(i).extract();
-            let j = nrows.checked_sub(i.i32()).extract();
+        assert!(i <= info.nrows.u32());
 
-            let top = mem::transmute(::raw::Mat {
-                data: data,
+        let i = U31::from(i).extract();
+        let j = info.nrows.checked_sub(i.i32()).extract();
+
+        let top = fat_ptr::new(FatPtr {
+            data: data,
+            info: Info {
+                _marker: info._marker,
+                ncols: info.ncols,
                 nrows: i,
-                ncols: ncols,
-                marker: marker,
-            });
-            let bottom = mem::transmute(::raw::Mat {
-                data: NonZero::new(data.offset(i.isize() * ncols.isize())),
+            }
+        });
+        let bottom = fat_ptr::new(FatPtr {
+            data: data.offset(i.isize() * info.ncols.isize()),
+            info: Info {
+                _marker: info._marker,
+                ncols: info.ncols,
                 nrows: j,
-                ncols: ncols,
-                marker: marker,
-            });
+            }
+        });
 
-            (top, bottom)
-        }
+        (top, bottom)
     }
 
     // NOTE Core
-    fn row_slice_raw(&self, r: Range<u32>) -> *mut ::Mat<T, ::order::Row> {
-        unsafe {
-            let ::raw::Mat { data, nrows, ncols, marker } = self.repr();
+    unsafe fn row_slice_raw(&self, Range { start, end }: Range<u32>) -> *mut ::Mat<T, ::order::Row> {
+        let FatPtr { data, info } = self.repr();
 
-            assert!(r.start <= r.end);
-            assert!(r.end <= nrows.u32());
+        assert!(start <= end);
+        assert!(end <= info.nrows.u32());
 
-            mem::transmute(::raw::Mat {
-                data: NonZero::new(data.offset(r.start as isize * ncols.isize())),
-                marker: marker,
-                ncols: ncols,
-                nrows: U31::from(r.end - r.start).extract(),
-            })
-        }
+        fat_ptr::new(FatPtr {
+            data: data.offset(start as isize * info.ncols.isize()),
+            info: Info {
+                _marker: info._marker,
+                ncols: info.ncols,
+                nrows: U31::from(end - start).extract(),
+            },
+        })
     }
 }
 
@@ -402,12 +418,12 @@ impl<T, O> DerefMut for ::Mat<T, O> where O: Order {
 impl<T, O> Drop for ::Mat<T, O> {
     fn drop(&mut self) {
         unsafe {
-            let ::raw::Mat { data, nrows, ncols, .. } = self.repr();
+            let ptr = self.repr().data;
 
-            if !data.is_null() && *data as usize != mem::POST_DROP_USIZE {
-                let len = nrows.usize() * ncols.usize();
-
-                mem::drop(Vec::from_raw_parts(*data, len, len))
+            if !ptr.is_null() && ptr as usize != mem::POST_DROP_USIZE {
+                for x in &*self {
+                    ptr::read(x);
+                }
             }
         }
     }
@@ -978,11 +994,11 @@ impl<T, O> Matrix for ::Mat<T, O> {
     type Elem = T;
 
     fn nrows(&self) -> u32 {
-        self.repr().nrows.u32()
+        self.repr().info.nrows.u32()
     }
 
     fn ncols(&self) -> u32 {
-        self.repr().ncols.u32()
+        self.repr().info.ncols.u32()
     }
 }
 
@@ -994,19 +1010,17 @@ impl<T, O> ToOwned for ::Mat<T, O> where T: Clone {
     type Owned = Box<::Mat<T, O>>;
 
     fn to_owned(&self) -> Box<::Mat<T, O>> {
-        unsafe {
-            let ::raw::Mat { nrows, ncols, marker, .. } = self.repr();
-            let mut v = self.as_ref().to_owned();
-            let data = v.as_mut_ptr();
-            mem::forget(v);
-            mem::transmute(::raw::Mat {
-                data: NonZero::new(data),
-                marker: marker,
-                ncols: ncols,
-                nrows: nrows,
-            })
-        }
+        let FatPtr { info, .. } = self.repr();
+        let mut v = self.as_ref().to_owned();
+        let data = v.as_mut_ptr();
+        mem::forget(v);
 
+        unsafe {
+            Box::from_raw(fat_ptr::new(FatPtr {
+                data: data,
+                info: info,
+            }))
+        }
     }
 }
 
@@ -1039,5 +1053,14 @@ impl<'a, T, O> Transpose for Box<::Mat<T, O>> where O: Order {
             mem::forget(self);
             mem::transmute(t)
         }
+    }
+}
+
+impl<T, O> Unsized for ::Mat<T, O> {
+    type Data = T;
+    type Info = Info<O>;
+
+    fn size_of_val(info: Info<O>) -> usize {
+        info.nrows.usize() * info.ncols.usize() * mem::size_of::<T>()
     }
 }

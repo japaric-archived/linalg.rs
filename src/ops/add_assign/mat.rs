@@ -19,7 +19,7 @@ impl<'a, T, O> AddAssign<Scaled<&'a ::Mat<T, O>>> for ::Mat<T, O> where T: 'a + 
             let x = x.as_ref();
             let mut len = x.len();
             let mut x = x.as_ptr();
-            let mut y = *self.repr().data;
+            let mut y = self.repr().data;
             let ref incx = 1;
             let ref incy = 1;
 

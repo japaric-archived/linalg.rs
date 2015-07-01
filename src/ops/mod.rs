@@ -11,13 +11,15 @@ mod mul_assign;
 mod neg;
 mod norm;
 mod product;
-mod raw;
 mod scaled;
 mod sub;
 mod sub_assign;
 mod sum;
 
 pub mod blas;
+
+use std::fat_ptr;
+use std::raw::FatPtr;
 
 /// Lazy matrix multiplication
 pub struct Chain<'a, T: 'a> {
@@ -30,7 +32,7 @@ pub struct Chain<'a, T: 'a> {
 ///
 /// NOTE You almost never want to directly use this type, this type is a byproduct of arithmetic
 /// operations
-pub unsized type Mat<T> = raw::Mat<T>;
+pub unsized type Mat<T>;
 
 /// Lazy multiplication
 // NB Combinations:
@@ -48,10 +50,8 @@ pub struct Scaled<M>(M::Elem, M) where M: Matrix;
 pub struct Sum<L, R>(L, R);
 
 impl<T> Mat<T> {
-    fn repr(&self) -> raw::Mat<T> {
-        unsafe {
-            ::std::mem::transmute(self)
-        }
+    fn repr(&self) -> FatPtr<T, ::ops::mat::Info> {
+        fat_ptr::repr(self)
     }
 }
 

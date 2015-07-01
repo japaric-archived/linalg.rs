@@ -6,17 +6,13 @@ mod row;
 mod stripes;
 
 pub mod mat;
-pub mod raw;
-pub mod slice;
+pub mod vector;
 
 /// Strided column vector
-// FIXME compiler bug
-//pub struct Col<T>(Slice<T>);
-pub unsized type Col<T> = raw::Slice<T>;
+pub struct Col<T>(Vector<T>);
 
 /// Matrix diagonal
-//pub struct Diag<T>(Slice<T>);
-pub unsized type Diag<T> = raw::Slice<T>;
+pub struct Diag<T>(Vector<T>);
 
 /// Iterator over a matrix in horizontal (non-overlapping) stripes
 pub struct HStripes<'a, T: 'a, O: 'a> {
@@ -31,13 +27,13 @@ pub struct HStripesMut<'a, T: 'a, O: 'a> {
 }
 
 /// Strided matrix
-pub unsized type Mat<T, O> = raw::Mat<T, O>;
+pub unsized type Mat<T, O>;
 
 /// Strided row vector
-//pub struct Row<T>(Slice<T>);
-pub unsized type Row<T> = raw::Slice<T>;
+pub struct Row<T>(Vector<T>);
 
-pub unsized type Slice<T> = raw::Slice<T>;
+/// Either a diagonal, a row vector or a column vector
+pub unsized type Vector<T>;
 
 /// Iterator over a matrix in vertical (non-overlapping) stripes
 pub struct VStripes<'a, T: 'a, O: 'a> {

@@ -2,10 +2,10 @@ use std::iter::FromIterator;
 use std::marker::PhantomData;
 use std::num::{One, Zero};
 use std::ops::{Deref, DerefMut, Index, IndexAssign, IndexMut, Range, RangeFrom, RangeTo};
-use std::{fmt, iter, mem, slice};
+use std::raw::FatPtr;
+use std::{fat_ptr, fmt, iter, mem, slice};
 
 use cast::From;
-use core::nonzero::NonZero;
 
 use traits::{Matrix, Transpose};
 use u31::U31;
@@ -14,26 +14,23 @@ impl<T> ::Row<T> {
     /// Creates a row vector from a slice
     pub fn new(slice: &[T]) -> &::Row<T> {
         unsafe {
-            mem::transmute(::raw::Slice::from(slice))
+            mem::transmute(::Vector::new(slice))
         }
     }
 
     /// Creates a row vector from a mutable slice
     pub fn new_mut(slice: &mut [T]) -> &mut ::Row<T> {
         unsafe {
-            mem::transmute(::raw::Slice::from(slice))
+            mem::transmute(::Vector::new(slice))
         }
     }
 
     /// Creates a row vector from an owned slice
-    pub fn new_owned(mut elems: Box<[T]>) -> Box<::Row<T>> {
+    pub fn new_owned(elems: Box<[T]>) -> Box<::Row<T>> {
         unsafe {
-            let len = U31::from(elems.len()).unwrap();
-            let data = NonZero::new(elems.as_mut_ptr());
-
+            let vector = ::Vector::new(&elems);
             mem::forget(elems);
-
-            mem::transmute(::raw::Slice { data: data, len: len })
+            mem::transmute(vector)
         }
     }
 
@@ -60,76 +57,63 @@ impl<T> ::Row<T> {
     }
 
     /// Returns the raw representation of this vector
-    pub fn repr(&self) -> ::raw::Slice<T> {
-        unsafe {
-            mem::transmute(self)
-        }
+    pub fn repr(&self) -> FatPtr<T, U31> {
+        fat_ptr::repr(&self.0)
     }
 
-    fn as_mat_raw(&self) -> *mut ::Mat<T, ::order::Row> {
-        unsafe {
-            let ::raw::Slice { data, len } = self.repr();
-            mem::transmute(::raw::Mat {
-                data: data,
-                marker: PhantomData::<::order::Row>,
-                ncols: len,
-                nrows: U31::one(),
-            })
-        }
+    fn as_mat(&self) -> *mut ::Mat<T, ::order::Row> {
+        let FatPtr { data, info: len  } = self.repr();
+
+        fat_ptr::new(FatPtr {
+            data: data,
+            info: ::mat::Info {
+                _marker: PhantomData,
+                ncols: U31::one(),
+                nrows: len,
+            }
+        })
     }
 
-    fn deref_raw(&self) -> *mut ::strided::Row<T> {
-        unsafe {
-            let ::raw::Slice { data, len } = self.repr();
-
-            mem::transmute(::strided::raw::Slice { data: data, len: len, stride: U31::one() })
-        }
+    unsafe fn deref_raw(&self) -> *mut ::strided::Row<T> {
+        mem::transmute(self.0.deref())
     }
 
-    fn t_raw(&self) -> *mut ::Col<T> {
-        unsafe {
-            mem::transmute(self.repr())
-        }
+    unsafe fn t_raw(&self) -> *mut ::Col<T> {
+        mem::transmute(self)
     }
 }
 
 impl<'a, T> AsMut<[T]> for ::Row<T> {
     fn as_mut(&mut self) -> &mut [T] {
-        unsafe {
-            &mut *self.repr().as_slice_raw()
-        }
+        self.0.as_mut()
     }
 }
 
 impl<'a, T> AsMut<::Mat<T, ::order::Row>> for ::Row<T> {
     fn as_mut(&mut self) -> &mut ::Mat<T, ::order::Row> {
         unsafe {
-            &mut *self.as_mat_raw()
+            &mut *self.as_mat()
         }
     }
 }
 
 impl<'a, T> AsRef<[T]> for ::Row<T> {
     fn as_ref(&self) -> &[T] {
-        unsafe {
-            &*self.repr().as_slice_raw()
-        }
+        self.0.as_ref()
     }
 }
 
 impl<'a, T> AsRef<::Mat<T, ::order::Row>> for ::Row<T> {
     fn as_ref(&self) -> &::Mat<T, ::order::Row> {
         unsafe {
-            &*self.as_mat_raw()
+            &*self.as_mat()
         }
     }
 }
 
 impl<T> fmt::Debug for ::Row<T> where T: fmt::Debug {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        unsafe {
-            write!(f, "Row({:?})", &*self.repr().as_slice_raw())
-        }
+        write!(f, "Row({:?})", self.0.as_ref())
     }
 }
 
@@ -151,30 +135,10 @@ impl<T> DerefMut for ::Row<T> {
     }
 }
 
-impl<T> Drop for ::Row<T> {
-    fn drop(&mut self) {
-        unsafe {
-            let ::raw::Slice { data, len, .. } = self.repr();
-
-            if !data.is_null() && *data as usize != mem::POST_DROP_USIZE {
-                let len = len.usize();
-
-                mem::drop(Vec::from_raw_parts(*data, len, len))
-            }
-        }
-    }
-}
-
 impl<T> FromIterator<T> for Box<::Row<T>> {
     fn from_iter<I>(it: I) -> Box<::Row<T>> where I: IntoIterator<Item=T> {
         unsafe {
-            let mut v: Vec<_> = it.into_iter().collect();
-            let len = U31::from(v.len()).unwrap();
-            let data = NonZero::new(v.as_mut_ptr());
-
-            mem::forget(v);
-
-            mem::transmute(::raw::Slice { data: data, len: len })
+            mem::transmute(Box::<::Vector<T>>::from_iter(it))
         }
     }
 }
@@ -185,7 +149,7 @@ impl<T> Index<Range<u32>> for ::Row<T> {
 
     fn index(&self, r: Range<u32>) -> &::Row<T> {
         unsafe {
-            mem::transmute(self.repr().slice(r))
+            mem::transmute(self.0.slice(r))
         }
     }
 }
@@ -212,7 +176,7 @@ impl<T> Index<RangeTo<u32>> for ::Row<T> {
 impl<T> IndexMut<Range<u32>> for ::Row<T> {
     fn index_mut(&mut self, r: Range<u32>) -> &mut ::Row<T> {
         unsafe {
-            mem::transmute(self.repr().slice(r))
+            mem::transmute(self.0.slice(r))
         }
     }
 }
@@ -318,7 +282,7 @@ impl<'a, T> Transpose for Box<::Row<T>> {
         unsafe {
             let t = self.t_raw();
             mem::forget(self);
-            mem::transmute(t)
+            Box::from_raw(t)
         }
     }
 }

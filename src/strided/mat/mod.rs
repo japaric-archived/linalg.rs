@@ -1,13 +1,13 @@
 //! Iterators over strided matrices
 
 use std::borrow::{Borrow, Cow, IntoCow};
-use std::marker::PhantomData;
+use std::marker::{PhantomData, Unsized};
 use std::num::Zero;
 use std::ops::{Index, IndexAssign, IndexMut, Range, RangeFrom, RangeTo, RangeFull};
-use std::{cmp, fmt, mem, slice};
+use std::raw::FatPtr;
+use std::{cmp, fat_ptr, fmt, mem, slice};
 
 use cast::From;
-use core::nonzero::NonZero;
 use extract::Extract;
 
 use order::Order;
@@ -15,6 +15,27 @@ use traits::{Matrix, Transpose};
 use u31::U31;
 
 mod iter;
+
+/// Extra information for strided matrices
+#[allow(missing_docs)]
+pub struct Info<Order> {
+    /// Marker to "use" the `Order` of the matrix
+    pub _marker: PhantomData<Order>,
+    /// Number of columns
+    pub ncols: U31,
+    /// Number of rows
+    pub nrows: U31,
+    /// Stride of the matrix
+    pub stride: U31,
+}
+
+impl<O> Clone for Info<O> {
+    fn clone(&self) -> Info<O> {
+        *self
+    }
+}
+
+impl<O> Copy for Info<O> {}
 
 /// Iterator over a strided matrix
 pub struct Iter<'a, T: 'a, O: 'a> {
@@ -80,10 +101,8 @@ impl<T, O> ::strided::Mat<T, O> {
     }
 
     /// Returns the raw representation of this matrix
-    pub fn repr(&self) -> ::strided::raw::Mat<T, O> {
-        unsafe {
-            mem::transmute(self)
-        }
+    pub fn repr(&self) -> FatPtr<T, ::strided::mat::Info<O>> {
+        fat_ptr::repr(self)
     }
 
     /// Returns an iterator over the rows of this matrix
@@ -168,247 +187,267 @@ impl<T, O> ::strided::Mat<T, O> where O: Order {
         }
     }
 
-    // NOTE Core
-    fn col_slice_raw(&self, c: Range<u32>) -> *mut ::strided::Mat<T, O> {
-        unsafe {
-            let ::strided::raw::Mat { data, nrows, ncols, stride, marker } = self.repr();
+    fn as_slice(&self) -> Option<&[T]> {
+        let FatPtr { data, info } = self.repr();
 
-            assert!(c.start <= c.end);
-            assert!(c.end <= ncols.u32());
+        if info.stride == match O::order() {
+            ::Order::Col => info.nrows,
+            ::Order::Row => info.ncols,
+        } {
+            let len = info.nrows.usize() * info.ncols.usize();
 
-            let data = match O::order() {
-                ::Order::Col => data.offset(c.start as isize * stride.isize()),
-                ::Order::Row => data.offset(c.start as isize),
-            };
-
-            mem::transmute(::strided::raw::Mat {
-                data: NonZero::new(data),
-                nrows: nrows,
-                ncols: U31::from(c.end - c.start).extract(),
-                stride: stride,
-                marker: marker,
+            Some(unsafe {
+                slice::from_raw_parts(data, len)
             })
+        } else {
+            None
         }
     }
 
     // NOTE Core
-    fn diag_raw(&self, i: i32) -> *mut ::strided::Diag<T> {
-        unsafe {
-            let ::strided::raw::Mat { data, nrows, ncols, stride, .. } = self.repr();
+    unsafe fn col_slice_raw(&self, Range { start, end }: Range<u32>) -> *mut ::strided::Mat<T, O> {
+        let FatPtr { data, info } = self.repr();
 
-            // NB I'll work in column-major order space, if the input matrix is in row-major order,
-            // then treat it as a transpose. Remember that `m.diag(i) === m.t().diag(-i)`
-            let (nrows, ncols, i) = match O::order() {
-                ::Order::Col => (nrows, ncols, i),
-                ::Order::Row => (ncols, nrows, -i),
-            };
+        assert!(start <= end);
+        assert!(end <= info.ncols.u32());
 
-            if i > 0 {
-                let len = cmp::min(nrows, ncols.checked_sub(i).unwrap());
-                let data = NonZero::new(data.offset(isize::from(i) * stride.isize()));
-                let stride = stride + 1;
+        let data = match O::order() {
+            ::Order::Col => data.offset(start as isize * info.stride.isize()),
+            ::Order::Row => data.offset(start as isize),
+        };
 
-                mem::transmute(::strided::raw::Slice {
-                    data: data,
+        fat_ptr::new(FatPtr {
+            data: data,
+            info: Info {
+                _marker: info._marker,
+                ncols: U31::from(end - start).extract(),
+                nrows: info.nrows,
+                stride: info.stride,
+            }
+        })
+    }
+
+    // NOTE Core
+    unsafe fn diag_raw(&self, i: i32) -> *mut ::strided::Diag<T> {
+        let FatPtr { data, info } = self.repr();
+
+        // NB I'll work in column-major order space, if the input matrix is in row-major order,
+        // then treat it as a transpose. Remember that `m.diag(i) === m.t().diag(-i)`
+        let (nrows, ncols, i) = match O::order() {
+            ::Order::Col => (info.nrows, info.ncols, i),
+            ::Order::Row => (info.ncols, info.nrows, -i),
+        };
+
+        let v: *mut ::strided::Vector<T> = if i > 0 {
+            let len = cmp::min(nrows, ncols.checked_sub(i).unwrap());
+            let data = data.offset(isize::from(i) * info.stride.isize());
+            let stride = info.stride + 1;
+
+            fat_ptr::new(FatPtr {
+                data: data,
+                info: ::strided::vector::Info {
                     len: len,
                     stride: stride,
-                })
-            } else {
-                let i = -i;
+                }
+            })
+        } else {
+            let i = -i;
 
-                let len = cmp::min(nrows.checked_sub(i).unwrap(), ncols);
-                let data = NonZero::new(data.offset(isize::from(i)));
-                let stride = stride + 1;
+            let len = cmp::min(nrows.checked_sub(i).unwrap(), ncols);
+            let data = data.offset(isize::from(i));
+            let stride = info.stride + 1;
 
-                mem::transmute(::strided::raw::Slice {
-                    data: data,
+            fat_ptr::new(FatPtr {
+                data: data,
+                info: ::strided::vector::Info {
                     len: len,
                     stride: stride,
-                })
-            }
-        }
-    }
-
-    // NOTE Core
-    fn index_raw(&self, (row, col): (u32, u32)) -> *mut T {
-        unsafe {
-            let ::strided::raw::Mat { data, nrows, ncols, stride, .. } = self.repr();
-
-            assert!(row < nrows.u32());
-            assert!(col < ncols.u32());
-
-            match O::order() {
-                ::Order::Col => {
-                    data.offset(row as isize + stride.isize() * col as isize)
-                },
-                ::Order::Row => {
-                    data.offset(col as isize + stride.isize() * row as isize)
-                },
-            }
-        }
-    }
-
-    // NOTE Core
-    fn row_slice_raw(&self, r: Range<u32>) -> *mut ::strided::Mat<T, O> {
-        unsafe {
-            let ::strided::raw::Mat { data, nrows, ncols, stride, marker } = self.repr();
-
-            assert!(r.start <= r.end);
-            assert!(r.end <= nrows.u32());
-
-            let data = match O::order() {
-                ::Order::Col => {
-                    NonZero::new(data.offset(r.start as isize))
-                },
-                ::Order::Row => {
-                    NonZero::new(data.offset(r.start as isize * stride.isize()))
-                },
-            };
-
-            mem::transmute(::strided::raw::Mat {
-                data: data,
-                nrows: U31::from(r.end - r.start).extract(),
-                ncols: ncols,
-                stride: stride,
-                marker: marker,
+                }
             })
+        };
+
+        mem::transmute(v)
+    }
+
+    // NOTE Core
+    unsafe fn index_raw(&self, (row, col): (u32, u32)) -> *mut T {
+        let FatPtr { data, info } = self.repr();
+
+        assert!(row < info.nrows.u32());
+        assert!(col < info.ncols.u32());
+
+        match O::order() {
+            ::Order::Col => data.offset(row as isize + info.stride.isize() * col as isize),
+            ::Order::Row => data.offset(col as isize + info.stride.isize() * row as isize),
         }
     }
 
     // NOTE Core
-    fn slice_raw(&self, (r, c): (Range<u32>, Range<u32>)) -> *mut ::strided::Mat<T, O> {
-        unsafe {
-            let ::strided::raw::Mat { data, nrows, ncols, stride, marker } = self.repr();
+    unsafe fn row_slice_raw(&self, Range { start, end }: Range<u32>) -> *mut ::strided::Mat<T, O> {
+        let FatPtr { data, info } = self.repr();
 
-            assert!(r.start <= r.end);
-            assert!(r.end <= nrows.u32());
-            assert!(c.start <= c.end);
-            assert!(c.end <= ncols.u32());
+        assert!(start <= end);
+        assert!(end <= info.nrows.u32());
 
-            let data = match O::order() {
-                ::Order::Col => {
-                    NonZero::new(data.offset(r.start as isize + c.start as isize * stride.isize()))
-                },
-                ::Order::Row => {
-                    NonZero::new(data.offset(c.start as isize + r.start as isize * stride.isize()))
-                },
-            };
+        let data = match O::order() {
+            ::Order::Col => data.offset(start as isize),
+            ::Order::Row => data.offset(start as isize * info.stride.isize()),
+        };
 
-            mem::transmute(::strided::raw::Mat {
-                data: data,
-                nrows: U31::from(r.end - r.start).extract(),
+        fat_ptr::new(FatPtr {
+            data: data,
+            info: Info {
+                _marker: info._marker,
+                ncols: info.ncols,
+                nrows: U31::from(end - start).extract(),
+                stride: info.stride,
+            }
+        })
+    }
+
+    // NOTE Core
+    unsafe fn slice_raw(&self, (r, c): (Range<u32>, Range<u32>)) -> *mut ::strided::Mat<T, O> {
+        let FatPtr { data, info } = self.repr();
+
+        assert!(r.start <= r.end);
+        assert!(r.end <= info.nrows.u32());
+        assert!(c.start <= c.end);
+        assert!(c.end <= info.ncols.u32());
+
+        let data = match O::order() {
+            ::Order::Col => data.offset(r.start as isize + c.start as isize * info.stride.isize()),
+            ::Order::Row => data.offset(c.start as isize + r.start as isize * info.stride.isize()),
+        };
+
+        fat_ptr::new(FatPtr {
+            data: data,
+            info: Info {
+                _marker: info._marker,
                 ncols: U31::from(c.end - c.start).extract(),
-                stride: stride,
-                marker: marker,
-            })
-        }
+                nrows: U31::from(r.end - r.start).extract(),
+                stride: info.stride,
+            }
+        })
     }
 
     // NOTE Core
     fn hsplit_at_raw(&self, i: u32) -> (*mut ::strided::Mat<T, O>, *mut ::strided::Mat<T, O>) {
-        unsafe {
-            let i = U31::from(i).unwrap();
-            let ::strided::raw::Mat { data, nrows, ncols, stride, marker } = self.repr();
-            let j = nrows.checked_sub(i.i32()).unwrap();
+        let i = U31::from(i).unwrap();
+        let FatPtr { data, info  } = self.repr();
+        let j = info.nrows.checked_sub(i.i32()).unwrap();
 
-            let top = mem::transmute(::strided::raw::Mat {
-                data: data,
-                marker: marker,
-                ncols: ncols,
+        let top = fat_ptr::new(FatPtr {
+            data: data,
+            info: Info {
+                _marker: info._marker,
+                ncols: info.ncols,
                 nrows: i,
-                stride: stride,
-            });
+                stride: info.stride,
+            }
+        });
 
-            let data = match O::order() {
+        let data = unsafe {
+            match O::order() {
                 ::Order::Col => data.offset(i.isize()),
-                ::Order::Row => data.offset(i.isize() * stride.isize()),
-            };
+                ::Order::Row => data.offset(i.isize() * info.stride.isize()),
+            }
+        };
 
-            let bottom = mem::transmute(::strided::raw::Mat {
-                data: NonZero::new(data),
-                marker: marker,
-                ncols: ncols,
+        let bottom = fat_ptr::new(FatPtr {
+            data: data,
+            info: Info {
+                _marker: info._marker,
+                ncols: info.ncols,
                 nrows: j,
-                stride: stride,
-            });
+                stride: info.stride,
+            }
+        });
 
-            (top, bottom)
-        }
+        (top, bottom)
     }
 
     // NOTE Core
     fn vsplit_at_raw(&self, i: u32) -> (*mut ::strided::Mat<T, O>, *mut ::strided::Mat<T, O>) {
-        unsafe {
-            let i = U31::from(i).unwrap();
-            let ::strided::raw::Mat { data, nrows, ncols, stride, marker } = self.repr();
-            let j = ncols.checked_sub(i.i32()).unwrap();
+        let i = U31::from(i).unwrap();
+        let FatPtr { data, info } = self.repr();
+        let j = info.ncols.checked_sub(i.i32()).unwrap();
 
-            let left = mem::transmute(::strided::raw::Mat {
-                data: data,
-                marker: marker,
+        let left = fat_ptr::new(FatPtr {
+            data: data,
+            info: Info {
+                _marker: info._marker,
                 ncols: i,
-                nrows: nrows,
-                stride: stride,
-            });
+                nrows: info.nrows,
+                stride: info.stride,
+            }
+        });
 
-            let data = match O::order() {
-                ::Order::Col => data.offset(i.isize() * stride.isize()),
+        let data = unsafe {
+            match O::order() {
+                ::Order::Col => data.offset(i.isize() * info.stride.isize()),
                 ::Order::Row => data.offset(i.isize()),
-            };
+            }
+        };
 
-            let right = mem::transmute(::strided::raw::Mat {
-                data: NonZero::new(data),
-                marker: marker,
+        let right = fat_ptr::new(FatPtr {
+            data: data,
+            info: Info {
+                _marker: info._marker,
                 ncols: j,
-                nrows: nrows,
-                stride: stride,
-            });
+                nrows: info.nrows,
+                stride: info.stride,
+            }
+        });
 
-            (left, right)
-        }
+        (left, right)
     }
 
     // NOTE Core
     fn t_raw(&self) -> *mut ::strided::Mat<T, O::Transposed> {
-        unsafe {
-            let ::strided::raw::Mat { data, nrows, ncols, stride, .. } = self.repr();
+        let FatPtr { data, info } = self.repr();
 
-            mem::transmute(::strided::raw::Mat {
-                data: data,
-                marker: PhantomData::<O::Transposed>,
-                ncols: nrows,
-                nrows: ncols,
-                stride: stride,
-            })
-        }
+        fat_ptr::new(FatPtr {
+            data: data,
+            info: Info {
+                _marker: PhantomData,
+                ncols: info.nrows,
+                nrows: info.ncols,
+                stride: info.stride,
+            }
+        })
     }
 }
 
 impl<T> ::strided::Mat<T, ::order::Col> {
     // NOTE Core
-    fn col_raw(&self, i: u32) -> *mut ::Col<T> {
-        unsafe {
-            let ::strided::raw::Mat { data, nrows, ncols, stride, .. } = self.repr();
+    unsafe fn col_raw(&self, i: u32) -> *mut ::Col<T> {
+        let FatPtr { data, info } = self.repr();
 
-            assert!(i < ncols.u32());
+        assert!(i < info.ncols.u32());
 
-            let data = NonZero::new(data.offset(isize::from(i) * stride.isize()));
+        let v: *mut ::Vector<T> = fat_ptr::new(FatPtr {
+            data: data.offset(i as isize * info.stride.isize()),
+            info: info.nrows,
+        });
 
-            mem::transmute(::raw::Slice { data: data, len: nrows })
-        }
+        mem::transmute(v)
     }
 
     // NOTE Core
-    fn strided_row_raw(&self, i: u32) -> *mut ::strided::Row<T> {
-        unsafe {
-            let ::strided::raw::Mat { data, nrows, ncols, stride, .. } = self.repr();
+    unsafe fn strided_row_raw(&self, i: u32) -> *mut ::strided::Row<T> {
+        let FatPtr { data, info } = self.repr();
 
-            assert!(i < nrows.u32());
+        assert!(i < info.nrows.u32());
 
-            let data = NonZero::new(data.offset(isize::from(i)));
+        let v: *mut ::strided::Vector<T> = fat_ptr::new(FatPtr {
+            data: data.offset(i as isize),
+            info: ::strided::vector::Info {
+                len: info.ncols,
+                stride: info.stride,
+            }
+        });
 
-            mem::transmute(::strided::raw::Slice { data: data, len: ncols, stride: stride })
-        }
+        mem::transmute(v)
     }
 }
 
@@ -444,7 +483,7 @@ impl<T> fmt::Debug for ::strided::Mat<T, ::order::Col> where T: fmt::Debug {
                 try!(f.write_str("\n"))
             }
 
-            try!(::strided::Slice::fmt(row, f))
+            try!(::strided::Vector::fmt(row, f))
         }
 
         Ok(())
@@ -461,7 +500,7 @@ impl<T> fmt::Debug for ::strided::Mat<T, ::order::Row> where T: fmt::Debug {
                 try!(f.write_str("\n"))
             }
 
-            try!(::strided::Slice::fmt(row, f))
+            try!(::strided::Vector::fmt(row, f))
         }
 
         Ok(())
@@ -920,11 +959,11 @@ impl<T, O> Matrix for ::strided::Mat<T, O> {
     type Elem = T;
 
     fn nrows(&self) -> u32 {
-        self.repr().nrows.u32()
+        self.repr().info.nrows.u32()
     }
 
     fn ncols(&self) -> u32 {
-        self.repr().ncols.u32()
+        self.repr().info.ncols.u32()
     }
 }
 
@@ -936,28 +975,25 @@ impl<T, O> ToOwned for ::strided::Mat<T, O> where T: Clone, O: Order {
     type Owned = Box<::Mat<T, O>>;
 
     fn to_owned(&self) -> Box<::Mat<T, O>> {
-        unsafe {
-            let ::strided::raw::Mat { data, nrows, ncols, stride, marker } = self.repr();
+        let FatPtr { info, .. } = self.repr();
 
-            let contiguous = match O::order() {
-                ::Order::Col => nrows == stride,
-                ::Order::Row => ncols == stride,
-            };
+        if let Some(slice) = self.as_slice() {
+            let mut v = slice.to_owned();
+            let data = v.as_mut_ptr();
+            mem::forget(v);
 
-            if contiguous {
-                let len = nrows.usize() * ncols.usize();
-                let mut v = slice::from_raw_parts(*data, len).to_owned();
-                let data = NonZero::new(v.as_mut_ptr());
-                mem::forget(v);
-                mem::transmute(::raw::Mat {
+            unsafe {
+                Box::from_raw(fat_ptr::new(FatPtr {
                     data: data,
-                    marker: marker,
-                    ncols: ncols,
-                    nrows: nrows,
-                })
-            } else {
-                unimplemented!()
+                    info: ::mat::Info {
+                        _marker: info._marker,
+                        ncols: info.ncols,
+                        nrows: info.nrows,
+                    },
+                }))
             }
+        } else {
+            unimplemented!()
         }
     }
 }
@@ -979,5 +1015,19 @@ impl<'a, T, O> Transpose for &'a mut ::strided::Mat<T, O> where O: Order {
         unsafe {
             &mut *self.t_raw()
         }
+    }
+}
+
+impl<T, O> Unsized for ::strided::Mat<T, O> {
+    type Data = T;
+    type Info = Info<O>;
+
+    fn size_of_val(_: Info<O>) -> usize {
+        // NB unimplemented for now to avoid cascading the `Order` bound everywhere
+        unimplemented!()
+        //mem::size_of::<T>() * info.stride.usize() * match O::order() {
+            //::Order::Col => info.ncols.usize(),
+            //::Order::Row => info.nrows.usize(),
+        //}
     }
 }

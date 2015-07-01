@@ -1,8 +1,8 @@
-use std::mem;
+use std::fat_ptr;
 use std::num::Zero;
+use std::raw::FatPtr;
 
 use cast::From;
-use core::nonzero::NonZero;
 use extract::Extract;
 
 use order::Order;
@@ -14,46 +14,50 @@ macro_rules! next {
     () => {
         fn next(&mut self) -> Option<Self::Item> {
             unsafe {
-                let ::strided::raw::Mat { data, nrows, ncols, stride, marker } = self.m.repr();
+                let FatPtr { data, info } = self.m.repr();
 
                 match O::order() {
                     ::Order::Col => {
-                        if ncols == U31::zero() {
+                        if info.ncols == U31::zero() {
                             None
                         } else {
                             let next = &mut *data.offset(self.i.isize());
 
                             self.i += 1;
-                            if self.i == nrows {
+                            if self.i == info.nrows {
                                 self.i = U31::zero();
-                                self.m = mem::transmute(::strided::raw::Mat {
-                                    data: NonZero::new(data.offset(stride.isize())),
-                                    marker: marker,
-                                    ncols: ncols.checked_sub(1).extract(),
-                                    nrows: nrows,
-                                    stride: stride,
-                                });
+                                self.m = &mut *fat_ptr::new(FatPtr {
+                                    data: data.offset(info.stride.isize()),
+                                    info: ::strided::mat::Info {
+                                        _marker: info._marker,
+                                        ncols: info.ncols.checked_sub(1).extract(),
+                                        nrows: info.nrows,
+                                        stride: info.stride,
+                                    }
+                                })
                             }
 
                             Some(next)
                         }
                     },
                     ::Order::Row => {
-                        if nrows == U31::zero() {
+                        if info.nrows == U31::zero() {
                             None
                         } else {
                             let next = &mut *data.offset(self.i.isize());
 
                             self.i += 1;
-                            if self.i == ncols {
+                            if self.i == info.ncols {
                                 self.i = U31::zero();
-                                self.m = mem::transmute(::strided::raw::Mat {
-                                    data: NonZero::new(data.offset(stride.isize())),
-                                    marker: marker,
-                                    ncols: ncols,
-                                    nrows: nrows.checked_sub(1).extract(),
-                                    stride: stride,
-                                });
+                                self.m = &mut *fat_ptr::new(FatPtr {
+                                    data: data.offset(info.stride.isize()),
+                                    info: ::strided::mat::Info {
+                                        _marker: info._marker,
+                                        ncols: info.ncols,
+                                        nrows: info.nrows.checked_sub(1).extract(),
+                                        stride: info.stride,
+                                    }
+                                })
                             }
 
                             Some(next)

@@ -10,7 +10,7 @@ pub trait Order {
     fn order() -> ::Order;
 }
 
-/// Column major (a.k.a. "Fortran") order (default)
+/// Column major (a.k.a. "Fortran") order
 #[derive(Debug)]
 pub enum Col {}
 

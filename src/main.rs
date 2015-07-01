@@ -137,14 +137,17 @@
 //! when its called. Do note that it takes the caller by value, so both `Box<Mat>` and `&mut Mat`
 //! will be moved.
 
+//#![deny(warnings)]
 #![deny(missing_docs)]
 
 #![feature(advanced_slice_patterns)]
 #![feature(augmented_assignments)]
+#![feature(box_raw)]
 #![feature(core)]
 #![feature(filling_drop)]
 #![feature(indexed_assignment)]
 #![feature(into_cow)]
+#![feature(raw)]
 #![feature(slice_patterns)]
 #![feature(unsized_types)]
 #![feature(zero_one)]
@@ -154,7 +157,6 @@
 
 extern crate blas;
 extern crate cast;
-extern crate core;
 extern crate extract;
 
 #[macro_use]
@@ -164,6 +166,7 @@ mod col;
 mod iter;
 mod mat;
 mod row;
+mod vector;
 
 mod nn;
 
@@ -174,7 +177,6 @@ fn main() {
 pub mod ops;
 pub mod order;
 pub mod prelude;
-pub mod raw;
 pub mod strided;
 pub mod traits;
 pub mod u31;
@@ -199,7 +201,7 @@ impl<T> Buffer<T> {
 }
 
 /// A column vector
-pub unsized type Col<T> = ::raw::Slice<T>;
+pub struct Col<T>(Vector<T>);
 
 /// Column-by-column iterator
 pub struct Cols<'a, T: 'a, O: 'a> {
@@ -224,7 +226,7 @@ pub struct HStripesMut<'a, T: 'a> {
 }
 
 /// A matrix
-pub unsized type Mat<T, O> = ::raw::Mat<T, O>;
+pub unsized type Mat<T, O>;
 
 /// A pool of uninitialized matrices
 pub struct Pool<'a, T>(&'a mut [T]) where T: 'a;
@@ -264,7 +266,7 @@ impl<'a, T> Pool<'a, T> {
 }
 
 /// A row vector
-pub unsized type Row<T> = ::raw::Slice<T>;
+pub struct Row<T>(Vector<T>);
 
 /// Row-by-row iterator
 pub struct Rows<'a, T: 'a, O: 'a> {
@@ -275,6 +277,8 @@ pub struct Rows<'a, T: 'a, O: 'a> {
 pub struct RowsMut<'a, T: 'a, O: 'a> {
     m: &'a mut ::strided::Mat<T, O>
 }
+
+unsized type Vector<T>;
 
 /// Iterator over a matrix in vertical (non-overlapping) stripes
 pub struct VStripes<'a, T: 'a> {
@@ -288,61 +292,37 @@ pub struct VStripesMut<'a, T: 'a> {
     size: u32,
 }
 
-// FIXME This should be private
-#[doc(hidden)]
+/// Matrix "order", only known at runtime
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Order {
+    /// Column major order
     Col,
+    /// Row major order
     Row,
 }
 
 // NB All the following items are here to avoid leaking implementation details into the public API
 use std::marker::PhantomData;
 use std::num::Zero;
-use std::ops::Range;
-use std::slice;
-use std::mem;
+use std::raw::FatPtr;
+use std::{fat_ptr, mem};
 
 use cast::From;
-use core::nonzero::NonZero;
-use extract::Extract;
 
 use u31::U31;
 
-impl<T> ::raw::Slice<T> {
-    unsafe fn from(slice: &[T]) -> ::raw::Slice<T> {
-        let len = U31::from(slice.len()).unwrap();
-        let data = NonZero::new(slice.as_ptr() as *mut T);
-
-        ::raw::Slice { data: data, len: len }
-    }
-
-    unsafe fn as_slice_raw(&self) -> *mut [T] {
-        slice::from_raw_parts_mut(*self.data, self.len.usize())
-    }
-
-    // NOTE Core
-    fn slice(&self, r: Range<u32>) -> ::raw::Slice<T> {
-        unsafe {
-            assert!(r.start <= r.end);
-            assert!(r.end <= self.len.u32());
-
-            ::raw::Slice {
-                data: NonZero::new(self.data.offset(r.start as isize)),
-                len: U31::from(r.end - r.start).extract(),
-            }
-        }
-    }
-}
-
 impl<T, O> ::Mat<T, O> {
     fn empty<'a>() -> &'a mut ::Mat<T, O> {
+        let _0 = U31::zero();
+
         unsafe {
-            mem::transmute(::raw::Mat {
-                data: NonZero::new(1 as *mut T),
-                marker: PhantomData::<O>,
-                ncols: U31::zero(),
-                nrows: U31::zero(),
+            &mut *fat_ptr::new(FatPtr {
+                data: 1 as *mut T,
+                info: ::mat::Info {
+                    _marker: PhantomData,
+                    ncols: _0,
+                    nrows: _0,
+                }
             })
         }
     }
@@ -350,19 +330,25 @@ impl<T, O> ::Mat<T, O> {
 
 impl<T, O> ::strided::Mat<T, O> {
     fn empty<'a>() -> &'a mut ::strided::Mat<T, O> {
+        let _0 = U31::zero();
+
         unsafe {
-            mem::transmute(::strided::raw::Mat {
-                data: NonZero::new(1 as *mut T),
-                marker: PhantomData::<O>,
-                ncols: U31::zero(),
-                nrows: U31::zero(),
-                stride: U31::zero(),
+            &mut *fat_ptr::new(FatPtr {
+                data: 1 as *mut T,
+                info: ::strided::mat::Info {
+                    _marker: PhantomData,
+                    ncols: _0,
+                    nrows: _0,
+                    stride: _0,
+                }
             })
         }
     }
 
     fn is_empty(&self) -> bool {
-        let ::strided::raw::Mat { nrows, ncols, .. } = self.repr();
-        nrows == U31::zero() || ncols == U31::zero()
+        let _0 = U31::zero();
+        let ::strided::mat::Info { nrows, ncols, .. } = self.repr().info;
+
+        nrows == _0 || ncols == _0
     }
 }
