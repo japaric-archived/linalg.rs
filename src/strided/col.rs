@@ -10,9 +10,9 @@ impl<T> fmt::Debug for ::strided::Col<T> where T: fmt::Debug {
 }
 
 impl<T> Deref for ::strided::Col<T> {
-    type Target = ::strided::Slice<T>;
+    type Target = ::strided::Vector<T>;
 
-    fn deref(&self) -> &::strided::Slice<T> {
+    fn deref(&self) -> &::strided::Vector<T> {
         unsafe {
             mem::transmute(self)
         }
@@ -20,7 +20,7 @@ impl<T> Deref for ::strided::Col<T> {
 }
 
 impl<T> DerefMut for ::strided::Col<T> {
-    fn deref_mut(&mut self) -> &mut ::strided::Slice<T> {
+    fn deref_mut(&mut self) -> &mut ::strided::Vector<T> {
         unsafe {
             mem::transmute(self)
         }
@@ -105,18 +105,18 @@ impl<T> IndexMut<RangeTo<u32>> for ::strided::Col<T> {
 
 impl<'a, T> IntoIterator for &'a ::strided::Col<T> {
     type Item = &'a T;
-    type IntoIter = ::strided::slice::Iter<'a, T>;
+    type IntoIter = ::strided::vector::Iter<'a, T>;
 
-    fn into_iter(self) -> ::strided::slice::Iter<'a, T> {
+    fn into_iter(self) -> ::strided::vector::Iter<'a, T> {
         self.iter()
     }
 }
 
 impl<'a, T> IntoIterator for &'a mut ::strided::Col<T> {
     type Item = &'a mut T;
-    type IntoIter = ::strided::slice::IterMut<'a, T>;
+    type IntoIter = ::strided::vector::IterMut<'a, T>;
 
-    fn into_iter(self) -> ::strided::slice::IterMut<'a, T> {
+    fn into_iter(self) -> ::strided::vector::IterMut<'a, T> {
         self.iter_mut()
     }
 }

@@ -4,7 +4,6 @@ use std::num::{One, Zero};
 use std::ops::{Add, AddAssign, Rem};
 
 use cast::From;
-use core::nonzero::Zeroable;
 use extract::Extract;
 
 /// 31-bit unsigned integer
@@ -112,5 +111,3 @@ impl Zero for U31 {
         U31(0)
     }
 }
-
-unsafe impl Zeroable for U31 {}

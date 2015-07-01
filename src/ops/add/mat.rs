@@ -41,7 +41,7 @@ impl<'a, 'b, T, O> Add<&'b mut ::Mat<T, O>> for Scaled<&'a ::Mat<T, O>> where
 }
 
 // NOTE Secondary
-impl<'a, T, O> Add<&'a mut ::Mat<T, O>> for &'a ::Mat<T, O> where T: Axpy + One, O: Order {
+impl<'a, T, O> Add<&'a mut ::Mat<T, O>> for &'a ::Mat<T, O> where T: 'a + Axpy + One, O: Order {
     type Output = &'a mut ::Mat<T, O>;
 
     fn add(self, rhs: &'a mut ::Mat<T, O>) -> &'a mut ::Mat<T, O> {

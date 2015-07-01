@@ -1,22 +1,33 @@
-use std::mem;
+use std::marker::Unsized;
 use std::ops::{Deref, DerefMut};
+use std::raw::FatPtr;
+use std::{fat_ptr, mem};
 
 use order::Order;
 use traits::{Matrix, Transpose};
+use u31::U31;
+
+#[derive(Clone, Copy)]
+pub struct Info {
+    pub ncols: U31,
+    pub nrows: U31,
+    pub order: ::Order,
+    pub stride: U31,
+}
 
 impl<T> ::ops::Mat<T> {
     fn t_raw(&self) -> *mut ::ops::Mat<T> {
-        unsafe {
-            let ::ops::raw::Mat { data, nrows, ncols, stride, order } = self.repr();
+        let FatPtr { data, info } = self.repr();
 
-            mem::transmute(::ops::raw::Mat {
-                data: data,
-                ncols: nrows,
-                nrows: ncols,
-                order: order.t(),
-                stride: stride,
-            })
-        }
+        fat_ptr::new(FatPtr {
+            data: data,
+            info: Info {
+                ncols: info.nrows,
+                nrows: info.ncols,
+                order: info.order.t(),
+                stride: info.stride,
+            }
+        })
     }
 }
 
@@ -24,11 +35,11 @@ impl<T> Matrix for ::ops::Mat<T> {
     type Elem = T;
 
     fn nrows(&self) -> u32 {
-        self.repr().nrows.u32()
+        self.repr().info.nrows.u32()
     }
 
     fn ncols(&self) -> u32 {
-        self.repr().ncols.u32()
+        self.repr().info.ncols.u32()
     }
 }
 
@@ -38,6 +49,18 @@ impl<'a, T> Transpose for &'a ::ops::Mat<T> {
     fn t(self) -> &'a ::ops::Mat<T> {
         unsafe {
             &*self.t_raw()
+        }
+    }
+}
+
+impl<T> Unsized for ::ops::Mat<T> {
+    type Data = T;
+    type Info = Info;
+
+    fn size_of_val(info: Info) -> usize {
+        mem::size_of::<T>() * info.stride.usize() * match info.order {
+            ::Order::Col => info.ncols.usize(),
+            ::Order::Row => info.nrows.usize(),
         }
     }
 }
@@ -54,17 +77,17 @@ impl ::Order {
 impl<T, O> ::strided::Mat<T, O> where O: Order {
     // NOTE Core
     fn deref_raw(&self) -> *mut ::ops::Mat<T> {
-        unsafe {
-            let ::strided::raw::Mat { data, nrows, ncols, stride, .. } = self.repr();
+        let FatPtr { data, info } = self.repr();
 
-            mem::transmute(::ops::raw::Mat {
-                data: data,
-                ncols: ncols,
-                nrows: nrows,
+        fat_ptr::new(FatPtr {
+            data: data,
+            info: Info {
+                ncols: info.ncols,
+                nrows: info.nrows,
                 order: O::order(),
-                stride: stride,
-            })
-        }
+                stride: info.stride,
+            }
+        })
     }
 }
 

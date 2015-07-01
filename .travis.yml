@@ -1,15 +1,17 @@
 env:
   global:
-    - URL=https://www.dropbox.com/sh/hz03qag74f3p6ol/AABGxiO934a6y9ZCULI0zBwXa/rust-2015-06-18-a9eda99-x86_64-unknown-linux-gnu-88034602459af55b250836da861a133815222fa8.tar.gz
+    - URL=https://www.dropbox.com/sh/hz03qag74f3p6ol/AACfrZe2UWRgY2C6RMYuOvd-a/rust-2015-07-01-3a5eda1-x86_64-unknown-linux-gnu-2e161983b33cae9d0e3996bff47ebca54ce187f4.tar.gz
     - secure: B/kcbcUvqUkSXNcbfjA8AQgC57IgWIGd8jgjysAuJUbv02e0PjyGK864NCIMn+UeUwhdni8F73EtEkJS6fiJ69BO7sVQzgN47ePG5nPnzgXieOcyLABtUsozZfB2Jy7HPbXCBN313wohmGvDwRPf0w4vszfmryfgCXe9haXGGFc=
 
 before_install:
   # This PPA has a newer version of OpenBLAS
   - sudo add-apt-repository ppa:staticfloat/julia-deps -y
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo apt-get update
 
 install:
   - sudo apt-get install libopenblas-dev liblapack-dev
+  - sudo apt-get install libstdc++6
   - source install.sh
 
 script:
