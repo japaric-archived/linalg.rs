@@ -1,6 +1,6 @@
 env:
   global:
-    - URL=https://www.dropbox.com/sh/hz03qag74f3p6ol/AACfrZe2UWRgY2C6RMYuOvd-a/rust-2015-07-01-3a5eda1-x86_64-unknown-linux-gnu-2e161983b33cae9d0e3996bff47ebca54ce187f4.tar.gz
+    - URL=https://www.dropbox.com/sh/hz03qag74f3p6ol/AADOLQA-i0W6P-6M6Lt345aMa/rust-2015-07-01-9d270f0-x86_64-unknown-linux-gnu-c183fa37e1c48386841d84c5460b59e3afd85f49.tar.gz
     - secure: B/kcbcUvqUkSXNcbfjA8AQgC57IgWIGd8jgjysAuJUbv02e0PjyGK864NCIMn+UeUwhdni8F73EtEkJS6fiJ69BO7sVQzgN47ePG5nPnzgXieOcyLABtUsozZfB2Jy7HPbXCBN313wohmGvDwRPf0w4vszfmryfgCXe9haXGGFc=
 
 before_install:
