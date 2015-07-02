@@ -62,6 +62,19 @@ pub trait Norm {
     fn norm(&self) -> Self::Output;
 }
 
+/// A scalar type
+pub unsafe trait Scalar {}
+
+macro_rules! scalar {
+    ($($ty:ty),+) => {
+        $(
+            unsafe impl Scalar for $ty {}
+         )+
+    }
+}
+
+scalar!(f32, f64, i16, i32, i64, i8, isize, u16, u32, u64, u8, usize);
+
 /// Transpose operator
 pub trait Transpose {
     /// Transposed matrix

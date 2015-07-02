@@ -180,12 +180,14 @@ pub mod strided;
 pub mod traits;
 pub mod u31;
 
+use traits::Scalar;
+
 /// A reserved chunk of memory
 pub struct Buffer<T>(Vec<T>);
 
 impl<T> Buffer<T> {
     /// Creates a buffer with size `n`
-    pub fn new(n: usize) -> Buffer<T> where T: Copy {
+    pub fn new(n: usize) -> Buffer<T> where T: Scalar {
         unsafe {
             let mut v = Vec::with_capacity(n);
             v.set_len(n);
