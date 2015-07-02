@@ -417,13 +417,9 @@ impl<T, O> DerefMut for ::Mat<T, O> where O: Order {
 
 impl<T, O> Drop for ::Mat<T, O> {
     fn drop(&mut self) {
-        unsafe {
-            let ptr = self.repr().data;
-
-            if !ptr.is_null() && ptr as usize != mem::POST_DROP_USIZE {
-                for x in &*self {
-                    ptr::read(x);
-                }
+        for x in &*self {
+            unsafe {
+                ptr::read(x);
             }
         }
     }

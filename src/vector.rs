@@ -80,13 +80,9 @@ impl<T> fmt::Debug for ::Vector<T> where T: fmt::Debug {
 
 impl<T> Drop for ::Vector<T> {
     fn drop(&mut self) {
-        let ptr = self.repr().data;
-
-        if !ptr.is_null() || ptr as usize != mem::POST_DROP_USIZE {
-            for x in self.as_ref() {
-                unsafe {
-                    ptr::read(x);
-                }
+        for x in self.as_ref() {
+            unsafe {
+                ptr::read(x);
             }
         }
     }

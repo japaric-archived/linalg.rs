@@ -144,7 +144,6 @@
 #![feature(augmented_assignments)]
 #![feature(box_raw)]
 #![feature(core)]
-#![feature(filling_drop)]
 #![feature(indexed_assignment)]
 #![feature(into_cow)]
 #![feature(raw)]
