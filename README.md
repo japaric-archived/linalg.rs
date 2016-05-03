@@ -1,4 +1,21 @@
-**PSA** Development is now happening on the `ng` branch.
+# Status
+
+This project is currently **INACTIVE** as Rust doesn't have the [required features] to realize my
+vision. Until at least something like [custom fat pointers] land in the compiler I won't be working
+on this.
+
+You might be interested in [ndarray] which implements an N dimensional array with several "view"
+operations.
+
+[required features]: https://github.com/japaric/rusty-edge
+[custom fat pointers]: https://github.com/rust-lang/rfcs/pull/1524
+[ndarray]: https://crates.io/crates/ndarray
+
+-- @japaric, 2016-05-02
+
+---
+
+~~**PSA** Development is now happening on the `ng` branch.~~
 
 # `linalg.rs`
 
