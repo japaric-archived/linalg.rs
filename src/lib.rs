@@ -76,7 +76,7 @@
 //! A[1, :] += 1;
 //!
 //! // Rust
-//! A.row_mut(1).add_assign(1)
+//! A.row_mut(1) += 1;
 //! ```
 //!
 //! Subtract sub-matrices
@@ -86,7 +86,7 @@
 //! A[1:3, 2:4] -= B[:2, 1:3]
 //!
 //! // Rust
-//! A.slice_mut((1..3, 2..4)).sub_assign(B.slice((..2, 1..3)));
+//! A.slice_mut((1..3, 2..4)) -= B.slice((..2, 1..3));
 //! ```
 //!
 //! - Index assignment
@@ -219,7 +219,7 @@
 //!     z.set(y);
 //!
 //!     // z = y - theta * X
-//!     z.sub_assign(theta * X);
+//!     z -= theta * X;
 //!
 //!     ..
 //!
@@ -236,6 +236,7 @@
 #![deny(missing_docs)]
 #![deny(warnings)]
 #![feature(advanced_slice_patterns)]
+#![feature(augmented_assignments)]
 #![feature(collections)]
 #![feature(core)]
 #![feature(filling_drop)]
@@ -243,7 +244,6 @@
 #![feature(unique)]
 #![feature(unsafe_no_drop_flag)]
 
-extern crate assign;
 extern crate blas;
 extern crate cast;
 extern crate complex;

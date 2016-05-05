@@ -1,6 +1,5 @@
-use std::ops::Neg;
+use std::ops::{Neg, SubAssign};
 
-use assign::SubAssign;
 use blas::{Axpy, Gemm, Gemv, Transpose};
 use onezero::{One, Zero};
 
@@ -120,7 +119,7 @@ impl<'a, 'b, T> SubAssign<Scaled<Col<'a, T>>> for ColMut<'b, T> where T: Axpy + 
 // Secondary implementations
 impl<'a, 'b, T> SubAssign<Col<'a, T>> for ColMut<'b, T> where T: Axpy + Neg<Output=T> + One {
     fn sub_assign(&mut self, rhs: Col<T>) {
-        self.sub_assign(Scaled(T::one(), rhs))
+        *self -= Scaled(T::one(), rhs)
     }
 }
 
@@ -128,7 +127,7 @@ impl<'a, 'b, 'c, T> SubAssign<Product<Chain<'a, T>, Col<'b, T>>> for ColMut<'c, 
     T: Gemm + Gemv + Neg<Output=T> + One + Zero,
 {
     fn sub_assign(&mut self, rhs: Product<Chain<T>, Col<T>>) {
-        self.sub_assign(Scaled(T::one(), rhs))
+        *self -= Scaled(T::one(), rhs)
     }
 }
 
@@ -137,7 +136,7 @@ SubAssign<Product<Transposed<SubMat<'a, T>>, Col<'b, T>>> for ColMut<'c, T> wher
     T: Gemv + Neg<Output=T> + One,
 {
     fn sub_assign(&mut self, rhs: Product<Transposed<SubMat<T>>, Col<T>>) {
-        self.sub_assign(Scaled(T::one(), rhs))
+        *self -= Scaled(T::one(), rhs)
     }
 }
 
@@ -145,7 +144,7 @@ impl<'a, 'b, 'c, T> SubAssign<Product<SubMat<'a, T>, Col<'b, T>>> for ColMut<'c,
     T: Gemv + Neg<Output=T> + One,
 {
     fn sub_assign(&mut self, rhs: Product<SubMat<T>, Col<T>>) {
-        self.sub_assign(Scaled(T::one(), rhs))
+        *self -= Scaled(T::one(), rhs)
     }
 }
 
@@ -154,7 +153,7 @@ macro_rules! forward {
         $(
             impl<'a, 'b, 'c, T> SubAssign<$rhs> for $lhs where T: Neg<Output=T>, $(T: $bound),+ {
                 fn sub_assign(&mut self, rhs: $rhs) {
-                    self.slice_mut(..).sub_assign(rhs.slice(..))
+                    self.slice_mut(..) -= rhs.slice(..)
                 }
             }
          )+
@@ -169,7 +168,7 @@ forward!(ColMut<'a, T> {
 
 impl<'a, T> SubAssign<T> for ColMut<'a, T> where T: Axpy + Neg<Output=T> + One {
     fn sub_assign(&mut self, rhs: T) {
-        self.sub_assign(&rhs)
+        *self -= &rhs
     }
 }
 
@@ -189,12 +188,12 @@ forward!(ColVec<T> {
 
 impl<'a, T> SubAssign<&'a T> for ColVec<T> where T: Axpy + Neg<Output=T> + One {
     fn sub_assign(&mut self, rhs: &T) {
-        self.slice_mut(..).sub_assign(rhs)
+        self.slice_mut(..) -= rhs
     }
 }
 
 impl<T> SubAssign<T> for ColVec<T> where T: Axpy + Neg<Output=T> + One {
     fn sub_assign(&mut self, rhs: T) {
-        self.slice_mut(..).sub_assign(&rhs)
+        self.slice_mut(..) -= &rhs
     }
 }

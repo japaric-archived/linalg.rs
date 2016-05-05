@@ -1,4 +1,5 @@
-use assign::AddAssign;
+use std::ops::AddAssign;
+
 use blas::{Axpy, Gemm, Gemv, Transpose};
 use onezero::{One, Zero};
 
@@ -112,7 +113,7 @@ impl<'a, 'b, T> AddAssign<Scaled<Col<'a, T>>> for ColMut<'b, T> where T: Axpy {
 // Secondary implementations
 impl<'a, 'b, T> AddAssign<Col<'a, T>> for ColMut<'b, T> where T: Axpy + One {
     fn add_assign(&mut self, rhs: Col<T>) {
-        self.add_assign(Scaled(T::one(), rhs))
+        *self += Scaled(T::one(), rhs)
     }
 }
 
@@ -120,7 +121,7 @@ impl<'a, 'b, 'c, T> AddAssign<Product<Chain<'a, T>, Col<'b, T>>> for ColMut<'c, 
     T: Gemm + Gemv + One + Zero,
 {
     fn add_assign(&mut self, rhs: Product<Chain<T>, Col<T>>) {
-        self.add_assign(Scaled(T::one(), rhs))
+        *self += Scaled(T::one(), rhs)
     }
 }
 
@@ -129,7 +130,7 @@ AddAssign<Product<Transposed<SubMat<'a, T>>, Col<'b, T>>> for ColMut<'c, T> wher
     T: Gemv + One,
 {
     fn add_assign(&mut self, rhs: Product<Transposed<SubMat<T>>, Col<T>>) {
-        self.add_assign(Scaled(T::one(), rhs))
+        *self += Scaled(T::one(), rhs)
     }
 }
 
@@ -137,7 +138,7 @@ impl<'a, 'b, 'c, T> AddAssign<Product<SubMat<'a, T>, Col<'b, T>>> for ColMut<'c,
     T: Gemv + One,
 {
     fn add_assign(&mut self, rhs: Product<SubMat<T>, Col<T>>) {
-        self.add_assign(Scaled(T::one(), rhs))
+        *self += Scaled(T::one(), rhs)
     }
 }
 
@@ -146,7 +147,7 @@ macro_rules! forward {
         $(
             impl<'a, 'b, 'c, T> AddAssign<$rhs> for $lhs where $(T: $bound),+ {
                 fn add_assign(&mut self, rhs: $rhs) {
-                    self.slice_mut(..).add_assign(rhs.slice(..))
+                    self.slice_mut(..) += rhs.slice(..)
                 }
             }
          )+
@@ -161,7 +162,7 @@ forward!(ColMut<'a, T> {
 
 impl<'a, T> AddAssign<T> for ColMut<'a, T> where T: Axpy + One {
     fn add_assign(&mut self, rhs: T) {
-        self.add_assign(&rhs)
+        *self += &rhs
     }
 }
 
@@ -181,12 +182,12 @@ forward!(ColVec<T> {
 
 impl<'a, T> AddAssign<&'a T> for ColVec<T> where T: Axpy + One {
     fn add_assign(&mut self, rhs: &T) {
-        self.slice_mut(..).add_assign(rhs)
+        self.slice_mut(..) += rhs
     }
 }
 
 impl<T> AddAssign<T> for ColVec<T> where T: Axpy + One {
     fn add_assign(&mut self, rhs: T) {
-        self.slice_mut(..).add_assign(&rhs)
+        self.slice_mut(..) += &rhs
     }
 }

@@ -1,6 +1,5 @@
 use std::ops::Add;
 
-use assign::AddAssign;
 use blas::{Axpy, Gemm, Transpose};
 use complex::Complex;
 use onezero::{One, Zero};
@@ -185,7 +184,7 @@ macro_rules! scalar {
                 type Output = Mat<$t>;
 
                 fn add(self, mut rhs: Mat<$t>) -> Mat<$t> {
-                    rhs.add_assign(self);
+                    rhs += self;
                     rhs
                 }
             }
@@ -194,7 +193,7 @@ macro_rules! scalar {
                 type Output = Mat<$t>;
 
                 fn add(self, mut rhs: Mat<$t>) -> Mat<$t> {
-                    rhs.add_assign(self);
+                    rhs += self;
                     rhs
                 }
             }
@@ -203,7 +202,7 @@ macro_rules! scalar {
                 type Output = Transposed<Mat<$t>>;
 
                 fn add(self, mut rhs: Transposed<Mat<$t>>) -> Transposed<Mat<$t>> {
-                    rhs.add_assign(self);
+                    rhs += self;
                     rhs
                 }
             }
@@ -212,7 +211,7 @@ macro_rules! scalar {
                 type Output = Transposed<Mat<$t>>;
 
                 fn add(self, mut rhs: Transposed<Mat<$t>>) -> Transposed<Mat<$t>> {
-                    rhs.add_assign(self);
+                    rhs += self;
                     rhs
                 }
             }

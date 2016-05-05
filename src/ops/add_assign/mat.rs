@@ -1,4 +1,5 @@
-use assign::AddAssign;
+use std::ops::AddAssign;
+
 use blas::{Axpy, Gemm, Transpose};
 use onezero::{One, Zero};
 
@@ -123,7 +124,7 @@ impl<'a, 'b, T> AddAssign<Scaled<SubMat<'a, T>>> for SubMatMut<'b, T> where T: A
 // Secondary implementations
 impl<'a, 'b, T> AddAssign<&'a T> for Transposed<SubMatMut<'b, T>> where T: Axpy + One {
     fn add_assign(&mut self, rhs: &T) {
-        self.0.add_assign(rhs)
+        self.0 += rhs
     }
 }
 
@@ -131,7 +132,7 @@ impl<'a, 'b, T> AddAssign<Chain<'a, T>> for Transposed<SubMatMut<'b, T>> where
     T: Gemm + One + Zero,
 {
     fn add_assign(&mut self, rhs: Chain<T>) {
-        self.add_assign(Scaled(T::one(), rhs))
+        *self += Scaled(T::one(), rhs)
     }
 }
 
@@ -139,7 +140,7 @@ impl<'a, 'b, T> AddAssign<Scaled<Chain<'a, T>>> for Transposed<SubMatMut<'b, T>>
     T: Gemm + One + Zero,
 {
     fn add_assign(&mut self, rhs: Scaled<Chain<T>>) {
-        self.0.add_assign(rhs.t())
+        self.0 += rhs.t()
     }
 }
 
@@ -147,13 +148,13 @@ impl<'a, 'b, T> AddAssign<Scaled<Transposed<SubMat<'a, T>>>> for Transposed<SubM
     T: Axpy,
 {
     fn add_assign(&mut self, rhs: Scaled<Transposed<SubMat<'a, T>>>) {
-        self.0.add_assign(Scaled(rhs.0, (rhs.1).0))
+        self.0 += Scaled(rhs.0, (rhs.1).0)
     }
 }
 
 impl<'a, 'b, T> AddAssign<Scaled<SubMat<'a, T>>> for Transposed<SubMatMut<'b, T>> where T: Axpy {
     fn add_assign(&mut self, rhs: Scaled<SubMat<'a, T>>) {
-        self.0.add_assign(rhs.t())
+        self.0 += rhs.t()
     }
 }
 
@@ -161,7 +162,7 @@ impl<'a, 'b, T> AddAssign<Transposed<SubMat<'a, T>>> for Transposed<SubMatMut<'b
     T: Axpy + One,
 {
     fn add_assign(&mut self, rhs: Transposed<SubMat<'a, T>>) {
-        self.add_assign(Scaled(T::one(), rhs))
+        *self += Scaled(T::one(), rhs)
     }
 }
 
@@ -169,25 +170,25 @@ impl<'a, 'b, T> AddAssign<SubMat<'a, T>> for Transposed<SubMatMut<'b, T>> where
     T: Axpy + One,
 {
     fn add_assign(&mut self, rhs: SubMat<'a, T>) {
-        self.add_assign(Scaled(T::one(), rhs))
+        *self += Scaled(T::one(), rhs)
     }
 }
 
 impl<'a, 'b, T> AddAssign<Chain<'a, T>> for SubMatMut<'b, T> where T: Gemm + One + Zero {
     fn add_assign(&mut self, rhs: Chain<T>) {
-        self.add_assign(Scaled(T::one(), rhs))
+        *self += Scaled(T::one(), rhs)
     }
 }
 
 impl<'a, 'b, T> AddAssign<Transposed<SubMat<'a, T>>> for SubMatMut<'b, T> where T: Axpy + One {
     fn add_assign(&mut self, rhs: Transposed<SubMat<T>>) {
-        self.add_assign(Scaled(T::one(), rhs))
+        *self += Scaled(T::one(), rhs)
     }
 }
 
 impl<'a, 'b, T> AddAssign<SubMat<'a, T>> for SubMatMut<'b, T> where T: Axpy + One {
     fn add_assign(&mut self, rhs: SubMat<T>) {
-        self.add_assign(Scaled(T::one(), rhs))
+        *self += Scaled(T::one(), rhs)
     }
 }
 
@@ -196,7 +197,7 @@ macro_rules! forward {
         $(
             impl<'a, 'b, 'c, T> AddAssign<$rhs> for $lhs where $(T: $bound),+ {
                 fn add_assign(&mut self, rhs: $rhs) {
-                    self.slice_mut(..).add_assign(rhs.slice(..))
+                    self.slice_mut(..) += rhs.slice(..)
                 }
             }
          )+
@@ -219,13 +220,13 @@ forward!(Mat<T> {
 
 impl<'a, T> AddAssign<&'a T> for Mat<T> where T: Axpy + One {
     fn add_assign(&mut self, rhs: &T) {
-        self.slice_mut(..).add_assign(rhs)
+        self.slice_mut(..) += rhs
     }
 }
 
 impl<T> AddAssign<T> for Mat<T> where T: Axpy + One {
     fn add_assign(&mut self, rhs: T) {
-        self.slice_mut(..).add_assign(&rhs)
+        self.slice_mut(..) += &rhs
     }
 }
 
@@ -245,13 +246,13 @@ forward!(Transposed<Mat<T>> {
 
 impl<'a, T> AddAssign<&'a T> for Transposed<Mat<T>> where T: Axpy + One {
     fn add_assign(&mut self, rhs: &T) {
-        self.slice_mut(..).add_assign(rhs)
+        self.slice_mut(..) += rhs
     }
 }
 
 impl<T> AddAssign<T> for Transposed<Mat<T>> where T: Axpy + One {
     fn add_assign(&mut self, rhs: T) {
-        self.slice_mut(..).add_assign(&rhs)
+        self.slice_mut(..) += &rhs
     }
 }
 
@@ -265,7 +266,7 @@ forward!(Transposed<SubMatMut<'a, T>> {
 
 impl<'a, T> AddAssign<T> for Transposed<SubMatMut<'a, T>> where T: Axpy + One {
     fn add_assign(&mut self, rhs: T) {
-        self.0.add_assign(&rhs)
+        self.0 += &rhs
     }
 }
 
@@ -279,6 +280,6 @@ forward!(SubMatMut<'a, T> {
 
 impl<'a, T> AddAssign<T> for SubMatMut<'a, T> where T: Axpy + One {
     fn add_assign(&mut self, rhs: T) {
-        self.add_assign(&rhs)
+        *self += &rhs
     }
 }

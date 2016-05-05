@@ -1,4 +1,5 @@
-use assign::AddAssign;
+use std::ops::AddAssign;
+
 use blas::Axpy;
 use onezero::One;
 
@@ -26,6 +27,6 @@ impl<'a, 'b, T> AddAssign<&'a T> for DiagMut<'b, T> where T: Axpy + One {
 // "Forwarding" implementations
 impl<'a, T> AddAssign<T> for DiagMut<'a, T> where T: Axpy + One {
     fn add_assign(&mut self, rhs: T) {
-        self.add_assign(&rhs)
+        *self += &rhs
     }
 }

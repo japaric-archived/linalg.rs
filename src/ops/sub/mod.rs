@@ -8,7 +8,7 @@ macro_rules! assign {
                 type Output = $lhs;
 
                 fn sub(mut self, rhs: $rhs) -> $lhs {
-                    self.sub_assign(rhs);
+                    self -= rhs;
                     self
                 }
             }

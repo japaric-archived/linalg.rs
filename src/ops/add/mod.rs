@@ -8,7 +8,7 @@ macro_rules! assign {
                 type Output = $lhs;
 
                 fn add(mut self, rhs: $rhs) -> $lhs {
-                    self.add_assign(rhs);
+                    self += rhs;
                     self
                 }
             }
@@ -17,7 +17,7 @@ macro_rules! assign {
                 type Output = $lhs;
 
                 fn add(self, mut rhs: $lhs) -> $lhs {
-                    rhs.add_assign(self);
+                    rhs += self;
                     rhs
                 }
             }
@@ -29,7 +29,7 @@ macro_rules! assign {
                 type Output = $lhs;
 
                 fn add(mut self, rhs: $rhs) -> $lhs {
-                    self.add_assign(rhs);
+                    self += rhs;
                     self
                 }
             }

@@ -1,6 +1,5 @@
-use std::ops::Neg;
+use std::ops::{Neg, SubAssign};
 
-use assign::SubAssign;
 use blas::Axpy;
 use onezero::One;
 
@@ -28,6 +27,6 @@ impl<'a, 'b, T> SubAssign<&'a T> for DiagMut<'b, T> where T: Axpy + Neg<Output=T
 // "Forwarding" implementations
 impl<'a, T> SubAssign<T> for DiagMut<'a, T> where T: Axpy + Neg<Output=T> + One {
     fn sub_assign(&mut self, rhs: T) {
-        self.sub_assign(&rhs)
+        *self -= &rhs
     }
 }
